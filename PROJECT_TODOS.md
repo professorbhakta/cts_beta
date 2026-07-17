@@ -7,7 +7,7 @@
 - [x] Routing: **go_router** with role-protected redirects + deep-link basics
 - [x] API layer consolidated under `core/network/`
 - [x] APK validation: debug APK built successfully at `build_android/app/outputs/apk/debug/app-debug.apk`
- - [ ] Git repository connected / remote verified
+ - [x] Git repository connected / remote verified (`origin` → professorbhakta/cts_beta, branch `beta-ver`)
 
 ## Next Features / Tasks
 
