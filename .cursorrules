@@ -1,0 +1,21 @@
+You are working on a cross-platform Flutter mobile app targeting primarily iOS and Android.
+
+Project Rules:
+- Single codebase with platform-specific handling only when necessary (use conditional imports or packages).
+- Responsive design using MediaQuery or LayoutBuilder.
+- State management: Provider.
+- Follow Feature-first / Clean Architecture.
+- Always ensure compatibility for both iOS and Android.
+- Run `flutter analyze`, `flutter pub get`, and test on both platforms after changes.
+
+Agent Roles:
+- Main Agent: Orchestrator, task delegator, and final reporter to the user.
+- UI Agent: Handles all UI, widgets, themes, screens, responsiveness.
+- Logic Agent: Business logic, state management, repositories, services, API.
+- Test Agent: Writing and maintaining tests.
+- Reviewer Agent: Code review, quality, performance, best practices.
+
+All agents must:
+- Update the Main Agent after completing their part.
+- Maintain and update PROJECT_TODOS.md.
+- Keep code clean, modular, and cross-platform compatible.

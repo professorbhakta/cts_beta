@@ -1,0 +1,99 @@
+/// Canonical route path constants for go_router + legacy call sites.
+class RouteName {
+  static const String splashScreen = '/splashScreen';
+  static const String signIn = '/signIn';
+  static const String signUp = '/signUp';
+
+  static const String profileScreen = '/profileScreen';
+  static const String noInternet = '/noInternet';
+
+  // D2D (path params enable deep links)
+  static const String d2dChannel = '/d2dChannel';
+  static const String d2dLog = '/d2dLog';
+
+  // Role homes
+  static const String adminHomeScreen = '/adminHomeScreen';
+  static const String driverHomeScreen = '/driverHomeScreen';
+  static const String commuterHomeScreen = '/commuterHomeScreen';
+
+  // Admin CRUD
+  static const String routeForm = '/routeForm';
+  static const String routeScreen = '/routeScreen';
+
+  static const String batchForm = '/batchForm';
+  static const String batchScreen = '/batchScreen';
+  static const String runningBatchScreen = '/runningBatchScreen';
+  static const String returnBatchScreen = '/returnBatchScreen';
+  static const String returnCommuterScreen = '/returnCommuterScreen';
+  static const String confirmReturnCommuterList = '/confirmReturnCommuterList';
+
+  static const String popForm = '/popForm';
+  static const String popScreen = '/popScreen';
+
+  static const String cabForm = '/cabForm';
+  static const String cabScreen = '/cabScreen';
+
+  static const String driverForm = '/driverForm';
+  static const String driverScreen = '/driverScreen';
+
+  static const String commuterForm = '/commuterForm';
+  static const String commuterListScreen = '/commuterListScreen';
+  static const String commuterScreen = '/commuterScreen';
+
+  // Offline temp module
+  static const String offlineTempHome = '/offlineTempHome';
+  static const String offlineBatchCommuters = '/offlineBatchCommuters';
+  static const String offlineRoutePops = '/offlineRoutePops';
+
+  /// Public routes (no login required).
+  static const Set<String> public = {
+    splashScreen,
+    signIn,
+    signUp,
+    noInternet,
+  };
+
+  /// Admin-only routes (CRUD + admin D2D channel).
+  static const Set<String> adminOnlyPrefixes = {
+    adminHomeScreen,
+    routeScreen,
+    routeForm,
+    batchScreen,
+    batchForm,
+    runningBatchScreen,
+    returnBatchScreen,
+    popScreen,
+    popForm,
+    cabScreen,
+    cabForm,
+    driverScreen,
+    driverForm,
+    commuterScreen,
+    commuterForm,
+    d2dChannel,
+  };
+
+  /// Driver role home + driver D2D log.
+  static const Set<String> driverOnlyPrefixes = {
+    driverHomeScreen,
+    d2dLog,
+  };
+
+  /// Commuter role home.
+  static const Set<String> commuterOnlyPrefixes = {
+    commuterHomeScreen,
+  };
+
+  static String homeForRole(String? userType) {
+    switch (userType) {
+      case 'ADMIN':
+        return adminHomeScreen;
+      case 'DRIVER':
+        return driverHomeScreen;
+      case 'COMMUTER':
+        return commuterHomeScreen;
+      default:
+        return signIn;
+    }
+  }
+}
