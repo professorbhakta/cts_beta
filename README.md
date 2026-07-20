@@ -1,6 +1,8 @@
 # cts_beta
 
-A new Flutter project.
+Cross-platform **Commuter Transport System (c2s)** — Flutter app for iOS and Android (admin, driver, and commuter roles).
+
+**Documentation:** [docs/START_HERE.md](docs/START_HERE.md) — onboarding, UI flows, code map, and debug wireframe gallery.
 
 ## Getting Started
 

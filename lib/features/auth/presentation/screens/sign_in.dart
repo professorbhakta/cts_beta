@@ -8,8 +8,9 @@ import 'package:cts/utils/validators.dart';
 import 'package:cts/shared/widgets/provider_listener.dart';
 import 'package:cts/shared/widgets/common_button.dart';
 import 'package:cts/shared/widgets/common_text_formfield.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -85,6 +86,25 @@ class _SignInScreenState extends State<SignInScreen> {
                       _buildLoginButton(signInProvider, scheme),
                       const SizedBox(height: 24.0),
                       _buildSignUpLink(scheme),
+                      if (kDebugMode) ...[
+                        const SizedBox(height: 16),
+                        Center(
+                          child: TextButton(
+                            onPressed: () => context.push(
+                              RouteName.designWireframeGallery,
+                            ),
+                            child: Text(
+                              'Preview UI wireframes (debug)',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
