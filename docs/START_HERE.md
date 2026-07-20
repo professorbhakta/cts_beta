@@ -8,14 +8,22 @@ This guide is for anyone new to the CTS (c2s) mobile app—product, design, QA, 
 
 ## 1. Pick your path
 
-| I am… | Read first | Then | Try in app (debug) |
-|--------|------------|------|---------------------|
-| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [guides/ADMIN_USER_GUIDE.md](./guides/ADMIN_USER_GUIDE.md) | [Wireframe gallery](./WIREFRAME_GALLERY.md) |
-| **Designer** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) §3 · [SCREENSHOTS.md](./SCREENSHOTS.md) | Wireframe gallery |
-| **New developer** | [CODE_MAP.md](./CODE_MAP.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) → [FEATURES.md](./FEATURES.md) | Run app → wireframes link |
-| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Role test accounts |
+| I am… | Read first | Then | Try layouts |
+|--------|------------|------|-------------|
+| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [guides/ADMIN_USER_GUIDE.md](./guides/ADMIN_USER_GUIDE.md) | **[wireframes/index.html](./wireframes/index.html)** (browser) |
+| **Designer** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) §3 · **[wireframes/](./wireframes/)** | **[wireframes/index.html](./wireframes/index.html)** locally |
+| **New developer** | [CODE_MAP.md](./CODE_MAP.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) → [FEATURES.md](./FEATURES.md) | HTML demo first; optional Flutter `/designWireframes` |
+| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) · [wireframes/INTERACTIONS.md](./wireframes/INTERACTIONS.md) | **[wireframes/index.html](./wireframes/index.html)** + role test accounts |
 
-Full doc index: [README.md](./README.md) (P1–P3 complete; screenshots PNGs optional).
+Full doc index: [README.md](./README.md) · Folder tree: [FOLDER_GUIDE.md](./FOLDER_GUIDE.md)
+
+### Documentation packs (all published)
+
+| Pack | Docs |
+|------|------|
+| **P1 Architecture** | [ARCHITECTURE.md](./ARCHITECTURE.md) · [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) · [FEATURES.md](./FEATURES.md) |
+| **P2 Operations** | [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md) · [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [TESTING.md](./TESTING.md) · [API_AND_ENV.md](./API_AND_ENV.md) |
+| **P3 Guides & visuals** | [guides/](./guides/) · **[wireframes/index.html](./wireframes/index.html)** · [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md) · [SCREENSHOTS.md](./SCREENSHOTS.md) |
 
 ---
 
@@ -55,13 +63,17 @@ Details: [CODE_MAP.md](./CODE_MAP.md).
 
 ---
 
-## 4. Wireframe gallery (debug builds)
+## 4. See layouts locally (no Flutter needed)
 
-No login required in **debug** mode:
+**Preferred for design review:** open the HTML gallery:
+
+1. Go to [wireframes/](./wireframes/)
+2. Open **`index.html`** in your browser (double-click or see [wireframes/README.md](./wireframes/README.md))
+
+**Optional — Flutter debug stubs:**
 
 1. Run the app (`flutter run`).
-2. On the **Sign in** screen, tap **Preview UI wireframes (debug)**,  
-   **or** open route `/designWireframes`.
+2. On **Sign in**, tap **Preview UI wireframes (debug)**, or open `/designWireframes`.
 
 See [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md).
 

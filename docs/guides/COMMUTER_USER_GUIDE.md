@@ -16,6 +16,8 @@ Short guide for **commuters** using the c2s app.
 
 ## Home screen
 
+<!-- After capture: ![Commuter home](../assets/screenshots/commuter/home.png) -->
+
 - Greeting with your name
 - **Today’s date**
 - **Coming today** switch — tells transport whether you are riding today

@@ -2,6 +2,8 @@
 
 Simple **click-path** guides. For the full route list, see [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md).
 
+**End-user how-tos:** [guides/ADMIN](./guides/ADMIN_USER_GUIDE.md) · [guides/DRIVER](./guides/DRIVER_USER_GUIDE.md) · [guides/COMMUTER](./guides/COMMUTER_USER_GUIDE.md)
+
 ---
 
 ## Admin

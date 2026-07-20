@@ -2,6 +2,12 @@
 
 Add **PNG** screenshots here for documentation.
 
+Category folders (ready for files):
+
+- `auth/` · `admin/` · `driver/` · `commuter/` · `shared/` · `offline/`
+
+Filenames: see [SCREENSHOTS.md](../../SCREENSHOTS.md).
+
 ## How to capture
 
 1. Run debug app on emulator or device: `flutter run`

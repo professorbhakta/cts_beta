@@ -16,6 +16,8 @@ Short guide for **drivers** using the c2s app.
 
 ## Your home screen
 
+<!-- After capture: ![Driver home](../assets/screenshots/driver/home.png) -->
+
 You see:
 
 - **Today’s date**
@@ -27,6 +29,8 @@ If nothing appears, pull to refresh or contact admin — you may not be assigned
 ---
 
 ## Start a trip (door-to-door)
+
+<!-- After capture: ![D2D log](../assets/screenshots/driver/d2d_log.png) -->
 
 1. Confirm assignment details
 2. Tap **START TRIP**

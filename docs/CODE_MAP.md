@@ -81,6 +81,13 @@ features/routes/
 
 | Topic | Doc |
 |-------|-----|
+| Start / folder tree | [START_HERE.md](./START_HERE.md) · [FOLDER_GUIDE.md](./FOLDER_GUIDE.md) |
+| Layers & DI (P1) | [ARCHITECTURE.md](./ARCHITECTURE.md) |
+| go_router & roles (P1) | [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) |
+| Feature catalog (P1) | [FEATURES.md](./FEATURES.md) |
+| Offline / sync (P2) | [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md) |
+| Build / API / tests (P2) | [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [API_AND_ENV.md](./API_AND_ENV.md) · [TESTING.md](./TESTING.md) |
+| User guides (P3) | [guides/README.md](./guides/README.md) |
 | Navigation matrix + wireframes ASCII | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
 | Role journeys | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) |
 | In-app wireframes | [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md) |

@@ -1,10 +1,12 @@
-# Wireframe gallery (in-app)
+# Wireframe gallery (in-app Flutter)
 
-Debug-only **layout previews**—same structure as production screens, **no API** and **no login** (debug builds).
+Debug-only **Flutter layout stubs**—same structure as production screens, **no API** and **no login** (debug builds).
+
+> **Prefer HTML for design review?** Open **[wireframes/index.html](./wireframes/index.html)** locally — see [wireframes/README.md](./wireframes/README.md). No Flutter required.
 
 ---
 
-## How to open
+## How to open (Flutter)
 
 ### Option A — From sign in (easiest)
 

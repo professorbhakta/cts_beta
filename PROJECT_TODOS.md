@@ -15,16 +15,17 @@
 
 ### Published
 
-- P0: FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE, WIREFRAME_GALLERY, wireframes in `lib/design/wireframes/`
+- P0: START_HERE, FOLDER_GUIDE, FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE, WIREFRAME_GALLERY, wireframes in `lib/design/wireframes/`
 - P1: ARCHITECTURE, ROUTING_AND_AUTH, FEATURES, DESIGN_SYSTEM_REVIEW
 - P2: OFFLINE_AND_SYNC, BUILD_AND_RELEASE, TESTING, API_AND_ENV
-- P3: guides/ (Admin, Driver, Commuter), SCREENSHOTS + assets/screenshots/ (PNGs pending capture)
-- Wireframes: `lib/design/wireframes/` + debug `/designWireframes` route
+- P3: guides/ (Admin, Driver, Commuter), SCREENSHOTS + assets/screenshots/ category folders (PNGs pending capture)
+- **Interactive HTML wireframes:** [docs/wireframes/index.html](docs/wireframes/index.html) (+ styles.css, app.js, DESIGN_SPEC, INTERACTIONS, DOCS_ANALYSIS) — preferred local demo
+- Optional Flutter stubs: `lib/design/wireframes/` + debug `/designWireframes` route
 
 ### Optional follow-up
 
 - [ ] Commit screenshot PNGs per [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md)
-- [ ] Embed screenshots in user guides
+- [ ] Uncomment screenshot embeds in [docs/guides/](docs/guides/)
 - [ ] Pilot semantic color tokens from [docs/DESIGN_SYSTEM_REVIEW.md](docs/DESIGN_SYSTEM_REVIEW.md) on Admin dashboard
 
 ## Next Features / Tasks

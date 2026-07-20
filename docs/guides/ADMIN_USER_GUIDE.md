@@ -12,9 +12,13 @@ Short guide for **transport administrators** using the c2s app.
 2. Enter **mobile** and **password**
 3. Tap **Login** → you land on the **Dashboard**
 
+<!-- After capture: ![Sign in](../assets/screenshots/auth/sign_in.png) -->
+
 ---
 
 ## Dashboard
+
+<!-- After capture: ![Dashboard](../assets/screenshots/admin/dashboard.png) -->
 
 - **Stat cards** — tap Batches, Commuters, Routes, etc. to open that section
 - **Quick actions** — add entities or open Running / Return batches without the drawer

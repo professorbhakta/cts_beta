@@ -77,5 +77,7 @@ Link from [guides/ADMIN_USER_GUIDE.md](./guides/ADMIN_USER_GUIDE.md) once images
 ## P3 status
 
 - [x] Folder structure and checklist (this doc)
+- [x] Category folders under `assets/screenshots/{auth,admin,driver,commuter,shared,offline}/`
+- [x] Placeholder image comments in [guides/](./guides/) (uncomment when PNGs exist)
 - [ ] PNG files committed (team to capture from device/emulator)
-- [ ] User guides updated with embedded images
+- [ ] Uncomment / enable embedded images in user guides
