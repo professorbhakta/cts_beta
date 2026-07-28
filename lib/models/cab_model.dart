@@ -1,4 +1,4 @@
-import 'package:cts/models/driver_model.dart';
+import 'package:cts/features/drivers/models/driver_model.dart';
 
 class CabModel {
   int? id;

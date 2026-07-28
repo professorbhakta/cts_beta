@@ -1,5 +1,5 @@
 import 'package:cts/design/wireframes/wireframe_primitives.dart';
-import 'package:cts/shared/widgets/quick_action_button.dart';
+import 'package:cts/widgets/quick_action_button.dart';
 import 'package:cts/appManager/colors.dart';
 import 'package:flutter/material.dart';
 

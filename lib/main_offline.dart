@@ -1,5 +1,5 @@
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/routes.dart';
+import 'package:cts/app/router/route_names.dart';
 import 'package:cts/offline_temp/data/offline_temp_database.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
 import 'package:cts/offline_temp/screens/offline_batch_commuters_screen.dart';

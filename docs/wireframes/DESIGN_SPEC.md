@@ -4,7 +4,7 @@ Source of truth for developers implementing or reviewing UI against this interac
 
 **Open demo:** [index.html](./index.html) · **Tap checklist:** [INTERACTIONS.md](./INTERACTIONS.md) · **Docs audit:** [DOCS_ANALYSIS.md](./DOCS_ANALYSIS.md)
 
-Brand tokens: `lib/appManager/colors.dart` · Themes: `lib/app/theme/app_theme.dart` · Psychology notes: [DESIGN_SYSTEM_REVIEW.md](../DESIGN_SYSTEM_REVIEW.md)
+Brand tokens: `lib/appManager/colors.dart` · Themes: `lib/theme/app_theme.dart` · Psychology notes: [DESIGN_SYSTEM_REVIEW.md](../DESIGN_SYSTEM_REVIEW.md)
 
 ---
 
@@ -45,8 +45,11 @@ Brand tokens: `lib/appManager/colors.dart` · Themes: `lib/app/theme/app_theme.d
 | offline | OfflineHomeScreen | `offlineTempHome` | OfflineTempProvider | offline_temp |
 | offlineRoutePops | OfflineRoutePopsScreen | `offlineRoutePops` | OfflineTempProvider | offline_temp |
 | offlineBatchCommuters | OfflineBatchCommutersScreen | `offlineBatchCommuters` | OfflineTempProvider | offline_temp |
+| offlineCommuterForm | OfflineCommuterFormScreen | nested `Navigator.push` | OfflineTempProvider | offline_temp |
 
-Router: `lib/app/router/app_router.dart` · Names: `route_names.dart` · DI: `lib/app/di/app_providers.dart`
+Router: `lib/app/router/app_router.dart` · Names: `route_names.dart` · DI: `lib/app/app_providers.dart`
+
+Prototype runtime: `app.js` → `screens` registry (`id`, `title`, `caption`, `route`, `widget`, `file`, `provider`, `render()`, optional `onEnter()`); helpers `showModal`, `showToast`, `startTour`, `toggleDevPanel`.
 
 ---
 

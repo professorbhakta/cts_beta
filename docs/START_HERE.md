@@ -32,8 +32,8 @@ Full doc index: [README.md](./README.md) · Folder tree: [FOLDER_GUIDE.md](./FOL
 - **Flutter** app for **iOS & Android**.
 - **Three roles:** Admin (manage transport), Driver (run trips), Commuter (mark “coming today”).
 - **Navigation:** `go_router` with login guards ([`lib/app/router/app_router.dart`](../lib/app/router/app_router.dart)).
-- **State:** Provider (`ChangeNotifier`) wired in [`lib/app/di/app_providers.dart`](../lib/app/di/app_providers.dart).
-- **UI building blocks:** [`lib/shared/widgets/`](../lib/shared/widgets/) (drawer, dashboard shell, lists, forms).
+- **State:** Provider (`ChangeNotifier`) wired in [`lib/app/app_providers.dart`](../lib/app/app_providers.dart).
+- **UI building blocks:** [`lib/widgets/`](../lib/widgets/) (drawer, dashboard shell, lists, forms).
 
 ```mermaid
 flowchart LR
@@ -55,7 +55,7 @@ flowchart LR
 |--------|------------------|
 | `lib/app/` | App entry, theme, router, dependency injection |
 | `lib/features/*/` | One folder per feature (screens + providers + data) |
-| `lib/shared/widgets/` | Reusable UI (drawer, buttons, list cards) |
+| `lib/widgets/` | Reusable UI (drawer, buttons, list cards) |
 | `lib/design/wireframes/` | Debug layout previews (no API) |
 | `docs/` | You are here |
 

@@ -27,7 +27,6 @@ class RouteName {
   static const String runningBatchScreen = '/runningBatchScreen';
   static const String returnBatchScreen = '/returnBatchScreen';
   static const String returnCommuterScreen = '/returnCommuterScreen';
-  static const String confirmReturnCommuterList = '/confirmReturnCommuterList';
 
   static const String popForm = '/popForm';
   static const String popScreen = '/popScreen';

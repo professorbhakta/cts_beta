@@ -55,7 +55,7 @@ Nested (no GoRoute): `CommuterListScreen`, `ReturnCommuterListScreen`, `OfflineC
 
 ## Provider registration
 
-All wired in [`lib/app/di/app_providers.dart`](../lib/app/di/app_providers.dart):
+All wired in [`lib/app/app_providers.dart`](../lib/app/app_providers.dart):
 
 - Repositories: `Provider<BatchRepository>.value(offlineFirstBatchRepository)` for batches; others `create:` with `BaseApiServices`
 - Global: `SessionAuthNotifier`, `SyncManager`, `ConnectivityService`, `SplashProvider`, auth providers

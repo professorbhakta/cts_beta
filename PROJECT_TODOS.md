@@ -2,7 +2,7 @@
 
 ## Current Status
 - [x] Cursor multi-agent system setup completed
-- [~] Project architecture migrating to Feature-first / Clean Architecture (Phases 0–7 done; 8 partial)
+- [~] Project architecture migrating to **human-friendly module layout** (see [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md); Phases 0–7 done; restructure Phases A–E pending)
 - [x] State management decision: **keep Provider** (Riverpod deferred)
 - [x] Routing: **go_router** with role-protected redirects + deep-link basics
 - [x] API layer consolidated under `core/network/`
@@ -58,7 +58,7 @@
 | Phase | Status | Notes |
 |-------|--------|-------|
 | **0** Scaffold `app/`, `shared/`, `features/` | Done | |
-| **1** Extract app shell + DI | Done | `lib/app/cts_app.dart`, `lib/app/di/app_providers.dart` |
+| **1** Extract app shell + DI | Done | `lib/app/cts_app.dart`, `lib/app/app_providers.dart` |
 | **2** Consolidate `api/` → `core/network` | Done | Canonical in `core/network/`; `lib/api/` re-exports |
 | **3** Widgets → `shared/` | Done | Legacy `widgets/` re-exports |
 | **4** Splash + auth | Done | `features/splash`, `features/auth` |
@@ -68,6 +68,16 @@
 | **8** admin_home, d2d, profile | Partial | Migrated earlier |
 | **9** Promote offline_temp | Pending | |
 | **10** Remove legacy + Reviewer | Pending | Re-export stubs still present |
+
+### Restructure for readability (new — [LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md))
+
+| Phase | Status | Action |
+|-------|--------|--------|
+| **A** Docs + rules | Done | `docs/LIB_STRUCTURE.md`, `lib/README.md`, `.cursorrules` |
+| **B** Flatten feature folders | Done (local) | All features use `screens/`, `providers/`, `models/`, `repositories/`; old `presentation/domain/data` paths are re-export stubs |
+| **C** Single canonical root | Pending | `widgets/`, `app/services/`, delete re-export stubs |
+| **D** Naming | Pending | `*_provider.dart`, move `AdminProvider`, reduce `AppClass` statics |
+| **E** Offline | Pending | Merge or isolate `offline_temp/` |
 
 ### Structure after Phase 7
 ```

@@ -1,6 +1,6 @@
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/design/wireframes/wireframe_primitives.dart';
-import 'package:cts/shared/widgets/common_button.dart';
+import 'package:cts/widgets/common_button.dart';
 import 'package:flutter/material.dart';
 
 class DriverHomeWireframe extends StatelessWidget {

@@ -1,6 +1,6 @@
 # Docs analysis → HTML wireframe coverage
 
-Audit of every markdown file under `docs/` (2026-07-20). Used to drive the interactive prototype in this folder.
+Audit of every markdown file under `docs/` (2026-07-21). Used to drive the interactive prototype in this folder.
 
 **Sources read:** README, START_HERE, FOLDER_GUIDE, CODE_MAP, UI_ARCHITECTURE, FLOWS_BY_ROLE, WIREFRAME_GALLERY, SCREENSHOTS, ARCHITECTURE, ROUTING_AND_AUTH, FEATURES, DESIGN_SYSTEM_REVIEW, OFFLINE_AND_SYNC, BUILD_AND_RELEASE, TESTING, API_AND_ENV, guides/* (Admin/Driver/Commuter/README), assets/screenshots/README, wireframes/README.
 
@@ -186,9 +186,9 @@ Role mood: Admin = charcoal + gold + teal live; Driver = high-contrast START / r
 - [x] Batch → nested CommuterList  
 - [x] Driver home → D2D Log → stop  
 - [x] Commuter home + coming confirm  
-- [x] Offline tabs + FAB + sync toast  
+- [x] Offline tabs + FAB + offline commuter form + sync toast  
 - [x] Profile logout  
 - [x] Breadcrumbs, captions, Dev panel, map overlay  
 - [x] DESIGN_SPEC.md + INTERACTIONS.md + README  
 
-**Cross-check (2026-07-20):** HTML demo covers every user-facing screen in §1 except `NoInternetError` (legacy) and Flutter-only `/designWireframes`. Ops docs (BUILD/API/TESTING internals) intentionally out of UI scope (§6).
+**Cross-check (2026-07-21):** HTML demo covers every user-facing screen in §1 except `NoInternetError` (legacy) and Flutter-only `/designWireframes`. `OfflineCommuterFormScreen` is a nested push from the People tab FAB. Ops docs (BUILD/API/TESTING internals) intentionally out of UI scope (§6).

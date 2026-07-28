@@ -9,8 +9,8 @@ import 'package:cts/models/pop_model.dart';
 import 'package:cts/utils/cab_sort_options.dart';
 import 'package:cts/utils/pop_sort_options.dart';
 
-export 'package:cts/features/commuters/domain/utils/commuter_sort_utils.dart';
-export 'package:cts/features/drivers/domain/utils/driver_sort_utils.dart';
+export 'package:cts/features/commuters/utils/commuter_sort_utils.dart';
+export 'package:cts/features/drivers/utils/driver_sort_utils.dart';
 
 /// Sorts a list of items in A-Z order based on a string field
 ///

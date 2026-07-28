@@ -1,4 +1,4 @@
-import 'package:cts/models/commuter_model.dart';
+import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/models/pop_model.dart';
 
 class D2dCommuterModel {

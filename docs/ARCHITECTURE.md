@@ -2,17 +2,18 @@
 
 How the CTS (c2s) Flutter app is structured: layers, startup, dependency injection, and data flow.
 
-**See also:** [CODE_MAP.md](./CODE_MAP.md) · [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) · [FEATURES.md](./FEATURES.md)
+**See also:** [LIB_STRUCTURE.md](./LIB_STRUCTURE.md) · [CODE_MAP.md](./CODE_MAP.md) · [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) · [FEATURES.md](./FEATURES.md)
 
 ---
 
 ## Goals
 
 - **Single codebase** for iOS and Android
-- **Feature-first** modules under `lib/features/`
-- **Clean Architecture** per feature: `data` → `domain` → `presentation`
+- **Module-based layout** under `lib/features/` with familiar folders: `screens/`, `providers/`, `models/`, `repositories/` (see [LIB_STRUCTURE.md](./LIB_STRUCTURE.md))
+- **Separation of concerns** — UI → Provider → Repository → API (without `data/domain/presentation` folder jargon)
 - **Provider** (`ChangeNotifier`) for app-wide state
 - **go_router** for navigation and role guards
+- **One canonical path per file** — no re-export stub folders
 
 ---
 
@@ -75,24 +76,29 @@ flowchart TB
 
 ## `lib/` layout
 
+**Human-readable map:** [LIB_STRUCTURE.md](./LIB_STRUCTURE.md) · on-boarding: [../lib/README.md](../lib/README.md)
+
 | Path | Role |
 |------|------|
-| `lib/app/` | `CtsApp`, `AppTheme`, `createAppRouter`, `AppProviders` |
-| `lib/core/network/` | Dio client, connectivity, env helpers |
+| `lib/app/` | `CtsApp`, theme, router, `AppProviders` |
+| `lib/api/` | HTTP client, endpoints, API helpers |
 | `lib/core/sync/` | `SyncManager` — offline mutation queue |
-| `lib/features/<name>/` | Feature modules (preferred) |
-| `lib/shared/widgets/` | Reusable UI |
-| `lib/domain/` | Shared repositories / use cases (auth session) |
-| `lib/data/` | Shared data (session, auth impl, local DB) |
-| `lib/offline_temp/` | Prototype offline UI + local store (not full production offline) |
+| `lib/core/network/` | Dio implementation (import via `api/` where possible) |
+| `lib/features/<name>/` | Business modules: `screens/`, `providers/`, `models/`, `repositories/` |
+| `lib/widgets/` | Shared UI (canonical; `shared/widgets/` merging here) |
+| `lib/models/` | Shared models only (e.g. `UserModel`) |
+| `lib/screens/` | App-level screens only (splash, errors) |
+| `lib/data/` | Shared session/auth impl + local DB (app infrastructure) |
+| `lib/domain/` | Shared auth/session contracts + use cases |
+| `lib/offline_temp/` | Prototype offline UI (pending merge or isolation) |
 | `lib/design/wireframes/` | Debug layout gallery only |
-| `lib/appManager/`, `lib/controllers/`, `lib/screens/` | Legacy; many re-export features |
+| `lib/appManager/`, legacy `controllers/`, duplicate `screens/` | **Being removed** — re-export stubs only; do not add code here |
 
 ---
 
 ## Dependency injection (Provider)
 
-All providers are registered in [`lib/app/di/app_providers.dart`](../lib/app/di/app_providers.dart).
+All providers are registered in [`lib/app/app_providers.dart`](../lib/app/app_providers.dart).
 
 | Kind | Examples |
 |------|----------|

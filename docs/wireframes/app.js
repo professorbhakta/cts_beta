@@ -1,7 +1,7 @@
 /**
  * CTS interactive wireframe prototype
  * Dual audience: guided product demo + developer design reference
- * Maps to Flutter: RouteName.*, FEATURES.md, UI_ARCHITECTURE.md
+ * Architecture: central `screens` registry, showModal/showToast/toggleDevPanel/startTour
  */
 (function () {
   "use strict";
@@ -69,7 +69,7 @@
       widget: "SplashScreen",
       route: "RouteName.splashScreen",
       path: "/splashScreen",
-      file: "lib/features/splash/.../splash_screen.dart",
+      file: "lib/features/splash/presentation/screens/splash_screen.dart",
       provider: "SplashProvider",
       md: "ROUTING_AND_AUTH.md · UI_ARCHITECTURE §1",
       caption: "App launch resolves your session, then sends you to sign-in or your role home.",
@@ -96,7 +96,7 @@
       widget: "AdminMainScreen",
       route: "RouteName.adminHomeScreen",
       path: "/adminHomeScreen",
-      file: "lib/features/admin_home/.../admin_home_screen.dart",
+      file: "lib/features/admin_home/presentation/screens/admin_home_screen.dart",
       provider: "AdminProvider",
       shell: "DashboardShell + AppDrawer",
       md: "guides/ADMIN · FLOWS · FEATURES",
@@ -126,7 +126,7 @@
       widget: "PopScreen",
       route: "RouteName.popScreen",
       path: "/popScreen",
-      file: "lib/features/pops/.../pop_screen.dart",
+      file: "lib/features/pops/presentation/screens/pop_screen.dart",
       provider: "PopProvider",
       md: "FEATURES · ADMIN guide",
       caption: "Pick-up points (POPs) — same list CRUD pattern as Routes.",
@@ -135,7 +135,7 @@
       widget: "PopForm",
       route: "RouteName.popForm",
       path: "/popForm",
-      file: "lib/features/pops/.../pop_form.dart",
+      file: "lib/features/pops/presentation/forms/pop_form.dart",
       provider: "PopFormProvider",
       md: "FEATURES",
       caption: "Create or edit a pick-up point.",
@@ -144,7 +144,7 @@
       widget: "BatchScreen",
       route: "RouteName.batchScreen",
       path: "/batchScreen",
-      file: "lib/features/batches/.../batch_screen.dart",
+      file: "lib/features/batches/presentation/screens/batch_screen.dart",
       provider: "BatchProvider",
       md: "FEATURES · OFFLINE_AND_SYNC (offline-first)",
       caption: "Schedules and assignments. AppBar return icon opens return batches; row opens nested commuters.",
@@ -153,7 +153,7 @@
       widget: "BatchForm",
       route: "RouteName.batchForm",
       path: "/batchForm",
-      file: "lib/features/batches/.../batch_form.dart",
+      file: "lib/features/batches/presentation/forms/batch_form.dart",
       provider: "BatchFormProvider",
       md: "FEATURES",
       caption: "Create or edit a batch (name, times).",
@@ -162,7 +162,7 @@
       widget: "RunningBatchScreen",
       route: "RouteName.runningBatchScreen",
       path: "/runningBatchScreen",
-      file: "lib/features/batches/.../running_batch_screen.dart",
+      file: "lib/features/batches/presentation/screens/running_batch_screen.dart",
       provider: "RunningBatchProvider",
       md: "FLOWS · ADMIN guide · SCREENSHOTS",
       caption: "Live trips. Tap a batch card to open the admin D2D Channel.",
@@ -171,7 +171,7 @@
       widget: "ReturningBatchScreen",
       route: "RouteName.returnBatchScreen",
       path: "/returnBatchScreen",
-      file: "lib/features/batches/.../returning_batch_screen.dart",
+      file: "lib/features/batches/presentation/screens/returning_batch_screen.dart",
       provider: "ReturnBatchProvider",
       md: "FLOWS · ADMIN guide",
       caption: "Return-trip batches. Tap a row for the nested return-commuter list.",
@@ -180,7 +180,7 @@
       widget: "CabScreen",
       route: "RouteName.cabScreen",
       path: "/cabScreen",
-      file: "lib/features/cabs/.../cab_screen.dart",
+      file: "lib/features/cabs/presentation/screens/cab_screen.dart",
       provider: "CabProvider",
       md: "FEATURES",
       caption: "Vehicles — list CRUD pattern.",
@@ -189,7 +189,7 @@
       widget: "CabForm",
       route: "RouteName.cabForm",
       path: "/cabForm",
-      file: "lib/features/cabs/.../cab_form.dart",
+      file: "lib/features/cabs/presentation/forms/cab_form.dart",
       provider: "CabFormProvider",
       md: "FEATURES",
       caption: "Create or edit a cab.",
@@ -198,7 +198,7 @@
       widget: "DriverScreen",
       route: "RouteName.driverScreen",
       path: "/driverScreen",
-      file: "lib/features/drivers/.../driver_screen.dart",
+      file: "lib/features/drivers/presentation/screens/driver_screen.dart",
       provider: "DriverProvider",
       md: "FEATURES",
       caption: "Driver accounts managed by admin.",
@@ -207,7 +207,7 @@
       widget: "DriverForm",
       route: "RouteName.driverForm",
       path: "/driverForm",
-      file: "lib/features/drivers/.../driver_form.dart",
+      file: "lib/features/drivers/presentation/forms/driver_form.dart",
       provider: "DriverFormProvider",
       md: "FEATURES",
       caption: "Create or edit a driver.",
@@ -216,7 +216,7 @@
       widget: "CommuterScreen",
       route: "RouteName.commuterScreen",
       path: "/commuterScreen",
-      file: "lib/features/commuters/.../commuter_screen.dart",
+      file: "lib/features/commuters/presentation/screens/commuter_screen.dart",
       provider: "CommuterController",
       md: "FEATURES · ADMIN guide",
       caption: "All commuters — list CRUD pattern.",
@@ -225,7 +225,7 @@
       widget: "CommuterForm",
       route: "RouteName.commuterForm",
       path: "/commuterForm",
-      file: "lib/features/commuters/.../commuter_form.dart",
+      file: "lib/features/commuters/presentation/forms/commuter_form.dart",
       provider: "CommuterFormProvider",
       md: "FEATURES",
       caption: "Create or edit a commuter.",
@@ -234,7 +234,7 @@
       widget: "CommuterListScreen",
       route: "Navigator.push (nested)",
       path: "(not in GoRouter)",
-      file: "lib/features/commuters/.../commuter_list_screen.dart",
+      file: "lib/features/commuters/presentation/screens/commuter_list_screen.dart",
       provider: "CommuterController",
       md: "UI_ARCHITECTURE · FLOWS",
       caption: "Commuters assigned to one batch (nested push from Batch list).",
@@ -243,7 +243,7 @@
       widget: "ReturnCommuterListScreen",
       route: "Navigator.push (nested)",
       path: "(not in GoRouter)",
-      file: "lib/features/commuters/.../return_commuter_list_screen.dart",
+      file: "lib/features/commuters/presentation/screens/return_batch_commuter_screen.dart",
       provider: "ReturnBatchProvider",
       md: "UI_ARCHITECTURE · FLOWS",
       caption: "Confirm / manage return-trip riders for a batch.",
@@ -252,7 +252,7 @@
       widget: "D2dChannel",
       route: "RouteName.d2dChannel",
       path: "/d2dChannel/:batchId",
-      file: "lib/features/d2d/.../d2d_channel.dart",
+      file: "lib/features/d2d/presentation/screens/d2d_channel.dart",
       provider: "D2dChannelProvider",
       shell: "DashboardShell",
       md: "FLOWS · SCREENSHOTS",
@@ -262,7 +262,7 @@
       widget: "DriverHomePage",
       route: "RouteName.driverHomeScreen",
       path: "/driverHomeScreen",
-      file: "lib/features/drivers/.../driver_home_page.dart",
+      file: "lib/features/drivers/presentation/screens/driver_home_page.dart",
       provider: "DriverHomeProvider",
       shell: "BrandAppBar + AppDrawer",
       md: "guides/DRIVER · FLOWS",
@@ -272,7 +272,7 @@
       widget: "D2DLogScreen",
       route: "RouteName.d2dLog",
       path: "/d2dLog/:batchId",
-      file: "lib/features/d2d/.../d2d_log_screen.dart",
+      file: "lib/features/d2d/presentation/screens/d2d_log_screen.dart",
       provider: "D2dChannelProvider",
       shell: "BrandAppBar",
       md: "guides/DRIVER · TESTING",
@@ -282,7 +282,7 @@
       widget: "CommuterHomePage",
       route: "RouteName.commuterHomeScreen",
       path: "/commuterHomeScreen",
-      file: "lib/features/commuters/.../commuter_home_page.dart",
+      file: "lib/features/commuters/presentation/screens/commuter_home_page.dart",
       provider: "CommuterHomeProvider",
       shell: "BrandAppBar",
       md: "guides/COMMUTER · FLOWS",
@@ -292,7 +292,7 @@
       widget: "ProfileScreen",
       route: "RouteName.profileScreen",
       path: "/profileScreen",
-      file: "lib/features/profile/.../profile_screen.dart",
+      file: "lib/features/profile/presentation/screens/profile_screen.dart",
       provider: "SignInProvider (logout)",
       md: "ROUTING_AND_AUTH · guides",
       caption: "Your details. Logout clears session and returns to sign-in.",
@@ -310,7 +310,7 @@
       widget: "OfflineRoutePopsScreen",
       route: "RouteName.offlineRoutePops",
       path: "/offlineRoutePops/:routeId",
-      file: "lib/offline_temp/screens/...",
+      file: "lib/offline_temp/screens/offline_route_pops_screen.dart",
       provider: "OfflineTempProvider",
       md: "FEATURES · OFFLINE",
       caption: "POPs for one offline route (drill-down).",
@@ -319,10 +319,19 @@
       widget: "OfflineBatchCommutersScreen",
       route: "RouteName.offlineBatchCommuters",
       path: "/offlineBatchCommuters/:batchId",
-      file: "lib/offline_temp/screens/...",
+      file: "lib/offline_temp/screens/offline_batch_commuters_screen.dart",
       provider: "OfflineTempProvider",
       md: "FEATURES · OFFLINE",
       caption: "Commuters for one offline batch (drill-down).",
+    },
+    offlineCommuterForm: {
+      widget: "OfflineCommuterFormScreen",
+      route: "Navigator.push (nested)",
+      path: "(not in GoRouter)",
+      file: "lib/offline_temp/screens/offline_commuter_form_screen.dart",
+      provider: "OfflineTempProvider",
+      md: "FEATURES · OFFLINE",
+      caption: "Add or edit a commuter in the offline temp store (People tab FAB).",
     },
   };
 
@@ -479,6 +488,7 @@
   // ---------- Navigation ----------
   function navigate(screenId, opts) {
     opts = opts || {};
+    const prev = state.screen;
     if (!opts.replace && state.screen !== "landing" && state.screen !== screenId) {
       state.history.push(state.screen);
     }
@@ -490,6 +500,9 @@
     if (opts.role) state.role = opts.role;
     location.hash = screenId === "landing" ? "" : screenId;
     render();
+    if (prev !== screenId && screens[screenId] && screens[screenId].onEnter) {
+      screens[screenId].onEnter();
+    }
   }
 
   function goBack() {
@@ -530,6 +543,7 @@
     clearTimeout(t._timer);
     t._timer = setTimeout(() => t.classList.remove("show"), 2400);
   }
+  const showToast = toast;
 
   function confirmDialog(cfg) {
     return new Promise((resolve) => {
@@ -537,8 +551,8 @@
       root.classList.add("open");
       root.innerHTML =
         '<div class="modal-backdrop" data-act="cancel"></div>' +
-        '<div class="modal-card" role="dialog" aria-modal="true">' +
-        '<div class="mtitle"><span class="mi">' +
+        '<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">' +
+        '<div class="mtitle" id="modal-title"><span class="mi">' +
         (cfg.icon || "🗑") +
         "</span>" +
         esc(cfg.title) +
@@ -557,16 +571,30 @@
         "</button>" +
         "</div></div>";
       const done = (v) => {
+        document.removeEventListener("keydown", onKey);
         root.classList.remove("open");
         root.innerHTML = "";
+        root.onclick = null;
         resolve(v);
       };
+      const onKey = (e) => {
+        if (e.key === "Escape") done(false);
+      };
+      document.addEventListener("keydown", onKey);
       root.onclick = (e) => {
         const act = e.target.getAttribute("data-act");
         if (act === "cancel") done(false);
         if (act === "ok") done(true);
       };
+      const okBtn = root.querySelector('[data-act="ok"]');
+      if (okBtn) okBtn.focus();
     });
+  }
+  const showModal = confirmDialog;
+
+  function toggleDevPanel() {
+    state.showDev = !state.showDev;
+    render();
   }
 
   function esc(s) {
@@ -683,9 +711,6 @@
 
   // ---------- Screens ----------
   function renderSplash() {
-    setTimeout(() => {
-      if (state.screen === "splash") navigate("signIn", { replace: true });
-    }, 1200);
     return (
       '<div class="screen-root">' +
       statusBar() +
@@ -1197,28 +1222,81 @@
     );
   }
 
+  function renderOfflineCommuterForm() {
+    return (
+      '<div class="screen-root">' +
+      statusBar() +
+      appBar("Offline Commuter", { noDrawer: true }) +
+      '<div class="phone-body">' +
+      '<div class="form-header"><span>👤</span> Add offline commuter</div>' +
+      '<div class="field-label">Name</div><input class="field-input" id="offline-comm-name" placeholder="Full name" />' +
+      '<div class="field-label">Mobile</div><input class="field-input" placeholder="10-digit mobile" />' +
+      '<div class="btn-row">' +
+      '<button type="button" class="btn-block outline" data-act="goto" data-to="offline">Cancel</button>' +
+      '<button type="button" class="btn-block primary" data-act="offline-form-save">Save locally</button>' +
+      "</div></div></div>"
+    );
+  }
+
+  function onSplashEnter() {
+    clearTimeout(onSplashEnter._timer);
+    onSplashEnter._timer = setTimeout(() => {
+      if (state.screen === "splash") navigate("signIn", { replace: true });
+    }, 1200);
+  }
+
+  /** Central screens registry: id → metadata + render() (+ optional onEnter) */
+  const screens = {};
+
+  function registerScreen(id, renderFn, onEnter) {
+    const meta = META[id] || {};
+    screens[id] = {
+      id,
+      title: meta.widget || id,
+      caption: meta.caption || "",
+      role: null,
+      route: meta.route || "",
+      widget: meta.widget || "",
+      file: meta.file || "",
+      provider: meta.provider || "",
+      render: renderFn,
+      onEnter: onEnter || null,
+    };
+  }
+
+  function buildScreensRegistry() {
+    registerScreen("splash", renderSplash, onSplashEnter);
+    registerScreen("signIn", renderSignIn);
+    registerScreen("signUp", renderSignUp);
+    registerScreen("adminHome", renderAdminHome);
+    registerScreen("running", renderRunning);
+    registerScreen("returning", renderReturning);
+    registerScreen("commuterList", renderCommuterList);
+    registerScreen("returnCommuterList", renderReturnCommuterList);
+    registerScreen("d2dChannel", renderD2dChannel);
+    registerScreen("driverHome", renderDriverHome);
+    registerScreen("d2dLog", renderD2dLog);
+    registerScreen("commuterHome", renderCommuterHome);
+    registerScreen("profile", renderProfile);
+    registerScreen("offline", renderOffline);
+    registerScreen("offlineRoutePops", () => renderOfflineDrill("pops"));
+    registerScreen("offlineBatchCommuters", () => renderOfflineDrill("commuters"));
+    registerScreen("offlineCommuterForm", renderOfflineCommuterForm);
+    Object.values(CRUD).forEach((cfg) => {
+      registerScreen(cfg.listId, () => renderCrudList(cfg));
+      registerScreen(cfg.formId, () => renderCrudForm(cfg));
+    });
+  }
+  buildScreensRegistry();
+
+  function isKnownScreen(id) {
+    return Boolean(id && screens[id]);
+  }
+
   // ---------- Main render ----------
   function renderPhone() {
-    const s = state.screen;
-    if (s === "splash") return renderSplash();
-    if (s === "signIn") return renderSignIn();
-    if (s === "signUp") return renderSignUp();
-    if (s === "adminHome") return renderAdminHome();
-    if (CRUD[s]) return renderCrudList(CRUD[s]);
-    const formEntity = Object.values(CRUD).find((c) => c.formId === s);
-    if (formEntity) return renderCrudForm(formEntity);
-    if (s === "running") return renderRunning();
-    if (s === "returning") return renderReturning();
-    if (s === "commuterList") return renderCommuterList();
-    if (s === "returnCommuterList") return renderReturnCommuterList();
-    if (s === "d2dChannel") return renderD2dChannel();
-    if (s === "driverHome") return renderDriverHome();
-    if (s === "d2dLog") return renderD2dLog();
-    if (s === "commuterHome") return renderCommuterHome();
-    if (s === "profile") return renderProfile();
-    if (s === "offline") return renderOffline();
-    if (s === "offlineRoutePops") return renderOfflineDrill("pops");
-    if (s === "offlineBatchCommuters") return renderOfflineDrill("commuters");
+    const scr = screens[state.screen];
+    if (scr) return scr.render();
     return renderSignIn();
   }
 
@@ -1587,14 +1665,21 @@
     if (act === "offline-fab") {
       if (state.offlineTab === 3) toast("Export regenerated", "success");
       else if (state.offlineTab === 2) {
-        store.offlinePeople.push({
-          id: ++store.nextId,
-          name: "New offline user",
-          sub: "unsynced",
-        });
-        toast("Commuter form → saved locally", "success");
-        render();
+        state.offlineTab = 2;
+        navigate("offlineCommuterForm");
       } else toast("Add on this tab (demo)", "success");
+      return;
+    }
+    if (act === "offline-form-save") {
+      const nameEl = $("#offline-comm-name");
+      const name = (nameEl && nameEl.value.trim()) || "New offline user";
+      store.offlinePeople.push({
+        id: ++store.nextId,
+        name,
+        sub: "unsynced",
+      });
+      toast("Commuter saved locally", "success");
+      navigate("offline");
       return;
     }
     if (act === "offline-route") {
@@ -1680,10 +1765,7 @@
 
     $("#btn-back").addEventListener("click", goBack);
     $("#btn-home").addEventListener("click", showLanding);
-    $("#btn-dev").addEventListener("click", () => {
-      state.showDev = !state.showDev;
-      render();
-    });
+    $("#btn-dev").addEventListener("click", toggleDevPanel);
     $("#btn-map").addEventListener("click", () => {
       state.showMap = !state.showMap;
       render();
@@ -1715,7 +1797,7 @@
         showLanding();
         return;
       }
-      if (META[h] || CRUD[h] || Object.values(CRUD).some((c) => c.formId === h)) {
+      if (isKnownScreen(h)) {
         if (!els.demo.classList.contains("active")) {
           els.landing.classList.remove("active");
           els.demo.classList.add("active");
@@ -1730,13 +1812,23 @@
   document.addEventListener("DOMContentLoaded", () => {
     bind();
     const h = location.hash.replace(/^#/, "");
-    if (h && (META[h] || CRUD[h])) {
+    if (isKnownScreen(h)) {
       els.landing.classList.remove("active");
       els.demo.classList.add("active");
       state.screen = h;
       render();
+      if (screens[h] && screens[h].onEnter) screens[h].onEnter();
     } else {
       showLanding();
     }
   });
+
+  window.CTS = {
+    screens,
+    navigate,
+    showToast,
+    showModal,
+    startTour,
+    toggleDevPanel,
+  };
 })();

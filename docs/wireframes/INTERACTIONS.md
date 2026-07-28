@@ -79,7 +79,8 @@ Legend: ✅ implemented in HTML demo
 | Flow | Tap path | Status |
 |------|----------|--------|
 | Bottom tabs | Routes / Batches / People / Out | ✅ |
-| FAB per tab | Add / export toast | ✅ |
+| People tab FAB | → OfflineCommuterForm → Save locally → list | ✅ |
+| Other tab FAB | Routes/Batches add toast; Out tab export toast | ✅ |
 | Route drill-down | Tap offline route → Offline POPs | ✅ |
 | Batch drill-down | Tap offline batch → Offline Commuters | ✅ |
 | Overflow menu | ⋮ → toast (import/dump/refresh) | ✅ |

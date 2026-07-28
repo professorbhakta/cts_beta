@@ -1,5 +1,5 @@
 import 'package:cts/app/cts_app.dart';
-import 'package:cts/app/di/app_providers.dart';
+import 'package:cts/app/app_providers.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/data/local/database/app_database.dart';
 import 'package:cts/offline_temp/data/offline_temp_database.dart';

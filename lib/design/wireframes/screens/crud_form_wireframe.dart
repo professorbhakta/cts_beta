@@ -1,6 +1,6 @@
 import 'package:cts/design/wireframes/wireframe_primitives.dart';
-import 'package:cts/shared/widgets/admin_form_header.dart';
-import 'package:cts/shared/widgets/common_button.dart';
+import 'package:cts/widgets/admin_form_header.dart';
+import 'package:cts/widgets/common_button.dart';
 import 'package:flutter/material.dart';
 
 class CrudFormWireframe extends StatelessWidget {

@@ -4,7 +4,10 @@ Project Rules:
 - Single codebase with platform-specific handling only when necessary (use conditional imports or packages).
 - Responsive design using MediaQuery or LayoutBuilder.
 - State management: Provider.
-- Follow Feature-first / Clean Architecture.
+- Follow the **module-based layout** documented in `docs/LIB_STRUCTURE.md` and `lib/README.md`.
+- Inside each feature use: `screens/`, `forms/`, `providers/`, `models/`, `repositories/` — NOT `presentation/`, `domain/`, or `data/`.
+- Root folders: `app/`, `api/`, `widgets/`, `models/` (shared only), `features/`, `core/` (infra).
+- Never add re-export stub files; one canonical path per file.
 - Always ensure compatibility for both iOS and Android.
 - Run `flutter analyze`, `flutter pub get`, and test on both platforms after changes.
 

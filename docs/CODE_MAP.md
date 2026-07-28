@@ -8,18 +8,20 @@ Where code lives and how it connects—**read after** [START_HERE.md](./START_HE
 
 ```
 lib/
-├── app/                 # Bootstrap: CtsApp, theme, router, Provider DI
-├── core/                # Network, sync, shared infrastructure
-├── features/            # Feature-first modules (preferred home for new code)
-├── shared/widgets/      # Shared UI components
+├── app/                 # Bootstrap: CtsApp, router, Provider DI
+├── api/                 # HTTP client, endpoints, connectivity
+├── core/sync/           # SyncManager (offline queue)
+├── features/            # Feature-first modules (main product code)
+├── widgets/             # Shared UI components
 ├── design/wireframes/   # Debug layout gallery only
 ├── offline_temp/        # Offline prototype module
-├── appManager/          # Legacy helpers (colors, AppManager, view state)
-├── screens/             # Legacy / misc screens
-├── controllers/         # Legacy re-exports (migrating to features/)
-├── models/              # Shared models (some features have own domain models)
-├── domain/              # Shared domain (auth session use cases)
-└── data/                # Shared data implementations
+├── appManager/          # Session globals, colors, snackbar, view state
+├── screens/             # App-wide error + no-internet screens
+├── models/              # Shared models (User, Cab, Route, Pop, D2D)
+├── domain/              # Auth/session contracts + use cases
+├── data/                # SQLite, cache, auth/session implementations
+├── theme/               # AppTheme
+└── utils/               # Validators, sort helpers
 ```
 
 ---
@@ -30,12 +32,10 @@ Most features under `lib/features/<name>/`:
 
 ```
 features/routes/
-├── data/           # repositories impl, API calls
-├── domain/         # repository interfaces, models
-├── presentation/
-│   ├── screens/    # RouteScreen, etc.
-│   ├── forms/      # RouteForm
-│   └── providers/  # RouteController, RouteFormProvider
+├── screens/        # RouteScreen, etc.
+├── forms/          # RouteForm
+├── providers/      # RouteController, RouteFormProvider
+├── repositories/   # RouteRepository + impl
 └── index.dart      # Barrel exports
 ```
 
@@ -47,10 +47,10 @@ features/routes/
 
 | Order | File | Role |
 |-------|------|------|
-| 1 | `main.dart` | `AppProviders.bootstrapServices()` |
+| 1 | `main.dart` | DB init, `AppProviders.bootstrapServices()` |
 | 2 | `lib/app/cts_app.dart` | `MaterialApp.router` + theme |
 | 3 | `lib/app/router/app_router.dart` | Routes + auth redirects |
-| 4 | `lib/app/di/app_providers.dart` | All `ChangeNotifierProvider`s |
+| 4 | `lib/app/app_providers.dart` | All `ChangeNotifierProvider`s |
 
 ---
 
@@ -58,12 +58,12 @@ features/routes/
 
 | Widget | File | Used for |
 |--------|------|----------|
-| `DashboardShell` | `shared/widgets/dashboard_shell.dart` | Admin screens: drawer / rail + app bar |
-| `AppDrawer` / `AdminNavList` | `shared/widgets/app_drawer.dart` | Side navigation |
-| `BrandAppBar` | `shared/widgets/brand_app_bar.dart` | Driver / commuter / D2D top bar |
-| `SearchBarWidget` | `shared/widgets/search_bar_widget.dart` | CRUD list filter |
-| `ModernListCard` | `shared/widgets/modern_list_card.dart` | List rows |
-| `StatusMessage` | `shared/widgets/status_message.dart` | Empty / error states |
+| `DashboardShell` | `widgets/dashboard_shell.dart` | Admin screens: drawer / rail + app bar |
+| `AppDrawer` / `AdminNavList` | `widgets/app_drawer.dart` | Side navigation |
+| `BrandAppBar` | `widgets/brand_app_bar.dart` | Driver / commuter / D2D top bar |
+| `SearchBarWidget` | `widgets/search_bar_widget.dart` | CRUD list filter |
+| `ModernListCard` | `widgets/modern_list_card.dart` | List rows |
+| `StatusMessage` | `widgets/status_message.dart` | Empty / error states |
 
 ---
 

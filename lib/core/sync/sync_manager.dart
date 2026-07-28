@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:cts/api/api_result.dart';
-import 'package:cts/core/network/connectivity_service.dart';
+import 'package:cts/api/connectivity_service.dart';
 import 'package:cts/data/local/dao/sync_queue_dao.dart';
 import 'package:cts/data/local/database/app_database.dart';
 import 'package:cts/data/local/entity_type.dart';

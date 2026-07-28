@@ -1,7 +1,7 @@
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/design/wireframes/wireframe_primitives.dart';
-import 'package:cts/shared/widgets/modern_list_card.dart';
-import 'package:cts/shared/widgets/search_bar_widget.dart';
+import 'package:cts/widgets/modern_list_card.dart';
+import 'package:cts/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 
 class CrudListWireframe extends StatelessWidget {

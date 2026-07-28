@@ -1,32 +1,33 @@
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/appManager/d2d_route_args.dart';
-import 'package:cts/features/auth/presentation/screens/sign_in.dart';
-import 'package:cts/features/auth/presentation/screens/sign_up.dart';
-import 'package:cts/features/d2d/presentation/screens/d2d_channel.dart';
-import 'package:cts/features/d2d/presentation/screens/d2d_log_screen.dart';
-import 'package:cts/features/profile/presentation/screens/profile_screen.dart';
-import 'package:cts/features/splash/presentation/screens/splash_screen.dart';
+import 'package:cts/features/auth/screens/sign_in.dart';
+import 'package:cts/features/auth/screens/sign_up.dart';
+import 'package:cts/features/d2d/screens/d2d_channel.dart';
+import 'package:cts/features/d2d/screens/d2d_log_screen.dart';
+import 'package:cts/features/profile/screens/profile_screen.dart';
+import 'package:cts/features/splash/screens/splash_screen.dart';
 import 'package:cts/offline_temp/screens/offline_batch_commuters_screen.dart';
 import 'package:cts/offline_temp/screens/offline_home_screen.dart';
 import 'package:cts/offline_temp/screens/offline_route_pops_screen.dart';
-import 'package:cts/features/admin_home/presentation/screens/admin_home_screen.dart';
-import 'package:cts/features/cabs/presentation/forms/cab_form.dart';
-import 'package:cts/features/cabs/presentation/screens/cab_screen.dart';
-import 'package:cts/features/pops/presentation/forms/pop_form.dart';
-import 'package:cts/features/pops/presentation/screens/pop_screen.dart';
-import 'package:cts/features/routes/presentation/forms/route_form.dart';
-import 'package:cts/features/routes/presentation/screens/route_screen.dart';
-import 'package:cts/features/commuters/presentation/forms/commuter_form.dart';
-import 'package:cts/features/commuters/presentation/screens/commuter_home_page.dart';
-import 'package:cts/features/commuters/presentation/screens/commuter_screen.dart';
-import 'package:cts/features/drivers/presentation/forms/driver_form.dart';
-import 'package:cts/features/drivers/presentation/screens/driver_home_page.dart';
-import 'package:cts/features/drivers/presentation/screens/driver_screen.dart';
-import 'package:cts/features/batches/presentation/forms/batch_form.dart';
-import 'package:cts/features/batches/presentation/screens/batch_screen.dart';
-import 'package:cts/features/batches/presentation/screens/returning_batch_screen.dart';
-import 'package:cts/features/batches/presentation/screens/running_batch_screen.dart';
+import 'package:cts/features/admin_home/screens/admin_home_screen.dart';
+import 'package:cts/features/cabs/forms/cab_form.dart';
+import 'package:cts/features/cabs/screens/cab_screen.dart';
+import 'package:cts/features/pops/forms/pop_form.dart';
+import 'package:cts/features/pops/screens/pop_screen.dart';
+import 'package:cts/features/routes/forms/route_form.dart';
+import 'package:cts/features/routes/screens/route_screen.dart';
+import 'package:cts/features/commuters/forms/commuter_form.dart';
+import 'package:cts/features/commuters/screens/commuter_home_page.dart';
+import 'package:cts/features/commuters/screens/commuter_screen.dart';
+import 'package:cts/features/drivers/forms/driver_form.dart';
+import 'package:cts/features/drivers/screens/driver_home_page.dart';
+import 'package:cts/features/drivers/screens/driver_screen.dart';
+import 'package:cts/features/batches/forms/batch_form.dart';
+import 'package:cts/features/batches/screens/batch_screen.dart';
+import 'package:cts/features/batches/screens/returning_batch_screen.dart';
+import 'package:cts/features/batches/screens/running_batch_screen.dart';
+import 'package:cts/screens/error_page.dart';
 import 'package:cts/screens/no_internet_screen.dart';
 import 'package:cts/design/wireframes/wireframe_gallery_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -264,11 +265,7 @@ GoRouter createAppRouter({
         ),
       ],
     ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Route not found: ${state.uri}'),
-      ),
-    ),
+    errorBuilder: (context, state) => const ErrorPage(),
   );
 }
 

@@ -1,10 +1,10 @@
-﻿import 'package:cts/features/batches/presentation/providers/batch_controller.dart';
-import 'package:cts/features/cabs/presentation/providers/cab_controller.dart';
-import 'package:cts/features/commuters/presentation/providers/commuter_controller.dart';
-import 'package:cts/features/drivers/presentation/providers/driver_controller.dart';
-import 'package:cts/features/pops/presentation/providers/pop_controller.dart';
-import 'package:cts/features/routes/presentation/providers/route_controller.dart';
-import 'package:cts/controllers/sign_up_sign_in_controller.dart';
+﻿import 'package:cts/features/batches/providers/batch_controller.dart';
+import 'package:cts/features/cabs/providers/cab_controller.dart';
+import 'package:cts/features/commuters/providers/commuter_controller.dart';
+import 'package:cts/features/drivers/providers/driver_controller.dart';
+import 'package:cts/features/pops/providers/pop_controller.dart';
+import 'package:cts/features/routes/providers/route_controller.dart';
+import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
