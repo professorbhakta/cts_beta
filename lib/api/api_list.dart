@@ -2,7 +2,6 @@ class ApiUrl {
 
   static String loginUrl = "user/login";
   static String logoutUrl = "user/logout";
-  static const webSocket = "ws://localhost:8000/ws/";
 
   static String userUrl = "user";
   static String cndUserUrl = "user/";
@@ -22,12 +21,15 @@ class ApiUrl {
   static String cabUrl = "cab/cab";
   static String adminCabUrl = "cab/admin/cab/";
   static String dtotLogUrl = "d2d/running_batches";
+  static const String d2dLogStatus = "d2d/get_d2d_log_status/";
   static String userTypeUrl = "";
 
-  static String returnBatchView = "return_batch/view/";
-  static String returnBatchGetCommuter = "return_batch/get_commuter/";
-  static String returnBatchAddCommuter = "return_batch/add_commuter";
-  static String returnBatchRemoveCommuter = "return_batch/remove_commuter";
-  static String returnBatchEnd = "return_batch/end/";
+  static const String returnBatchView = "d2d/return_batch/view/";
+  static const String returnBatchStatus = "d2d/return_batch/status/";
+  static const String returnBatchGetCommuter = "d2d/return_batch/get_commuter/";
+  static const String returnBatchAddCommuter = "d2d/return_batch/add_commuter";
+  static const String returnBatchRemoveCommuter =
+      "d2d/return_batch/remove_commuter";
+  static const String returnBatchEnd = "d2d/return_batch/end/";
 
 }

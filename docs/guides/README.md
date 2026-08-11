@@ -12,5 +12,5 @@ Short how-to guides for people using the app (not developers).
 
 - Click paths: [../FLOWS_BY_ROLE.md](../FLOWS_BY_ROLE.md)
 - Screenshots (when captured): [../SCREENSHOTS.md](../SCREENSHOTS.md)
-- Layout previews (debug): [../WIREFRAME_GALLERY.md](../WIREFRAME_GALLERY.md)
-- Folder tree: [../FOLDER_GUIDE.md](../FOLDER_GUIDE.md)
+- Layout previews: [../WIREFRAME_GALLERY.md](../WIREFRAME_GALLERY.md)
+- Doc index: [../README.md](../README.md)

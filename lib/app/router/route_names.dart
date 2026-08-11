@@ -17,6 +17,7 @@ class RouteName {
   static const String adminHomeScreen = '/adminHomeScreen';
   static const String driverHomeScreen = '/driverHomeScreen';
   static const String commuterHomeScreen = '/commuterHomeScreen';
+  static const String trackCabScreen = '/trackCabScreen';
 
   // Admin CRUD
   static const String routeForm = '/routeForm';
@@ -27,6 +28,7 @@ class RouteName {
   static const String runningBatchScreen = '/runningBatchScreen';
   static const String returnBatchScreen = '/returnBatchScreen';
   static const String returnCommuterScreen = '/returnCommuterScreen';
+  static const String driverReturnCommuter = '/driverReturnCommuter';
 
   static const String popForm = '/popForm';
   static const String popScreen = '/popScreen';
@@ -81,6 +83,7 @@ class RouteName {
     batchForm,
     runningBatchScreen,
     returnBatchScreen,
+    returnCommuterScreen,
     popScreen,
     popForm,
     cabScreen,
@@ -92,15 +95,17 @@ class RouteName {
     d2dChannel,
   };
 
-  /// Driver role home + driver D2D log.
+  /// Driver role home + driver D2D log + read-only return list.
   static const Set<String> driverOnlyPrefixes = {
     driverHomeScreen,
     d2dLog,
+    driverReturnCommuter,
   };
 
-  /// Commuter role home.
+  /// Commuter role home + cab tracking.
   static const Set<String> commuterOnlyPrefixes = {
     commuterHomeScreen,
+    trackCabScreen,
   };
 
   static String homeForRole(String? userType) {

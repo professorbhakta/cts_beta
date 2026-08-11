@@ -71,7 +71,6 @@ class SignUpProvider with ChangeNotifier {
   final nameCtrl = TextEditingController();
   final mobileCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
-
   ViewState _state = ViewState.idle;
   ViewState get state => _state;
 

@@ -2,7 +2,7 @@
 
 Source of truth for developers implementing or reviewing UI against this interactive demo.
 
-**Open demo:** [index.html](./index.html) · **Tap checklist:** [INTERACTIONS.md](./INTERACTIONS.md) · **Docs audit:** [DOCS_ANALYSIS.md](./DOCS_ANALYSIS.md)
+**Open demo:** [index.html](./index.html) · **Tap checklist:** [INTERACTIONS.md](./INTERACTIONS.md)
 
 Brand tokens: `lib/appManager/colors.dart` · Themes: `lib/theme/app_theme.dart` · Psychology notes: [DESIGN_SYSTEM_REVIEW.md](../DESIGN_SYSTEM_REVIEW.md)
 

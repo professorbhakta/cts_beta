@@ -9,6 +9,7 @@ import 'package:cts/utils/pop_sort_options.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
+import 'package:cts/widgets/list_item_actions_sheet.dart';
 import 'package:cts/widgets/modern_list_card.dart';
 import 'package:cts/widgets/search_bar_widget.dart';
 import 'package:cts/widgets/skeleton_list.dart';
@@ -359,39 +360,10 @@ class _PopList extends StatelessWidget {
             title: pop.pickUpPointName ?? 'Unnamed Pick-Up Point',
             icon: Icons.location_on_rounded,
             iconColor: AppColors.acYellowWarm,
-            trailing: PopupMenuButton<String>(
-              tooltip: 'More options',
-              onSelected: (value) {
-                if (value == 'edit') {
-                  onEdit(pop);
-                } else if (value == 'delete') {
-                  onDelete(pop);
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'edit',
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.edit_outlined,
-                      color: AppColors.acYellowWarm,
-                    ),
-                    title: const Text('Edit'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'delete',
-                  child: ListTile(
-                    leading: Icon(Icons.delete_outline, color: AppColors.acRed),
-                    title: Text(
-                      'Delete',
-                      style: TextStyle(color: AppColors.acRed),
-                    ),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ],
+            onLongPress: () => ListItemActionsSheet.show(
+              context,
+              onEdit: () => onEdit(pop),
+              onDelete: () => onDelete(pop),
             ),
             children: [
               InfoRow(

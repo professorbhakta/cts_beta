@@ -1,3 +1,7 @@
+> **Doc:** docs/LIB_STRUCTURE.md
+> **Updated:** 2026-08-05 11:30 IST
+> **Session:** Verified unchanged
+
 # Library structure (human-friendly)
 
 This document replaces the confusing **Clean Architecture folder names** (`data/`, `domain/`, `presentation/`) with names any developer already knows from the original CTS layout.

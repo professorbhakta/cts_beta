@@ -2,8 +2,7 @@
 
 Quick map for debugging.
 
-- **Per-folder overview:** [docs/FOLDER_SUMMARY.md](../docs/FOLDER_SUMMARY.md)
-- **Layout spec:** [docs/LIB_STRUCTURE.md](../docs/LIB_STRUCTURE.md)
+- **Layout spec:** [docs/LIB_STRUCTURE.md](../docs/LIB_STRUCTURE.md) · **Code map:** [docs/CODE_MAP.md](../docs/CODE_MAP.md)
 
 ## Top-level folders
 

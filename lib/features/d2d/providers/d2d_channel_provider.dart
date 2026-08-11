@@ -5,36 +5,73 @@ import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/models/d2d_commuter_model.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
+import 'package:cts/features/drivers/repositories/driver_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class D2dChannelProvider with ChangeNotifier {
+  D2dChannelProvider(this._driverRepository);
+
+  static const int _endedTripCloseCode = 4001;
+  static const String _tripEndedMessage =
+      'This trip has already ended. A new trip can be started tomorrow.';
+
+  final DriverRepository _driverRepository;
+
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   DriverModel? _driver;
   List<D2dCommuterModel> _commuters = [];
   bool _isAscending = true;
+  bool _isConnected = false;
+  bool _isDisposed = false;
 
   ViewState _state = ViewState.idle;
   String? _errorMessage;
+  String? _actionErrorMessage;
+  bool _tripEnded = false;
 
   ViewState get state => _state;
   String? get errorMessage => _errorMessage;
+  String? get actionErrorMessage => _actionErrorMessage;
+  bool get isTripEnded => _tripEnded;
   DriverModel? get driver => _driver;
   List<D2dCommuterModel> get commuters => _commuters;
   bool get isAscending => _isAscending;
 
-  void connect(String batchId) {
-    if (_channel != null) {
-      disconnect(); // Clean up existing connection first
+  String? get driverMobile {
+    final mobile = _driver?.userId?.mobileNumber?.trim();
+    if (mobile != null && mobile.isNotEmpty) return mobile;
+    return null;
+  }
+
+  String? get driverName => _driver?.userId?.username;
+
+  void clearActionError() {
+    if (_actionErrorMessage == null) return;
+    _actionErrorMessage = null;
+    _safeNotifyListeners();
+  }
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) {
+      notifyListeners();
     }
+  }
+
+  void connect(String batchId) {
+    disconnect(notify: false);
 
     _state = ViewState.loading;
     _errorMessage = null;
-    notifyListeners();
+    _actionErrorMessage = null;
+    _tripEnded = false;
+    _driver = null;
+    _safeNotifyListeners();
+
+    unawaited(_loadDriverForBatch(batchId));
 
     try {
-      // Use AppConfig for WebSocket URL instead of hardcoded localhost
       final wsBaseUrl = AppConfig.instance.webSocketUrl;
       final uri = Uri.parse('$wsBaseUrl$batchId/');
 
@@ -43,65 +80,275 @@ class D2dChannelProvider with ChangeNotifier {
       }
 
       _channel = WebSocketChannel.connect(uri);
+      _isConnected = true;
 
       _subscription = _channel!.stream.listen(
-        (data) {
-          try {
-            final decodedData = json.decode(data);
-            if (decodedData['result'] != null &&
-                decodedData['result']['data'] is List) {
-              if (decodedData['result']['driver'] != null) {
-                _driver = DriverModel.fromJson(decodedData['result']['driver']);
-              }
-
-              _commuters = (decodedData['result']['data'] as List)
-                  .map((item) => D2dCommuterModel.fromJson(item.values.first))
-                  .toList();
-
-              _sortCommuters();
-              _state = ViewState.success;
-              notifyListeners();
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint('D2D: Error parsing WebSocket data: $e');
-            }
-            _state = ViewState.error;
-            _errorMessage = "Failed to parse data from server.";
-            notifyListeners();
-          }
-        },
+        _handleWebSocketMessage,
         onError: (error) {
+          if (!_isConnected || _isDisposed) return;
+          if (_isEndedTripClose(error)) {
+            _handleTripEndedClose();
+            return;
+          }
           if (kDebugMode) {
             debugPrint('D2D: WebSocket error: $error');
           }
           _state = ViewState.error;
           _errorMessage =
-              "Live connection failed. Please check your internet and try again.";
-          notifyListeners();
+              'Live connection failed. Please check your internet and try again.';
+          _safeNotifyListeners();
         },
         onDone: () {
+          if (!_isConnected || _isDisposed) return;
+          if (_isEndedTripClose(null)) {
+            _handleTripEndedClose();
+            return;
+          }
           if (kDebugMode) {
             debugPrint('D2D: WebSocket connection closed');
           }
+          _isConnected = false;
+          _channel = null;
+          _subscription = null;
           _state = ViewState.idle;
-          notifyListeners();
+          _safeNotifyListeners();
         },
       );
+
+      _safeNotifyListeners();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('D2D: Connection exception: $e');
       }
+      _isConnected = false;
       _state = ViewState.error;
       _errorMessage = "Failed to connect to the live channel. ${e.toString()}";
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
-  void disconnect() {
+  bool _isEndedTripClose(Object? error) {
+    if (_channel?.closeCode == _endedTripCloseCode) return true;
+    final errorText = error?.toString() ?? '';
+    return errorText.contains('4001');
+  }
+
+  void _handleTripEndedClose() {
+    if (!_isConnected || _isDisposed) return;
+
+    if (kDebugMode) {
+      debugPrint('D2D: Trip already ended (close code $_endedTripCloseCode)');
+    }
+
+    _isConnected = false;
+    _subscription?.cancel();
+    _subscription = null;
+    _channel = null;
+    _tripEnded = true;
+    _state = ViewState.error;
+    _errorMessage = _tripEndedMessage;
+    _safeNotifyListeners();
+  }
+
+  void _handleWebSocketMessage(dynamic rawData) {
+    if (!_isConnected || _isDisposed) return;
+
+    try {
+      final decodedData = _decodePayload(rawData);
+      if (decodedData == null) return;
+
+      final errorCode = decodedData['error'];
+      if (errorCode != null) {
+        _actionErrorMessage = _resolveActionErrorMessage(
+          errorCode.toString(),
+          decodedData['message']?.toString(),
+        );
+        if (kDebugMode) {
+          debugPrint('D2D: Action error: $_actionErrorMessage');
+        }
+        _safeNotifyListeners();
+        return;
+      }
+
+      final result = decodedData['result'];
+      if (result is! Map) return;
+
+      _actionErrorMessage = null;
+
+      final resultMap = Map<String, dynamic>.from(result);
+
+      if (resultMap['driver'] is Map) {
+        try {
+          _driver = DriverModel.fromJson(
+            Map<String, dynamic>.from(resultMap['driver'] as Map),
+          );
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('D2D: Skipping invalid driver payload: $e');
+          }
+        }
+      }
+
+      final parsedCommuters = _parseCommutersFromData(resultMap['data']);
+      if (parsedCommuters != null) {
+        _commuters = parsedCommuters;
+        _sortCommuters();
+      }
+
+      _state = ViewState.success;
+      _safeNotifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('D2D: Error parsing WebSocket data: $e');
+        debugPrint('D2D: Raw payload: $rawData');
+      }
+    }
+  }
+
+  Map<String, dynamic>? _decodePayload(dynamic rawData) {
+    if (rawData is Map<String, dynamic>) return rawData;
+    if (rawData is Map) return Map<String, dynamic>.from(rawData);
+
+    if (rawData is String) {
+      final decoded = json.decode(rawData);
+      if (decoded is Map<String, dynamic>) return decoded;
+      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      if (decoded is String) {
+        final nested = json.decode(decoded);
+        if (nested is Map<String, dynamic>) return nested;
+        if (nested is Map) return Map<String, dynamic>.from(nested);
+      }
+    }
+
+    return null;
+  }
+
+  String _resolveActionErrorMessage(String errorCode, String? serverMessage) {
+    final trimmed = serverMessage?.trim();
+    if (trimmed != null && trimmed.isNotEmpty) return trimmed;
+    return _fallbackLabelForErrorCode(errorCode);
+  }
+
+  String _fallbackLabelForErrorCode(String errorCode) {
+    switch (errorCode) {
+      case 'capacity_full':
+        return 'Cab is at capacity';
+      case 'no_live_state':
+        return 'Trip is not active';
+      case 'invalid_commuter':
+        return 'Commuter not on this batch';
+      case 'no_driver':
+      case 'no_cab':
+        return 'Batch missing driver or cab';
+      case 'unknown_action':
+        return 'Unsupported action';
+      default:
+        return 'Action failed';
+    }
+  }
+
+  List<D2dCommuterModel>? _parseCommutersFromData(dynamic data) {
+    if (data == null) return null;
+
+    if (data is List) {
+      final commuters = <D2dCommuterModel>[];
+      for (final item in data) {
+        final commuterJson = _unwrapCommuterEntry(item);
+        if (commuterJson != null) {
+          commuters.add(D2dCommuterModel.fromJson(commuterJson));
+        }
+      }
+      return commuters;
+    }
+
+    if (data is Map) {
+      final commuters = <D2dCommuterModel>[];
+      for (final entry in data.entries) {
+        final commuterJson = _unwrapCommuterEntry({entry.key: entry.value});
+        if (commuterJson != null) {
+          commuters.add(D2dCommuterModel.fromJson(commuterJson));
+        }
+      }
+      return commuters;
+    }
+
+    return null;
+  }
+
+  /// Unwraps `{ "4": { ...fields } }` and merges the outer key as commuter id.
+  Map<String, dynamic>? _unwrapCommuterEntry(dynamic item) {
+    if (item is! Map) return null;
+
+    final map = Map<String, dynamic>.from(item);
+
+    if (map.length == 1) {
+      final entry = map.entries.first;
+      final inner = entry.value;
+
+      if (inner is Map) {
+        final commuter = Map<String, dynamic>.from(inner);
+        final id = int.tryParse(entry.key.toString());
+        commuter.putIfAbsent('id', () => id ?? entry.key);
+        return commuter;
+      }
+
+      if (inner is String) {
+        try {
+          final decoded = json.decode(inner);
+          return _unwrapCommuterEntry({entry.key: decoded});
+        } catch (_) {
+          final id = int.tryParse(entry.key.toString());
+          return {
+            'id': id ?? entry.key,
+            'username': inner,
+          };
+        }
+      }
+    }
+
+    if (_looksLikeCommuter(map)) return map;
+
+    return null;
+  }
+
+  Future<void> _loadDriverForBatch(String batchId) async {
+    final result = await _driverRepository.getDriverByBatch(batchId);
+    if (_isDisposed || !_isConnected) return;
+
+    if (result.isSuccess && result.data != null) {
+      _driver = result.data;
+      _safeNotifyListeners();
+      return;
+    }
+
+    if (kDebugMode) {
+      debugPrint(
+        'D2D: Could not load driver for batch $batchId: '
+        '${result.failure?.message}',
+      );
+    }
+  }
+
+  bool _looksLikeCommuter(Map<String, dynamic> json) {
+    return json.containsKey('userId') ||
+        json.containsKey('username') ||
+        json.containsKey('mobile_number') ||
+        json.containsKey('mobileNumber') ||
+        json.containsKey('pickUpPoint') ||
+        json.containsKey('popId') ||
+        json.containsKey('inLine');
+  }
+
+  void disconnect({bool notify = true}) {
+    if (!_isConnected && _channel == null && _subscription == null) {
+      return;
+    }
+
     if (kDebugMode) {
       debugPrint('D2D: Disconnecting WebSocket');
     }
+
+    _isConnected = false;
     _subscription?.cancel();
     _subscription = null;
     try {
@@ -114,14 +361,18 @@ class D2dChannelProvider with ChangeNotifier {
     _channel = null;
     _commuters = [];
     _driver = null;
+    _actionErrorMessage = null;
     _state = ViewState.idle;
-    notifyListeners();
+
+    if (notify) {
+      _safeNotifyListeners();
+    }
   }
 
   void toggleSortOrder() {
     _isAscending = !_isAscending;
     _sortCommuters();
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   void _sortCommuters() {
@@ -134,33 +385,82 @@ class D2dChannelProvider with ChangeNotifier {
     });
   }
 
+  /// Admin channel: add commuter to the live fly list.
+  void addCommuter(String commuterId) {
+    final id = _parseCommuterId(commuterId);
+    if (id == 0) {
+      if (kDebugMode) {
+        debugPrint('D2D: Skipping ADD — invalid commuter id');
+      }
+      return;
+    }
+
+    // Backend expects a scalar CLIST for ADD (not an array).
+    _sendPayload({
+      'ACTION': 'ADD',
+      'CLIST': id,
+    });
+  }
+
+  /// Admin channel: remove commuter from live list.
   void removeCommuter(String commuterId) {
-    final command = {
-      "ACTION": "DELETE",
-      "CLIST": [int.tryParse(commuterId) ?? 0],
-    };
-    _channel?.sink.add(json.encode(command));
+    _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
+  /// Driver log: add commuter entry to D2D log.
   void confirmCommuter(String commuterId) {
-    final command = {
-      "ACTION": "ADD",
-      "CLIST": [int.tryParse(commuterId) ?? 0],
-    };
-    _channel?.sink.add(json.encode(command));
+    _sendAction('REMOVE', _parseCommuterId(commuterId));
   }
 
+  /// Driver log: delete commuter from fly list.
   void denyCommuter(String commuterId) {
-    final command = {
-      "ACTION": "DELETE",
-      "CLIST": [int.tryParse(commuterId) ?? 0],
-    };
-    _channel?.sink.add(json.encode(command));
+    _sendAction('DELETE', _parseCommuterId(commuterId));
+  }
+
+  void stopTrip() {
+    _sendStopAction();
+    disconnect(notify: false);
+  }
+
+  int _parseCommuterId(String commuterId) => int.tryParse(commuterId) ?? 0;
+
+  void _sendAction(String action, int commuterId) {
+    if (commuterId == 0) {
+      if (kDebugMode) {
+        debugPrint('D2D: Skipping $action — invalid commuter id');
+      }
+      return;
+    }
+
+    _sendPayload({
+      'ACTION': action,
+      'CLIST': [commuterId],
+    });
+  }
+
+  void _sendStopAction() {
+    _sendPayload({'ACTION': 'STOP'});
+  }
+
+  void _sendPayload(Map<String, dynamic> payload) {
+    if (_channel == null) {
+      if (kDebugMode) {
+        debugPrint('D2D: Cannot send $payload — WebSocket not connected');
+      }
+      return;
+    }
+
+    final message = json.encode(payload);
+    if (kDebugMode) {
+      debugPrint('D2D: Sending $message');
+    }
+    _channel!.sink.add(message);
   }
 
   @override
   void dispose() {
-    disconnect();
+    _isDisposed = true;
+    disconnect(notify: false);
     super.dispose();
   }
 }

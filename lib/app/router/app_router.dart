@@ -19,12 +19,14 @@ import 'package:cts/features/routes/forms/route_form.dart';
 import 'package:cts/features/routes/screens/route_screen.dart';
 import 'package:cts/features/commuters/forms/commuter_form.dart';
 import 'package:cts/features/commuters/screens/commuter_home_page.dart';
+import 'package:cts/features/commuters/screens/track_cab_screen.dart';
 import 'package:cts/features/commuters/screens/commuter_screen.dart';
 import 'package:cts/features/drivers/forms/driver_form.dart';
 import 'package:cts/features/drivers/screens/driver_home_page.dart';
 import 'package:cts/features/drivers/screens/driver_screen.dart';
 import 'package:cts/features/batches/forms/batch_form.dart';
 import 'package:cts/features/batches/screens/batch_screen.dart';
+import 'package:cts/features/commuters/screens/return_batch_commuter_screen.dart';
 import 'package:cts/features/batches/screens/returning_batch_screen.dart';
 import 'package:cts/features/batches/screens/running_batch_screen.dart';
 import 'package:cts/screens/error_page.dart';
@@ -119,6 +121,10 @@ GoRouter createAppRouter({
         builder: (context, state) => const CommuterHomePage(),
       ),
       GoRoute(
+        path: RouteName.trackCabScreen,
+        builder: (context, state) => const TrackCabScreen(),
+      ),
+      GoRoute(
         path: RouteName.routeScreen,
         builder: (context, state) => const RouteScreen(),
       ),
@@ -149,6 +155,26 @@ GoRouter createAppRouter({
       GoRoute(
         path: RouteName.returnBatchScreen,
         builder: (context, state) => const ReturningBatchScreen(),
+      ),
+      GoRoute(
+        path: '${RouteName.returnCommuterScreen}/:batchId',
+        builder: (context, state) {
+          final batchId = state.pathParameters['batchId'];
+          if (batchId == null || batchId.isEmpty) {
+            return const ReturningBatchScreen();
+          }
+          return ReturnCommuterListScreen(batchId: batchId);
+        },
+      ),
+      GoRoute(
+        path: '${RouteName.driverReturnCommuter}/:batchId',
+        builder: (context, state) {
+          final batchId = state.pathParameters['batchId'];
+          if (batchId == null || batchId.isEmpty) {
+            return const DriverHomePage();
+          }
+          return ReturnCommuterListScreen(batchId: batchId, readOnly: true);
+        },
       ),
       GoRoute(
         path: RouteName.cabScreen,

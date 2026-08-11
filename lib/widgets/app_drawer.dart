@@ -28,6 +28,8 @@ class AdminNavList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
+    final isAdmin = SessionRole.isAdmin;
+    final homeRoute = SessionRole.homeRoute;
 
     final topInset = MediaQuery.paddingOf(context).top;
 
@@ -110,11 +112,13 @@ class AdminNavList extends StatelessWidget {
           // Navigation Items
           _navTile(
             context,
-            icon: Icons.dashboard_customize_rounded,
-            title: 'Dashboard',
-            route: RouteName.adminHomeScreen,
+            icon: isAdmin
+                ? Icons.dashboard_customize_rounded
+                : Icons.home_rounded,
+            title: isAdmin ? 'Dashboard' : 'Home',
+            route: homeRoute,
             color: AppColors.acYellowWarm,
-            isSelected: currentRoute == RouteName.adminHomeScreen,
+            isSelected: currentRoute == homeRoute,
           ),
           _navTile(
             context,
@@ -125,79 +129,15 @@ class AdminNavList extends StatelessWidget {
             isSelected: currentRoute == RouteName.profileScreen,
           ),
 
-          _syncStatusBanner(context),
-
-          const SizedBox(height: 8),
-
-          // Section Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-            child: Text(
-              'MANAGEMENT',
-              style: TextStyle(
-                color: AppColors.acYellowBright.withValues(alpha: 0.6),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-
-          _navTile(
-            context,
-            icon: Icons.people_alt_rounded,
-            title: 'Commuters',
-            route: RouteName.commuterScreen,
-            color: AppColors.acYellowWarm,
-            isSelected: currentRoute == RouteName.commuterScreen,
-          ),
-          _navTile(
-            context,
-            icon: Icons.location_on_rounded,
-            title: 'Pick-up Points',
-            route: RouteName.popScreen,
-            color: AppColors.acYellowDark,
-            isSelected: currentRoute == RouteName.popScreen,
-          ),
-          _navTile(
-            context,
-            icon: Icons.directions_bus_rounded,
-            title: 'Batches',
-            route: RouteName.batchScreen,
-            color: AppColors.acYellowBright,
-            isSelected: currentRoute == RouteName.batchScreen,
-          ),
-          _navTile(
-            context,
-            icon: Icons.directions_car_rounded,
-            title: 'Cabs',
-            route: RouteName.cabScreen,
-            color: AppColors.acYellowWarm,
-            isSelected: currentRoute == RouteName.cabScreen,
-          ),
-          _navTile(
-            context,
-            icon: Icons.person_outline_rounded,
-            title: 'Drivers',
-            route: RouteName.driverScreen,
-            color: AppColors.acYellowDark,
-            isSelected: currentRoute == RouteName.driverScreen,
-          ),
-          _navTile(
-            context,
-            icon: Icons.route_rounded,
-            title: 'Routes',
-            route: RouteName.routeScreen,
-            color: AppColors.acYellowBright,
-            isSelected: currentRoute == RouteName.routeScreen,
-          ),
-
-          if (showOfflineDrawerTile()) ...[
+          if (isAdmin) ...[
+            _syncStatusBanner(context),
             const SizedBox(height: 8),
+
+            // Section Header
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: Text(
-                'OFFLINE',
+                'MANAGEMENT',
                 style: TextStyle(
                   color: AppColors.acYellowBright.withValues(alpha: 0.6),
                   fontSize: 11,
@@ -206,14 +146,79 @@ class AdminNavList extends StatelessWidget {
                 ),
               ),
             ),
+
             _navTile(
               context,
-              icon: Icons.cloud_off_rounded,
-              title: 'Offline Mode',
-              route: RouteName.offlineTempHome,
-              color: Colors.tealAccent.shade400,
-              isSelected: currentRoute == RouteName.offlineTempHome,
+              icon: Icons.people_alt_rounded,
+              title: 'Commuters',
+              route: RouteName.commuterScreen,
+              color: AppColors.acYellowWarm,
+              isSelected: currentRoute == RouteName.commuterScreen,
             ),
+            _navTile(
+              context,
+              icon: Icons.location_on_rounded,
+              title: 'Pick-up Points',
+              route: RouteName.popScreen,
+              color: AppColors.acYellowDark,
+              isSelected: currentRoute == RouteName.popScreen,
+            ),
+            _navTile(
+              context,
+              icon: Icons.directions_bus_rounded,
+              title: 'Batches',
+              route: RouteName.batchScreen,
+              color: AppColors.acYellowBright,
+              isSelected: currentRoute == RouteName.batchScreen,
+            ),
+            _navTile(
+              context,
+              icon: Icons.directions_car_rounded,
+              title: 'Cabs',
+              route: RouteName.cabScreen,
+              color: AppColors.acYellowWarm,
+              isSelected: currentRoute == RouteName.cabScreen,
+            ),
+            _navTile(
+              context,
+              icon: Icons.person_outline_rounded,
+              title: 'Drivers',
+              route: RouteName.driverScreen,
+              color: AppColors.acYellowDark,
+              isSelected: currentRoute == RouteName.driverScreen,
+            ),
+            _navTile(
+              context,
+              icon: Icons.route_rounded,
+              title: 'Routes',
+              route: RouteName.routeScreen,
+              color: AppColors.acYellowBright,
+              isSelected: currentRoute == RouteName.routeScreen,
+            ),
+
+            if (showOfflineDrawerTile()) ...[
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: Text(
+                  'OFFLINE',
+                  style: TextStyle(
+                    color: AppColors.acYellowBright.withValues(alpha: 0.6),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+              _navTile(
+                context,
+                icon: Icons.cloud_off_rounded,
+                title: 'Offline Mode',
+                route: RouteName.offlineTempHome,
+                color: Colors.tealAccent.shade400,
+                isSelected: currentRoute == RouteName.offlineTempHome,
+              ),
+            ],
           ],
 
           const SizedBox(height: 16),
@@ -240,13 +245,13 @@ class AdminNavList extends StatelessWidget {
     final userName = AppManager.instance.getString(ManagerKey.userName);
     final name = AppManager.instance.getString(ManagerKey.name);
 
-    // Prefer name over userName, fallback to 'Admin' if both are empty
+    // Prefer name over userName, fallback to role label if both are empty
     if (name.isNotEmpty && name != '0') {
       return name;
     } else if (userName.isNotEmpty && userName != '0') {
       return userName;
     } else {
-      return 'Admin';
+      return SessionRole.roleLabel;
     }
   }
 

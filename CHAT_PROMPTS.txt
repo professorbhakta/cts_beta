@@ -1,0 +1,85 @@
+> Doc: CHAT_PROMPTS.txt
+> Updated: 2026-08-05 11:37 IST
+> Session: Backend pack paths updated after talk-guide removal
+
+================================================================================
+QUICK START (minimal)
+================================================================================
+
+@PROJECT_BRAIN.md
+Task: [ONE SENTENCE]
+Task pack: [pick from PROJECT_BRAIN §4 — e.g. D2D / Return / UI / App-wide / Backend]
+Context: [from last session handoff log §9]
+
+================================================================================
+START PROMPT (full shell — copy and fill)
+================================================================================
+
+@PROJECT_BRAIN.md
+
+Task: [ONE SENTENCE — what you want done this session]
+
+Task pack (attach @ files from PROJECT_BRAIN §4):
+  - App-wide:  @docs/LIB_STRUCTURE.md @docs/ARCHITECTURE.md @docs/CODE_MAP.md
+  - D2D:       @lib/features/d2d/README.md @docs/API_CONTRACTS.md @docs/UI_ARCHITECTURE.md
+  - Return:    @lib/features/batches/README.md @docs/API_CONTRACTS.md @docs/FLOWS_BY_ROLE.md
+  - New UI:    @docs/FLOWS_BY_ROLE.md @docs/UI_ARCHITECTURE.md @docs/FEATURES.md @docs/LIB_STRUCTURE.md
+  - Backend:   @docs/API_CONTRACTS.md @docs/LOCAL_DEV.md @docs/backend/README.md
+  - Offline:   @docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md
+
+Context from last session:
+  [Paste from PROJECT_BRAIN §9 session handoff log]
+
+Constraints (optional):
+  [e.g. no commits, minimal diff, iOS+Android, no new dependencies]
+
+================================================================================
+MIDDLE CONTEXT (user fills each session — update as you go)
+================================================================================
+
+Current files in focus:
+  -
+
+What we already tried:
+  -
+
+Open questions:
+  -
+
+Related docs read:
+  -
+
+================================================================================
+QUICK CLOSE (minimal)
+================================================================================
+
+End-of-session doc sync: update PROJECT_BRAIN §5–§6–§9, session sync set headers,
+DOC_REGISTRY.md rows, PROJECT_TODOS if needed. Reply with summary + next START PROMPT.
+
+================================================================================
+END PROMPT (full shell — doc sync at session close)
+================================================================================
+
+End-of-session doc sync. Do not duplicate long specs into PROJECT_BRAIN.
+
+1. Update PROJECT_BRAIN.md
+   - §5 Current focus (next session or "idle")
+   - §6 Status snapshot (done + open backlog)
+   - §9 Session handoff log (prepend new entry; keep max 3)
+   - 3-line header (Updated timestamp IST, Session note)
+
+2. Update all Session sync set docs
+   - Content if changed this session
+   - Otherwise header only with Session: "Verified unchanged"
+   - See DOC_REGISTRY.md for full list
+
+3. Update DOC_REGISTRY.md
+   - Last updated + session note for each touched doc
+
+4. Update PROJECT_TODOS.md if backlog changed
+
+5. Feature changes: update lib/features/<name>/README.md for that feature
+
+6. Reply with:
+   - Summary of what was done
+   - Suggested next START PROMPT (filled shell ready to copy)

@@ -72,12 +72,15 @@ Duration batchTimeDuration(String time) {
   return Duration(hours: hours, minutes: minutes, seconds: seconds);
 }
 
-Future<void> calling(String mobile) async {
-  final Uri launchUri = Uri(
-    scheme: 'tel',
-    path: mobile,
-  );
-  await launchUrl(launchUri);
+Future<bool> calling(String mobile) async {
+  final normalized = mobile.trim();
+  if (normalized.isEmpty) return false;
+
+  final launchUri = Uri(scheme: 'tel', path: normalized);
+  if (await canLaunchUrl(launchUri)) {
+    return launchUrl(launchUri);
+  }
+  return false;
 }
 
 Future<Future> confirmBox(

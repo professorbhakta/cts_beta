@@ -1,3 +1,7 @@
+> **Doc:** docs/API_AND_ENV.md
+> **Updated:** 2026-08-05 11:30 IST
+> **Session:** Verified unchanged
+
 # API and environment
 
 Backend URLs, configuration, and network layer for CTS.
@@ -75,9 +79,17 @@ Logout clears session and resets in-memory controllers.
 
 ## WebSocket (D2D)
 
-- URL from `AppConfig.instance.webSocketUrl`
+- URL from `AppConfig.instance.webSocketUrl` (see `.env`, not `ApiUrl`)
 - **D2dChannelProvider** — connect/disconnect per `batchId`
 - Used by admin **D2dChannel** and driver **D2DLogScreen**
+- Full URL pattern: `ws://<host>/ws/<batchId>/`
+
+### Docker Desktop backend
+
+- Nginx exposes **port 80** on your PC; Django runs internally on 8000.
+- Set `API_BASE_URL=http://<your-ip>/` and `WEBSOCKET_URL=ws://<your-ip>/ws/` (no `:8000`).
+- Nginx must proxy WebSocket upgrades (`Upgrade` / `Connection` headers in `nginx.conf`).
+- Backend route accepts `/ws/<batch_id>/` and `/ws/<batch_id>`.
 
 Ensure backend WebSocket path matches `WEBSOCKET_URL` and batch id format expected by server.
 
@@ -95,10 +107,11 @@ Ensure backend WebSocket path matches `WEBSOCKET_URL` and batch id format expect
 
 ## Local development tips
 
-1. Find host machine IP on Wi‑Fi (not `localhost` on physical device)
-2. Set `API_BASE_URL=http://<ip>/` and matching `WEBSOCKET_URL`
-3. Ensure phone and PC on same network; firewall allows connections
-4. Android cleartext: may require network security config for HTTP dev
+1. Find host machine IP on Wi‑Fi with `ipconfig` (not `localhost` on physical device)
+2. Set `API_BASE_URL=http://<ip>/` and `WEBSOCKET_URL=ws://<ip>/ws/` (Docker uses port 80 via Nginx)
+3. Android emulator: use `10.0.2.2` instead of your LAN IP
+4. Ensure phone and PC on same network; firewall allows connections
+5. Android cleartext: may require network security config for HTTP dev
 
 ---
 

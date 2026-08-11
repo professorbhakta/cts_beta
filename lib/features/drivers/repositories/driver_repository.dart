@@ -8,6 +8,8 @@ abstract class DriverRepository {
 
   Future<ApiResult<DriverModel>> getDriverProfile();
 
+  Future<ApiResult<DriverModel>> getDriverByBatch(String batchId);
+
   Future<ApiResult<void>> createDriver(Map<String, dynamic> data);
 
   Future<ApiResult<void>> updateDriver(int id, Map<String, dynamic> userData, Map<String, dynamic> driverData);

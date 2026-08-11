@@ -26,6 +26,7 @@ class DashboardShell extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= desktopBreakpoint;
     final isTablet = width >= tabletBreakpoint && width < desktopBreakpoint;
+    final showNavigation = showDrawer;
     final navigation = const SafeArea(child: AdminNavList());
 
     final appBar = AppBar(
@@ -33,7 +34,7 @@ class DashboardShell extends StatelessWidget {
       actions: actions,
     );
 
-    final horizontalPadding = isDesktop ? 16.0 : (isTablet ? 12.0 : 2.0);
+    final horizontalPadding = isDesktop ? 16.0 : (isTablet ? 12.0 : 0.0);
 
     final body = ColoredBox(
       color: theme.colorScheme.surface,
@@ -56,12 +57,14 @@ class DashboardShell extends StatelessWidget {
         backgroundColor: theme.scaffoldBackgroundColor,
         body: Row(
           children: [
-            SizedBox(width: 250, child: navigation),
-            VerticalDivider(
-              width: 1,
-              thickness: 1,
-              color: theme.colorScheme.outlineVariant,
-            ),
+            if (showNavigation) ...[
+              SizedBox(width: 250, child: navigation),
+              VerticalDivider(
+                width: 1,
+                thickness: 1,
+                color: theme.colorScheme.outlineVariant,
+              ),
+            ],
             Expanded(
               child: Scaffold(
                 appBar: appBar,
@@ -79,7 +82,7 @@ class DashboardShell extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: appBar,
-      drawer: showDrawer ? Drawer(child: navigation) : null,
+      drawer: showNavigation ? Drawer(child: navigation) : null,
       body: body,
       floatingActionButton: fab,
     );

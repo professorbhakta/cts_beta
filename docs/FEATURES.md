@@ -1,3 +1,7 @@
+> **Doc:** docs/FEATURES.md
+> **Updated:** 2026-08-05 11:30 IST
+> **Session:** Verified unchanged
+
 # Feature catalog
 
 Every major feature module: **screens**, **providers**, and **repositories**.

@@ -163,7 +163,10 @@ class AppProviders {
         create: (context) =>
             ReturnBatchProvider(context.read<ReturnBatchRepository>()),
       ),
-      ChangeNotifierProvider(create: (_) => D2dChannelProvider()),
+      ChangeNotifierProvider(
+        create: (context) =>
+            D2dChannelProvider(context.read<DriverRepository>()),
+      ),
       ChangeNotifierProvider(
         create: (context) => AdminProvider(
           context.read<BatchRepository>(),

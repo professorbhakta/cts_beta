@@ -1,3 +1,7 @@
+> **Doc:** .cursorrules
+> **Updated:** 2026-08-05 18:02 IST
+> **Session:** Added strict markdown file creation policy
+
 You are working on a cross-platform Flutter mobile app targeting primarily iOS and Android.
 
 Project Rules:
@@ -22,3 +26,19 @@ All agents must:
 - Update the Main Agent after completing their part.
 - Maintain and update PROJECT_TODOS.md.
 - Keep code clean, modular, and cross-platform compatible.
+
+Documentation workflow:
+- For any task, start at PROJECT_BRAIN.md (attach @PROJECT_BRAIN.md on every chat).
+- At end of session: update PROJECT_BRAIN.md, DOC_REGISTRY.md, and session sync set per CHAT_PROMPTS.txt END PROMPT.
+- Feature changes: update lib/features/<name>/README.md when that feature changes.
+- Maintain PROJECT_TODOS.md for live backlog; PROJECT_BRAIN.md holds session handoff (§5–§6, §9).
+
+Markdown file policy (STRICT):
+- NEVER create new .md or .txt documentation files unless the user explicitly asks (e.g. "create a doc for X").
+- Do NOT create: SUMMARY.md, NOTES.md, IMPLEMENTATION.md, PLAN.md, CHANGELOG.md, or README.md in folders that don't already have one.
+- ONLY UPDATE these existing docs when needed:
+  - PROJECT_BRAIN.md, DOC_REGISTRY.md, PROJECT_TODOS.md, CHAT_PROMPTS.txt
+  - docs/ files listed in DOC_REGISTRY.md "Session sync set"
+  - lib/features/<feature>/README.md ONLY if that feature's code changed
+- Session handoff goes in PROJECT_BRAIN.md §9 — not a new file.
+- If documentation is needed and no owner file exists, ask the user first — do not create the file.

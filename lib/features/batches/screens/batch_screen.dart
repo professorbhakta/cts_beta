@@ -9,6 +9,7 @@ import 'package:cts/features/commuters/screens/commuter_list_screen.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
+import 'package:cts/widgets/list_item_actions_sheet.dart';
 import 'package:cts/widgets/modern_list_card.dart';
 import 'package:cts/widgets/search_bar_widget.dart';
 import 'package:cts/widgets/skeleton_list.dart';
@@ -320,42 +321,10 @@ class _BatchList extends StatelessWidget {
                   ),
                 );
               },
-              trailing: PopupMenuButton<String>(
-                tooltip: 'More options',
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    onEdit(batch);
-                  } else if (value == 'delete') {
-                    onDelete(batch);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.edit_outlined,
-                        color: AppColors.acYellowWarm,
-                      ),
-                      title: const Text('Edit'),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.delete_outline,
-                        color: AppColors.acRed,
-                      ),
-                      title: Text(
-                        'Delete',
-                        style: TextStyle(color: AppColors.acRed),
-                      ),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ],
+              onLongPress: () => ListItemActionsSheet.show(
+                context,
+                onEdit: () => onEdit(batch),
+                onDelete: () => onDelete(batch),
               ),
               children: [
                 InfoRow(

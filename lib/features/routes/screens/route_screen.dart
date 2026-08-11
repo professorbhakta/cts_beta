@@ -8,6 +8,7 @@ import 'package:cts/models/route_model.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
+import 'package:cts/widgets/list_item_actions_sheet.dart';
 import 'package:cts/widgets/modern_list_card.dart';
 import 'package:cts/widgets/search_bar_widget.dart';
 import 'package:cts/widgets/skeleton_list.dart';
@@ -291,32 +292,10 @@ class _RouteList extends StatelessWidget {
             title: route.routeName ?? 'Untitled route',
             icon: Icons.route_rounded,
             iconColor: AppColors.acYellowWarm,
-            trailing: PopupMenuButton<String>(
-              tooltip: 'More options',
-              onSelected: (value) {
-                final routeController = context.read<RouteController>();
-                if (value == 'edit') {
-                  onEdit(context, routeController, index);
-                } else if (value == 'delete') {
-                  onDelete(context, routeController, index);
-                }
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: ListTile(
-                    leading: Icon(Icons.edit_outlined),
-                    title: Text('Edit'),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: ListTile(
-                    leading: Icon(Icons.delete_outline, color: AppColors.acRed),
-                    title: const Text('Delete'),
-                  ),
-                ),
-              ],
+            onLongPress: () => ListItemActionsSheet.show(
+              context,
+              onEdit: () => onEdit(context, routeController, index),
+              onDelete: () => onDelete(context, routeController, index),
             ),
           ),
         );

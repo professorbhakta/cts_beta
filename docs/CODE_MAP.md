@@ -1,3 +1,7 @@
+> **Doc:** docs/CODE_MAP.md
+> **Updated:** 2026-08-05 11:30 IST
+> **Session:** Verified unchanged
+
 # Code map
 
 Where code lives and how it connects—**read after** [START_HERE.md](./START_HERE.md).
@@ -81,7 +85,7 @@ features/routes/
 
 | Topic | Doc |
 |-------|-----|
-| Start / folder tree | [START_HERE.md](./START_HERE.md) · [FOLDER_GUIDE.md](./FOLDER_GUIDE.md) |
+| Start / doc index | [START_HERE.md](./START_HERE.md) · [README.md](./README.md) |
 | Layers & DI (P1) | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | go_router & roles (P1) | [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) |
 | Feature catalog (P1) | [FEATURES.md](./FEATURES.md) |

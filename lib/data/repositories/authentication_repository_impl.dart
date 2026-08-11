@@ -100,14 +100,14 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
 
       final registrationData = {
         'user': {
-          "userType": "ADMIN",
-          "username": username,
-          "mobileNumber": mobileNumber,
-          "password": password,
-          "address": "", // Address can be updated later in profile
-          "deviceId": deviceId,
+          'userType': 'ADMIN',
+          'username': username,
+          'mobileNumber': mobileNumber,
+          'password': password,
+          'address': 'address',
+          'deviceId': deviceId,
         },
-        "user_data": {},
+        'user_data': {},
       };
 
       final response = await _apiService.postApi(

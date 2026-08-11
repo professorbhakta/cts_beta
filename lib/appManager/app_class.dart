@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cts/app/router/route_names.dart';
 import 'package:cts/screens/no_internet_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,37 @@ class AppClass {
 
   static String driverBatchId = "";
   static String d2dBatchId = "";
+}
+
+/// Role checks for session-scoped UI (e.g. admin-only navigation drawer).
+class SessionRole {
+  SessionRole._();
+
+  static String? get userType {
+    final stored = AppManager.instance.getString(ManagerKey.userType);
+    if (stored.isNotEmpty && stored != '0') return stored;
+    return switch (AppClass.userType) {
+      1 => 'COMMUTER',
+      2 => 'DRIVER',
+      3 => 'ADMIN',
+      _ => null,
+    };
+  }
+
+  static bool get isAdmin => userType == 'ADMIN';
+
+  static bool get isDriver => userType == 'DRIVER';
+
+  static bool get isCommuter => userType == 'COMMUTER';
+
+  static String get homeRoute => RouteName.homeForRole(userType);
+
+  static String get roleLabel => switch (userType) {
+        'ADMIN' => 'Admin',
+        'DRIVER' => 'Driver',
+        'COMMUTER' => 'Commuter',
+        _ => 'User',
+      };
 }
 
 class ManagerKey {

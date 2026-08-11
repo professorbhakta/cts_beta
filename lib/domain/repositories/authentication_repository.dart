@@ -1,7 +1,7 @@
 ﻿import 'package:cts/api/api_result.dart';
 
 abstract class AuthenticationRepository {
-  Future<ApiResult<String>> login({ // Changed from Future<ApiResult<void>>
+  Future<ApiResult<String>> login({
     required String mobileNumber,
     required String password,
   });
@@ -14,4 +14,3 @@ abstract class AuthenticationRepository {
 
   Future<ApiResult<void>> logout();
 }
-

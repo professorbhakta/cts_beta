@@ -46,7 +46,6 @@ Then open http://localhost:5500/
 | [app.js](./app.js) | Navigation, CRUD, tours, modals, toasts |
 | [DESIGN_SPEC.md](./DESIGN_SPEC.md) | Screen → route → widget → provider |
 | [INTERACTIONS.md](./INTERACTIONS.md) | QA checklist (docs flows → taps) |
-| [DOCS_ANALYSIS.md](./DOCS_ANALYSIS.md) | Full docs audit that drove this build |
 | [README.md](./README.md) | This file |
 
 ---

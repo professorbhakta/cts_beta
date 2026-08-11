@@ -1,3 +1,7 @@
+> **Doc:** docs/ARCHITECTURE.md
+> **Updated:** 2026-08-05 11:30 IST
+> **Session:** Verified unchanged
+
 # Architecture
 
 How the CTS (c2s) Flutter app is structured: layers, startup, dependency injection, and data flow.

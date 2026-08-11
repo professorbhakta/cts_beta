@@ -1,16 +1,15 @@
 import 'package:cts/appManager/colors.dart';
+import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
-import 'package:cts/models/d2d_commuter_model.dart';
+import 'package:cts/features/d2d/widgets/d2d_add_commuter_sheet.dart';
+import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
 import 'package:cts/widgets/admin_form_header.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/loading_indicator.dart';
-import 'package:cts/widgets/no_data_found.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class D2dChannel extends StatefulWidget {
   final String batchId;
@@ -21,32 +20,74 @@ class D2dChannel extends StatefulWidget {
 }
 
 class _D2dChannelState extends State<D2dChannel> {
+  D2dChannelProvider? _d2dProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = context.read<D2dChannelProvider>();
+    if (!identical(_d2dProvider, provider)) {
+      _d2dProvider?.removeListener(_onD2dProviderChanged);
+      _d2dProvider = provider;
+      _d2dProvider!.addListener(_onD2dProviderChanged);
+    }
+  }
+
+  void _onD2dProviderChanged() {
+    final message = _d2dProvider?.actionErrorMessage;
+    if (message == null || !mounted) return;
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
+    _d2dProvider?.clearActionError();
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<D2dChannelProvider>().connect(widget.batchId);
+      if (!mounted) return;
+      _d2dProvider?.connect(widget.batchId);
     });
   }
 
   @override
   void dispose() {
-    final provider = context.read<D2dChannelProvider>();
-    provider.disconnect();
+    _d2dProvider?.removeListener(_onD2dProviderChanged);
+    _d2dProvider?.disconnect(notify: false);
     super.dispose();
   }
 
-  Future<void> _makePhoneCall(String? phoneNumber) async {
-    if (phoneNumber == null || phoneNumber.isEmpty) return;
-    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    }
+  void _closeChannel() {
+    _d2dProvider?.disconnect(notify: false);
+    Navigator.of(context).pop();
   }
 
-  void _closeChannel() {
-    context.read<D2dChannelProvider>().disconnect();
-    Navigator.of(context).pop();
+  Future<void> _callDriver(D2dChannelProvider provider) async {
+    final mobile = provider.driverMobile;
+    if (mobile == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Driver contact is not available for this batch yet.'),
+        ),
+      );
+      return;
+    }
+
+    final launched = await calling(mobile);
+    if (!mounted || launched) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Unable to open the phone dialer.')),
+    );
   }
 
   @override
@@ -58,6 +99,7 @@ class _D2dChannelState extends State<D2dChannel> {
       fab: FloatingActionButton.extended(
         onPressed: _closeChannel,
         backgroundColor: AppColors.acRed,
+        foregroundColor: AppColors.acWhite,
         icon: const Icon(Icons.close_rounded),
         label: const Text('Close channel'),
       ),
@@ -72,9 +114,10 @@ class _D2dChannelState extends State<D2dChannel> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 StatusMessage.error(
-                  title: 'Connection failed',
-                  message: provider.errorMessage ?? 'Unable to connect to channel.',
-                  onRetry: () => provider.connect(widget.batchId),
+                  title: provider.errorMessage ?? 'Unable to connect to channel.',
+                  onRetry: provider.isTripEnded
+                      ? null
+                      : () => provider.connect(widget.batchId),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -84,139 +127,89 @@ class _D2dChannelState extends State<D2dChannel> {
             );
           }
 
-          if (provider.commuters.isEmpty) {
-            return const NoDataFound(
-              message: 'Waiting for commuter data...',
-            );
-          }
+          final isLive = provider.commuters.isNotEmpty;
+          final driverName = provider.driverName;
+          final liveCommuterIds = provider.commuters
+              .map((commuter) => commuter.id)
+              .whereType<int>()
+              .toSet();
 
-          return ListView.builder(
-            padding: EdgeInsets.fromLTRB(0, 8, 0, fabPadding),
-            itemCount: provider.commuters.length + 2,
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return Divider(color: Theme.of(context).colorScheme.outlineVariant);
-              }
-              if (index == 1) {
-                return Column(
-                  children: [
-                    Text(
-                      'Currently Running',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildControls(context, provider),
-                    Divider(color: Theme.of(context).colorScheme.outlineVariant),
-                  ],
-                );
-              }
-
-              final commuter = provider.commuters[index - 2];
-              return _buildCommuterTile(context, provider, commuter);
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildControls(BuildContext context, D2dChannelProvider provider) {
-    final isLive = provider.commuters.isNotEmpty;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ElevatedButton.icon(
-            onPressed: provider.driver?.userId?.mobileNumber != null
-                ? () => _makePhoneCall(provider.driver!.userId!.mobileNumber)
-                : null,
-            icon: const Icon(Icons.call),
-            label: const Text('Call Driver'),
-          ),
-          Semantics(
-            label: isLive ? 'Channel live' : 'Channel offline',
-            child: Icon(
-              Icons.circle,
-              color: isLive ? AppColors.acGreen : AppColors.acRed,
-              semanticLabel: isLive ? 'Live' : 'Offline',
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: provider.toggleSortOrder,
-            icon: const Icon(Icons.sort),
-            label: Text(provider.isAscending ? 'Asc' : 'Desc'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommuterTile(
-    BuildContext context,
-    D2dChannelProvider provider,
-    D2dCommuterModel commuter,
-  ) {
-    final scheme = Theme.of(context).colorScheme;
-    final onCard = scheme.onSurface;
-
-    return Slidable(
-      endActionPane: ActionPane(
-        motion: const StretchMotion(),
-        children: [
-          SlidableAction(
-            onPressed: (context) {
-              if (commuter.userId?.id != null) {
-                provider.removeCommuter(commuter.userId!.id.toString());
-              }
-            },
-            backgroundColor: AppColors.acRed,
-            icon: Icons.remove_circle_outline,
-            label: 'REMOVE',
-          ),
-        ],
-      ),
-      child: Card(
-        color: AppColors.acBlackLighter,
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: AppColors.acYellowWarm,
-            child: Text(
-              commuter.userId?.id.toString() ?? '?',
-              style: TextStyle(
-                color: AppColors.acBlack,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          title: Text(
-            commuter.userId?.username ?? 'N/A',
-            style: TextStyle(
-              color: onCard,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          subtitle: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Stack(
             children: [
-              Text(
-                commuter.popId?.pickUpPointName ?? 'N/A',
-                style: TextStyle(color: onCard.withValues(alpha: 0.7)),
+              ListView(
+                padding: EdgeInsets.fromLTRB(0, 8, 0, fabPadding + 72),
+                children: [
+              D2dTripHeader(
+                title: 'Currently Running',
+                subtitle: driverName != null && driverName.isNotEmpty
+                    ? 'Batch #${widget.batchId} · $driverName'
+                    : 'Batch #${widget.batchId}',
+                isLive: isLive,
               ),
-              Text(
-                'SORT: ${commuter.inLine ?? 0}',
-                style: TextStyle(color: onCard.withValues(alpha: 0.7)),
+              const SizedBox(height: 16),
+              D2dLiveControlsBar(
+                callLabel: driverName != null && driverName.isNotEmpty
+                    ? 'Call $driverName'
+                    : 'Call Driver',
+                onCall: () => _callDriver(provider),
+                isLive: isLive,
+                isAscending: provider.isAscending,
+                onToggleSort: provider.toggleSortOrder,
+              ),
+              const SizedBox(height: 16),
+              if (provider.commuters.isEmpty)
+                const StatusMessage(
+                  icon: Icons.hourglass_empty_rounded,
+                  title: 'Waiting for commuter data...',
+                  message: 'Live riders will appear here shortly.',
+                )
+              else ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    '${provider.commuters.length} commuter${provider.commuters.length == 1 ? '' : 's'} on board',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
+                for (var i = 0; i < provider.commuters.length; i++) ...[
+                  D2dAdminCommuterTile(
+                    commuter: provider.commuters[i],
+                    provider: provider,
+                    onCall: () {
+                      final mobile = provider.commuters[i].mobileNumber;
+                      if (mobile != null && mobile.isNotEmpty) {
+                        calling(mobile);
+                      }
+                    },
+                  ),
+                  if (i < provider.commuters.length - 1)
+                    const SizedBox(height: 8),
+                ],
+              ],
+            ],
+              ),
+              Positioned(
+                right: 16,
+                bottom: fabPadding,
+                child: FloatingActionButton(
+                  heroTag: 'd2dAddCommuter',
+                  tooltip: 'Add commuter',
+                  backgroundColor: AppColors.acYellowWarm,
+                  foregroundColor: AppColors.acBlack,
+                  onPressed: () => D2dAddCommuterSheet.show(
+                    context,
+                    batchId: widget.batchId,
+                    d2dProvider: provider,
+                    liveCommuterIds: liveCommuterIds,
+                  ),
+                  child: const Icon(Icons.person_add_rounded),
+                ),
               ),
             ],
-          ),
-          trailing: IconButton(
-            tooltip: 'Call commuter',
-            onPressed: () => _makePhoneCall(commuter.userId?.mobileNumber),
-            icon: Icon(Icons.call, color: scheme.primary, size: 24),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

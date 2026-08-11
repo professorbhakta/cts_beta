@@ -10,6 +10,7 @@ import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/admin_search_sort_row.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
+import 'package:cts/widgets/list_item_actions_sheet.dart';
 import 'package:cts/widgets/modern_list_card.dart';
 import 'package:cts/widgets/skeleton_list.dart';
 import 'package:cts/widgets/sort_dropdown_widget.dart';
@@ -452,54 +453,16 @@ class _CommuterList extends StatelessWidget {
                     .trim(),
             icon: Icons.person_rounded,
             iconColor: AppColors.acYellowWarm,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Switch(
-                  value: commuter.isComing ?? false,
-                  onChanged: (value) =>
-                      _handleIsComingToggle(context, commuter, value),
-                  activeThumbColor: AppColors.acGreen,
-                ),
-                PopupMenuButton<String>(
-                  tooltip: 'More options',
-                  iconSize: 20,
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      onEdit(commuter);
-                    } else if (value == 'delete') {
-                      onDelete(commuter);
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.edit_outlined,
-                          color: AppColors.acYellowWarm,
-                        ),
-                        title: const Text('Edit'),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.delete_outline,
-                          color: AppColors.acRed,
-                        ),
-                        title: Text(
-                          'Delete',
-                          style: TextStyle(color: AppColors.acRed),
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            onLongPress: () => ListItemActionsSheet.show(
+              context,
+              onEdit: () => onEdit(commuter),
+              onDelete: () => onDelete(commuter),
+            ),
+            trailing: Switch(
+              value: commuter.isComing ?? false,
+              onChanged: (value) =>
+                  _handleIsComingToggle(context, commuter, value),
+              activeThumbColor: AppColors.acGreen,
             ),
             children: [
               Row(

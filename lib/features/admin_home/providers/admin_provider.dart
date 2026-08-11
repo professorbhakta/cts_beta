@@ -1,6 +1,7 @@
 ﻿import 'dart:async';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/repositories/batch_repository.dart';
+import 'package:cts/features/batches/models/batch_model.dart';
 import 'package:cts/features/batches/repositories/running_batch_repository.dart';
 import 'package:cts/features/cabs/repositories/cab_repository.dart';
 import 'package:cts/features/commuters/repositories/commuter_repository.dart';
@@ -56,9 +57,11 @@ class AdminProvider with ChangeNotifier {
   int _popCount = 0;
   int get popCount => _popCount;
   
-  // Add new properties for the new data
   int _runningBatchCount = 0;
   int get runningBatchCount => _runningBatchCount;
+
+  List<RunningBatches> _runningBatches = [];
+  List<RunningBatches> get runningBatches => _runningBatches;
 
   int _isComingCount = 0;
   int get isComingCount => _isComingCount;
@@ -175,8 +178,12 @@ class AdminProvider with ChangeNotifier {
 
     final runningBatchResult = results[6];
     if (runningBatchResult.isSuccess) {
-      _runningBatchCount = runningBatchResult.data?.length ?? 0;
-    } else { hasError = true; }
+      _runningBatches = List<RunningBatches>.from(runningBatchResult.data ?? []);
+      _runningBatchCount = _runningBatches.length;
+    } else {
+      _runningBatches = [];
+      hasError = true;
+    }
 
     if (hasError) {
       _state = ViewState.error;

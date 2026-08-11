@@ -103,4 +103,4 @@ Legend: ✅ implemented in HTML demo
 | UI_ARCHITECTURE §3.1–3.10 | Matching screens in demo |
 | TESTING manual QA auth/CRUD/D2D | Rows above |
 | SCREENSHOTS checklist | Same screen set |
-| BUILD / API / ARCHITECTURE internals | Out of UI scope (see DOCS_ANALYSIS §6) |
+| BUILD / API / ARCHITECTURE internals | Out of UI scope (see [ARCHITECTURE.md](../ARCHITECTURE.md)) |

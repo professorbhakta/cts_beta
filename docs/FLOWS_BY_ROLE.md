@@ -1,3 +1,7 @@
+> **Doc:** docs/FLOWS_BY_ROLE.md
+> **Updated:** 2026-08-05 11:30 IST
+> **Session:** Verified unchanged
+
 # Flows by role
 
 Simple **click-path** guides. For the full route list, see [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md).

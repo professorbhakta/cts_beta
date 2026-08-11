@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A modern, visually appealing statistics card for the dashboard
+/// Primary overview stat card for dashboard (Batches, Commuters, etc.)
 class DashboardStatCard extends StatelessWidget {
   const DashboardStatCard({
     super.key,
@@ -10,7 +10,6 @@ class DashboardStatCard extends StatelessWidget {
     required this.onTap,
     this.subtitle,
     this.color,
-    this.gradient,
   });
 
   final String title;
@@ -19,92 +18,126 @@ class DashboardStatCard extends StatelessWidget {
   final VoidCallback onTap;
   final String? subtitle;
   final Color? color;
-  final Gradient? gradient;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveColor = color ?? theme.colorScheme.primary;
+    final scheme = theme.colorScheme;
+    final isLight = theme.brightness == Brightness.light;
+    final effectiveColor = color ?? scheme.primary;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
+          constraints: const BoxConstraints(minHeight: 96),
           decoration: BoxDecoration(
-            gradient:
-                gradient ??
-                LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    effectiveColor,
-                    effectiveColor.withValues(alpha: 0.7),
+            color: isLight ? scheme.surface : effectiveColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isLight
+                  ? scheme.outline.withValues(alpha: 0.35)
+                  : effectiveColor.withValues(alpha: 0.35),
+            ),
+            boxShadow: isLight
+                ? [
+                    BoxShadow(
+                      color: scheme.shadow.withValues(alpha: 0.07),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: effectiveColor.withValues(alpha: 0.12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
                   ],
-                ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: effectiveColor.withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(icon, color: Colors.white, size: 28),
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                Container(
+                  width: 5,
+                  decoration: BoxDecoration(
+                    color: effectiveColor,
+                    borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(14),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      value,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 32,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white.withValues(alpha: 0.8),
-                size: 16,
-              ),
-            ],
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: effectiveColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            icon,
+                            color: isLight ? Colors.white : scheme.onPrimary,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                value,
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: scheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.1,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                title,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2,
+                                ),
+                              ),
+                              if (subtitle != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  subtitle!,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: effectiveColor,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                          size: 22,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -112,7 +145,7 @@ class DashboardStatCard extends StatelessWidget {
   }
 }
 
-/// A compact stat card for secondary metrics with icon-centered design
+/// A compact stat card for secondary metrics — theme-aware for light/dark.
 class CompactStatCard extends StatelessWidget {
   const CompactStatCard({
     super.key,
@@ -134,7 +167,9 @@ class CompactStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveColor = color ?? theme.colorScheme.secondary;
+    final scheme = theme.colorScheme;
+    final isLight = theme.brightness == Brightness.light;
+    final effectiveColor = color ?? scheme.primary;
 
     return Material(
       color: Colors.transparent,
@@ -142,79 +177,92 @@ class CompactStatCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          height: 120, // Fixed height to ensure all cards are equal
+          constraints: const BoxConstraints(minHeight: 88),
           decoration: BoxDecoration(
-            color: effectiveColor.withValues(alpha: 0.15),
+            color: isLight ? scheme.surface : effectiveColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: effectiveColor.withValues(alpha: 0.4),
-              width: 1.5,
+              color: isLight
+                  ? scheme.outline.withValues(alpha: 0.35)
+                  : effectiveColor.withValues(alpha: 0.35),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: effectiveColor.withValues(alpha: 0.15),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            boxShadow: isLight
+                ? [
+                    BoxShadow(
+                      color: scheme.shadow.withValues(alpha: 0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: effectiveColor.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
           ),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(
             children: [
-              Text(
-                value,
-                style: theme.textTheme.headlineMedium?.copyWith(
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
                   color: effectiveColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  subtitle!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: effectiveColor.withValues(alpha: 0.85),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 8,
-                    height: 1.0,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              const SizedBox(height: 4),
-              Center(
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: effectiveColor.withValues(alpha: 0.25),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: effectiveColor, size: 26),
+                child: Icon(
+                  icon,
+                  color: isLight ? Colors.white : scheme.onPrimary,
+                  size: 22,
                 ),
               ),
-              const SizedBox(height: 4),
-              Flexible(
-                child: Text(
-                  title,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 9,
-                    height: 1.1,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      value,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: scheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      title,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: effectiveColor,
+                          fontWeight: FontWeight.w600,
+                          height: 1.1,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
                 ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                size: 20,
               ),
             ],
           ),

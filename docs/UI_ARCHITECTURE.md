@@ -1,3 +1,7 @@
+> **Doc:** docs/UI_ARCHITECTURE.md
+> **Updated:** 2026-08-05 11:30 IST
+> **Session:** Verified unchanged
+
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 
 > Easier entry: [START_HERE.md](./START_HERE.md) · Role flows: [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · **HTML layouts:** [wireframes/index.html](./wireframes/index.html) · Flutter stubs: [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md)

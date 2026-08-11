@@ -40,25 +40,22 @@ class CommuterRepositoryImpl implements CommuterRepository {
   Future<ApiResult<List<CommuterModel>>> getCommutersByBatch(
     String batchId,
   ) async {
-    try {
-      final response = await _apiService.getApi(
-        "${ApiUrl.adminBatchUrl}$batchId",
-      );
-      if (response is List<dynamic>) {
-        final commuters = response
-            .map(
-              (json) => CommuterModel.fromJson(Map<String, dynamic>.from(json)),
-            )
-            .toList();
-        return ApiResult.success(commuters);
-      } else {
-        return ApiResult.failure(
-          ApiExceptionHandler.handle('Invalid response format'),
-        );
-      }
-    } catch (e) {
-      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    final result = await getCommuters();
+    if (!result.isSuccess) {
+      return result;
     }
+
+    final targetBatchId = int.tryParse(batchId);
+    final filtered = (result.data ?? []).where((commuter) {
+      final commuterBatchId = commuter.batchId?.id;
+      if (commuterBatchId == null) return false;
+      if (targetBatchId != null) {
+        return commuterBatchId == targetBatchId;
+      }
+      return commuterBatchId.toString() == batchId;
+    }).toList();
+
+    return ApiResult.success(filtered);
   }
 
   @override

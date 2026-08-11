@@ -5,8 +5,13 @@ class RouteModel {
   RouteModel({this.id, this.routeName});
 
   RouteModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    routeName = json['routeName'];
+    final rawId = json['id'];
+    if (rawId is int) {
+      id = rawId;
+    } else if (rawId != null) {
+      id = int.tryParse(rawId.toString());
+    }
+    routeName = json['routeName']?.toString();
   }
 
   Map<String, dynamic> toJson() {

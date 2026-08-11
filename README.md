@@ -7,7 +7,6 @@ Cross-platform **Commuter Transport System (c2s)** — Flutter app for iOS and A
 | Start | Link |
 |-------|------|
 | **Begin here** | [docs/START_HERE.md](docs/START_HERE.md) |
-| **Folder tree** | [docs/FOLDER_GUIDE.md](docs/FOLDER_GUIDE.md) |
 | **Full index** | [docs/README.md](docs/README.md) |
 
 **Packs:** P1 architecture · P2 offline/build/test/API · P3 user guides + wireframe gallery + screenshot folders

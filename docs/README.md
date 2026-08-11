@@ -1,6 +1,35 @@
 # CTS (c2s) — Documentation
 
-> **New here?** → **[START_HERE.md](./START_HERE.md)** · **Lost in folders?** → **[FOLDER_GUIDE.md](./FOLDER_GUIDE.md)**
+> **New here?** → **[START_HERE.md](./START_HERE.md)** · **Full index:** this file
+
+---
+
+## Folder tree
+
+```text
+docs/
+├── START_HERE.md          ← begin here
+├── README.md              ← full library index (this file)
+├── LOCAL_DEV.md           ← Docker + Flutter .env setup
+├── GLOSSARY.md            ← terms (D2D, POP, CList, etc.)
+├── INTEGRATION.md         ← full-stack overview + diagrams
+├── API_CONTRACTS.md       ← REST + WebSocket contracts
+├── CHANGELOG_SPRINTS.md   ← completed sprint history
+├── backend/               ← Django/Docker deep docs
+├── features/              ← E2E flow docs (D2D, return batch)
+├── FLOWS_BY_ROLE.md       ← click paths by role
+├── UI_ARCHITECTURE.md     ← screens + providers + wireframe ASCII
+├── CODE_MAP.md            ← where code lives in lib/
+├── wireframes/            ← interactive HTML demo (open index.html)
+├── ARCHITECTURE.md        ← layers, DI, data flow
+├── OFFLINE_AND_SYNC.md    ← batches sync + offline_temp
+├── BUILD_AND_RELEASE.md   ← APK / iOS / .env
+├── TESTING.md             ← analyze, test, QA checklists
+├── API_AND_ENV.md         ← API_BASE_URL, WebSocket
+└── guides/                ← Admin / Driver / Commuter how-tos
+```
+
+**Preferred UI demo:** open [wireframes/index.html](./wireframes/index.html) in a browser.
 
 ---
 
@@ -24,7 +53,6 @@
 | Document | Description |
 |----------|-------------|
 | [START_HERE.md](./START_HERE.md) | Entry paths and 1-minute overview |
-| [FOLDER_GUIDE.md](./FOLDER_GUIDE.md) | Tree of every doc + wireframe code paths |
 | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | Click-path diagrams by role |
 | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Navigation matrix, controls, wireframes |
 | [CODE_MAP.md](./CODE_MAP.md) | `lib/` folder map |
@@ -50,6 +78,13 @@
 | [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) | Published |
 | [TESTING.md](./TESTING.md) | Published |
 | [API_AND_ENV.md](./API_AND_ENV.md) | Published |
+| [API_CONTRACTS.md](./API_CONTRACTS.md) | Published |
+| [LOCAL_DEV.md](./LOCAL_DEV.md) | Published |
+| [GLOSSARY.md](./GLOSSARY.md) | Published |
+| [INTEGRATION.md](./INTEGRATION.md) | Published |
+| [CHANGELOG_SPRINTS.md](./CHANGELOG_SPRINTS.md) | Published |
+| [backend/](./backend/) | Django/Docker detail |
+| [features/](./features/) | D2D + return E2E flows |
 
 ### P3 — Guides & visuals
 

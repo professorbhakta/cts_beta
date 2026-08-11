@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Quick action button for dashboard — min 48×48 touch target.
+/// Quick action tile for dashboard — horizontal layout, theme-aware.
 class QuickActionButton extends StatelessWidget {
   const QuickActionButton({
     super.key,
@@ -18,7 +18,9 @@ class QuickActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final effectiveColor = color ?? theme.colorScheme.primary;
+    final scheme = theme.colorScheme;
+    final isLight = theme.brightness == Brightness.light;
+    final effectiveColor = color ?? scheme.primary;
 
     return Semantics(
       button: true,
@@ -27,38 +29,62 @@ class QuickActionButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            constraints: const BoxConstraints(minHeight: 44),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: effectiveColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
+                color: isLight ? scheme.surface : effectiveColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: effectiveColor.withValues(alpha: 0.4),
-                  width: 1.5,
+                  color: isLight
+                      ? scheme.outline.withValues(alpha: 0.35)
+                      : effectiveColor.withValues(alpha: 0.35),
                 ),
+                boxShadow: isLight
+                    ? [
+                        BoxShadow(
+                          color: scheme.shadow.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ]
+                    : null,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Row(
                 children: [
-                  Icon(icon, color: effectiveColor, size: 24),
-                  const SizedBox(height: 6),
-                  Flexible(
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: effectiveColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isLight ? Colors.white : scheme.onPrimary,
+                      size: 17,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
                     child: Text(
                       label,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: scheme.onSurface,
                         fontWeight: FontWeight.w600,
+                        fontSize: 11,
                         height: 1.2,
                       ),
-                      textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 16,
+                    color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                 ],
               ),

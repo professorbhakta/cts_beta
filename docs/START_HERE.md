@@ -15,7 +15,7 @@ This guide is for anyone new to the CTS (c2s) mobile app—product, design, QA, 
 | **New developer** | [CODE_MAP.md](./CODE_MAP.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) → [FEATURES.md](./FEATURES.md) | HTML demo first; optional Flutter `/designWireframes` |
 | **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) · [wireframes/INTERACTIONS.md](./wireframes/INTERACTIONS.md) | **[wireframes/index.html](./wireframes/index.html)** + role test accounts |
 
-Full doc index: [README.md](./README.md) · Folder tree: [FOLDER_GUIDE.md](./FOLDER_GUIDE.md)
+Full doc index: [README.md](./README.md)
 
 ### Documentation packs (all published)
 

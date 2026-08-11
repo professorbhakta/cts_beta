@@ -49,6 +49,30 @@ class DriverRepositoryImpl implements DriverRepository {
   }
 
   @override
+  Future<ApiResult<DriverModel>> getDriverByBatch(String batchId) async {
+    try {
+      final response = await _apiService.getApi(
+        "${ApiUrl.commuterDriverUrl}$batchId",
+      );
+
+      if (response is Map<String, dynamic>) {
+        return ApiResult.success(DriverModel.fromJson(response));
+      }
+      if (response is Map) {
+        return ApiResult.success(
+          DriverModel.fromJson(Map<String, dynamic>.from(response)),
+        );
+      }
+
+      return ApiResult.failure(
+        ApiExceptionHandler.handle('Invalid driver response format'),
+      );
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  @override
   Future<ApiResult<void>> createDriver(Map<String, dynamic> data) async {
     try {
       final response = await _apiService.postApi(data, ApiUrl.cndUserUrl);

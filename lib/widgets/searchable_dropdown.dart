@@ -116,7 +116,9 @@ class SearchableDropdown<T> extends StatelessWidget {
           ),
         ),
         menuProps: MenuProps(
-          borderRadius: BorderRadius.circular(12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           elevation: 8,
         ),
         itemBuilder: (context, item, isSelected) {

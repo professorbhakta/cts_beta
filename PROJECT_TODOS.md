@@ -1,4 +1,10 @@
+> **Doc:** PROJECT_TODOS.md
+> **Updated:** 2026-08-05 11:37 IST
+> **Session:** Merged open backlog from known-gaps; doc cleanup prep
+
 # Project Todo & Progress
+
+**Session entry:** [PROJECT_BRAIN.md](PROJECT_BRAIN.md) · **Doc tracker:** [DOC_REGISTRY.md](DOC_REGISTRY.md) · **Chat templates:** [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt)
 
 ## Current Status
 - [x] Cursor multi-agent system setup completed
@@ -15,11 +21,11 @@
 
 ### Published
 
-- P0: START_HERE, FOLDER_GUIDE, FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE, WIREFRAME_GALLERY, wireframes in `lib/design/wireframes/`
+- P0: START_HERE, FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE, WIREFRAME_GALLERY, wireframes in `lib/design/wireframes/`
 - P1: ARCHITECTURE, ROUTING_AND_AUTH, FEATURES, DESIGN_SYSTEM_REVIEW
 - P2: OFFLINE_AND_SYNC, BUILD_AND_RELEASE, TESTING, API_AND_ENV
 - P3: guides/ (Admin, Driver, Commuter), SCREENSHOTS + assets/screenshots/ category folders (PNGs pending capture)
-- **Interactive HTML wireframes:** [docs/wireframes/index.html](docs/wireframes/index.html) (+ styles.css, app.js, DESIGN_SPEC, INTERACTIONS, DOCS_ANALYSIS) — preferred local demo
+- **Interactive HTML wireframes:** [docs/wireframes/index.html](docs/wireframes/index.html) (+ styles.css, app.js, DESIGN_SPEC, INTERACTIONS) — preferred local demo
 - Optional Flutter stubs: `lib/design/wireframes/` + debug `/designWireframes` route
 
 ### Optional follow-up
@@ -45,6 +51,22 @@
 10. [x] Pending-sync badge in admin drawer
 11. [ ] Phase 8 finish (admin_home, d2d, profile polish) then Phase 9–10
 12. [x] APK validation pass: analyze/test clean; Gradle assembleDebug SUCCESS; emulator smoke deferred (emulator stayed offline)
+
+### Open backlog — API / networking
+
+- [ ] WebSocket auth (deferred — dev mode OK for now)
+- [ ] Session cookies on WebSocket — monitor cross-platform attachment
+- [ ] `DEFAULT_ADMIN_CODE` empty — admin registration may need manual code entry
+- [ ] `channels_redis` for WS broadcast scaling (backend)
+
+### Open backlog — manual QA checklist
+
+- [ ] Admin: running batches after driver WS connect
+- [ ] Admin: D2D channel + add sheet
+- [ ] Driver: connect, pickup, STOP
+- [ ] Driver/admin: reconnect after STOP → ended message
+- [ ] Admin: return batch confirm / remove / end
+- [ ] Commuter: isComing toggle affects pools
 
 ## APK validation notes (2026-07-17)
 - Fixed: deprecated `encryptedSharedPreferences` in `session_manager.dart`

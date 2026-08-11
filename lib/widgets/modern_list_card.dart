@@ -10,6 +10,7 @@ class ModernListCard extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
+    this.onLongPress,
     this.children,
   });
 
@@ -19,6 +20,7 @@ class ModernListCard extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final List<Widget>? children;
 
   @override
@@ -29,6 +31,7 @@ class ModernListCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
@@ -129,32 +132,34 @@ class InfoRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 2),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Icon(icon, size: 14, color: effectiveIconColor),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              fontSize: 11,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-          if (value != null) ...[
-            const SizedBox(width: 3),
-            Text(
-              value!,
+          Flexible(
+            child: Text(
+              label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 11,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
-              textAlign: TextAlign.end,
+            ),
+          ),
+          if (value != null) ...[
+            const SizedBox(width: 3),
+            Flexible(
+              child: Text(
+                value!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 11,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                textAlign: TextAlign.end,
+              ),
             ),
           ],
         ],
