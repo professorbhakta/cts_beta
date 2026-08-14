@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Doc cleanup — migrated talk-guide, updated task packs
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Driver return ADD — any-batch pool, hide confirmed
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -53,7 +53,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Doc cleanup (2026-08-05):** Migrated talk-guide content into `docs/`; removed redundant files.
+**Idle after driver return ADD (2026-08-14):** Driver can confirm/remove on `/driverReturnCommuter` (End remains admin). Evening available pool is all org commuters except anyone already confirmed today (any batch; not gated on `isComing`). Django restarted; `test_return_batch_fixes.py` 14/14. Next: remaining Application High (A1, A6–A9) or R4/R5 STOP flush.
 
 ---
 
@@ -66,18 +66,33 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - Morning D2D Fix 4 — unique DTODLOG/day + status API
 - Flutter WS action error handling — SnackBar on admin + driver
 - Return batch backend R1–R6 + Flutter (tabs, confirm/remove/end)
-- Driver return screen — read-only `/driverReturnCommuter/:batchId`
-- Backend hardening — `test_d2d_fixes.py` (8/8), `test_return_batch_fixes.py` (10/10)
+- Driver return screen — confirm/remove on `/driverReturnCommuter/:batchId` (End admin-only)
+- Backend hardening — `test_d2d_fixes.py` (10/10, includes anonymous WS 4401), `test_return_batch_fixes.py` (10/10)
 - Flutter UX polish — driver log badge, swipe labels, return cards
 - Phase 7 batches migration; go_router; Provider retained; `flutter analyze` clean
+- Phase 8 polish — admin home partial-load UX, D2D status via `D2dRepository`, ProfileProvider + logout confirm
+- P1 docs freeze — feature folders are `screens/` / `providers/` / `models/` / `repositories/`
+- Return-batch REST — all six `/d2d/return_batch/` endpoints wired (view, status, get_commuter, add, remove, POST end)
+- Auth security wave — public sign-up disabled; TLS schemes kept; logout/401 clear cookies; D2D WS session + Django 4401/4403
+- Application wave Slice 1 (A2) — batch commuter swipe-edit and route edit/delete pass the model, not the sorted index
+- Application wave Slice 2 (A3) — commuter Email/Address restored; empty create address → email; update uses last saved
+- Application wave Slice 3 (A4) — dashboard Add Batch/Commuter/Driver/Cab/Route/POP call matching `clearAll()`
+- Same-class wave — A5 pop-reload by list scope; A10 commuter not wrapped in OfflineAutoRedirect; R6 unknown sync types fail once, connectivity disposed on app teardown
+- Admin nested `CommuterListScreen` Coming-today switch — was `onChanged: null`; now uses `updateCommuterIsComing` like `CommuterScreen`
+- Admin Coming switch actually persists — switch outside InkWell/Slidable; PATCH `{isComing}` by user ID; Django returns `{status, isComing}`
+- Admin D2D ADD — lookup by user ID (not batch-only); Http404 no longer drops the socket; success toast after live list updates
+- Driver return ADD — confirm/remove via REST; available = org commuters not confirmed today; End FAB still admin-only
 
 ### Open backlog (from PROJECT_TODOS)
 
-- Phase 8 finish (admin_home, d2d, profile polish) → Phase 9–10
+- Remaining Application High: A1 Track Cab vehicle, A6–A9
+- Deferred Reliability: R4 logout reset, R5 STOP flush
+- Backend `POST /user/` still trusts client `userType`
 - Phase 9: promote `offline_temp` entity coverage
 - Phase C–E restructure: delete re-export stubs, naming, offline merge
 - Admin CRUD placeholder screens / TODOs
-- Expand automated tests; API layer hardening (dio, cookies, env)
+- Expand automated tests
+- REST d2d view permissions still open in dev
 - Screenshot PNGs; semantic color tokens pilot
 - `channels_redis` for WS broadcast (backend backlog)
 
@@ -92,13 +107,13 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | Area | Path |
 |------|------|
 | App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart` |
-| Router | `lib/app/app_router.dart` |
+| Router | `lib/app/router/app_router.dart` |
 | Network | `lib/core/network/` |
 | API constants | `lib/api/api_list.dart` |
-| Config | `lib/core/config/app_config.dart` |
+| Config | `AppConfig` in `lib/appManager/app_class.dart` |
 | D2D live | `lib/features/d2d/` |
 | Batches + return | `lib/features/batches/` |
-| Shared widgets | `lib/shared/widgets/` |
+| Shared widgets | `lib/widgets/` |
 
 ---
 
@@ -118,8 +133,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-05 | Doc cleanup | Migrated talk-guide → docs/; removed redundant md files; fixed links |
-| 2026-08-05 | Bootstrap doc workflow | Created PROJECT_BRAIN, DOC_REGISTRY, CHAT_PROMPTS, feature READMEs, docs/API_CONTRACTS.md |
+| 2026-08-14 | Driver return ADD | Driver confirm/remove; pool is any org commuter; confirmed IDs hidden from all return available lists |
+| 2026-08-14 | Doc sync | Coming switch, STOP vs disconnect/4001, D2D ADD user-ID lookup written into owners |
+| 2026-08-14 | Admin D2D ADD | Sheet listed all commuters; WS ADD 404-crashed. Lookup by user ID; toast only if list updates |
 
 ---
 

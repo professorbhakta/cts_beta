@@ -1,5 +1,5 @@
 > **Doc:** docs/LIB_STRUCTURE.md
-> **Updated:** 2026-08-05 11:30 IST
+> **Updated:** 2026-08-14 22:00 IST
 > **Session:** Verified unchanged
 
 # Library structure (human-friendly)

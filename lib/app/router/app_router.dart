@@ -2,7 +2,6 @@ import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/appManager/d2d_route_args.dart';
 import 'package:cts/features/auth/screens/sign_in.dart';
-import 'package:cts/features/auth/screens/sign_up.dart';
 import 'package:cts/features/d2d/screens/d2d_channel.dart';
 import 'package:cts/features/d2d/screens/d2d_log_screen.dart';
 import 'package:cts/features/profile/screens/profile_screen.dart';
@@ -58,13 +57,19 @@ GoRouter createAppRouter({
       final loggedIn = authNotifier.loggedIn;
       final userType = authNotifier.userType;
 
+      // Public self-registration is disabled (S1). Keep the path so old
+      // deep links do not 404; send them to sign-in.
+      if (location == RouteName.signUp) {
+        return RouteName.signIn;
+      }
+
       if (!loggedIn) {
         if (isPublic) return null;
         return RouteName.signIn;
       }
 
       // Logged-in users leave auth screens.
-      if (location == RouteName.signIn || location == RouteName.signUp) {
+      if (location == RouteName.signIn) {
         return RouteName.homeForRole(userType);
       }
 
@@ -98,7 +103,7 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: RouteName.signUp,
-        builder: (context, state) => const SignUpScreen(),
+        redirect: (context, state) => RouteName.signIn,
       ),
       GoRoute(
         path: RouteName.profileScreen,
@@ -173,7 +178,10 @@ GoRouter createAppRouter({
           if (batchId == null || batchId.isEmpty) {
             return const DriverHomePage();
           }
-          return ReturnCommuterListScreen(batchId: batchId, readOnly: true);
+          return ReturnCommuterListScreen(
+            batchId: batchId,
+            canEndTrip: false,
+          );
         },
       ),
       GoRoute(

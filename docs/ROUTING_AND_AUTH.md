@@ -1,3 +1,7 @@
+> **Doc:** docs/ROUTING_AND_AUTH.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Auth security wave — public /signUp redirect; sessionid + logout/401
+
 # Routing and authentication
 
 How users move through the app: **go_router**, **session**, and **role-based access**.
@@ -47,8 +51,9 @@ Evaluated on navigation and when `SessionAuthNotifier` notifies (login/logout).
 |-----------|----------|
 | Location is splash | Allow (session still resolving) |
 | `!authNotifier.ready` | Allow (wait) |
+| Location is `/signUp` | `/signIn` (public self-registration disabled) |
 | Not logged in + not public route | `/signIn` |
-| Logged in on `/signIn` or `/signUp` | Role home |
+| Logged in on `/signIn` | Role home |
 | Path in `adminOnlyPrefixes` + user ≠ ADMIN | Role home |
 | Path in `driverOnlyPrefixes` + user not DRIVER (ADMIN excluded from driver-only *home* paths) | Role home |
 | Path in `commuterOnlyPrefixes` + user not COMMUTER (ADMIN excluded) | Role home |
@@ -64,7 +69,7 @@ Defined in `RouteName`:
 
 | Set | Purpose |
 |-----|---------|
-| `public` | splash, signIn, signUp, noInternet |
+| `public` | splash, signIn, signUp (redirects to sign-in), noInternet |
 | `adminOnlyPrefixes` | Dashboard, CRUD, running/return batches, D2D channel |
 | `driverOnlyPrefixes` | driver home, d2d log |
 | `commuterOnlyPrefixes` | commuter home |
@@ -105,20 +110,23 @@ Fallback builders redirect to safe screens if params missing (e.g. empty batchId
 
 `SessionAuthNotifier`:
 
-- `loggedIn` — from `SessionRepository.isLoggedIn()`
+- `loggedIn` — `isLogin` **and** a non-empty `sessionid` in `SessionManager` (in-memory after first secure-storage read)
 - `userType` — `ADMIN` | `DRIVER` | `COMMUTER` (string from session)
 - `ready` — first refresh completed
 
-Router `refreshListenable: authNotifier` re-runs redirects when session changes.
+Router `refreshListenable: authNotifier` re-runs redirects when session changes. HTTP **401** (except login) clears local session and refreshes the notifier — no extra session ping.
+
+Public **sign-up is disabled**. `/signUp` redirects to `/signIn`. Admins create DRIVER/COMMUTER via CRUD. Backend `POST /user/` still trusts client `userType` (follow-up).
 
 ---
 
 ## Logout flow
 
-1. Profile → logout via `SignInProvider`
-2. `ControllerResetUtil.resetAllControllers(context)`
-3. `SessionAuthNotifier.refresh()`
-4. `context.go(RouteName.signIn)`
+1. Profile or drawer → logout via `SignInProvider`
+2. `POST /user/logout` (best-effort); **always** `AppManager.clearLocalSession()` (cookies + prefs) even if POST fails
+3. `ControllerResetUtil.resetAllControllers(context)`
+4. `SessionAuthNotifier.refresh()`
+5. `context.go(RouteName.signIn)`
 
 ---
 

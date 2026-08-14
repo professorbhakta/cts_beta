@@ -151,12 +151,7 @@ class _RouteFormState extends State<RouteForm> {
                                 success = await _dataProvider.createRoute(data);
                               }
 
-                              if (!mounted) {
-                                setState(() {
-                                  _isSubmitting = false;
-                                });
-                                return;
-                              }
+                              if (!mounted) return;
 
                               setState(() {
                                 _isSubmitting = false;

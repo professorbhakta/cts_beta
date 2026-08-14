@@ -1,3 +1,7 @@
+> **Doc:** docs/README.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Auth security wave — index tree includes ROUTING_AND_AUTH
+
 # CTS (c2s) — Documentation
 
 > **New here?** → **[START_HERE.md](./START_HERE.md)** · **Full index:** this file
@@ -22,6 +26,7 @@ docs/
 ├── CODE_MAP.md            ← where code lives in lib/
 ├── wireframes/            ← interactive HTML demo (open index.html)
 ├── ARCHITECTURE.md        ← layers, DI, data flow
+├── ROUTING_AND_AUTH.md    ← go_router, session, logout/401, no public sign-up
 ├── OFFLINE_AND_SYNC.md    ← batches sync + offline_temp
 ├── BUILD_AND_RELEASE.md   ← APK / iOS / .env
 ├── TESTING.md             ← analyze, test, QA checklists

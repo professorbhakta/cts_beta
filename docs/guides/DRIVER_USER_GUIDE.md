@@ -1,3 +1,7 @@
+> **Doc:** docs/guides/DRIVER_USER_GUIDE.md
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Driver can confirm/remove return riders
+
 # Driver user guide
 
 Short guide for **drivers** using the c2s app.
@@ -36,9 +40,23 @@ If nothing appears, pull to refresh or contact admin — you may not be assigned
 2. Tap **START TRIP**
 3. You enter the **trip log** — list of commuters for this batch
 4. Use row actions to **call** or update status as your organization defines
-5. When finished, use **Stop trip** (or back) to return home
+5. When finished, tap **STOP TRIP**. That ends the morning trip for this batch **today**. Pressing **back** only leaves the live screen — the trip stays active until STOP.
 
 Stay on this screen during the trip so live updates work (requires network / WebSocket).
+
+If you reopen the log the same day after STOP, the app shows **trip already ended** (close 4001). A new log starts tomorrow.
+
+---
+
+## Evening return list
+
+If admin has a return trip for your batch:
+
+1. On **Driver home**, tap **RETURN LIST**
+2. **Available** shows every rider not yet given a return seat (including other morning batches)
+3. Swipe **Confirm** to add them to **Confirmed** — they leave Available
+4. Swipe **Remove** on Confirmed to put them back
+5. You cannot **End return** — that stays with admin
 
 ---
 

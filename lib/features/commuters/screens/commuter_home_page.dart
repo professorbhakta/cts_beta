@@ -4,7 +4,6 @@ import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/providers/commuter_home_provider.dart';
-import 'package:cts/offline_temp/offline_auto_redirect.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/common_button.dart';
@@ -49,43 +48,41 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return OfflineAutoRedirect(
-      child: Scaffold(
-        appBar: const BrandAppBar(),
-        drawer: const AppDrawer(),
-        body: SafeArea(
-          top: false,
-          child: RefreshIndicator(
-            onRefresh: () =>
-                context.read<CommuterHomeProvider>().fetchCommuterProfile(),
-            child: Consumer<CommuterHomeProvider>(
-              builder: (context, provider, child) {
-                return switch (provider.state) {
-                  ViewState.loading => _buildSkeleton(context),
-                  ViewState.error => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        StatusMessage.error(
-                          title: provider.errorMessage ?? 'An error occurred',
-                          onRetry: () => provider.fetchCommuterProfile(),
-                        ),
-                      ],
-                    ),
-                  _ when provider.commuterProfile == null =>
-                    ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        StatusMessage(
-                          icon: Icons.person_outline,
-                          title: 'Could not load your profile.',
-                          message: 'Pull to refresh.',
-                        ),
-                      ],
-                    ),
-                  _ => _buildContent(context, provider),
-                };
-              },
-            ),
+    return Scaffold(
+      appBar: const BrandAppBar(),
+      drawer: const AppDrawer(),
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
+          onRefresh: () =>
+              context.read<CommuterHomeProvider>().fetchCommuterProfile(),
+          child: Consumer<CommuterHomeProvider>(
+            builder: (context, provider, child) {
+              return switch (provider.state) {
+                ViewState.loading => _buildSkeleton(context),
+                ViewState.error => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      StatusMessage.error(
+                        title: provider.errorMessage ?? 'An error occurred',
+                        onRetry: () => provider.fetchCommuterProfile(),
+                      ),
+                    ],
+                  ),
+                _ when provider.commuterProfile == null =>
+                  ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      StatusMessage(
+                        icon: Icons.person_outline,
+                        title: 'Could not load your profile.',
+                        message: 'Pull to refresh.',
+                      ),
+                    ],
+                  ),
+                _ => _buildContent(context, provider),
+              };
+            },
           ),
         ),
       ),

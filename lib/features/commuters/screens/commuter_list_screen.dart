@@ -1,10 +1,12 @@
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/app/router/route_names.dart';
+import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/commuters/providers/commuter_controller.dart';
 import 'package:cts/features/commuters/providers/commuter_form_provider.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/utils/sort_utils.dart';
+import 'package:cts/widgets/coming_today_switch.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
@@ -46,22 +48,30 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
     }
   }
 
-  void _showEditDialog(BuildContext context, int index) {
-    final commuterProvider = context.read<CommuterController>();
-    final formProvider = context.read<CommuterFormProvider>();
-    final commuter = commuterProvider.commuters[index];
-
-    formProvider.updateId = commuter.userId?.id ?? 0;
-    formProvider.commName.text = commuter.userId?.username ?? "";
-    formProvider.commMob.text = commuter.userId?.mobileNumber ?? "";
-    // formProvider.commAddr.text = commuter.userId?.address ?? "";
-    formProvider.commClg.text = commuter.collegeName ?? "";
-    formProvider.selectedBatchId = commuter.batchId?.id;
-    formProvider.selectedCabId = commuter.cabId?.id;
-    formProvider.selectedPopId = commuter.popId?.id;
-    formProvider.forUpdate = true;
-
+  void _showEditDialog(CommuterModel commuter) {
+    context.read<CommuterFormProvider>().fillFromCommuter(commuter);
     context.push(RouteName.commuterForm);
+  }
+
+  Future<void> _handleIsComingToggle(
+    CommuterModel commuter,
+    bool newValue,
+  ) async {
+    final controller = context.read<CommuterController>();
+    final userId = commuter.userId?.id;
+
+    if (userId == null) {
+      SnackBarService.showErrorSnackbar('Invalid commuter ID');
+      return;
+    }
+
+    final success = await controller.updateCommuterIsComing(userId, newValue);
+
+    if (!success && mounted) {
+      SnackBarService.showErrorSnackbar(
+        controller.errorMessage ?? 'Failed to update commuter status.',
+      );
+    }
   }
 
   @override
@@ -115,7 +125,7 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
                     motion: const StretchMotion(),
                     children: [
                       SlidableAction(
-                        onPressed: (context) => _showEditDialog(context, index),
+                        onPressed: (_) => _showEditDialog(commuter),
                         backgroundColor: AppColors.acYellow,
                         icon: Icons.edit,
                         label: "EDIT",
@@ -185,9 +195,10 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
                           ],
                         ),
                       ),
-                      trailing: Switch(
+                      trailing: ComingTodaySwitch(
                         value: commuter.isComing ?? false,
-                        onChanged: null, // Display only, no action
+                        onChanged: (value) =>
+                            _handleIsComingToggle(commuter, value),
                       ),
                     ),
                   ),

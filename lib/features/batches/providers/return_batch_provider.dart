@@ -82,8 +82,17 @@ class ReturnBatchProvider with ChangeNotifier {
       return;
     }
 
-    _availableCommuters = availableResult.data ?? [];
-    _confirmedCommuters = confirmedResult.data?.commuters ?? [];
+    final confirmed = confirmedResult.data?.commuters ?? [];
+    final confirmedIds = {
+      ...?confirmedResult.data?.confirmedUserIds,
+      for (final commuter in confirmed)
+        if (commuter.userId?.id != null) commuter.userId!.id.toString(),
+    };
+    _confirmedCommuters = confirmed;
+    _availableCommuters = (availableResult.data ?? []).where((commuter) {
+      final id = commuter.userId?.id?.toString();
+      return id != null && !confirmedIds.contains(id);
+    }).toList();
     _capacity = confirmedResult.data?.capacity;
     _state = ViewState.success;
     notifyListeners();

@@ -4,6 +4,7 @@ import 'package:cts/screens/no_internet_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:cts/appManager/session_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -139,6 +140,14 @@ class AppManager {
 
   Future clearSharedPreferences() async {
     await _preferences?.clear();
+  }
+
+  /// Drops secure cookies, prefs, and in-memory role. Safe to call when
+  /// logout POST fails or a REST call returns 401.
+  Future<void> clearLocalSession() async {
+    await SessionManager().clear();
+    await clearSharedPreferences();
+    AppClass.userType = 0;
   }
 
   Future getPermissions() async {
@@ -279,18 +288,6 @@ class AppConfig {
     AppManager.defaultAdminCodeFallback = _instance!.defaultAdminCode;
 
     if (kDebugMode) {
-      final originalApiUrl = envApiBaseUrl();
-      final originalWsUrl = envWebSocketUrl();
-
-      if (originalApiUrl.startsWith('https://')) {
-        debugPrint(
-          'AppConfig: HTTPS detected in API_BASE_URL, converted to HTTP',
-        );
-      }
-      if (originalWsUrl.startsWith('wss://')) {
-        debugPrint('AppConfig: WSS detected in WEBSOCKET_URL, converted to WS');
-      }
-
       debugPrint('AppConfig: Using API Base URL: ${_instance!.apiBaseUrl}');
       debugPrint('AppConfig: Using WebSocket URL: ${_instance!.webSocketUrl}');
     }
@@ -298,17 +295,11 @@ class AppConfig {
 
   static String _normalizeBaseUrl(String value) {
     if (value.isEmpty) return value;
-
-    final normalized = value.replaceFirst(RegExp(r'^https://'), 'http://');
-
-    return normalized.endsWith('/') ? normalized : '$normalized/';
+    return value.endsWith('/') ? value : '$value/';
   }
 
   static String _normalizeWebSocketUrl(String value) {
     if (value.isEmpty) return value;
-
-    final normalized = value.replaceFirst(RegExp(r'^wss://'), 'ws://');
-
-    return normalized.endsWith('/') ? normalized : '$normalized/';
+    return value.endsWith('/') ? value : '$value/';
   }
 }

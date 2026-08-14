@@ -1,5 +1,5 @@
 > **Doc:** docs/ARCHITECTURE.md
-> **Updated:** 2026-08-05 11:30 IST
+> **Updated:** 2026-08-14 22:00 IST
 > **Session:** Verified unchanged
 
 # Architecture
@@ -123,7 +123,7 @@ All providers are registered in [`lib/app/app_providers.dart`](../lib/app/app_pr
 3. **Repository** → Dio API (or cache when offline-first)
 4. Controller sets `success` / `error`, `notifyListeners()`
 5. **UI** `Consumer` rebuilds: skeleton → list or `StatusMessage`
-6. **Form** uses separate `*FormProvider` for controllers; submit → controller create/update → `context.pop()`
+6. **Form** uses a separate app-scoped `*FormProvider` (`forUpdate` / `updateId` + controllers). Dashboard **Add** and list **+** call `clearAll()` before `push` so create does not PATCH the last edit. Submit → controller create/update → `context.pop()`. List swipe-edit passes the **row model**, not a sorted index.
 
 ---
 
@@ -141,16 +141,20 @@ Other entities are online-first with standard repositories.
 |---------|----------|
 | UI loading/error states | `ViewState` in `lib/appManager/view_state.dart` |
 | Snackbars | `SnackBarService` + global keys |
-| Session persistence | `SessionRepositoryImpl`, secure/local storage |
-| Auth API | `AuthenticationRepositoryImpl` |
+| Session persistence | `SessionRepositoryImpl` + `SessionManager` (secure storage, in-memory after first read) |
+| Auth API | `AuthenticationRepositoryImpl` — public sign-up disabled |
+| 401 / logout | `NetworkApiServices` + `AppManager.clearLocalSession()` |
+| Connectivity | One `ConnectivityService`; `isOnline` cached — do not add extra listeners |
 | Controller reset on logout | `ControllerResetUtil` |
 
 ---
 
 ## Adding a new feature (checklist)
 
-1. Create `lib/features/<name>/` with `data`, `domain`, `presentation`
-2. Add repository interface + impl
-3. Register `Provider` + `ChangeNotifierProvider`s in `app_providers.dart`
+1. Create `lib/features/<name>/` with `screens/`, `providers/`, `models/`, `repositories/` (see [LIB_STRUCTURE.md](./LIB_STRUCTURE.md)). Do **not** add `data/`, `domain/`, or `presentation/` inside a feature.
+2. Add repository interface + impl under `repositories/`
+3. Register `Provider` + `ChangeNotifierProvider`s in [`lib/app/app_providers.dart`](../lib/app/app_providers.dart)
 4. Add routes in `route_names.dart` and `app_router.dart`
 5. Update [FEATURES.md](./FEATURES.md) and [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md)
+
+Root `lib/data/` and `lib/domain/` stay **shared auth/session + local DB only** — not a template for new product features.

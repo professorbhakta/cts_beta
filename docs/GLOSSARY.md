@@ -1,6 +1,6 @@
 > **Doc:** docs/GLOSSARY.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/shared/01-glossary.md
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Return available pool is not isComing
 
 # Glossary
 
@@ -17,11 +17,15 @@ Terms used across backend and frontend docs.
 | **CList** | Postgres `ArrayField` on DTODLOG — **user IDs** of commuters picked up (confirmed) |
 | **DS** | Live queue state object: `{ data, D2D_id, driver }` — stored in Redis `d2d:live:…` |
 | **data** (in DS) | List of `{ "<user_id>": { pickUpPoint, inLine, mobile_number, username } }` |
-| **isComing** | Commuter flag: riding today; used for morning queue and return pool |
+| **isComing** | Commuter flag: riding **morning**; not used to gate the evening available pool |
 | **Live D2D** | Morning outbound trip — WebSocket-driven |
 | **Return batch** | Evening return trip — REST + Redis set (separate from live D2D) |
+| **Available pool** | `GET /d2d/return_batch/view/` — org commuters not confirmed on any return trip today |
+| **Confirmed (return)** | `GET /d2d/return_batch/get_commuter/` — Redis set of user IDs given a return seat |
 | **Running batches** | REST list of active DTODLOG rows today (`isActive=True`) |
 | **Ghost trip** | Was: reconnect after STOP reactivates queue — **fixed** (close 4001) |
+| **4001** | WS close: trip already ended today (`isActive=false` or `endTime` set) — not a REST stop |
+| **4401 / 4403** | WS close: no session / wrong role (not ADMIN or assigned DRIVER) |
 | **Fly list / live queue** | Commuters still on the trip (not yet in CList) |
 
 ## WebSocket ACTION names (counter-intuitive)
@@ -30,8 +34,8 @@ Terms used across backend and frontend docs.
 |--------|-----------|---------|
 | `REMOVE` | Driver | **Confirm pickup** — add to CList, remove from live queue |
 | `DELETE` | Admin/Driver | Remove from live queue only (no CList write) |
-| `ADD` | Admin | Add commuter to live queue |
-| `STOP` | Driver | End trip — finalize DTODLOG, clear live state |
+| `ADD` | Admin | Add commuter to live queue by **user ID** (any batch, must have POP) |
+| `STOP` | Driver only | End trip — finalize DTODLOG, clear live state. Admin disconnect does not send STOP |
 
 Flutter driver UI labels green swipe "Picked up" but sends `REMOVE`.
 

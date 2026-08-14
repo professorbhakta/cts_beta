@@ -1,14 +1,16 @@
 > **Doc:** docs/backend/06-planned-fixes.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/backend/06-planned-fixes.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Pointer to later WS connect auth (security wave)
 
 # Backend — Planned Fixes (Sprint) — Morning D2D
 
 **Target repo:** `D:\cts-docker\django\`
 
-**Scope:** Fixes 1, 2, 4 from audit. **No auth changes.**
+**Scope:** Fixes 1, 2, 4 from audit. **No auth in this sprint.**
 
 **Status:** ✅ Implemented (Aug 2026). Verify: `d2d_log/test_d2d_fixes.py`
+
+Connect-time WebSocket auth (cookie, 4401/4403) landed later in the **auth security wave** — see [05-audit-and-gaps.md](./05-audit-and-gaps.md) and [CHANGELOG_SPRINTS.md](../CHANGELOG_SPRINTS.md).
 
 ---
 

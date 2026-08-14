@@ -1,6 +1,6 @@
 > **Doc:** docs/features/RETURN_BATCH_E2E.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/cross-cutting/return-trip-evening.md
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Driver confirm/remove; any-batch available pool
 
 # Evening Return Trip (End-to-End)
 
@@ -12,10 +12,27 @@ Full-stack flow for return batch — REST + Redis, **not** WebSocket.
 
 ## Participants
 
-- **Commuter** — `isComing=True` (return pool); toggles on home screen
-- **Admin** — confirms return seats (capacity-limited)
-- **Driver** — read-only return list at `/driverReturnCommuter/:batchId`
+- **Commuter** — appears in every org return batch until confirmed
+- **Admin** — confirms return seats (capacity-limited); ends trip
+- **Driver** — confirm/remove on `/driverReturnCommuter/:batchId` (no End)
 - **Backend** — Redis set + REST under `/d2d/return_batch/`
+
+---
+
+## REST used by the app
+
+Every evening endpoint is called from `ReturnBatchRepositoryImpl`. Contract: [../API_CONTRACTS.md](../API_CONTRACTS.md).
+
+| Call | When |
+|------|------|
+| `GET …/status/<id>` | Batch picker cards |
+| `GET …/view/<id>` | Available tab (org commuters not confirmed today) |
+| `GET …/get_commuter/<id>` | Confirmed tab (default hydrate; no query param) |
+| `POST …/add_commuter` `{ batch_id, commuter_id }` | Admin or driver Confirm (`commuter_id` = user id, any batch) |
+| `POST …/remove_commuter` same body | Admin or driver Remove |
+| `POST …/end/<id>` | Admin End FAB (not GET) |
+
+Driver uses the same GET + add/remove POSTs. End stays admin-only.
 
 ---
 
@@ -35,7 +52,7 @@ Full-stack flow for return batch — REST + Redis, **not** WebSocket.
 | Step | Frontend | Backend |
 |------|----------|---------|
 | Load trip | `loadReturnTrip()` → Available tab | `GET view/{id}` |
-| Display | `CommuterModel` from `commuters` array | `isComing=True` rows |
+| Display | `CommuterModel` from `commuters` array | Org commuters minus today's confirmed IDs |
 
 ---
 
@@ -53,8 +70,8 @@ Full-stack flow for return batch — REST + Redis, **not** WebSocket.
 
 | Step | Frontend | Backend |
 |------|----------|---------|
-| Confirmed tab + banner | `ReturnBatchProvider.capacity` | `GET get_commuter/{id}` |
-| Names | Parse `commuters` (hydrated) | No client-side ID join |
+| Confirmed tab + banner | `ReturnBatchProvider.capacity` | `GET get_commuter/{id}` (hydrated `commuters` by default) |
+| Names | Parse `commuters` | No `?hydrate=` from client; no ID join |
 
 ---
 
@@ -94,12 +111,12 @@ sequenceDiagram
   B->>A: seats + counts
   A->>B: GET view/1
   B->>DB: isComing True
-  A->>B: POST add userId
+  A->>B: POST add_commuter {batch_id, commuter_id}
   B->>R: SADD
   B->>DB: isComing False
   A->>B: GET get_commuter/1
-  B->>R: SMEMBERS
-  A->>B: POST remove userId
+  B->>R: SMEMBERS + hydrate (default)
+  A->>B: POST remove_commuter {batch_id, commuter_id}
   B->>R: SREM
   B->>DB: isComing True
   A->>B: POST end/1

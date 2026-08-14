@@ -1,6 +1,6 @@
 > **Doc:** docs/features/D2D_E2E.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/cross-cutting/d2d-morning-trip.md
+> **Updated:** 2026-08-14 21:55 IST
+> **Session:** Doc sync — DTODLOG on connect; ADD by user ID; STOP vs DC
 
 # Morning D2D Trip (End-to-End)
 
@@ -32,14 +32,15 @@ Full-stack flow for live door-to-door morning pickup. **Status:** Fixes 1, 2, 4 
 
 | Step | Actor | Backend | Frontend |
 |------|-------|---------|----------|
-| Open live log | Driver | WS `connect()` | `D2DLogScreen` → `connect(batchId)` |
-| Create DTODLOG | Backend | `get_or_create(batchId, tripDate)` | — |
+| Open live log | Driver | WS `connect()` with session cookie | `D2DLogScreen` → `connect(batchId)` |
+| Reject anonymous / wrong role | Backend | Close **4401** / **4403** | error UI, not empty list |
+| Create DTODLOG | Backend | `get_or_create(batchId, tripDate)` — this is the DB row; **not** STOP | — |
 | Ended log guard | Backend | Close 4001 if already stopped | `isTripEnded` error UI |
 | Build live queue | Backend | Redis miss → rebuild from DB → `d2d:live:…` | — |
 | Initial snapshot | Backend | `{"result": DS}` | `_handleWebSocketMessage` |
 | Running list | Admin REST | `GET running_batches` | Dashboard poll |
 
-**URL:** `ws://<host>/ws/<batch_id>/`
+**URL:** `ws://<host>/ws/<batch_id>/` (or `wss://`). Handshake includes `Cookie: sessionid=…`.
 
 ---
 
@@ -58,7 +59,7 @@ Full-stack flow for live door-to-door morning pickup. **Status:** Fixes 1, 2, 4 
 |--------|-----------|----------|-----------|----------------|
 | Confirm pickup | Swipe green | — | REMOVE | CList += userId, Redis DS update |
 | Remove from list | Swipe red | Swipe red | DELETE | DS only |
-| Add commuter | — | Add sheet | ADD | Append to DS |
+| Add commuter | — | Add sheet (all commuters) | ADD | Lookup by user ID (this batch, then any). Needs POP. Missing row → `invalid_commuter`, socket stays up |
 | Call | Phone links | Phone links | — | — |
 
 All mutations broadcast `{"result": DS}` to group.
@@ -81,8 +82,8 @@ All mutations broadcast `{"result": DS}` to group.
 | Scenario | Behavior |
 |----------|----------|
 | Django restart mid-trip | Redis DS restored on reconnect ✅ |
-| Reconnect after STOP | 4001 + Flutter error ✅ |
-| Driver closes app without STOP | Trip stays active (by design) |
+| Driver closes app / admin Close channel without STOP | Trip stays active (by design). Reconnect joins the same `DTODLOG` |
+| Reconnect after STOP same day | 4001 + Flutter error ✅ |
 | Empty isComing pool | Empty queue / WAITING chip |
 
 ---
@@ -99,7 +100,8 @@ sequenceDiagram
   participant R as Redis d2d:live
 
   C->>B: isComing True
-  D->>B: WS connect
+  D->>B: WS connect + Cookie
+  B->>B: 4401/4403 if no session or wrong role
   B->>DB: get_or_create DTODLOG
   B->>R: set DS
   B->>D: snapshot

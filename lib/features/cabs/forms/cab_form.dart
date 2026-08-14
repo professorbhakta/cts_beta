@@ -281,12 +281,7 @@ class _CabFormState extends State<CabForm> {
                                 success = await _dataProvider.createCab(data);
                               }
 
-                              if (!mounted) {
-                                setState(() {
-                                  _isSubmitting = false;
-                                });
-                                return;
-                              }
+                              if (!mounted) return;
 
                               setState(() {
                                 _isSubmitting = false;

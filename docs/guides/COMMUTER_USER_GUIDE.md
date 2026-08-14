@@ -1,3 +1,7 @@
+> **Doc:** docs/guides/COMMUTER_USER_GUIDE.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Auth security wave — accounts created by admin
+
 # Commuter user guide
 
 Short guide for **commuters** using the c2s app.
@@ -9,7 +13,7 @@ Short guide for **commuters** using the c2s app.
 ## Sign in
 
 1. Open the app
-2. Enter mobile and password
+2. Enter mobile and password (account created by admin)
 3. Tap **Login** → **Commuter home**
 
 ---

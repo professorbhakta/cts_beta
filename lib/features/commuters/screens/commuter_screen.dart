@@ -8,6 +8,7 @@ import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/utils/commuter_sort_options.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/admin_search_sort_row.dart';
+import 'package:cts/widgets/coming_today_switch.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/list_item_actions_sheet.dart';
@@ -165,20 +166,7 @@ class _CommuterScreenState extends State<CommuterScreen> {
 
   // START MODIFICATION: Update signature to be type-safe
   void _showEditDialog(CommuterModel commuter) {
-    final formProvider = context.read<CommuterFormProvider>();
-
-    formProvider.forUpdate = true;
-    formProvider.updateId = commuter.userId?.id ?? 0;
-
-    formProvider.commName.text = commuter.userId?.username ?? "";
-    formProvider.commMob.text = commuter.userId?.mobileNumber ?? "";
-    // formProvider.commAddr.text = commuter.userId?.address ?? "";
-    formProvider.commClg.text = commuter.collegeName ?? "";
-
-    formProvider.selectedBatchId = commuter.batchId?.id;
-    formProvider.selectedCabId = commuter.cabId?.id;
-    formProvider.selectedPopId = commuter.popId?.id;
-
+    context.read<CommuterFormProvider>().fillFromCommuter(commuter);
     context.push(RouteName.commuterForm);
   }
 
@@ -458,11 +446,10 @@ class _CommuterList extends StatelessWidget {
               onEdit: () => onEdit(commuter),
               onDelete: () => onDelete(commuter),
             ),
-            trailing: Switch(
+            trailing: ComingTodaySwitch(
               value: commuter.isComing ?? false,
               onChanged: (value) =>
                   _handleIsComingToggle(context, commuter, value),
-              activeThumbColor: AppColors.acGreen,
             ),
             children: [
               Row(

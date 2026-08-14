@@ -1,3 +1,7 @@
+> **Doc:** docs/BUILD_AND_RELEASE.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Auth security wave — release has no cleartext
+
 # Build and release
 
 How to build and ship the CTS Flutter app (Android focus from current project notes).
@@ -22,6 +26,21 @@ flutter pub get
 flutter analyze
 flutter test
 ```
+
+### Phase 8 quality gate (required after feature work)
+
+Run in this order before calling a session done:
+
+```bash
+flutter pub get
+flutter analyze
+flutter test
+flutter build apk --debug
+```
+
+- `flutter analyze` must report **0 issues**
+- Debug APK output (typical): `build/app/outputs/flutter-apk/app-debug.apk`
+- Historical copy path from earlier validation: `build_android/app/outputs/apk/debug/app-debug.apk`
 
 ### Debug run
 
@@ -49,13 +68,13 @@ flutter build apk --release
 
 Documented fixes in PROJECT_TODOS:
 
-- Release manifest: INTERNET, cleartext if needed for dev LAN API
+- Main/release manifest: INTERNET only (no `usesCleartextTraffic`). Debug/profile manifests allow HTTP for LAN Docker.
 - CMake version pinned for NDK builds
 - Kotlin incremental cache issues on Windows (C: pub cache + D: project) — Gradle flags documented in PROJECT_TODOS
 
 Before store release:
 
-- Replace LAN `http://172.20.10.2/` with production HTTPS endpoints in `.env`
+- Replace LAN `http://…` with production **HTTPS** / **WSS** in `.env` (AppConfig does not downgrade schemes)
 - Configure signing (`key.properties`, release keystore)
 - Review `android/app/build.gradle.kts` min/target SDK
 

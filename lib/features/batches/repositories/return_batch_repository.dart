@@ -28,8 +28,10 @@ class ReturnBatchConfirmedResult {
   const ReturnBatchConfirmedResult({
     required this.commuters,
     required this.capacity,
+    this.confirmedUserIds = const {},
   });
 
   final List<CommuterModel> commuters;
   final ReturnBatchCapacityModel capacity;
+  final Set<String> confirmedUserIds;
 }

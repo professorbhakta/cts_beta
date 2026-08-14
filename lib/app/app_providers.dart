@@ -45,6 +45,9 @@ import 'package:cts/domain/repositories/session_repository.dart';
 import 'package:cts/domain/usecases/get_initial_route_usecase.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
+import 'package:cts/features/d2d/repositories/d2d_repository.dart';
+import 'package:cts/features/d2d/repositories/d2d_repository_impl.dart';
+import 'package:cts/features/profile/providers/profile_provider.dart';
 import 'package:cts/features/splash/providers/splash_provider.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
 import 'package:provider/provider.dart';
@@ -114,6 +117,11 @@ class AppProviders {
           apiService: context.read<BaseApiServices>(),
         ),
       ),
+      Provider<D2dRepository>(
+        create: (context) => D2dRepositoryImpl(
+          apiService: context.read<BaseApiServices>(),
+        ),
+      ),
       Provider<GetInitialRouteUseCase>(
         create: (context) =>
             GetInitialRouteUseCase(context.read<SessionRepository>()),
@@ -165,7 +173,10 @@ class AppProviders {
       ),
       ChangeNotifierProvider(
         create: (context) =>
-            D2dChannelProvider(context.read<DriverRepository>()),
+            D2dChannelProvider(
+              context.read<DriverRepository>(),
+              context.read<D2dRepository>(),
+            ),
       ),
       ChangeNotifierProvider(
         create: (context) => AdminProvider(
@@ -186,12 +197,20 @@ class AppProviders {
         create: (context) =>
             CommuterHomeProvider(context.read<CommuterRepository>()),
       ),
+      ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ChangeNotifierProvider(create: (_) => OfflineTempProvider()),
     ];
   }
 
   static Future<AppBootstrap> bootstrapServices() async {
-    final apiService = NetworkApiServices();
+    final sessionAuthNotifier = SessionAuthNotifier(SessionRepositoryImpl());
+    await sessionAuthNotifier.refresh();
+
+    final apiService = NetworkApiServices(
+      onUnauthorized: () async {
+        await sessionAuthNotifier.refresh();
+      },
+    );
     final connectivityService = ConnectivityService();
     final syncManager = SyncManager(connectivityService: connectivityService);
     final offlineFirstBatchRepository = OfflineFirstBatchRepository(
@@ -200,9 +219,6 @@ class AppProviders {
     );
     offlineFirstBatchRepository.registerSyncHandlers(syncManager);
     await syncManager.start();
-
-    final sessionAuthNotifier = SessionAuthNotifier(SessionRepositoryImpl());
-    await sessionAuthNotifier.refresh();
 
     return AppBootstrap(
       apiService: apiService,

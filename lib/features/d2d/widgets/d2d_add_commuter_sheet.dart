@@ -88,19 +88,23 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
     setState(() {});
   }
 
-  void _addCommuter(CommuterModel commuter) {
+  Future<void> _addCommuter(CommuterModel commuter) async {
     final id = commuter.userId?.id;
     if (id == null) return;
 
-    widget.d2dProvider.addCommuter(id.toString());
-    Navigator.of(context).pop();
+    final messenger = ScaffoldMessenger.of(context);
+    final name = commuter.userId?.username ?? 'Commuter';
+    final sent = widget.d2dProvider.addCommuter(id.toString());
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+    if (!sent) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${commuter.userId?.username ?? 'Commuter'} added to live list',
-        ),
-      ),
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    final onList = widget.d2dProvider.commuters.any((item) => item.id == id);
+    if (!onList) return;
+    messenger.showSnackBar(
+      SnackBar(content: Text('$name added to live list')),
     );
   }
 

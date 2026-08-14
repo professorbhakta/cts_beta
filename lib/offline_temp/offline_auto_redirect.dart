@@ -1,26 +1,23 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'dart:async';
+
+import 'package:cts/api/connectivity_service.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 /// Sends Admin/Driver users to offline mode when there is no connection.
+///
+/// Uses the app-scoped [ConnectivityService] — does not open another plugin
+/// listener, and does not re-probe Connectivity on every event.
 class OfflineAutoRedirect extends StatefulWidget {
   const OfflineAutoRedirect({required this.child, super.key});
 
   final Widget child;
 
   static bool isOfflineRole() {
-    final userType = AppManager.instance.getString(ManagerKey.userType);
-    if (userType == 'ADMIN' || userType == 'DRIVER') return true;
-
-    // Fallback when session flags are set but user_type string is missing.
-    return AppClass.userType == 1 || AppClass.userType == 2;
-  }
-
-  static Future<bool> isDeviceOffline() async {
-    final results = await Connectivity().checkConnectivity();
-    return results.every((result) => result == ConnectivityResult.none);
+    return SessionRole.isAdmin || SessionRole.isDriver;
   }
 
   @override
@@ -28,18 +25,49 @@ class OfflineAutoRedirect extends StatefulWidget {
 }
 
 class _OfflineAutoRedirectState extends State<OfflineAutoRedirect> {
+  StreamSubscription<bool>? _onlineSub;
+  bool _listening = false;
+
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _redirectIfNeeded());
-    Connectivity().onConnectivityChanged.listen((_) => _redirectIfNeeded());
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_listening) return;
+    _listening = true;
+    if (!OfflineAutoRedirect.isOfflineRole()) return;
+
+    final connectivity = _connectivityOf(context);
+    if (connectivity == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_redirectIfOffline());
+    });
+    _onlineSub = connectivity.onOnlineStatusChanged.listen((isOnline) {
+      if (!isOnline) unawaited(_redirectIfOffline());
+    });
   }
 
-  Future<void> _redirectIfNeeded() async {
+  ConnectivityService? _connectivityOf(BuildContext context) {
+    try {
+      return context.read<ConnectivityService>();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _onlineSub?.cancel();
+    _onlineSub = null;
+    super.dispose();
+  }
+
+  Future<void> _redirectIfOffline() async {
     if (!mounted || !OfflineAutoRedirect.isOfflineRole()) return;
 
-    final isOffline = await OfflineAutoRedirect.isDeviceOffline();
-    if (!isOffline || !mounted) return;
+    final connectivity = _connectivityOf(context);
+    if (connectivity == null) return;
+    final isOnline = await connectivity.isOnline;
+    if (isOnline || !mounted) return;
 
     final currentRoute = ModalRoute.of(context)?.settings.name;
     if (currentRoute == RouteName.offlineTempHome ||

@@ -16,10 +16,12 @@ class ReturnCommuterListScreen extends StatefulWidget {
     super.key,
     required this.batchId,
     this.readOnly = false,
+    this.canEndTrip = true,
   });
 
   final String batchId;
   final bool readOnly;
+  final bool canEndTrip;
 
   @override
   State<ReturnCommuterListScreen> createState() =>
@@ -38,7 +40,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
       if (!mounted) return;
       final provider = context.read<ReturnBatchProvider>();
       provider.loadReturnTrip(widget.batchId);
-      if (widget.readOnly) {
+      if (!widget.canEndTrip) {
         provider.fetchStatusesForBatches([widget.batchId]);
       }
     });
@@ -53,7 +55,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   Future<void> _refresh() async {
     final provider = context.read<ReturnBatchProvider>();
     await provider.loadReturnTrip(widget.batchId);
-    if (widget.readOnly) {
+    if (!widget.canEndTrip) {
       await provider.fetchStatusesForBatches([widget.batchId]);
     }
   }
@@ -133,9 +135,6 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   }
 
   String _headline() {
-    if (widget.readOnly) {
-      return 'Return commuters — Batch #${widget.batchId}';
-    }
     return 'Return Trip — Batch #${widget.batchId}';
   }
 
@@ -151,7 +150,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BrandAppBar(),
-      floatingActionButton: widget.readOnly
+      floatingActionButton: (!widget.canEndTrip || widget.readOnly)
           ? null
           : Consumer<ReturnBatchProvider>(
               builder: (context, provider, _) {
@@ -235,7 +234,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                         emptyTitle: 'No commuters available',
                         emptyMessage: _emptyMessage(
                           defaultMessage:
-                              'Commuters with "Coming" enabled will appear here.',
+                              'Commuters not yet confirmed for a return trip will appear here.',
                           isActive: isActive,
                         ),
                         actionLabel: 'Confirm',

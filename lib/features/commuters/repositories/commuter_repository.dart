@@ -1,7 +1,10 @@
 import 'package:cts/api/api_result.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
+import 'package:cts/models/user_model.dart';
 
 abstract class CommuterRepository {
+  Future<ApiResult<UserModel>> getUser(int userId);
+
   Future<ApiResult<List<CommuterModel>>> getCommuters();
 
   Future<ApiResult<List<CommuterModel>>> getCommutersByBatch(String batchId);

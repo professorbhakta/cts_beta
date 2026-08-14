@@ -17,7 +17,7 @@ void main() async {
 
   // Pretend an admin session so offline-only UI behaves like production.
   AppManager.instance.setString(ManagerKey.userType, 'ADMIN');
-  AppClass.userType = 1;
+  AppClass.userType = 3;
 
   runApp(const OfflineDebugApp());
 }

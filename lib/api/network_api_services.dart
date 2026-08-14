@@ -2,6 +2,7 @@ import 'dart:convert'; // Import for jsonEncode
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:cts/api/api_list.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/api/logging_interceptor.dart';
@@ -13,7 +14,12 @@ const String _csrfCookieName = 'csrftoken';
 const String _sessionCookieName = 'sessionid';
 
 class NetworkApiServices extends BaseApiServices {
-  NetworkApiServices({String? baseUrl})
+  NetworkApiServices({
+    String? baseUrl,
+    Future<void> Function()? onUnauthorized,
+  }) : this._(baseUrl, onUnauthorized);
+
+  NetworkApiServices._(String? baseUrl, this._onUnauthorized)
       : _sessionManager = SessionManager(),
         _dio = Dio(
           BaseOptions(
@@ -63,6 +69,10 @@ class NetworkApiServices extends BaseApiServices {
           return handler.next(response);
         },
         onError: (error, handler) async {
+          final status = error.response?.statusCode;
+          if (status == 401 && !_isLoginOrSignUpPath(error.requestOptions.path)) {
+            await _handleUnauthorized();
+          }
           return handler.next(error);
         },
       ),
@@ -71,6 +81,25 @@ class NetworkApiServices extends BaseApiServices {
 
   final Dio _dio;
   final SessionManager _sessionManager;
+  final Future<void> Function()? _onUnauthorized;
+  bool _clearingSession = false;
+
+  bool _isLoginOrSignUpPath(String path) {
+    final normalized = path.toLowerCase();
+    return normalized.endsWith(ApiUrl.loginUrl) ||
+        normalized.contains('/${ApiUrl.loginUrl}');
+  }
+
+  Future<void> _handleUnauthorized() async {
+    if (_clearingSession) return;
+    _clearingSession = true;
+    try {
+      await AppManager.instance.clearLocalSession();
+      await _onUnauthorized?.call();
+    } finally {
+      _clearingSession = false;
+    }
+  }
 
   Future<void> _handleSetCookie(List<String>? setCookieHeaders) async {
     if (setCookieHeaders == null || setCookieHeaders.isEmpty) return;

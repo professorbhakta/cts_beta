@@ -1,11 +1,11 @@
-import 'package:cts/api/api_list.dart';
-import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
+import 'package:cts/features/d2d/repositories/d2d_repository.dart';
+import 'package:cts/features/d2d/widgets/d2d_action_error_listener.dart';
 import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/widgets/admin_form_header.dart';
@@ -15,8 +15,6 @@ import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-enum _PreConnectTripState { unknown, none, active, ended }
 
 class D2DLogScreen extends StatefulWidget {
   const D2DLogScreen({super.key, required this.batchId});
@@ -29,33 +27,22 @@ class D2DLogScreen extends StatefulWidget {
 
 class _D2DLogScreenState extends State<D2DLogScreen> {
   D2dChannelProvider? _d2dProvider;
-  _PreConnectTripState _preConnectState = _PreConnectTripState.unknown;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = context.read<D2dChannelProvider>();
-    if (!identical(_d2dProvider, provider)) {
-      _d2dProvider?.removeListener(_onD2dProviderChanged);
-      _d2dProvider = provider;
-      _d2dProvider!.addListener(_onD2dProviderChanged);
-    }
+    attachD2dActionErrorListener(
+      current: _d2dProvider,
+      next: provider,
+      listener: _onD2dProviderChanged,
+    );
+    _d2dProvider = provider;
   }
 
   void _onD2dProviderChanged() {
-    final message = _d2dProvider?.actionErrorMessage;
-    if (message == null || !mounted) return;
-
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    if (messenger == null) return;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
-    _d2dProvider?.clearActionError();
+    if (!mounted) return;
+    handleD2dActionError(context, _d2dProvider);
   }
 
   @override
@@ -67,38 +54,9 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       if (driverHome.driverProfile == null) {
         driverHome.fetchDriverProfile();
       }
-      _fetchPreConnectStatus();
+      _d2dProvider?.fetchTripStatus(widget.batchId);
       _d2dProvider?.connect(widget.batchId);
     });
-  }
-
-  Future<void> _fetchPreConnectStatus() async {
-    try {
-      final response = await context.read<BaseApiServices>().getApi(
-            '${ApiUrl.d2dLogStatus}${widget.batchId}',
-          );
-      if (!mounted) return;
-
-      if (response is! Map) {
-        setState(() => _preConnectState = _PreConnectTripState.none);
-        return;
-      }
-
-      final map = Map<String, dynamic>.from(response);
-      final status = map['status']?.toString();
-      final isActive = map['is_active'] == true;
-
-      setState(() {
-        if (status == 'ended' || !isActive) {
-          _preConnectState = _PreConnectTripState.ended;
-        } else {
-          _preConnectState = _PreConnectTripState.active;
-        }
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _preConnectState = _PreConnectTripState.none);
-    }
   }
 
   @override
@@ -170,13 +128,13 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     }
   }
 
-  Widget _buildPreConnectBadge(BuildContext context) {
-    if (_preConnectState == _PreConnectTripState.unknown ||
-        _preConnectState == _PreConnectTripState.none) {
+  Widget _buildPreConnectBadge(BuildContext context, D2dTripStatus tripStatus) {
+    if (tripStatus == D2dTripStatus.unknown ||
+        tripStatus == D2dTripStatus.none) {
       return const SizedBox.shrink();
     }
 
-    final isEnded = _preConnectState == _PreConnectTripState.ended;
+    final isEnded = tripStatus == D2dTripStatus.ended;
     final color = isEnded ? AppColors.acRed : AppColors.acGreen;
     final label = isEnded ? 'TRIP ENDED TODAY' : 'TRIP ACTIVE';
 
@@ -219,7 +177,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           subtitle: 'Batch #${widget.batchId}',
           isLive: isLive,
         ),
-        _buildPreConnectBadge(context),
+        _buildPreConnectBadge(context, provider.tripStatus),
         D2dLiveControlsBar(
           callLabel: 'Call Admin',
           onCall: _callAdmin,
@@ -275,7 +233,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                     subtitle: 'Batch #${widget.batchId}',
                     isLive: false,
                   ),
-                  _buildPreConnectBadge(context),
+                  _buildPreConnectBadge(context, provider.tripStatus),
                   const SizedBox(height: 24),
                   const LoadingIndicator(),
                 ],
@@ -290,7 +248,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                     subtitle: 'Batch #${widget.batchId}',
                     isLive: false,
                   ),
-                  _buildPreConnectBadge(context),
+                  _buildPreConnectBadge(context, provider.tripStatus),
                   const SizedBox(height: 24),
                   StatusMessage.error(
                     title: provider.errorMessage ?? 'Connection failed',

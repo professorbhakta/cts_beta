@@ -19,20 +19,31 @@ class RunningBatchScreen extends StatefulWidget {
   State<RunningBatchScreen> createState() => _RunningBatchScreenState();
 }
 
-class _RunningBatchScreenState extends State<RunningBatchScreen> {
+class _RunningBatchScreenState extends State<RunningBatchScreen>
+    with WidgetsBindingObserver {
+  late final RunningBatchProvider _provider;
+
   @override
   void initState() {
     super.initState();
+    _provider = context.read<RunningBatchProvider>();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<RunningBatchProvider>().startStream();
+      _provider.fetchOnce();
     });
   }
 
   @override
   void dispose() {
-    final provider = context.read<RunningBatchProvider>();
-    provider.stopStream();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _provider.fetchOnce();
+    }
   }
 
   @override
@@ -120,10 +131,12 @@ class _RunningBatchBody extends StatelessWidget {
                   final batch = sortedBatches[index];
                   return _RunningBatchCard(
                     batchName: batch.batchId?.batchName ?? 'Unknown batch',
-                    onTap: () {
+                    onTap: () async {
                       final id = batch.batchId?.id?.toString();
                       if (id == null) return;
-                      context.push('${RouteName.d2dChannel}/$id');
+                      await context.push('${RouteName.d2dChannel}/$id');
+                      if (!context.mounted) return;
+                      provider.fetchOnce();
                     },
                   );
                 },
@@ -146,7 +159,7 @@ class _RunningBatchCard extends StatelessWidget {
   const _RunningBatchCard({required this.batchName, required this.onTap});
 
   final String batchName;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
 
   @override
   Widget build(BuildContext context) {

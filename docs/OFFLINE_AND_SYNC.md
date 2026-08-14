@@ -1,3 +1,7 @@
+> **Doc:** docs/OFFLINE_AND_SYNC.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Auth/connectivity trim + A10/R6 — one ConnectivityService; commuter not wrapped
+
 # Offline and sync
 
 How offline behavior works today: **production batch sync** vs **offline_temp** prototype.
@@ -42,11 +46,12 @@ File: `lib/core/sync/sync_manager.dart`
 
 | Behavior | Detail |
 |----------|--------|
-| Listens | `ConnectivityService.onOnlineStatusChanged` |
+| Listens | App-scoped `ConnectivityService` (one plugin listener; `isOnline` cached; events only on state change) |
 | On online | `syncPending()` processes queue |
 | Handlers | Per `EntityType` — batches registered at startup |
 | Retries | `maxRetries` (default 5); failed count tracked |
-| UI | `ChangeNotifier` — `pendingCount`, `failedCount`, `isSyncing` |
+| Unknown entity | No handler → mark failed at `maxRetries` (does not retry forever) |
+| Dispose | `CtsApp.dispose` stops SyncManager then disposes `ConnectivityService`. SyncManager disposes connectivity only if it created it |
 
 ---
 
@@ -79,7 +84,7 @@ Initialized in `main.dart` before `runApp`.
 
 **Data:** `OfflineTempDatabase`, `OfflineTempProvider` — local-only prototype for demos and planning (Phase 9: promote to production patterns).
 
-**Redirect:** `OfflineAutoRedirect` on admin home, driver home, and offline screens reacts to connectivity (steer users when offline).
+**Redirect:** `OfflineAutoRedirect` on **admin home, driver home, and offline screens** only. Commuter home and Track Cab are not wrapped. Uses the app-scoped `ConnectivityService` (no second plugin listener). `isOfflineRole()` is admin or driver via `SessionRole`. Do not add extra connectivity probes or a session ping.
 
 ---
 

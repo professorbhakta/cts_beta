@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cts/app/app_providers.dart';
 import 'package:cts/app/router/app_router.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
@@ -37,6 +39,13 @@ class _CtsAppState extends State<CtsApp> {
     authNotifier: widget.sessionAuthNotifier,
     navigatorKey: SnackBarService.navigatorKey,
   );
+
+  @override
+  void dispose() {
+    widget.syncManager.dispose();
+    unawaited(widget.connectivityService.dispose());
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

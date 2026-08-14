@@ -3,7 +3,6 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/device_utils.dart';
 import 'package:cts/domain/repositories/authentication_repository.dart';
 
 class AuthenticationRepositoryImpl implements AuthenticationRepository {
@@ -94,53 +93,27 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
     required String mobileNumber,
     required String password,
   }) async {
-    try {
-      // Get actual device ID
-      final deviceId = await DeviceUtils.getDeviceId();
-
-      final registrationData = {
-        'user': {
-          'userType': 'ADMIN',
-          'username': username,
-          'mobileNumber': mobileNumber,
-          'password': password,
-          'address': 'address',
-          'deviceId': deviceId,
-        },
-        'user_data': {},
-      };
-
-      final response = await _apiService.postApi(
-        registrationData,
-        "${ApiUrl.userUrl}/",
-      );
-
-      if (response != null && response.toString().contains("admin created")) {
-        return ApiResult.success(null);
-      } else {
-        return ApiResult.failure(
-          ApiFailure(
-            type: ApiFailureType.parsing,
-            message:
-                response?.toString() ??
-                "Registration failed. No response from server.",
-          ),
-        );
-      }
-    } catch (e) {
-      return ApiResult.failure(ApiExceptionHandler.handle(e));
-    }
+    // Public self-registration is disabled. Admins, drivers, and commuters
+    // are created by an existing admin (CRUD). Do not send userType: ADMIN.
+    return ApiResult.failure(
+      ApiFailure(
+        type: ApiFailureType.invalidRequest,
+        message:
+            'Public registration is disabled. Ask your administrator to create an account.',
+      ),
+    );
   }
 
   @override
   Future<ApiResult<void>> logout() async {
     try {
       await _apiService.postApi({}, ApiUrl.logoutUrl);
-      await AppManager.instance.clearSharedPreferences();
-      return ApiResult.success(null);
-    } catch (e) {
-      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    } catch (_) {
+      // Always clear locally so a failed POST cannot trap the user in-app.
+    } finally {
+      await AppManager.instance.clearLocalSession();
     }
+    return ApiResult.success(null);
   }
 
   String _getRoleProfileUrl(String userType, String userId) {

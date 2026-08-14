@@ -1,6 +1,6 @@
 > **Doc:** docs/backend/README.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/backend/README.md
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Return view is org pool minus confirmed
 
 # Backend Guide — `D:\cts-docker`
 
@@ -25,7 +25,7 @@ D:\cts-docker\
 
 | File | Purpose |
 |------|---------|
-| `d2d_log/consumers.py` | WebSocket — connect, REMOVE/ADD/DELETE/STOP |
+| `d2d_log/consumers.py` | WebSocket — connect auth (4401/4403), REMOVE/ADD (user ID lookup)/DELETE/STOP (driver only) |
 | `d2d_log/live_state.py` | Morning live queue Redis (`d2d:live:…`) |
 | `d2d_log/routing.py` | WS URL patterns `/ws/<batch_id>/` |
 | `d2d_log/views.py` | REST: running_batches, get_d2d_log_status |
@@ -36,13 +36,26 @@ D:\cts-docker\
 | `d2d_log/test_d2d_fixes.py` | Morning D2D verification script |
 | `d2d_log/test_return_batch_fixes.py` | Return batch verification script |
 
+## Return batch REST (evening)
+
+All used by Flutter. Full mapping: [../API_CONTRACTS.md](../API_CONTRACTS.md). Lifecycle: [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md).
+
+| Method | Path | Role in app |
+|--------|------|-------------|
+| GET | `/d2d/return_batch/view/<batch_id>` | Available pool (org, not confirmed today) |
+| GET | `/d2d/return_batch/status/<batch_id>` | Picker counts / capacity / `is_active` |
+| GET | `/d2d/return_batch/get_commuter/<batch_id>` | Confirmed list (hydrate default on) |
+| POST | `/d2d/return_batch/add_commuter` | Confirm `{ batch_id, commuter_id }` |
+| POST | `/d2d/return_batch/remove_commuter` | Remove (same body) |
+| POST | `/d2d/return_batch/end/<batch_id>` | End trip (Flutter POST; backend also allows GET) |
+
 ## Docs in this guide
 
 | Doc | Topic |
 |-----|-------|
 | [../../PROJECT_BRAIN.md](../../PROJECT_BRAIN.md#6-status-snapshot) | Done vs pending (short) |
 | [01-docker-stack.md](./01-docker-stack.md) | Containers, Nginx, startup |
-| [02-data-model.md](./02-data-model.md) | Postgres, **two Redis key spaces** |
+| [02-data-model.md](./02-data-model.md) | Postgres, **two Redis key spaces**; User.email / address Flutter rules |
 | [03-d2d-websocket-lifecycle.md](./03-d2d-websocket-lifecycle.md) | Live D2D |
 | [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md) | Evening REST + Redis |
 | [05-audit-and-gaps.md](./05-audit-and-gaps.md) | Remaining flaws |

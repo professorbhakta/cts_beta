@@ -24,7 +24,7 @@ Brand tokens: `lib/appManager/colors.dart` · Themes: `lib/theme/app_theme.dart`
 |---------|--------|------------------|----------|---------|
 | splash | SplashScreen | `splashScreen` `/splashScreen` | SplashProvider | splash |
 | signIn | SignInScreen | `signIn` `/signIn` | SignInProvider | auth |
-| signUp | SignUpScreen | `signUp` `/signUp` | SignUpProvider | auth |
+| signUp | (removed from app) | `signUp` `/signUp` → `/signIn` | — | auth (public register disabled) |
 | adminHome | AdminMainScreen | `adminHomeScreen` | AdminProvider | admin_home |
 | routes | RouteScreen | `routeScreen` | RouteController | routes |
 | routeForm | RouteForm | `routeForm` | RouteFormProvider | routes |

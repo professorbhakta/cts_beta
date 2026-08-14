@@ -1,6 +1,6 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/shared/02-local-dev-setup.md
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Return pool no longer requires isComing
 
 # Local Development Setup
 
@@ -15,7 +15,8 @@ DEFAULT_ADMIN_CODE=
 - Use **LAN IP** of the PC running Docker (e.g. from `ipconfig`), not `localhost`, for physical devices.
 - **No `:8000`** — Nginx exposes port **80**; Django is internal on 8000.
 - Android emulator: use `10.0.2.2` instead of LAN IP.
-- Android cleartext HTTP may need network security config for dev builds.
+- Android **debug/profile** allow cleartext HTTP (`usesCleartextTraffic` on those manifests only). **Release** does not — use `https://` / `wss://` in production `.env`.
+- AppConfig keeps the scheme you set (no `https→http` rewrite).
 
 Load path: `AppConfig.initialize()` in `lib/appManager/app_class.dart`.
 
@@ -58,7 +59,7 @@ docker ps
 docker logs C2S-Django --tail 30
 ```
 
-Postman WebSocket test: `ws://<LAN-IP>/ws/1/`
+Postman WebSocket test: `ws://<LAN-IP>/ws/1/` with `Cookie: sessionid=<login session>` (anonymous connect is closed **4401**).
 
 ### Backend verification scripts
 
@@ -87,9 +88,9 @@ Copy from `.env.example`. Key vars: `SECRET_KEY`, `DB_HOST=postgres`, `DB_NAME`,
 | Symptom | Check |
 |---------|-------|
 | Connection refused from phone | Same Wi‑Fi, firewall, correct LAN IP in `.env` |
-| WebSocket fails | Nginx upgrade headers; see `D:\cts-docker\WEBSOCKET_FIXES.md` |
+| WebSocket fails | Nginx upgrade headers; session cookie on handshake; see `D:\cts-docker\WEBSOCKET_FIXES.md` |
 | REST 404 | Path must include `d2d/` prefix for return batch — see [API_CONTRACTS.md](./API_CONTRACTS.md) |
-| Return batch empty | Commuters need `isComing=True`; batch needs driver+cab for capacity |
+| Return batch empty | Batch needs driver+cab for capacity; confirmed riders are hidden from Available |
 | Empty running batches | Driver must connect WS first to create active DTODLOG |
 
 ## Related

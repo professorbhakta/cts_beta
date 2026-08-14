@@ -206,12 +206,7 @@ class _BatchFormState extends State<BatchForm> {
                                   );
                                 }
 
-                                if (!mounted) {
-                                  setState(() {
-                                    _isSubmitting = false;
-                                  });
-                                  return;
-                                }
+                                if (!mounted) return;
 
                                 setState(() {
                                   _isSubmitting = false;

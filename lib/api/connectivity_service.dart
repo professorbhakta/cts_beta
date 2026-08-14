@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// Wraps connectivity checks and exposes a simple online/offline stream.
+///
+/// One plugin listener for the process. [isOnline] is cached after the first
+/// probe so CRUD/sync do not hit Connectivity on every call.
 class ConnectivityService {
   ConnectivityService({Connectivity? connectivity})
     : _connectivity = connectivity ?? Connectivity();
@@ -13,23 +16,38 @@ class ConnectivityService {
   final StreamController<bool> _onlineController =
       StreamController<bool>.broadcast();
 
+  bool? _lastOnline;
+
   Stream<bool> get onOnlineStatusChanged => _onlineController.stream;
 
   Future<bool> get isOnline async {
-    final results = await _connectivity.checkConnectivity();
-    return _hasConnection(results);
+    if (_lastOnline != null) return _lastOnline!;
+    return _refresh();
   }
 
   void startListening() {
-    _subscription ??= _connectivity.onConnectivityChanged.listen((results) {
-      _onlineController.add(_hasConnection(results));
+    if (_subscription != null) return;
+    unawaited(_refresh());
+    _subscription = _connectivity.onConnectivityChanged.listen((results) {
+      final online = _hasConnection(results);
+      if (_lastOnline == online) return;
+      _lastOnline = online;
+      _onlineController.add(online);
     });
   }
 
   Future<void> dispose() async {
     await _subscription?.cancel();
     _subscription = null;
+    _lastOnline = null;
     await _onlineController.close();
+  }
+
+  Future<bool> _refresh() async {
+    final results = await _connectivity.checkConnectivity();
+    final online = _hasConnection(results);
+    _lastOnline = online;
+    return online;
   }
 
   bool _hasConnection(List<ConnectivityResult> results) {

@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'package:cts/features/commuters/repositories/commuter_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
+import 'package:cts/models/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cts/appManager/view_state.dart';
 
@@ -18,64 +18,62 @@ class CommuterController with ChangeNotifier {
   List<CommuterModel> _commuters = [];
   List<CommuterModel> get commuters => _commuters;
 
-  bool _isFetching = false; // Prevent race conditions
+  /// Null = full admin list. Set when [fetchCommutersByBatch] last won.
+  String? _listBatchId;
+  String? get listBatchId => _listBatchId;
 
-  Future<void> fetchCommuters() async {
-    // Prevent multiple simultaneous calls
-    if (_isFetching) return;
-    
-    _isFetching = true;
+  int _fetchGeneration = 0;
+  final Set<int> _isComingInFlight = {};
+
+  Future<void> fetchCommuters() => _loadCommuters(batchId: null);
+
+  Future<void> fetchCommutersByBatch(String batchId) =>
+      _loadCommuters(batchId: batchId);
+
+  /// Reloads whichever list is currently scoped (all vs one batch).
+  Future<void> refreshCurrentList() {
+    final batchId = _listBatchId;
+    if (batchId == null) return fetchCommuters();
+    return fetchCommutersByBatch(batchId);
+  }
+
+  Future<void> _loadCommuters({required String? batchId}) async {
+    final generation = ++_fetchGeneration;
+    _listBatchId = batchId;
     _state = ViewState.loading;
     _errorMessage = null;
     notifyListeners();
 
-    try {
-      final result = await _commuterRepository.getCommuters();
+    final result = batchId == null
+        ? await _commuterRepository.getCommuters()
+        : await _commuterRepository.getCommutersByBatch(batchId);
 
-      if (result.isSuccess) {
-        _commuters = result.data ?? [];
-        _state = ViewState.success;
-      } else {
-        _errorMessage = result.failure?.message;
-        _state = ViewState.error;
-      }
-      notifyListeners();
-    } finally {
-      _isFetching = false; // Reset flag even if error occurs
+    if (generation != _fetchGeneration) return;
+
+    if (result.isSuccess) {
+      _commuters = result.data ?? [];
+      _state = ViewState.success;
+    } else {
+      _errorMessage = result.failure?.message;
+      _state = ViewState.error;
     }
-  }
-
-  Future<void> fetchCommutersByBatch(String batchId) async {
-    // Prevent multiple simultaneous calls
-    if (_isFetching) return;
-    
-    _isFetching = true;
-    _state = ViewState.loading;
-    _errorMessage = null;
     notifyListeners();
-
-    try {
-      final result = await _commuterRepository.getCommutersByBatch(batchId);
-
-      if (result.isSuccess) {
-        _commuters = result.data ?? [];
-        _state = ViewState.success;
-      } else {
-        _errorMessage = result.failure?.message;
-        _state = ViewState.error;
-      }
-      notifyListeners();
-    } finally {
-      _isFetching = false; // Reset flag even if error occurs
-    }
   }
-  
-  // Method to reset state (useful for logout)
+
+  Future<UserModel?> fetchUser(int userId) async {
+    final result = await _commuterRepository.getUser(userId);
+    if (result.isSuccess) {
+      return result.data;
+    }
+    return null;
+  }
+
   void reset() {
+    _fetchGeneration++;
     _commuters = [];
     _state = ViewState.idle;
     _errorMessage = null;
-    _isFetching = false;
+    _listBatchId = null;
     notifyListeners();
   }
 
@@ -86,8 +84,8 @@ class CommuterController with ChangeNotifier {
     final result = await _commuterRepository.createCommuter(data);
 
     if (result.isSuccess) {
-      await fetchCommuters(); 
-      return state == ViewState.success;
+      await refreshCurrentList();
+      return true;
     } else {
       _errorMessage = result.failure?.message;
       _state = ViewState.error;
@@ -96,15 +94,23 @@ class CommuterController with ChangeNotifier {
     }
   }
 
-  Future<bool> updateCommuter(int userId, Map<String, dynamic> userData, Map<String, dynamic> commuterData) async {
+  Future<bool> updateCommuter(
+    int userId,
+    Map<String, dynamic> userData,
+    Map<String, dynamic> commuterData,
+  ) async {
     _state = ViewState.loading;
     notifyListeners();
 
-    final result = await _commuterRepository.updateCommuter(userId, userData, commuterData);
+    final result = await _commuterRepository.updateCommuter(
+      userId,
+      userData,
+      commuterData,
+    );
 
     if (result.isSuccess) {
-      await fetchCommuters();
-      return state == ViewState.success;
+      await refreshCurrentList();
+      return true;
     } else {
       _errorMessage = result.failure?.message;
       _state = ViewState.error;
@@ -114,22 +120,21 @@ class CommuterController with ChangeNotifier {
   }
 
   Future<bool> deleteCommuter(int userId) async {
-    // Optimistic update: Remove from UI immediately
     CommuterModel? removedCommuter;
-    final index = _commuters.indexWhere((commuter) => commuter.userId?.id == userId);
+    final index = _commuters.indexWhere(
+      (commuter) => commuter.userId?.id == userId,
+    );
     if (index != -1) {
       removedCommuter = _commuters[index];
       _commuters.removeAt(index);
       notifyListeners();
     }
 
-    // Then sync with server
     final result = await _commuterRepository.deleteCommuter(userId);
 
     if (result.isSuccess) {
       return true;
     } else {
-      // Rollback on failure: Restore the item
       if (removedCommuter != null && index != -1) {
         _commuters.insert(index, removedCommuter);
         notifyListeners();
@@ -141,28 +146,38 @@ class CommuterController with ChangeNotifier {
   }
 
   Future<bool> updateCommuterIsComing(int userId, bool isComing) async {
-    // Optimistic update: Update UI immediately
-    final index = _commuters.indexWhere((commuter) => commuter.userId?.id == userId);
+    if (_isComingInFlight.contains(userId)) {
+      return true;
+    }
+    _isComingInFlight.add(userId);
+
+    final index = _commuters.indexWhere(
+      (commuter) => commuter.userId?.id == userId,
+    );
+    final previous = index != -1 ? _commuters[index].isComing : null;
     if (index != -1) {
       _commuters[index].isComing = isComing;
       notifyListeners();
     }
 
-    // Then sync with server
-    final result = await _commuterRepository.updateCommuterIsComing(userId, isComing);
+    try {
+      final result = await _commuterRepository.updateCommuterIsComing(
+        userId,
+        isComing,
+      );
 
-    if (result.isSuccess) {
-      return true;
-    } else {
-      // Rollback on failure: Restore the previous value
+      if (result.isSuccess) {
+        return true;
+      }
       if (index != -1) {
-        _commuters[index].isComing = !isComing;
+        _commuters[index].isComing = previous;
         notifyListeners();
       }
       _errorMessage = result.failure?.message;
       notifyListeners();
       return false;
+    } finally {
+      _isComingInFlight.remove(userId);
     }
   }
 }
-

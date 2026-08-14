@@ -194,12 +194,7 @@ class _DriverFormState extends State<DriverForm> {
                                         await _driverProvider.createDriver(data);
                                   }
 
-                                  if (!mounted) {
-                                    setState(() {
-                                      _isSubmitting = false;
-                                    });
-                                    return;
-                                  }
+                                  if (!mounted) return;
 
                                   setState(() {
                                     _isSubmitting = false;

@@ -1,6 +1,6 @@
-> Doc: CHAT_PROMPTS.txt
-> Updated: 2026-08-05 11:37 IST
-> Session: Backend pack paths updated after talk-guide removal
+> **Doc:** CHAT_PROMPTS.txt
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Verified unchanged
 
 ================================================================================
 QUICK START (minimal)

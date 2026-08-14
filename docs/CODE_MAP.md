@@ -1,5 +1,5 @@
 > **Doc:** docs/CODE_MAP.md
-> **Updated:** 2026-08-05 11:30 IST
+> **Updated:** 2026-08-14 22:00 IST
 > **Session:** Verified unchanged
 
 # Code map
@@ -39,9 +39,10 @@ features/routes/
 ├── screens/        # RouteScreen, etc.
 ├── forms/          # RouteForm
 ├── providers/      # RouteController, RouteFormProvider
-├── repositories/   # RouteRepository + impl
-└── index.dart      # Barrel exports
+└── repositories/   # RouteRepository + impl
 ```
+
+Import files directly (`package:cts/features/routes/screens/...`). Do not add barrel `index.dart` files.
 
 **Rule of thumb:** UI reads/writes through a **Provider** → **Repository** → API or cache.
 
@@ -78,6 +79,8 @@ features/routes/
 | Path strings | `lib/app/router/route_names.dart` |
 | Route → widget | `lib/app/router/app_router.dart` |
 | Role → home | `RouteName.homeForRole(userType)` |
+
+Session cookies: `lib/appManager/session_manager.dart`. Connectivity (cached): `lib/api/connectivity_service.dart`. Auth impl: `lib/data/repositories/authentication_repository_impl.dart`.
 
 ---
 

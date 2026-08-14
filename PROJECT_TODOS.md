@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Merged open backlog from known-gaps; doc cleanup prep
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Driver return ADD done; R5 STOP flush still open
 
 # Project Todo & Progress
 
@@ -8,7 +8,7 @@
 
 ## Current Status
 - [x] Cursor multi-agent system setup completed
-- [~] Project architecture migrating to **human-friendly module layout** (see [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md); Phases 0–7 done; restructure Phases A–E pending)
+- [x] Project architecture Phases **0–7 frozen** (see [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md)); Phase 8 polish in progress; restructure Phases C–E pending
 - [x] State management decision: **keep Provider** (Riverpod deferred)
 - [x] Routing: **go_router** with role-protected redirects + deep-link basics
 - [x] API layer consolidated under `core/network/`
@@ -46,16 +46,30 @@
 ### Follow-ups
 6. [ ] Replace / harden deprecated or placeholder screens and TODOs in admin CRUD flows
 7. [ ] Expand automated tests beyond default `widget_test.dart`
-8. [ ] Review API layer (`dio`, cookies, env) for secure config and error handling
+8. [x] Auth security wave: TLS keep, session cookies cached, logout/401, D2D WS cookie (REST d2d permissions + `POST /user/` userType still open)
 9. [x] Phase 7: migrate **batches** (running + return)
 10. [x] Pending-sync badge in admin drawer
-11. [ ] Phase 8 finish (admin_home, d2d, profile polish) then Phase 9–10
+11. [x] Phase 8 polish (admin_home, d2d, profile) — architecture freeze + structure/UX; then Phase 9–10
 12. [x] APK validation pass: analyze/test clean; Gradle assembleDebug SUCCESS; emulator smoke deferred (emulator stayed offline)
+
+### Application wave (bug audit A2–A4 + ride-alongs)
+13. [x] Slice 1 (A2): batch commuter swipe-edit and route edit/delete pass the model, not the sorted index
+14. [x] Slice 2 (A3): restore Email/Address fields; empty create address → email; update → last saved
+15. [x] Slice 3 (A4): dashboard Add buttons call matching `clearAll()`
+16. [x] Slice 1 (A5): commuter form pop re-fetches by batch when opened from a batch list
+17. [x] R1: `if (!mounted) return;` in all six CRUD form submit handlers
+18. [x] Slice 2 (A10): do not wrap commuter home / Track Cab in OfflineAutoRedirect
+19. [x] Slice 3 (R6): SyncManager.dispose() disposes ConnectivityService; unknown entity types do not retry forever
+20. [x] Admin nested batch commuter list Coming-today switch (`CommuterListScreen`)
+21. [x] Admin Coming switch persists (`ComingTodaySwitch` + PATCH `{status, isComing}`)
+22. [x] Admin D2D ADD: user-ID lookup + no optimistic toast / no WS crash
+23. [x] Driver return ADD: confirm/remove; org-wide available pool; hide confirmed
 
 ### Open backlog — API / networking
 
-- [ ] WebSocket auth (deferred — dev mode OK for now)
-- [ ] Session cookies on WebSocket — monitor cross-platform attachment
+- [x] D2D WebSocket auth — session cookie on connect; Django rejects anonymous (4401) and wrong role (4403)
+- [x] Session cookies on WebSocket — `IOWebSocketChannel.connect` Cookie header
+- [ ] Backend `POST /user/` still trusts client `userType` (public Flutter sign-up disabled)
 - [ ] `DEFAULT_ADMIN_CODE` empty — admin registration may need manual code entry
 - [ ] `channels_redis` for WS broadcast scaling (backend)
 
@@ -66,7 +80,7 @@
 - [ ] Driver: connect, pickup, STOP
 - [ ] Driver/admin: reconnect after STOP → ended message
 - [ ] Admin: return batch confirm / remove / end
-- [ ] Commuter: isComing toggle affects pools
+- [ ] Commuter: isComing toggle affects **morning** D2D pool (evening return is not gated on isComing)
 
 ## APK validation notes (2026-07-17)
 - Fixed: deprecated `encryptedSharedPreferences` in `session_manager.dart`
@@ -77,17 +91,19 @@
 
 ## Architecture phase progress
 
+Phases **0–7 are frozen** (layout + migration complete). Do not reopen them for new feature work. Phase 8 is the current polish pass. Phases 9–10 and restructure C–E stay pending.
+
 | Phase | Status | Notes |
 |-------|--------|-------|
-| **0** Scaffold `app/`, `shared/`, `features/` | Done | |
-| **1** Extract app shell + DI | Done | `lib/app/cts_app.dart`, `lib/app/app_providers.dart` |
-| **2** Consolidate `api/` → `core/network` | Done | Canonical in `core/network/`; `lib/api/` re-exports |
-| **3** Widgets → `shared/` | Done | Legacy `widgets/` re-exports |
-| **4** Splash + auth | Done | `features/splash`, `features/auth` |
-| **5** Routes, pops, cabs | Done | `features/routes`, `pops`, `cabs` + `index.dart` barrels |
-| **6** Drivers + commuters | Done | CRUD + role homes + list/return screens |
-| **7** Batches (running + return) | Done | `features/batches/` + legacy stubs |
-| **8** admin_home, d2d, profile | Partial | Migrated earlier |
+| **0** Scaffold `app/`, `shared/`, `features/` | Frozen | |
+| **1** Extract app shell + DI | Frozen | `lib/app/cts_app.dart`, `lib/app/app_providers.dart` |
+| **2** Consolidate `api/` → `core/network` | Frozen | Canonical in `core/network/`; `lib/api/` re-exports |
+| **3** Widgets → `shared/` | Frozen | Canonical UI is `lib/widgets/` |
+| **4** Splash + auth | Frozen | `features/splash`, `features/auth` |
+| **5** Routes, pops, cabs | Frozen | `features/routes`, `pops`, `cabs` |
+| **6** Drivers + commuters | Frozen | CRUD + role homes + list/return screens |
+| **7** Batches (running + return) | Frozen | `features/batches/` |
+| **8** admin_home, d2d, profile | Done | Structure/UX polish (no token redesign) |
 | **9** Promote offline_temp | Pending | |
 | **10** Remove legacy + Reviewer | Pending | Re-export stubs still present |
 
@@ -101,17 +117,17 @@
 | **D** Naming | Pending | `*_provider.dart`, move `AdminProvider`, reduce `AppClass` statics |
 | **E** Offline | Pending | Merge or isolate `offline_temp/` |
 
-### Structure after Phase 7
+### Structure (frozen after Phase 8)
 ```
 lib/
   features/
-    batches/          # data / domain / presentation + index.dart
+    batches/          # screens / providers / models / repositories
     drivers/, commuters/
     routes/, pops/, cabs/
     splash/, auth/, d2d/, admin_home/, profile/
   core/network/
-  shared/widgets/
-  screens/, controllers/, models/, domain/, data/  # legacy re-export stubs
+  widgets/            # shared UI (canonical)
+  screens/, controllers/, models/, domain/, data/  # legacy / shared infra
 ```
 
 ### Phase 7 highlights

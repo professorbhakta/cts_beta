@@ -1,7 +1,10 @@
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/admin_home/providers/admin_provider.dart';
+import 'package:cts/features/batches/providers/running_batch_provider.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
+import 'package:cts/features/d2d/widgets/d2d_action_error_listener.dart';
 import 'package:cts/features/d2d/widgets/d2d_add_commuter_sheet.dart';
 import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
 import 'package:cts/widgets/admin_form_header.dart';
@@ -21,32 +24,32 @@ class D2dChannel extends StatefulWidget {
 
 class _D2dChannelState extends State<D2dChannel> {
   D2dChannelProvider? _d2dProvider;
+  bool _didSyncAfterTripEnd = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = context.read<D2dChannelProvider>();
-    if (!identical(_d2dProvider, provider)) {
-      _d2dProvider?.removeListener(_onD2dProviderChanged);
-      _d2dProvider = provider;
-      _d2dProvider!.addListener(_onD2dProviderChanged);
-    }
+    attachD2dActionErrorListener(
+      current: _d2dProvider,
+      next: provider,
+      listener: _onD2dProviderChanged,
+    );
+    _d2dProvider = provider;
   }
 
   void _onD2dProviderChanged() {
-    final message = _d2dProvider?.actionErrorMessage;
-    if (message == null || !mounted) return;
+    if (!mounted) return;
+    handleD2dActionError(context, _d2dProvider);
+    _syncRunningListIfTripEnded();
+  }
 
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    if (messenger == null) return;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
-    );
-    _d2dProvider?.clearActionError();
+  void _syncRunningListIfTripEnded() {
+    if (_didSyncAfterTripEnd) return;
+    if (_d2dProvider?.isTripEnded != true) return;
+    _didSyncAfterTripEnd = true;
+    context.read<RunningBatchProvider>().fetchOnce();
+    context.read<AdminProvider>().refreshRunningBatches();
   }
 
   @override

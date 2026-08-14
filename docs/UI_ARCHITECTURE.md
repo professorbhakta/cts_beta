@@ -1,6 +1,6 @@
 > **Doc:** docs/UI_ARCHITECTURE.md
-> **Updated:** 2026-08-05 11:30 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Driver return confirm/remove; End stays admin
 
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 
@@ -8,7 +8,7 @@
 
 Reference for the **current** Flutter codebase (Commuter Transport System / c2s).
 
-**Sources:** `lib/app/router/app_router.dart`, `lib/app/router/route_names.dart`, `lib/app/di/app_providers.dart`, feature `presentation/` layers.
+**Sources:** `lib/app/router/app_router.dart`, `lib/app/router/route_names.dart`, `lib/app/app_providers.dart`, feature `screens/` / `providers/` / `repositories/`.
 
 **Index:** [README.md](./README.md)
 
@@ -22,7 +22,7 @@ Every **registered** GoRouter destination plus **nested** `Navigator.push` scree
 |---|-------------|-------------------|--------------|--------------|
 | 1 | SplashScreen | `/splashScreen` | All | App launch |
 | 2 | SignInScreen | `/signIn` | Public | Splash, redirect when logged out, logout |
-| 3 | SignUpScreen | `/signUp` | Public | Sign-in link (`push`) |
+| 3 | (redirect) | `/signUp` | Public path only | Redirects to `/signIn` — public register is disabled |
 | 4 | NoInternetError | `/noInternet` | Public | Connectivity flows (legacy) |
 | 5 | AdminMainScreen | `/adminHomeScreen` | ADMIN (+ redirect) | Splash/login, drawer Dashboard, stat taps stay on hub |
 | 6 | DriverHomePage | `/driverHomeScreen` | DRIVER, ADMIN blocked from prefix* | Splash/login |
@@ -34,26 +34,27 @@ Every **registered** GoRouter destination plus **nested** `Navigator.push` scree
 | 12 | PopForm | `/popForm` | ADMIN | POP list, quick action |
 | 13 | BatchScreen | `/batchScreen` | ADMIN | Drawer, dashboard Batches stat |
 | 14 | BatchForm | `/batchForm` | ADMIN | Batch AppBar +, slidable edit, quick action |
-| 15 | ReturningBatchScreen | `/returnBatchScreen` | ADMIN | Batch AppBar return icon, quick action |
+| 15 | ReturningBatchScreen | `/returnBatchScreen` | ADMIN | Batch AppBar return icon, dashboard quick action |
 | 16 | RunningBatchScreen | `/runningBatchScreen` | ADMIN | Quick action; D2D fallback |
 | 17 | CabScreen / CabForm | `/cabScreen`, `/cabForm` | ADMIN | Drawer, dashboard, list actions |
 | 18 | DriverScreen / DriverForm | `/driverScreen`, `/driverForm` | ADMIN | Drawer, dashboard, list actions |
 | 19 | CommuterScreen / CommuterForm | `/commuterScreen`, `/commuterForm` | ADMIN | Drawer, dashboard, list actions |
 | 20 | D2dChannel | `/d2dChannel/:batchId` | ADMIN | Running batch card tap |
 | 21 | D2DLogScreen | `/d2dLog/:batchId` | DRIVER | Driver home START TRIP |
-| 22 | OfflineHomeScreen | `/offlineTempHome` | ADMIN (drawer when enabled) | Drawer Offline Mode |
-| 23 | OfflineRoutePopsScreen | `/offlineRoutePops/:routeId` | ADMIN | Offline Routes tab row |
-| 24 | OfflineBatchCommutersScreen | `/offlineBatchCommuters/:batchId` | ADMIN | Offline Batches tab row |
-| 25 | OfflineCommuterFormScreen | `Navigator.push` | ADMIN | Offline Commuters tab FAB |
-| 26 | CommuterListScreen | `Navigator.push` | ADMIN | Batch list row → commuters for batch |
-| 27 | ReturnCommuterListScreen | `Navigator.push` | ADMIN | Returning batch screen → batch row |
-| 28 | Router error | `errorBuilder` | — | Unknown deep link |
+| 22 | ReturnCommuterListScreen | `/returnCommuterScreen/:batchId` | ADMIN | Return batch picker row |
+| 23 | ReturnCommuterListScreen (confirm/remove) | `/driverReturnCommuter/:batchId` | DRIVER | Driver home RETURN LIST |
+| 24 | OfflineHomeScreen | `/offlineTempHome` | ADMIN (drawer when enabled) | Drawer Offline Mode |
+| 25 | OfflineRoutePopsScreen | `/offlineRoutePops/:routeId` | ADMIN | Offline Routes tab row |
+| 26 | OfflineBatchCommutersScreen | `/offlineBatchCommuters/:batchId` | ADMIN | Offline Batches tab row |
+| 27 | OfflineCommuterFormScreen | `Navigator.push` | ADMIN | Offline Commuters tab FAB |
+| 28 | CommuterListScreen | `Navigator.push` | ADMIN | Batch list row → commuters for batch |
+| 29 | Router error | `errorBuilder` | — | Unknown deep link |
 
-\*GoRouter `driverOnlyPrefixes` sends non-drivers away from `/driverHomeScreen` and `/d2dLog`. ADMIN uses admin home but can open D2D **Channel**.
+\*GoRouter `driverOnlyPrefixes` sends non-drivers away from `/driverHomeScreen`, `/d2dLog`, and `/driverReturnCommuter`. ADMIN uses admin home but can open D2D **Channel**.
 
-**Drawer behavior** (`lib/shared/widgets/app_drawer.dart`): closes drawer → `context.push(route)` (stack, not `go`). Sync banner + “Sync now” when `SyncManager` pending. Logout → `context.go(signIn)`.
+**Drawer behavior** (`lib/widgets/app_drawer.dart`): closes drawer → `context.push(route)` (stack, not `go`). Sync banner + “Sync now” when `SyncManager` pending. Logout → `context.go(signIn)`.
 
-**Constants not in GoRouter** (`route_names.dart` only): `/commuterListScreen`, `/returnCommuterScreen`, `/confirmReturnCommuterList` — nested Navigator instead.
+**Constants not in GoRouter** (`route_names.dart` only): `/commuterListScreen`, `/confirmReturnCommuterList` — nested Navigator instead. `/returnCommuterScreen/:batchId` and `/driverReturnCommuter/:batchId` **are** GoRoutes.
 
 ```mermaid
 flowchart TB
@@ -77,7 +78,7 @@ flowchart TB
   Dash --> R
   AppBarAct --> R
   ListAct --> R
-  NestedNav --> Local[CommuterList ReturnCommuterList OfflineCommuterForm]
+  NestedNav --> Local[CommuterList OfflineCommuterForm]
 ```
 
 ---
@@ -91,21 +92,21 @@ Shared UI state: `ViewState` — `idle | loading | success | error` (`lib/appMan
 | Splash | SplashScreen | SplashProvider | GetInitialRouteUseCase → SessionRepository | Auto: `determineInitialRoute()` → `context.go` |
 | Session | (redirect only) | SessionAuthNotifier | SessionRepositoryImpl | `refresh()` on login/logout |
 | Auth sign-in | SignInScreen | SignInProvider | AuthenticationRepository | Mobile/password fields → login; logout from profile |
-| Auth sign-up | SignUpScreen | SignUpProvider | AuthenticationRepository | Registration form → sign up |
-| Admin dashboard | AdminMainScreen | AdminProvider | Batch, Commuter, Driver, Cab, Route, Pop, RunningBatch repos | Pull refresh → `loadDetailedDashboardData()`; stat/quick action → router only |
-| Routes | RouteScreen, RouteForm | RouteController, RouteFormProvider | RouteRepository | `fetchRoutes`, `deleteRoute`; create/update |
+| Auth sign-up | `/signUp` redirect | — | AuthenticationRepository.signUp refuses public ADMIN | Deep links go to sign-in |
+| Admin dashboard | AdminMainScreen | AdminProvider | Batch, Commuter, Driver, Cab, Route, Pop, RunningBatch repos | Pull refresh → `loadDetailedDashboardData()`; Add * → `*FormProvider.clearAll()` then `push`; stats → list routes |
+| Routes | RouteScreen, RouteForm | RouteController, RouteFormProvider | RouteRepository | `fetchRoutes`, `deleteRoute`; create/update; edit/delete pass `RouteModel` |
 | POPs | PopScreen, PopForm | PopProvider, PopFormProvider | PopRepository | Same CRUD pattern |
 | Batches | BatchScreen, BatchForm | BatchProvider, BatchFormProvider | OfflineFirstBatchRepository | `fetchBatches`, delete; form dates/times |
-| Running batches | RunningBatchScreen | RunningBatchProvider | RunningBatchRepository | `startStream`/`stopStream`, `fetchOnce`; card → D2D Channel |
-| Return batches | ReturningBatchScreen, ReturnCommuterListScreen | ReturnBatchProvider | ReturnBatchRepository | Fetch return batches; nested list confirm return flows |
+| Running batches | RunningBatchScreen | RunningBatchProvider | RunningBatchRepository | `fetchOnce` on open/resume/return-from-D2D; card → D2D Channel; trip-ended WS → one snapshot |
+| Return batches | ReturningBatchScreen, ReturnCommuterListScreen | ReturnBatchProvider | ReturnBatchRepository | `fetchStatusesForBatches` (status); `loadReturnTrip` (view + get_commuter); confirm/remove (admin + driver); end REST (admin) |
 | Cabs | CabScreen, CabForm | CabProvider, CabFormProvider | CabRepository | CRUD |
 | Drivers (admin) | DriverScreen, DriverForm | DriverProvider, DriverFormProvider | DriverRepository | CRUD |
-| Driver home | DriverHomePage | DriverHomeProvider | DriverRepository | `fetchDriverProfile`; START TRIP |
-| Commuters (admin) | CommuterScreen, CommuterForm, CommuterListScreen | CommuterController, CommuterFormProvider | CommuterRepository | CRUD; list by batch via nested screen |
+| Driver home | DriverHomePage | DriverHomeProvider | DriverRepository | `fetchDriverProfile`; START TRIP; RETURN LIST |
+| Commuters (admin) | CommuterScreen, CommuterForm, CommuterListScreen | CommuterController, CommuterFormProvider | CommuterRepository | CRUD; form pop/`create`/`update` call `refreshCurrentList` (by-batch vs all); swipe-edit passes `CommuterModel`; Coming switch → `updateCommuterIsComing` |
 | Commuter home | CommuterHomePage | CommuterHomeProvider | CommuterRepository | `fetchCommuterProfile`; Switch → `updateIsComing` + dialog |
-| D2D admin | D2dChannel | D2dChannelProvider | WebSocket/API via provider | `connect(batchId)`, slidable actions, call tel, FAB close |
-| D2D driver | D2DLogScreen | D2dChannelProvider (shared) | Same | `connect`, stop trip disconnect, pop/go home |
-| Profile | ProfileScreen | SignInProvider (logout) | AuthenticationRepository | Logout → reset controllers, session refresh |
+| D2D admin | D2dChannel | D2dChannelProvider | WebSocket + D2dRepository | `connect(batchId)`, slidable actions, call tel, add sheet (`ADD` by user ID), FAB close = disconnect not STOP |
+| D2D driver | D2DLogScreen | D2dChannelProvider (shared) | Same | `fetchTripStatus`, `connect`, **STOP TRIP** FAB (`{ACTION: STOP}`), dispose disconnect |
+| Profile | ProfileScreen | ProfileProvider, SignInProvider (logout) | Session + AuthenticationRepository | `load()` session fields; confirm logout → reset controllers, session refresh |
 | Offline | OfflineHomeScreen + tabs | OfflineTempProvider | Local offline store | `initialize`, tab FABs, import/dump/refresh menu |
 | Sync | Drawer banner | SyncManager | Connectivity + queue | Manual sync button |
 
@@ -129,9 +130,9 @@ classDiagram
   Screen --> GoRouter : push go on success nav
 ```
 
-**Form control pattern** (all `*Form` screens): `*FormProvider` holds `TextEditingController`s + `forUpdate`/`updateId`; submit calls `*Controller` or repository via provider; `DashboardShell` + `AdminFormHeader` + `PopScope` refresh list on pop.
+**Form control pattern** (all `*Form` screens): `*FormProvider` holds `TextEditingController`s + `forUpdate`/`updateId`. Providers are **app-scoped** — dashboard Add and list **+** must `clearAll()` before `push` so create does not inherit the last edit. Submit calls `*Controller` or repository via provider; `DashboardShell` + `AdminFormHeader` + `PopScope` refresh list on pop.
 
-**List control pattern**: `SearchBarWidget` → local filter; `Slidable` edit prefills form provider → `push(*Form)`; delete → `ConfirmationDialog` → controller delete.
+**List control pattern**: `SearchBarWidget` → local filter (often A–Z sorted). `Slidable` edit prefills form provider from the **row model** (not the unsorted provider index) → `push(*Form)`; delete → `ConfirmationDialog` → controller delete.
 
 ---
 
@@ -150,7 +151,7 @@ classDiagram
 |  | Password            [eye]  |  |
 |  +----------------------------+  |
 |  [ ======== LOGIN ========== ]   |
-|      Don't have account? Sign Up |
+|  (debug) Preview UI wireframes   |
 +----------------------------------+
 ```
 
@@ -491,12 +492,12 @@ flowchart LR
 
 | Area | Screen widget | Route |
 |------|---------------|-------|
-| Auth | SignInScreen, SignUpScreen | `/signIn`, `/signUp` |
+| Auth | SignInScreen (`/signUp` → `/signIn`) | `/signIn` |
 | Splash | SplashScreen | `/splashScreen` |
 | Admin | AdminMainScreen | `/adminHomeScreen` |
 | Routes | RouteScreen, RouteForm | `/routeScreen`, `/routeForm` |
 | POPs | PopScreen, PopForm | `/popScreen`, `/popForm` |
-| Batches | BatchScreen, BatchForm, RunningBatchScreen, ReturningBatchScreen | `/batchScreen`, … |
+| Batches | BatchScreen, BatchForm, RunningBatchScreen, ReturningBatchScreen, ReturnCommuterListScreen | `/batchScreen`, `/returnBatchScreen`, `/returnCommuterScreen/:id`, `/driverReturnCommuter/:id` |
 | Cabs | CabScreen, CabForm | `/cabScreen`, `/cabForm` |
 | Drivers | DriverScreen, DriverForm, DriverHomePage | `/driverScreen`, … |
 | Commuters | CommuterScreen, CommuterForm, CommuterHomePage | `/commuterScreen`, … |
@@ -508,6 +509,6 @@ flowchart LR
 
 ## 7. Known UI quirks
 
-- **Driver and Commuter homes** use the same `AppDrawer` / `AdminNavList` as admin (`lib/features/drivers/presentation/screens/driver_home_page.dart`, `lib/features/commuters/presentation/screens/commuter_home_page.dart`); GoRouter redirects block admin CRUD for non-admins, but drawer labels may still show management items until tapped.
+- **Driver and Commuter homes** use the same `AppDrawer` / `AdminNavList` as admin (`lib/features/drivers/screens/driver_home_page.dart`, `lib/features/commuters/screens/commuter_home_page.dart`); GoRouter redirects block admin CRUD for non-admins, but drawer labels may still show management items until tapped.
 - **Duplicate widget paths:** some screens import `package:cts/widgets/...` vs `package:cts/shared/widgets/...` (same patterns, parallel barrels).
 - **Drawer selection** uses `ModalRoute.settings.name`, which may not always match GoRouter path — selected tile highlight can be inconsistent.

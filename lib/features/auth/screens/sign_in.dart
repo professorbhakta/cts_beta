@@ -84,8 +84,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       _buildPasswordField(signInProvider, scheme),
                       const SizedBox(height: 32.0),
                       _buildLoginButton(signInProvider, scheme),
-                      const SizedBox(height: 24.0),
-                      _buildSignUpLink(scheme),
                       if (kDebugMode) ...[
                         const SizedBox(height: 16),
                         Center(
@@ -213,31 +211,4 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildSignUpLink(ColorScheme scheme) {
-    final onSurfaceMuted = scheme.onSurface.withValues(alpha: 0.6);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Flexible(
-          child: Text(
-            'Not registered yet? ',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: onSurfaceMuted,
-                ),
-          ),
-        ),
-        TextButton(
-          onPressed: () => context.push(RouteName.signUp),
-          child: Text(
-            'Create an account',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: scheme.error,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-        ),
-      ],
-    );
-  }
 }

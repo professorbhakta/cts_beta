@@ -156,7 +156,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
             borderColor: scheme.primary,
             backgroundColor: scheme.surface,
             textColor: scheme.primary,
-            label: 'VIEW RETURN LIST',
+            label: 'RETURN LIST',
             fontSize: 18,
             padding: const EdgeInsets.symmetric(vertical: 14),
             icon: const Icon(Icons.assignment_return_outlined),

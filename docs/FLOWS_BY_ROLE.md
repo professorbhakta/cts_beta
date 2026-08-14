@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-08-05 11:30 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Driver return ADD; any-batch available pool
 
 # Flows by role
 
@@ -12,7 +12,7 @@ Simple **click-path** guides. For the full route list, see [UI_ARCHITECTURE.md](
 
 ## Admin
 
-**Home:** `/adminHomeScreen` — Dashboard with stats and quick actions.
+**Home:** `/adminHomeScreen` — Dashboard with stats and quick actions. Accounts are created here (CRUD); there is no public Sign Up.
 
 ```mermaid
 flowchart TD
@@ -40,9 +40,14 @@ flowchart TD
 
 | Goal | How |
 |------|-----|
-| Add a route | Dashboard → **Add Route** *or* Drawer → Routes → **+** |
+| Add a route / batch / commuter / driver / cab / POP | Dashboard **Add …** (opens a **blank** create form) *or* Drawer → list → **+** |
+| Edit the person you swiped | Batches → batch row → commuter list → swipe **EDIT** (A–Z sort still edits that row) |
+| Mark coming today for a commuter | Batches → tap batch → Coming switch *or* Drawer → Commuters → Coming switch |
+| Add a commuter with email | Email is required. Address is optional; if left empty, the email is stored as address |
 | See live trips | Quick action **Running Batches** → tap batch → **D2D Channel** |
-| Manage return trip | Batches screen → return icon *or* quick action **Return Batches** |
+| Add a rider to the live D2D list | D2D Channel → **+** sheet (all commuters). They appear on the list only after the server accepts ADD (needs a POP). |
+| End a morning trip | Only the **driver** **STOP TRIP** button. Admin **Close channel** / back does not end the day. |
+| Manage return trip | Dashboard **Return Batches** *or* Batches toolbar return icon → pick batch → Available (any unconfirmed org commuter) / Confirmed (Remove) → **End return** |
 | Work offline | Drawer → **Offline Mode** (when enabled) |
 | Log out | Drawer → Profile → **Logout** |
 
@@ -58,12 +63,15 @@ flowchart TD
 | 2 | Review assignment card; optional **call admin** |
 | 3 | Tap **START TRIP** → `/d2dLog/:batchId` |
 | 4 | Use commuter list (call / status actions) |
-| 5 | Stop trip → back to driver home |
+| 5 | **STOP TRIP** (red FAB) → ends the day for this batch. Back / leaving the screen only disconnects; the trip stays active |
+| 6 | Optional: **RETURN LIST** → `/driverReturnCommuter/:batchId` (Confirm / Remove; admin **End return**) |
 
 ```mermaid
 flowchart LR
   dh[Driver home] --> trip[D2D log]
   trip --> dh
+  dh --> ret[Return list confirm/remove]
+  ret --> dh
 ```
 
 ---
@@ -86,7 +94,7 @@ flowchart LR
 | Step | Screen |
 |------|--------|
 | App launch | Splash → resolves session |
-| Not logged in | Sign in → optional Sign up |
+| Not logged in | Sign in (accounts are created by an admin, not public sign-up) |
 | Debug only | Sign in → **Preview UI wireframes** |
 
 ---

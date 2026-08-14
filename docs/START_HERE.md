@@ -1,3 +1,7 @@
+> **Doc:** docs/START_HERE.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Auth security wave — accounts created by admin, not public sign-up
+
 # Start here
 
 **Who you are** → **What to read** → **Optional: see layouts in the app**
@@ -30,7 +34,7 @@ Full doc index: [README.md](./README.md)
 ## 2. The app in one minute
 
 - **Flutter** app for **iOS & Android**.
-- **Three roles:** Admin (manage transport), Driver (run trips), Commuter (mark “coming today”).
+- **Three roles:** Admin (manage transport), Driver (run trips), Commuter (mark “coming today”). Accounts are created by an **admin**, not a public sign-up screen.
 - **Navigation:** `go_router` with login guards ([`lib/app/router/app_router.dart`](../lib/app/router/app_router.dart)).
 - **State:** Provider (`ChangeNotifier`) wired in [`lib/app/app_providers.dart`](../lib/app/app_providers.dart).
 - **UI building blocks:** [`lib/widgets/`](../lib/widgets/) (drawer, dashboard shell, lists, forms).

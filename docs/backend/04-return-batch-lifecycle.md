@@ -1,6 +1,6 @@
 > **Doc:** docs/backend/04-return-batch-lifecycle.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/backend/04-return-batch-lifecycle.md
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Any-batch ADD; available excludes confirmed today
 
 # Backend — Return Batch Lifecycle (Redis + REST)
 
@@ -16,7 +16,7 @@ Evening return trip management — **separate from live D2D WebSocket**.
 | State | Redis `d2d:live:…` + DTODLOG.CList | Redis set `{date}_{batch}` |
 | Real-time | Yes | Pull-to-refresh |
 | Capacity | Not enforced on WS | Enforced on add |
-| Driver UI | Yes | No (admin only) |
+| Driver UI | Yes | Confirm/remove (`/driverReturnCommuter/:batchId`); End is admin |
 | ID in Redis | N/A (DS uses user IDs in JSON) | **User ID** strings |
 
 ## Redis key
@@ -56,7 +56,7 @@ One call for admin batch cards:
 
 ### GET `view/<batch_id>` — Available pool ✅
 
-Commuters with `isComing=True`:
+All commuters in the batch's org except user IDs already in **any** return Redis set today. Not gated on morning `batchId` or `isComing`.
 
 ```json
 {
@@ -79,12 +79,13 @@ Commuters with `isComing=True`:
 }
 ```
 
-`?hydrate=0` — IDs only.
+`?hydrate=1` is the **backend default** (profiles in `commuters`). Hydrate looks up by **user ID** (any morning batch). `?hydrate=0` — IDs only. Flutter does not pass a query string; it relies on the default and parses `commuters`.
 
 ### POST `add_commuter` ✅
 
-Body: `{ "batch_id": "1", "commuter_id": "4" }` — **`commuter_id` = user ID**
+Body: `{ "batch_id": "1", "commuter_id": "4" }` — **`commuter_id` = user ID** (any morning batch, same org)
 
+- Rejects if already confirmed on another return trip today
 - Capacity check, Redis SADD, `isComing=False`
 - Returns structured JSON `{ "status": "added", ... }` or `409 capacity_full`
 
@@ -96,16 +97,19 @@ Body: `{ "batch_id": "1", "commuter_id": "4" }` — **`commuter_id` = user ID**
 
 - Deletes Redis key; restores `isComing=True` for all confirmed commuters
 - `{ "status": "ended", "restored_count": 3, ... }`
+- Flutter calls **POST only** (empty body). GET is accepted by the backend but unused by the app.
 
 ## Relationship to morning D2D
 
-- Morning STOP sets `isComing=False` for picked-up CList only
-- Return `view/` shows commuters still `isComing=True`
-- Admin confirm/remove toggles `isComing` for **this return trip only**; commuter can change it themselves on home screen
+- Morning STOP sets `isComing=False` for picked-up CList + queue — that does **not** empty the evening available pool
+- Return `view/` lists org commuters minus anyone already confirmed today
+- Confirm still sets `isComing=False`; remove/end restore `isComing=True` (commuter home switch)
 
 ## Flutter status
 
-✅ Wired — [../../lib/features/batches/README.md](../../lib/features/batches/README.md)
+✅ All six REST endpoints wired — [../API_CONTRACTS.md](../API_CONTRACTS.md) · [../../lib/features/batches/README.md](../../lib/features/batches/README.md)
+
+Admin: picker + Available/Confirmed + End FAB. Driver: same view/get_commuter/add/remove; no End.
 
 ## Verify
 

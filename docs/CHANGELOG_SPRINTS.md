@@ -1,10 +1,82 @@
 > **Doc:** docs/CHANGELOG_SPRINTS.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Merged sprint history from talk-guide backend + frontend gaps
+> **Updated:** 2026-08-14 22:00 IST
+> **Session:** Driver return ADD sprint section
 
 # Changelog — Completed Sprints (Aug 2026)
 
 Historical record of implemented fixes. Live backlog → [PROJECT_TODOS.md](../PROJECT_TODOS.md).
+
+---
+
+## Driver return ADD (Flutter + Django) — 2026-08-14 ✅
+
+**Target repos:** `D:\cts_beta` + `D:\cts-docker`
+
+| Issue | Fix |
+|-------|-----|
+| Driver return list was read-only | Confirm/Remove on `/driverReturnCommuter` via `POST add_commuter` / `remove_commuter`. End FAB stays admin |
+| Available pool was this morning batch + `isComing=True` | Org-wide pool; hide anyone confirmed today (any return batch). Add looks up by user ID |
+| Confirmed cross-batch riders missing from Confirmed tab | `get_commuter` hydrates by user ID, not `batchId` |
+
+Verify: `test_return_batch_fixes.py` 14/14. See [API_CONTRACTS.md](./API_CONTRACTS.md) · [lib/features/batches/README.md](../lib/features/batches/README.md)
+
+---
+
+## Admin D2D + isComing (Flutter + Django) — 2026-08-14 ✅
+
+**Target repos:** `D:\cts_beta` + `D:\cts-docker`
+
+| Issue | Fix |
+|-------|-----|
+| Nested batch Coming switch was display-only; card stole taps | `ComingTodaySwitch` + `PATCH /user/commuter/<userId>` `{isComing}`; Django returns `{status, isComing}` |
+| Morning trip looked “ended” after leaving the channel | Only driver `{ACTION: STOP}` sets `endTime`. Connect creates `DTODLOG`. Same-day reconnect after STOP is **4001** |
+| Admin ADD toast with no live-list update | Sheet listed all commuters; WS ADD 404 on `userId+batchId` crashed the socket. Lookup by user ID; toast after list updates |
+
+See [API_CONTRACTS.md](./API_CONTRACTS.md) · [lib/features/d2d/README.md](../lib/features/d2d/README.md)
+
+---
+
+## Auth security wave (Flutter + Django) — S1–S5 ✅
+
+**Target repos:** `D:\cts_beta` + `D:\cts-docker` · **Status:** Done (connect-time only; no session ping)
+
+| ID | Issue | Fix |
+|----|--------|-----|
+| **S1** | Public sign-up posted `userType: ADMIN` | `/signUp` redirects to sign-in; repository refuses public ADMIN. Backend `POST /user/` still trusts `userType` |
+| **S2** | HTTPS/WSS rewritten to HTTP/WS; Android cleartext in release | Scheme kept; cleartext **debug/profile only** |
+| **S3** | D2D WS with no cookie | Flutter `IOWebSocketChannel` Cookie header; Django 4401/4403 on connect; actions not re-authorized per message |
+| **S4+S5** | Logout skipped cookies; `isLogin` only; no 401 sign-out | Always `clearLocalSession()`; logged-in = flag + sessionid; Dio 401 → sign-in |
+| **Follow-up** | Auth/connectivity “again and again” | Session cookies + `isOnline` cached in memory; one Connectivity listener |
+
+Verify: `test_d2d_fixes.py` (anonymous 4401). See [API_CONTRACTS.md](./API_CONTRACTS.md) · [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md)
+
+---
+
+## Application wave (Flutter CRUD) — A2, A3, A4 ✅
+
+**Target repo:** `D:\cts_beta` · **Status:** Slices 1–3 done. A5 closed in the follow-up wave below.
+
+| ID | Issue | Fix |
+|----|--------|-----|
+| **A2** | Batch commuter swipe-edit used the sorted index on the unsorted list | Pass `CommuterModel`. Same for route edit/delete (`RouteModel`) |
+| **A3** | Commuter update always PATCHed `mail@email.com` / `"address"` | Restored Email + Address fields; empty create address → email; update uses last saved from `GET /user/<pk>` |
+| **A4** | Dashboard Add skipped `clearAll()` | All six Add quick actions call matching `*FormProvider.clearAll()` |
+
+See [API_CONTRACTS.md](./API_CONTRACTS.md) (admin commuter CRUD) · [FEATURES.md](./FEATURES.md)
+
+---
+
+## Same-class wave — A5, A10, R6 ✅
+
+**Target repo:** `D:\cts_beta` · **Status:** Done 2026-08-14
+
+| ID | Issue | Fix |
+|----|--------|-----|
+| **A5** | Leaving commuter form reloaded the full admin list into a batch screen | `CommuterController.refreshCurrentList()`; generation-based fetch so by-batch is not dropped |
+| **A10** | Commuter home / Track Cab wrapped in `OfflineAutoRedirect`; fallback treated COMMUTER as offline | Unwrap those screens; `isOfflineRole()` is admin or driver via `SessionRole` |
+| **R6** | Unknown sync types skipped forever; ConnectivityService never disposed | Mark unknown types failed at `maxRetries`; `CtsApp.dispose` stops SyncManager then disposes connectivity |
+
+R1–R3 were already in sources (mounted return, Wi-Fi cancel, running-list snapshot).
 
 ---
 
@@ -103,10 +175,9 @@ See [backend/05-audit-and-gaps.md](./backend/05-audit-and-gaps.md).
 
 ## Out of scope (unchanged / deferred)
 
-- WebSocket / REST authentication
-- Role-based action guards
+- REST permissions on d2d views (still open in dev)
+- Backend `POST /user/` still trusts client `userType`
 - `channels_redis` migration
-- Capacity check on WS ADD (partially done in hardening)
 
 ---
 

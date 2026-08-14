@@ -95,7 +95,7 @@ class RouteName {
     d2dChannel,
   };
 
-  /// Driver role home + driver D2D log + read-only return list.
+  /// Driver role home + driver D2D log + return list (confirm/remove).
   static const Set<String> driverOnlyPrefixes = {
     driverHomeScreen,
     d2dLog,

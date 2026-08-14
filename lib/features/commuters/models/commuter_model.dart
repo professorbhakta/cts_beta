@@ -33,7 +33,7 @@ class CommuterModel {
     json['userId'] != null ? UserModel.fromJson(json['userId']) : null;
     popId = json['popId'] != null ? PickUpPointModel.fromJson(json['popId']) : null;
     cabId = json['cabId'] != null ? CabModel.fromJson(json['cabId']) : null;
-    isComing = json['isComing'];
+    isComing = _parseBool(json['isComing']);
     adminCode = json['adminCode'] != null
         ? AdminCode.fromJson(json['adminCode'])
         : null;
@@ -60,6 +60,24 @@ class CommuterModel {
       data['adminCode'] = adminCode!.toJson();
     }
     return data;
+  }
+
+  static bool? _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      switch (value.trim().toLowerCase()) {
+        case 'true':
+        case '1':
+        case 'yes':
+          return true;
+        case 'false':
+        case '0':
+        case 'no':
+          return false;
+      }
+    }
+    return null;
   }
 
   static List<CommuterModel> filterCommuters(

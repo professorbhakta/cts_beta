@@ -225,12 +225,7 @@ class _PopFormState extends State<PopForm> {
                                 success = await _dataProvider.createPop(data);
                               }
 
-                              if (!mounted) {
-                                setState(() {
-                                  _isSubmitting = false;
-                                });
-                                return;
-                              }
+                              if (!mounted) return;
 
                               setState(() {
                                 _isSubmitting = false;

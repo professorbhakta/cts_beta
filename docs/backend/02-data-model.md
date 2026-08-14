@@ -1,6 +1,6 @@
 > **Doc:** docs/backend/02-data-model.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/backend/02-data-model.md
+> **Updated:** 2026-08-14 19:55 IST
+> **Session:** Auth security wave — public client does not send ADMIN
 
 # Backend — Data Model
 
@@ -9,8 +9,11 @@
 ### User (AUTH_USER_MODEL)
 
 - `mobileNumber` — unique, USERNAME_FIELD
-- `userType` — ADMIN | DRIVER | COMMUTER
+- `userType` — ADMIN | DRIVER | COMMUTER. Flutter **public** sign-up does not send ADMIN. Admin CRUD still posts DRIVER/COMMUTER. Unauthenticated `POST /user/` still trusts the client field (backend follow-up).
 - `username`, `address`, `deviceId`, `hasPaid`
+- `email` — Django `AbstractUser` EmailField (blank allowed). Flutter **admin commuter form requires it**.
+- `address` — `CharField(max_length=100, null=True)`. Flutter: empty **create** copies email (truncated to 100); **update** sends last saved address unless the admin typed a new one. Never persist placeholders `mail@email.com` / `"address"`.
+- `PATCH /user/<pk>` is **partial** (`userSerializer`). Admin list serializers omit email/address; edit loads `GET /user/<pk>`.
 
 ### subAdmin
 

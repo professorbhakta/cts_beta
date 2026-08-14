@@ -5,11 +5,27 @@ import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/commuters/repositories/commuter_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
+import 'package:cts/models/user_model.dart';
 
 class CommuterRepositoryImpl implements CommuterRepository {
   CommuterRepositoryImpl({required this._apiService});
 
   final BaseApiServices _apiService;
+
+  @override
+  Future<ApiResult<UserModel>> getUser(int userId) async {
+    try {
+      final response = await _apiService.getApi('${ApiUrl.userUrl}/$userId');
+      if (response is Map<String, dynamic>) {
+        return ApiResult.success(UserModel.fromJson(response));
+      }
+      return ApiResult.failure(
+        ApiExceptionHandler.handle('Invalid user response format'),
+      );
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
 
   @override
   Future<ApiResult<List<CommuterModel>>> getCommuters() async {
@@ -107,18 +123,37 @@ class CommuterRepositoryImpl implements CommuterRepository {
         ApiUrl.commuterUrl,
       );
 
-      if (response != null && response.toString().isNotEmpty) {
-        return ApiResult.success(null);
+      if (_isFailedPatchBody(response)) {
+        return ApiResult.failure(
+          ApiFailure(
+            type: ApiFailureType.invalidRequest,
+            message: response.toString(),
+          ),
+        );
       }
-      return ApiResult.failure(
-        const ApiFailure(
-          type: ApiFailureType.parsing,
-          message: 'Failed to update commuter status.',
-        ),
-      );
+      return ApiResult.success(null);
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
+  }
+
+  /// Django sometimes returns HTTP 200 with an error dict instead of 4xx.
+  bool _isFailedPatchBody(dynamic response) {
+    if (response is Map) {
+      if (response['status'] == 'ok') return false;
+      if (response.containsKey('error') ||
+          response.containsKey('non_field_errors')) {
+        return true;
+      }
+      final isComingErrors = response['isComing'];
+      return isComingErrors is List || isComingErrors is String;
+    }
+    if (response is String) {
+      final lower = response.toLowerCase();
+      if (lower.contains('updated') || lower.contains('ok')) return false;
+      return lower.contains('error') || lower.contains('required');
+    }
+    return false;
   }
 
   @override

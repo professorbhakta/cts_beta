@@ -1,14 +1,16 @@
 import 'package:cts/domain/repositories/session_repository.dart';
 import 'package:cts/appManager/app_class.dart';
+import 'package:cts/appManager/session_manager.dart';
 
 class SessionRepositoryImpl implements SessionRepository {
-  // No longer needs its own instance of AppManager
   SessionRepositoryImpl();
 
   @override
   Future<bool> isLoggedIn() async {
-    // Use the singleton instance directly
-    return AppManager.instance.getBool(ManagerKey.isLogin);
+    final flagged = AppManager.instance.getBool(ManagerKey.isLogin);
+    if (!flagged) return false;
+    final sessionId = await SessionManager().getSessionId();
+    return sessionId != null && sessionId.isNotEmpty;
   }
 
   @override

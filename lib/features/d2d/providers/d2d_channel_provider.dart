@@ -1,25 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cts/appManager/app_class.dart';
+import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/models/d2d_commuter_model.dart';
+import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/repositories/driver_repository.dart';
 import 'package:flutter/foundation.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class D2dChannelProvider with ChangeNotifier {
-  D2dChannelProvider(this._driverRepository);
+  D2dChannelProvider(this._driverRepository, this._d2dRepository);
 
   static const int _endedTripCloseCode = 4001;
+  static const int _unauthorizedCloseCode = 4401;
+  static const int _forbiddenCloseCode = 4403;
   static const String _tripEndedMessage =
       'This trip has already ended. A new trip can be started tomorrow.';
+  static const String _unauthorizedMessage =
+      'You are not allowed to join this live trip. Please sign in again.';
 
   final DriverRepository _driverRepository;
+  final D2dRepository _d2dRepository;
 
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
+  int _connectGeneration = 0;
   DriverModel? _driver;
   List<D2dCommuterModel> _commuters = [];
   bool _isAscending = true;
@@ -30,11 +40,13 @@ class D2dChannelProvider with ChangeNotifier {
   String? _errorMessage;
   String? _actionErrorMessage;
   bool _tripEnded = false;
+  D2dTripStatus _tripStatus = D2dTripStatus.unknown;
 
   ViewState get state => _state;
   String? get errorMessage => _errorMessage;
   String? get actionErrorMessage => _actionErrorMessage;
   bool get isTripEnded => _tripEnded;
+  D2dTripStatus get tripStatus => _tripStatus;
   DriverModel? get driver => _driver;
   List<D2dCommuterModel> get commuters => _commuters;
   bool get isAscending => _isAscending;
@@ -50,6 +62,18 @@ class D2dChannelProvider with ChangeNotifier {
   void clearActionError() {
     if (_actionErrorMessage == null) return;
     _actionErrorMessage = null;
+    _safeNotifyListeners();
+  }
+
+  Future<void> fetchTripStatus(String batchId) async {
+    final result = await _d2dRepository.getLogStatus(batchId);
+    if (_isDisposed) return;
+
+    if (result.isSuccess && result.data != null) {
+      _tripStatus = result.data!;
+    } else {
+      _tripStatus = D2dTripStatus.none;
+    }
     _safeNotifyListeners();
   }
 
@@ -70,16 +94,31 @@ class D2dChannelProvider with ChangeNotifier {
     _safeNotifyListeners();
 
     unawaited(_loadDriverForBatch(batchId));
+    unawaited(_openSocket(batchId, _connectGeneration));
+  }
 
+  Future<void> _openSocket(String batchId, int generation) async {
     try {
       final wsBaseUrl = AppConfig.instance.webSocketUrl;
       final uri = Uri.parse('$wsBaseUrl$batchId/');
+      final cookies = await SessionManager().buildCookieHeader();
+      final cookieHeader = cookies.entries
+          .where((entry) => entry.value.isNotEmpty)
+          .map((entry) => '${entry.key}=${entry.value}')
+          .join('; ');
+
+      if (_isDisposed || generation != _connectGeneration) return;
 
       if (kDebugMode) {
         debugPrint('D2D: Connecting to WebSocket: $uri');
       }
 
-      _channel = WebSocketChannel.connect(uri);
+      _channel = IOWebSocketChannel.connect(
+        uri,
+        headers: {
+          if (cookieHeader.isNotEmpty) HttpHeaders.cookieHeader: cookieHeader,
+        },
+      );
       _isConnected = true;
 
       _subscription = _channel!.stream.listen(
@@ -88,6 +127,10 @@ class D2dChannelProvider with ChangeNotifier {
           if (!_isConnected || _isDisposed) return;
           if (_isEndedTripClose(error)) {
             _handleTripEndedClose();
+            return;
+          }
+          if (_isAuthClose(error)) {
+            _handleAuthClose();
             return;
           }
           if (kDebugMode) {
@@ -104,6 +147,10 @@ class D2dChannelProvider with ChangeNotifier {
             _handleTripEndedClose();
             return;
           }
+          if (_isAuthClose(null)) {
+            _handleAuthClose();
+            return;
+          }
           if (kDebugMode) {
             debugPrint('D2D: WebSocket connection closed');
           }
@@ -117,6 +164,7 @@ class D2dChannelProvider with ChangeNotifier {
 
       _safeNotifyListeners();
     } catch (e) {
+      if (_isDisposed || generation != _connectGeneration) return;
       if (kDebugMode) {
         debugPrint('D2D: Connection exception: $e');
       }
@@ -131,6 +179,31 @@ class D2dChannelProvider with ChangeNotifier {
     if (_channel?.closeCode == _endedTripCloseCode) return true;
     final errorText = error?.toString() ?? '';
     return errorText.contains('4001');
+  }
+
+  bool _isAuthClose(Object? error) {
+    final code = _channel?.closeCode;
+    if (code == _unauthorizedCloseCode || code == _forbiddenCloseCode) {
+      return true;
+    }
+    final errorText = error?.toString() ?? '';
+    return errorText.contains('4401') || errorText.contains('4403');
+  }
+
+  void _handleAuthClose() {
+    if (!_isConnected || _isDisposed) return;
+
+    if (kDebugMode) {
+      debugPrint('D2D: Auth rejected (close code ${_channel?.closeCode})');
+    }
+
+    _isConnected = false;
+    _subscription?.cancel();
+    _subscription = null;
+    _channel = null;
+    _state = ViewState.error;
+    _errorMessage = _unauthorizedMessage;
+    _safeNotifyListeners();
   }
 
   void _handleTripEndedClose() {
@@ -236,12 +309,14 @@ class D2dChannelProvider with ChangeNotifier {
       case 'no_live_state':
         return 'Trip is not active';
       case 'invalid_commuter':
-        return 'Commuter not on this batch';
+        return 'Commuter not found or has no pick-up point';
       case 'no_driver':
       case 'no_cab':
         return 'Batch missing driver or cab';
       case 'unknown_action':
         return 'Unsupported action';
+      case 'forbidden':
+        return 'You are not allowed to change this live trip.';
       default:
         return 'Action failed';
     }
@@ -340,6 +415,7 @@ class D2dChannelProvider with ChangeNotifier {
   }
 
   void disconnect({bool notify = true}) {
+    _connectGeneration++;
     if (!_isConnected && _channel == null && _subscription == null) {
       return;
     }
@@ -386,13 +462,21 @@ class D2dChannelProvider with ChangeNotifier {
   }
 
   /// Admin channel: add commuter to the live fly list.
-  void addCommuter(String commuterId) {
+  bool addCommuter(String commuterId) {
     final id = _parseCommuterId(commuterId);
     if (id == 0) {
       if (kDebugMode) {
         debugPrint('D2D: Skipping ADD — invalid commuter id');
       }
-      return;
+      return false;
+    }
+
+    if (!_isConnected || _channel == null) {
+      _actionErrorMessage = _tripEnded
+          ? _tripEndedMessage
+          : 'Live channel is not connected.';
+      _safeNotifyListeners();
+      return false;
     }
 
     // Backend expects a scalar CLIST for ADD (not an array).
@@ -400,6 +484,7 @@ class D2dChannelProvider with ChangeNotifier {
       'ACTION': 'ADD',
       'CLIST': id,
     });
+    return true;
   }
 
   /// Admin channel: remove commuter from live list.

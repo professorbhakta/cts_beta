@@ -19,10 +19,12 @@ class SyncManager with ChangeNotifier {
     ConnectivityService? connectivityService,
     this.maxRetries = 5,
   }) : _syncQueueDao = syncQueueDao ?? AppDatabase.instance.syncQueueDao,
+       _ownsConnectivity = connectivityService == null,
        _connectivity = connectivityService ?? ConnectivityService();
 
   final SyncQueueDao _syncQueueDao;
   final ConnectivityService _connectivity;
+  final bool _ownsConnectivity;
   final int maxRetries;
   final Map<EntityType, SyncHandler> _handlers = {};
   StreamSubscription<bool>? _connectivitySubscription;
@@ -71,9 +73,18 @@ class SyncManager with ChangeNotifier {
       for (final record in pending) {
         final handler = _handlers[record.entityType];
         if (handler == null) {
+          final id = record.id;
+          if (id != null) {
+            await _syncQueueDao.markFailed(
+              id: id,
+              error: 'No sync handler for ${record.entityType.storageKey}',
+              retryCount: maxRetries,
+            );
+          }
           if (kDebugMode) {
             debugPrint(
-              'SyncManager: No handler registered for ${record.entityType.storageKey}',
+              'SyncManager: No handler registered for '
+              '${record.entityType.storageKey}; stopped retrying',
             );
           }
           continue;
@@ -111,7 +122,14 @@ class SyncManager with ChangeNotifier {
 
   @override
   void dispose() {
-    unawaited(stop());
+    unawaited(_disposeResources());
     super.dispose();
+  }
+
+  Future<void> _disposeResources() async {
+    await stop();
+    if (_ownsConnectivity) {
+      await _connectivity.dispose();
+    }
   }
 }

@@ -24,7 +24,7 @@ Legend: ✅ implemented in HTML demo
 |------|----------|--------|
 | Splash → Sign in | Try role → splash spinner → SignIn | ✅ |
 | Login → role home | LOGIN → pick Admin/Driver/Commuter | ✅ |
-| Sign up | Sign Up link → form → back to Sign in | ✅ |
+| Sign up | Public `/signUp` redirects to Sign in (HTML demo may still show the form) | HTML only |
 | Logout | Profile → Logout → Sign in | ✅ |
 
 ---

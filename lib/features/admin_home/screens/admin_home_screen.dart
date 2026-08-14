@@ -4,6 +4,12 @@ import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/admin_home/providers/admin_provider.dart';
 import 'package:cts/features/batches/models/batch_model.dart';
+import 'package:cts/features/batches/providers/batch_form_provider.dart';
+import 'package:cts/features/cabs/providers/cab_form_provider.dart';
+import 'package:cts/features/commuters/providers/commuter_form_provider.dart';
+import 'package:cts/features/drivers/providers/driver_form_provider.dart';
+import 'package:cts/features/pops/providers/pop_form_provider.dart';
+import 'package:cts/features/routes/providers/route_form_provider.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/dashboard_stat_card.dart';
@@ -26,7 +32,6 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Call the new detailed data loading method
       if (context.read<AdminProvider>().state != ViewState.loading) {
         context.read<AdminProvider>().loadDetailedDashboardData();
       }
@@ -69,7 +74,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Section
+            if (provider.hasPartialError) ...[
+              _buildPartialLoadBanner(context, provider),
+              const SizedBox(height: 16),
+            ],
             _buildWelcomeSection(context),
             const SizedBox(height: 32),
 
@@ -231,63 +239,49 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           ),
         ],
       ),
-      child: Stack(
+      child: Row(
         children: [
-          // Dark overlay for better text contrast
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  greeting,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: AppColors.acWhite,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Welcome Back!',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: AppColors.acWhite,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Manage your transportation system efficiently',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.acWhite.withValues(alpha: 0.95),
+                  ),
+                ),
+              ],
             ),
           ),
-          // Content
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      greeting,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: AppColors.acWhite,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Welcome Back!',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        color: AppColors.acWhite,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Manage your transportation system efficiently',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.acWhite.withValues(alpha: 0.95),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(16),
-
-                decoration: BoxDecoration(
-                  color: AppColors.acWhite.withValues(alpha: 0.25),
-                  shape: BoxShape.circle,
-                ),
-                child: Image.asset(
-                  'assets/images/c2s.png',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.acWhite.withValues(alpha: 0.25),
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset(
+              'assets/images/c2s.png',
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
           ),
         ],
       ),
@@ -357,6 +351,12 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () =>
+                      context.push(RouteName.runningBatchScreen),
+                  child: const Text('View running batches'),
+                ),
               ],
             ),
           )
@@ -382,6 +382,42 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             );
           }),
       ],
+    );
+  }
+
+  Widget _buildPartialLoadBanner(
+    BuildContext context,
+    AdminProvider provider,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.errorContainer,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline, color: scheme.onErrorContainer),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                provider.loadWarning ??
+                    'Some dashboard data could not be loaded.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: scheme.onErrorContainer,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => provider.loadDetailedDashboardData(),
+              child: Text(
+                'Retry',
+                style: TextStyle(color: scheme.onErrorContainer),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -416,6 +452,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               icon: Icons.add_circle_outline,
               label: 'Add Batch',
               onTap: () {
+                context.read<BatchFormProvider>().clearAll();
                 context.push(RouteName.batchForm);
               },
               color: AppColors.acYellowWarm,
@@ -424,6 +461,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               icon: Icons.person_add_outlined,
               label: 'Add Commuter',
               onTap: () {
+                context.read<CommuterFormProvider>().clearAll();
                 context.push(RouteName.commuterForm);
               },
               color: AppColors.acOrangeWarm,
@@ -432,6 +470,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               icon: Icons.drive_eta_outlined,
               label: 'Add Driver',
               onTap: () {
+                context.read<DriverFormProvider>().clearAll();
                 context.push(RouteName.driverForm);
               },
               color: AppColors.acYellowBright,
@@ -440,6 +479,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               icon: Icons.directions_car_outlined,
               label: 'Add Cab',
               onTap: () {
+                context.read<CabFormProvider>().clearAll();
                 context.push(RouteName.cabForm);
               },
               color: AppColors.acOrangeBright,
@@ -448,6 +488,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               icon: Icons.route_outlined,
               label: 'Add Route',
               onTap: () {
+                context.read<RouteFormProvider>().clearAll();
                 context.push(RouteName.routeForm);
               },
               color: AppColors.acYellowWarm,
@@ -456,6 +497,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               icon: Icons.location_on_outlined,
               label: 'Add POP',
               onTap: () {
+                context.read<PopFormProvider>().clearAll();
                 context.push(RouteName.popForm);
               },
               color: AppColors.acOrangeWarm,

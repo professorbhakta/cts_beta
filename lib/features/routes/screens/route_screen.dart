@@ -58,19 +58,16 @@ class _RouteScreenState extends State<RouteScreen> {
     );
   }
 
-  // START: Reverted RouteProvider to RouteController
-  void _showEditDialog(BuildContext context, RouteController rc, int index) {
-    // END: Reverted RouteProvider to RouteController
+  void _showEditDialog(RouteModel route) {
     final formProvider = context.read<RouteFormProvider>();
-    formProvider.routeNameCtrl.text = rc.routes[index].routeName ?? "";
+    formProvider.routeNameCtrl.text = route.routeName ?? "";
     formProvider.forUpdate = true;
-    formProvider.updateId = rc.routes[index].id ?? 0;
+    formProvider.updateId = route.id ?? 0;
     context.push(RouteName.routeForm);
   }
 
-  // START: Reverted RouteProvider to RouteController
-  void _showDeleteDialog(BuildContext context, RouteController rc, int index) {
-    final route = rc.routes[index];
+  void _showDeleteDialog(RouteModel route) {
+    final rc = context.read<RouteController>();
     ConfirmationDialog.showDeleteConfirmation(
       context,
       itemName: 'Route',
@@ -234,12 +231,11 @@ class _RouteList extends StatelessWidget {
   });
 
   final List<RouteModel> routes;
-  final void Function(BuildContext, RouteController, int) onEdit;
-  final void Function(BuildContext, RouteController, int) onDelete;
+  final void Function(RouteModel) onEdit;
+  final void Function(RouteModel) onDelete;
 
   @override
   Widget build(BuildContext context) {
-    final routeController = context.read<RouteController>();
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverList.separated(
@@ -253,11 +249,11 @@ class _RouteList extends StatelessWidget {
             motion: const DrawerMotion(),
             extentRatio: 0.25,
             dismissible: DismissiblePane(
-              onDismissed: () => onDelete(context, routeController, index),
+              onDismissed: () => onDelete(route),
             ),
             children: [
               SlidableAction(
-                onPressed: (_) => onDelete(context, routeController, index),
+                onPressed: (_) => onDelete(route),
                 backgroundColor: AppColors.acRed,
                 foregroundColor: AppColors.acWhite,
                 icon: Icons.delete_rounded,
@@ -275,7 +271,7 @@ class _RouteList extends StatelessWidget {
             extentRatio: 0.25,
             children: [
               SlidableAction(
-                onPressed: (_) => onEdit(context, routeController, index),
+                onPressed: (_) => onEdit(route),
                 backgroundColor: AppColors.acYellowWarm,
                 foregroundColor: AppColors.acWhite,
                 icon: Icons.edit_rounded,
@@ -294,8 +290,8 @@ class _RouteList extends StatelessWidget {
             iconColor: AppColors.acYellowWarm,
             onLongPress: () => ListItemActionsSheet.show(
               context,
-              onEdit: () => onEdit(context, routeController, index),
-              onDelete: () => onDelete(context, routeController, index),
+              onEdit: () => onEdit(route),
+              onDelete: () => onDelete(route),
             ),
           ),
         );

@@ -1,6 +1,6 @@
 > **Doc:** docs/INTEGRATION.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Merged architecture diagrams + project overview from talk-guide
+> **Updated:** 2026-08-14 21:55 IST
+> **Session:** DTODLOG on connect; driver STOP; ADD by user ID
 
 # Integration — Full-Stack Overview
 
@@ -56,11 +56,11 @@ Separate git repos. Backend runs via Docker Desktop; Flutter connects over LAN H
 - `DRIVER` — runs live D2D log; confirms pickups
 - `COMMUTER` — self-service `isComing` toggle
 
-Login field: **mobile number**. Auth uses Django session cookies on REST; WebSocket currently has no auth check (dev).
+Login field: **mobile number**. Auth uses Django session cookies on REST. D2D WebSocket sends the same `sessionid` on connect: anonymous **4401**, not ADMIN/assigned DRIVER **4403**. Role is not re-checked on every ADD/DELETE/STOP. Public Flutter sign-up is disabled; backend `POST /user/` still trusts client `userType`.
 
 ## Critical features
 
-- **Live D2D WebSocket** — [features/D2D_E2E.md](./features/D2D_E2E.md) ✅ fixes applied
+- **Live D2D WebSocket** — [features/D2D_E2E.md](./features/D2D_E2E.md) ✅ fixes applied. `DTODLOG` on connect; only driver `STOP` ends the day; admin ADD looks up by user ID
 - **Evening return batch** — [features/RETURN_BATCH_E2E.md](./features/RETURN_BATCH_E2E.md) ✅ admin + driver UI wired
 
 ---
@@ -115,8 +115,9 @@ sequenceDiagram
   participant DB as DTODLOG Postgres
   participant Live as Redis d2d:live
 
-  Driver->>Nginx: WS connect /ws/1/
+  Driver->>Nginx: WS connect /ws/1/ + Cookie sessionid
   Nginx->>Consumer: upgrade
+  Consumer->>Consumer: AuthMiddlewareStack — reject 4401/4403 if needed
   Consumer->>DB: get_or_create DTODLOG today
   Consumer->>Live: get or rebuild DS
   Consumer->>Driver: result snapshot
@@ -151,11 +152,14 @@ sequenceDiagram
   Dio->>API: batch card stats
   Admin->>Dio: GET view/batchId
   API->>DB: isComing True
-  Admin->>Dio: POST add_commuter userId
+  Admin->>Dio: POST add_commuter {batch_id, commuter_id}
   API->>R: SADD
   API->>DB: isComing False
   Admin->>Dio: GET get_commuter/batchId
-  API->>R: SMEMBERS + hydrate
+  API->>R: SMEMBERS + hydrate default
+  Admin->>Dio: POST remove_commuter {batch_id, commuter_id}
+  API->>R: SREM
+  API->>DB: isComing True
   Admin->>Dio: POST end/batchId
   API->>R: DEL key
 ```

@@ -62,10 +62,17 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
         );
       }
       final map = Map<String, dynamic>.from(response);
+      final listIds = map['commuter_list'];
+      final confirmedUserIds = <String>{
+        if (listIds is List)
+          for (final id in listIds)
+            if (id != null && id.toString().isNotEmpty) id.toString(),
+      };
       return ApiResult.success(
         ReturnBatchConfirmedResult(
           commuters: _parseCommuterList(map, listKey: 'commuters'),
           capacity: ReturnBatchCapacityModel.fromConfirmedResponse(map),
+          confirmedUserIds: confirmedUserIds,
         ),
       );
     } catch (e) {

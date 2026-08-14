@@ -3,6 +3,7 @@ import 'package:cts/features/cabs/providers/cab_controller.dart';
 import 'package:cts/features/commuters/providers/commuter_controller.dart';
 import 'package:cts/features/drivers/providers/driver_controller.dart';
 import 'package:cts/features/pops/providers/pop_controller.dart';
+import 'package:cts/features/profile/providers/profile_provider.dart';
 import 'package:cts/features/routes/providers/route_controller.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class ControllerResetUtil {
       context.read<DriverProvider>().reset();
       context.read<RouteController>().reset();
       context.read<PopProvider>().reset();
+      context.read<ProfileProvider>().reset();
       
       // Reset sign in provider state
       final signInProvider = context.read<SignInProvider>();

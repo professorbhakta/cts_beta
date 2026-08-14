@@ -36,10 +36,17 @@ class _CommuterFormState extends State<CommuterForm> {
   void initState() {
     super.initState();
     _dataProvider = context.read<CommuterController>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       context.read<BatchProvider>().fetchBatches();
       context.read<CabProvider>().fetchCabs();
       context.read<PopProvider>().fetchPops();
+      final formProvider = context.read<CommuterFormProvider>();
+      if (formProvider.forUpdate && formProvider.updateId != 0) {
+        final user = await _dataProvider.fetchUser(formProvider.updateId);
+        if (!mounted || user == null) return;
+        formProvider.applyFetchedUser(user);
+      }
     });
   }
 
@@ -51,7 +58,7 @@ class _CommuterFormState extends State<CommuterForm> {
       canPop: true,
       onPopInvokedWithResult: (bool didPop, bool? result) {
         if (didPop) {
-          _dataProvider.fetchCommuters();
+          _dataProvider.refreshCurrentList();
         }
       },
       child: DashboardShell(
@@ -92,6 +99,14 @@ class _CommuterFormState extends State<CommuterForm> {
                       FilteringTextInputFormatter.digitsOnly,
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    formProvider.commEmail,
+                    "Email",
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    customValidator: (value) => Validators.email(value),
+                  ),
                   if (!formProvider.forUpdate) ...[
                     const SizedBox(height: 16),
                     // Password Field
@@ -104,13 +119,19 @@ class _CommuterFormState extends State<CommuterForm> {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  // Address Field
-                  // _buildTextField(
-                  //   formProvider.commAddr,
-                  //   "Address",
-                  //   icon: Icons.location_on_outlined,
-                  //   customValidator: (value) => Validators.address(value),
-                  // ),
+                  _buildTextField(
+                    formProvider.commAddr,
+                    "Address",
+                    icon: Icons.location_on_outlined,
+                    hintText: 'Optional — defaults to email',
+                    customValidator: (value) =>
+                        Validators.address(value, isRequired: false),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(
+                        CommuterFormProvider.addressMaxLength,
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   // College Name Field
                   _buildTextField(
@@ -149,16 +170,18 @@ class _CommuterFormState extends State<CommuterForm> {
                                 });
 
                               bool success = false;
+                              final email = formProvider.commEmail.text.trim();
+                              final address = formProvider.addressForPayload();
                               if (formProvider.forUpdate) {
-                                final userData = {
+                                final userData = <String, dynamic>{
                                   "username": formProvider.commName.text
                                       .trim()
                                       .toUpperCase(),
                                   "mobileNumber": formProvider.commMob.text
                                       .trim(),
-                                  "email": "mail@email.com",
+                                  "email": email,
                                   'userType': "COMMUTER",
-                                  'address': "address",
+                                  'address': ?address,
                                 };
                                 final commuterData = {
                                   "collegeName": formProvider.commClg.text
@@ -187,8 +210,9 @@ class _CommuterFormState extends State<CommuterForm> {
                                         .trim(),
                                     "mobileNumber": formProvider.commMob.text
                                         .trim(),
+                                    "email": email,
                                     'userType': "COMMUTER",
-                                    'address': "address",
+                                    'address': address ?? email,
                                   },
                                   "user_data": {
                                     "collegeName": formProvider.commClg.text
@@ -207,12 +231,7 @@ class _CommuterFormState extends State<CommuterForm> {
                                 );
                               }
 
-                              if (!mounted) {
-                                setState(() {
-                                  _isSubmitting = false;
-                                });
-                                return;
-                              }
+                              if (!mounted) return;
 
                               setState(() {
                                 _isSubmitting = false;
@@ -246,6 +265,7 @@ class _CommuterFormState extends State<CommuterForm> {
     IconData? icon,
     TextInputType keyboardType = TextInputType.text,
     bool isObscure = false,
+    String? hintText,
     String? Function(String?)? customValidator,
     List<TextInputFormatter>? inputFormatters,
   }) {
@@ -255,7 +275,7 @@ class _CommuterFormState extends State<CommuterForm> {
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        hintText: 'Enter $label',
+        hintText: hintText ?? 'Enter $label',
         prefixIcon: Icon(icon ?? Icons.edit_outlined),
         prefixIconColor: AppColors.acYellowWarm,
         border: OutlineInputBorder(

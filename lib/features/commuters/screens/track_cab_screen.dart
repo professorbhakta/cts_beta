@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cts/features/commuters/constants/fleet_tracking_mobile_css.dart';
 import 'package:cts/features/commuters/constants/fleet_tracking_urls.dart';
-import 'package:cts/offline_temp/offline_auto_redirect.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -235,45 +234,43 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return OfflineAutoRedirect(
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
-        appBar: AppBar(
-          title: const Text('Track your Cab'),
-          automaticallyImplyLeading: false,
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu_rounded),
-              tooltip: 'Open menu',
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        title: const Text('Track your Cab'),
+        automaticallyImplyLeading: false,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu_rounded),
+            tooltip: 'Open menu',
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
-          actions: [
-            IconButton(
-              tooltip: 'Refresh',
-              onPressed: _isLoading || !_webViewReady ? null : _reloadTrackingPage,
-              icon: const Icon(Icons.refresh_rounded),
-            ),
-            IconButton(
-              tooltip: 'Open in browser',
-              onPressed: _openInBrowser,
-              icon: const Icon(Icons.open_in_browser_rounded),
-            ),
-          ],
         ),
-        drawer: const AppDrawer(),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_isLoading && _loadProgress < 100)
-              LinearProgressIndicator(
-                value: _loadProgress == 0 ? null : _loadProgress / 100,
-                minHeight: 3,
-                backgroundColor: scheme.surfaceContainerHighest,
-              ),
-            Expanded(child: _buildBody()),
-          ],
-        ),
+        actions: [
+          IconButton(
+            tooltip: 'Refresh',
+            onPressed: _isLoading || !_webViewReady ? null : _reloadTrackingPage,
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+          IconButton(
+            tooltip: 'Open in browser',
+            onPressed: _openInBrowser,
+            icon: const Icon(Icons.open_in_browser_rounded),
+          ),
+        ],
+      ),
+      drawer: const AppDrawer(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_isLoading && _loadProgress < 100)
+            LinearProgressIndicator(
+              value: _loadProgress == 0 ? null : _loadProgress / 100,
+              minHeight: 3,
+              backgroundColor: scheme.surfaceContainerHighest,
+            ),
+          Expanded(child: _buildBody()),
+        ],
       ),
     );
   }

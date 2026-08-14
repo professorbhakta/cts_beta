@@ -4,4 +4,6 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- LAN Docker uses HTTP. Release builds must not allow cleartext. -->
+    <application android:usesCleartextTraffic="true"/>
 </manifest>

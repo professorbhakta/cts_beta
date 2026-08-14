@@ -25,16 +25,6 @@ class RunningBatchRepositoryImpl implements RunningBatchRepository {
     }
   }
 
-  @override
-  Stream<ApiResult<List<RunningBatches>>> watchRunningBatches({
-    Duration interval = const Duration(seconds: 20),
-  }) async* {
-    while (true) {
-      yield await fetchRunningBatches();
-      await Future.delayed(interval);
-    }
-  }
-
   List<RunningBatches> _parseRunningBatchList(dynamic data) {
     if (data is List) {
       return data

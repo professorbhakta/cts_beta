@@ -1,12 +1,12 @@
 > **Doc:** docs/backend/03-d2d-websocket-lifecycle.md
-> **Updated:** 2026-08-05 11:37 IST
-> **Session:** Migrated from project-talk-guide/backend/03-d2d-websocket-lifecycle.md
+> **Updated:** 2026-08-14 21:55 IST
+> **Session:** Doc sync — ADD user-ID lookup; Http404 no longer kills socket
 
 # Backend — Live D2D WebSocket Lifecycle
 
 **Most critical backend feature.** Real-time shared queue for morning outbound trips.
 
-**Status:** ✅ Fixes 1 & 2 applied (Aug 2026).
+**Status:** ✅ Fixes 1 & 2 applied (Aug 2026). Connect-time session auth (4401/4403) added in the auth security wave.
 
 ## Endpoint
 
@@ -16,23 +16,24 @@
 
 ## Connect flow (`consumers.py` → `connect`)
 
-1. `await self.accept()` — no auth check today
-2. Parse `batch_id` from URL
-3. Channel group: `{YYYY-MM-DD}batch{batch_id}` (uses `timezone.localdate()` via `get_trip_date()`)
-4. `group_add` to channel layer
-5. `get_batch_Data(batch)` — load Batch
-6. `create_d2d_Data(batch, trip_date)` — **`get_or_create(batchId, tripDate)`**
-7. **Ended-trip guard (Fix 1):** if log exists and `not isActive` or `endTime` set → close **4001**, return
-8. Load or build **DS** from Redis (`live_state.get_live_state`):
+1. Parse `batch_id` from URL; `AuthMiddlewareStack` user on `scope`
+2. **Auth (once):** anonymous → close **4401**; not ADMIN / assigned DRIVER → close **4403**. Remember `_authorized` — do not re-query on every action
+3. `await self.accept()`
+4. Channel group: `{YYYY-MM-DD}batch{batch_id}` (uses `timezone.localdate()` via `get_trip_date()`)
+5. `group_add` to channel layer
+6. `get_batch_Data(batch)` — load Batch
+7. `create_d2d_Data(batch, trip_date)` — **`get_or_create(batchId, tripDate)`**
+8. **Ended-trip guard (Fix 1):** if log exists and `not isActive` or `endTime` set → close **4001**, return
+9. Load or build **DS** from Redis (`live_state.get_live_state`):
    - If Redis miss → rebuild from DB (commuters `isComing=True`, exclude CList) → write Redis
    - Attach `D2D_id`, optional `driver`
-9. Send `{"result": DS}` to connecting client
+10. Send `{"result": DS}` to connecting client
 
 ## Actions (`receive`)
 
 Client sends JSON: `{"ACTION": "...", "CLIST": ...}`
 
-DS loaded/saved via **Redis** on each action (Fix 2).
+DS loaded/saved via **Redis** on each action (Fix 2). If the socket was never authorized, send `{"error":"forbidden"}` (in-memory flag — no extra DB lookup).
 
 ### REMOVE (driver confirm pickup)
 
@@ -41,6 +42,8 @@ DS loaded/saved via **Redis** on each action (Fix 2).
 ### ADD (admin add to live list)
 
 - CLIST is **scalar** user ID; append to DS if not in CList/data
+- Lookup is by **user ID** (this batch first, then any batch) so the admin add sheet can add riders who are not assigned to this batch
+- Missing commuter / no POP → `{"error":"invalid_commuter"}` (does **not** crash the socket)
 - Capacity check: rejects with `{"error":"capacity_full"}` if cab full
 
 ### DELETE (remove from live list only)
@@ -71,13 +74,13 @@ DS loaded/saved via **Redis** on each action (Fix 2).
 
 ## Known remaining issues
 
-- No WebSocket auth (deferred)
+- REST d2d views still open in dev (no DRF permissions)
 - InMemoryChannelLayer for broadcast only (OK for single worker)
 - See [05-audit-and-gaps.md](./05-audit-and-gaps.md) for full backlog
 
 ## Flutter mapping
 
-See [../../lib/features/d2d/README.md](../../lib/features/d2d/README.md). Ended-trip UI: close code **4001** in `D2dChannelProvider`.
+See [../../lib/features/d2d/README.md](../../lib/features/d2d/README.md). Close codes: **4001** ended trip, **4401** unauthenticated, **4403** forbidden role.
 
 ## Related
 
