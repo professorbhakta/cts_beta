@@ -1,5 +1,6 @@
 import 'package:cts/api/api_result.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/core/concurrency/batched_runner.dart';
 import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
@@ -8,11 +9,18 @@ import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:flutter/foundation.dart';
 
 class ReturnBatchProvider with ChangeNotifier {
-  ReturnBatchProvider(this._repository, {NetworkActionGuard? networkGuard})
-      : _networkGuard = networkGuard;
+  ReturnBatchProvider(
+    this._repository, {
+    NetworkActionGuard? networkGuard,
+    int statusFetchConcurrency = defaultStatusFetchConcurrency,
+  })  : _networkGuard = networkGuard,
+        _statusFetchConcurrency = statusFetchConcurrency;
+
+  static const int defaultStatusFetchConcurrency = 10;
 
   final ReturnBatchRepository _repository;
   final NetworkActionGuard? _networkGuard;
+  final int _statusFetchConcurrency;
 
   ViewState _state = ViewState.idle;
   ViewState get state => _state;
@@ -75,17 +83,18 @@ class ReturnBatchProvider with ChangeNotifier {
   Future<void> fetchStatusesForBatches(List<String> batchIds) async {
     if (batchIds.isEmpty) return;
 
-    final results = await Future.wait(
-      batchIds.map(_repository.getReturnBatchStatus),
+    await runWithConcurrency(
+      batchIds,
+      concurrency: _statusFetchConcurrency,
+      task: (batchId) async {
+        final result = await _repository.getReturnBatchStatus(batchId);
+        if (result.isSuccess && result.data != null) {
+          _statusByBatchId[batchId] = result.data!;
+          notifyListeners();
+        }
+        return result;
+      },
     );
-
-    for (var i = 0; i < batchIds.length; i++) {
-      final result = results[i];
-      if (result.isSuccess && result.data != null) {
-        _statusByBatchId[batchIds[i]] = result.data!;
-      }
-    }
-    notifyListeners();
   }
 
   ReturnBatchStatusModel? statusForBatch(String batchId) =>

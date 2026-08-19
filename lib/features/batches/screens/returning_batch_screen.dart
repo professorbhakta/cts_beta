@@ -1,10 +1,10 @@
 import 'package:cts/app/router/route_names.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/batches/models/batch_model.dart';
 import 'package:cts/features/batches/providers/batch_controller.dart';
 import 'package:cts/features/batches/providers/return_batch_provider.dart';
+import 'package:cts/features/batches/widgets/return_batch_picker_card.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
-import 'package:cts/widgets/modern_list_card.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -22,37 +22,39 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final batchProvider = context.read<BatchProvider>();
-      await batchProvider.fetchBatches();
-      if (!mounted) return;
-
-      final batchIds = batchProvider.batches
-          .map((batch) => batch.id?.toString())
-          .whereType<String>()
-          .toList();
-      if (batchIds.isNotEmpty) {
-        await context.read<ReturnBatchProvider>().fetchStatusesForBatches(
-          batchIds,
-        );
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadStatuses());
   }
 
-  Future<void> _refresh() async {
+  Future<void> _loadStatuses() async {
     final batchProvider = context.read<BatchProvider>();
     await batchProvider.fetchBatches();
     if (!mounted) return;
 
-    final batchIds = batchProvider.batches
-        .map((batch) => batch.id?.toString())
-        .whereType<String>()
-        .toList();
+    final batchIds = _batchIds(batchProvider.batches);
     if (batchIds.isNotEmpty) {
       await context.read<ReturnBatchProvider>().fetchStatusesForBatches(
         batchIds,
       );
     }
+  }
+
+  Future<void> _refresh() => _loadStatuses();
+
+  List<String> _batchIds(List<BatchModel> batches) {
+    return batches
+        .map((batch) => batch.id?.toString())
+        .whereType<String>()
+        .toList();
+  }
+
+  bool _anyPoolExtras(
+    ReturnBatchProvider returnProvider,
+    List<BatchModel> batches,
+  ) {
+    return batches.any((batch) {
+      final batchId = batch.id?.toString() ?? '';
+      return returnProvider.statusForBatch(batchId)?.hasPoolExtras == true;
+    });
   }
 
   @override
@@ -82,157 +84,80 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
             );
           }
 
+          final batches = batchProvider.batches;
+          final anyPoolExtras = _anyPoolExtras(returnProvider, batches);
+
           return RefreshIndicator(
             onRefresh: _refresh,
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.68,
-              ),
-              itemCount: batchProvider.batches.length,
-              itemBuilder: (context, index) {
-                final batch = batchProvider.batches[index];
-                final batchId = batch.id?.toString() ?? '';
-                final status = returnProvider.statusForBatch(batchId);
+            child: Builder(
+              builder: (context) {
+                final screenWidth = MediaQuery.sizeOf(context).width;
+                final useList = ReturnBatchPickerLayout.useListLayout(
+                  screenWidth: screenWidth,
+                  anyPoolExtras: anyPoolExtras,
+                );
 
-                return Card(
-                  child: InkWell(
-                    onTap: batchId.isEmpty
-                        ? null
-                        : () => context.push(
-                            '${RouteName.returnCommuterScreen}/$batchId',
-                          ),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SingleChildScrollView(
-                        physics: const ClampingScrollPhysics(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        batch.batchName ?? 'N/A',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      if (batch.driver?.userId?.username !=
-                                              null &&
-                                          batch
-                                              .driver!
-                                              .userId!
-                                              .username!
-                                              .isNotEmpty) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          batch.driver!.userId!.username!,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface
-                                                    .withValues(alpha: 0.65),
-                                              ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                                if (status?.isActive == true)
-                                  Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.acGreen,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  )
-                                else
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            InfoRow(
-                              icon: Icons.assignment_return,
-                              label: 'Return Time',
-                              value: batch.returnTime?.substring(0, 5) ?? 'N/A',
-                            ),
-                            InfoRow(
-                              icon: Icons.people,
-                              label: 'Available',
-                              value: status != null
-                                  ? '${status.availableCount}'
-                                  : '…',
-                            ),
-                            InfoRow(
-                              icon: Icons.event_seat,
-                              label: 'Seats left',
-                              value: status != null
-                                  ? '${status.remainingCapacity}/${status.totalCapacity}'
-                                  : '…',
-                            ),
-                            InfoRow(
-                              icon: Icons.check_circle_outline,
-                              label: 'Confirmed',
-                              value: status != null
-                                  ? '${status.confirmedCount}'
-                                  : '…',
-                            ),
-                            if (status?.hasPoolExtras == true) ...[
-                              InfoRow(
-                                icon: Icons.home_outlined,
-                                label: 'Home hold',
-                                value: '${status!.homeHold}',
-                              ),
-                              InfoRow(
-                                icon: Icons.swap_horiz,
-                                label: 'Overflow in',
-                                value: '${status.overflowConfirmed}',
-                              ),
-                              InfoRow(
-                                icon: Icons.airline_seat_recline_normal,
-                                label: 'Overflow open',
-                                value: '${status.overflowRemaining}',
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
+                if (useList) {
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: batches.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      return _buildCard(
+                        context,
+                        batches[index],
+                        returnProvider,
+                        compact: true,
+                      );
+                    },
+                  );
+                }
+
+                final crossAxisCount = screenWidth > 600 ? 3 : 2;
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio:
+                        ReturnBatchPickerLayout.gridChildAspectRatio(
+                      anyPoolExtras: anyPoolExtras,
                     ),
                   ),
+                  itemCount: batches.length,
+                  itemBuilder: (context, index) {
+                    return _buildCard(
+                      context,
+                      batches[index],
+                      returnProvider,
+                    );
+                  },
                 );
               },
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCard(
+    BuildContext context,
+    BatchModel batch,
+    ReturnBatchProvider returnProvider, {
+    bool compact = false,
+  }) {
+    final batchId = batch.id?.toString() ?? '';
+    final status = returnProvider.statusForBatch(batchId);
+
+    return ReturnBatchPickerCard(
+      batch: batch,
+      status: status,
+      compact: compact,
+      onTap: batchId.isEmpty
+          ? null
+          : () => context.push('${RouteName.returnCommuterScreen}/$batchId'),
     );
   }
 }
