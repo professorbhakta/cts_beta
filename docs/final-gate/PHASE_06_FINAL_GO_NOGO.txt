@@ -84,8 +84,9 @@ Risk level:     LOW–MEDIUM
 Rollback SHA (pre-P9 on beta-ver):
   2a92bf7e8ad1c4b31e058bda8546407c94eb0399
 
-Current beta-ver HEAD (post-merge, pre-push doc commit):
-  4222e40d606b0866989f3afdd814bb4cce5be159
+Current beta-ver HEAD (pushed):
+  1e688ddad94c279586e8f6f9e1c71cbfd0d6fac8
+  (includes merge 4222e40 + gate doc commit)
 
 ================================================================================
 8) GO / NO-GO
@@ -100,7 +101,7 @@ Rationale:
   - Backend unit/rule tests pass; one integration script case is documented gap
 
 If GO actions:
-  - Final beta-ver commit SHA: see git push output (4222e40 + doc sync commit)
+  - Final beta-ver commit SHA: 1e688ddad94c279586e8f6f9e1c71cbfd0d6fac8
   - Suggested tag: senior-review-2026-08-complete
   - Optional tag: senior-review-wave-rc1
 

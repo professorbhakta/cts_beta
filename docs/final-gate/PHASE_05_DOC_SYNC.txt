@@ -40,7 +40,11 @@ Updated middle context + next phase: Application wave A1/A6–A9
 --------------------------------------------------------------------------------
 5.5  git push origin beta-ver
 --------------------------------------------------------------------------------
-Pending: commit gate artifacts + doc sync, then push (see git log after push)
+DONE: pushed 2a92bf7..1e688dd beta-ver -> origin/beta-ver
+
+Final SHAs:
+  Merge P9:     4222e40d606b0866989f3afdd814bb4cce5be159
+  Gate docs:    1e688ddad94c279586e8f6f9e1c71cbfd0d6fac8  ← origin/beta-ver HEAD
 
 New artifacts this phase:
   docs/final-gate/PHASE_01_P9_FINISH.txt
