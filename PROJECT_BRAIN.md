@@ -77,7 +77,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 
 **Code this session:** P6 — `ReturnBatchProvider` batch switch hygiene, screen dispose clear, load generation, 6 lifecycle tests.
 
-**Lab connectivity (2026-08-20 01:05 IST):** Emulator smoke **PASS** — `flutter install` + `flutter run` on `emulator-5554`; API/WS URLs load, no crash. Phone `5f36af49` install **PASS**. Unit gate **72/72**. Branch `p6-state-lifecycle-hygiene` ready for commit/push.
+**Lab connectivity (2026-08-20 00:20 IST):** Emulator — launched fresh (`flutter run`, no active debug session; prior sessions aborted). Install + run PASS; API/WS URLs load. Phone — `flutter install` PASS (release APK); prior debug session lost connection. Batch A→back→Batch B: code path verified by 6 lifecycle unit tests; UI tap-through not automated this session.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 

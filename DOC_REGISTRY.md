@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 00:20 IST
-> **Session:** P5 degraded-network UX
+> **Updated:** 2026-08-20 00:25 IST
+> **Session:** P6 finish — commit/push verified
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 00:20 IST | P5 degraded network done |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 00:20 IST | P5 |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 00:20 IST | Next P6 |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 00:20 IST | P5 done |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 00:20 IST | P6 finish — pushed |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 00:25 IST | P6 finish |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 00:20 IST | Next P10 |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 00:20 IST | P6 done |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
