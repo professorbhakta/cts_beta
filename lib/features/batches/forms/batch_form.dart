@@ -213,6 +213,12 @@ class _BatchFormState extends State<BatchForm> {
                                 });
 
                                 if (success) {
+                                  SnackBarService.showsSuccessSnackbar(
+                                    formProvider.forUpdate
+                                        ? 'Batch updated successfully!'
+                                        : 'Batch created successfully!',
+                                    '',
+                                  );
                                   navigator.pop();
                                 } else {
                                   final errorMessage =

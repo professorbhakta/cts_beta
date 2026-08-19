@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 00:50 IST
-> **Session:** P8 merged to beta-ver (P1–P8)
+> **Updated:** 2026-08-20 01:30 IST
+> **Session:** P9 debt/health burndown complete
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,31 +55,29 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**beta-ver = P1–P8.** Integration gate + P8 scale/layout merged (`583b3f4`). Return picker list/grid; status fetch max 10 concurrent. **94 tests pass.**
+**beta-ver = P1–P9.** P9 debt burndown on branch `p9-debt-health-burndown` (ready merge). **101 tests pass.** Dependency upgrades: dio 5.11, flutter_secure_storage 11, firebase_messaging 16.5, go_router 17.5; Android `compileSdk = 37`.
 
-**Next:** P9 debt/health burndown from `beta-ver`. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** P10 merge-check → merge P9 to `beta-ver`. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
-Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036462`; `.env` LAN `192.168.1.6`. Do not wipe Parul `9898927941`.
+Lab leftovers: Batch-08 LIVE cleanup **pending backend up** (status API 404 at session time). Dummy org `7069036462`; `.env` LAN `192.168.1.6`. Do not wipe Parul `9898927941`. See [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) § Lab QA cleanup.
 
 | Device | Last role | Login |
 |--------|-----------|--------|
 | `emulator-5554` | Admin | `7069036462` / `password` |
-| Phone `5f36af49` | User logging in as Driver 1 | Driver 1 **`9876544111`** (not 4114). Was UG4. |
+| Phone `5f36af49` | Driver | Driver 1 **`9876544111`** |
 
 | State | Detail |
 |-------|--------|
-| Batch-01 morning | **Ended** (`GET /d2d/get_d2d_log_status/4` → ended). Same-day START = **4001** |
-| Batch-01 return | **5 confirmed:** UG3, UG4, UG5, UG10, PG2. End not run |
-| Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
-| `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
+| Batch-01 morning | **Ended** |
+| Batch-01 return | **5 confirmed** (UG3, UG4, UG5, UG10, PG2); End not run |
+| Batch-08 | **LIVE** until driver STOP or backend cleared — cleanup deferred (backend unreachable) |
+| `.env` | LAN `192.168.1.6` |
 
-**Code this session:** Merged `integration/p1-p7-validation` + `p8-scale-layout-stability` → `beta-ver`. P8: `batched_runner.dart`, `return_batch_picker_card.dart`, bounded `fetchStatusesForBatches`.
+**Code this session (P9):** Critical pub upgrades; CRUD repos no longer show SnackBars (UI layer only); `sort_utils` re-export stub removed; `offline_temp/offline_module.dart` isolation doc; `compileSdk 37` for secure_storage 11; +7 tests (101 total).
 
-**Lab connectivity (2026-08-20 00:50 IST):** Post-merge `flutter install` both devices (release APK). Manual login adb partial on release build; P8 picker/concurrency covered by widget tests (42 spot-check green).
-
-**Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
+**Lab connectivity (2026-08-20 01:30 IST):** Debug APK built + installed both devices; emulator app launch OK. Admin batch list smoke (dependency + repo-layer changes).
 
 ---
 
@@ -123,11 +121,12 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
 - P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
 - P8 Scale/layout stability — batched status fetch (10 concurrent); return picker list on narrow/extras; no nested card scroll; 94 flutter tests
+- P9 Debt/health burndown — dio 5.11, secure_storage 11, firebase_messaging 16.5; CRUD SnackBar moved to UI; sort_utils stub removed; offline_temp isolated; compileSdk 37; 101 tests
 
 ### Open backlog (from PROJECT_TODOS)
 
 - Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
-- Batch-08 still LIVE; lab leftovers from manual QA
+- Batch-08 still LIVE (backend cleanup when cts-docker up)
 - Remaining Application High: A1 Track Cab vehicle, A6–A9
 - Expand automated tests (P1 added contract + return batch repo tests)
 - Phase 9 / E: promote or isolate `offline_temp` (separate from High leftovers)
@@ -179,9 +178,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | P9 debt/health burndown | Deps upgraded; repo SnackBar cleanup; 101 tests; debug APK both devices |
 | 2026-08-20 | P8 → beta-ver merge-check | P1–P7 + P8 on beta-ver; 94 tests; pushed origin/beta-ver |
 | 2026-08-20 | P1–P7 integration gate | P2→P7 merged; conditional GO |
-| 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests |
 
 ---
 

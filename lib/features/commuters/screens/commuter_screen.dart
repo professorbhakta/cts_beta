@@ -6,7 +6,7 @@ import 'package:cts/features/commuters/providers/commuter_controller.dart';
 import 'package:cts/features/commuters/providers/commuter_form_provider.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/utils/commuter_sort_options.dart';
-import 'package:cts/utils/sort_utils.dart';
+import 'package:cts/features/commuters/utils/commuter_sort_utils.dart';
 import 'package:cts/widgets/admin_search_sort_row.dart';
 import 'package:cts/widgets/coming_today_switch.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';

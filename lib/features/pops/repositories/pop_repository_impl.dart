@@ -3,7 +3,6 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/api/base_api_services.dart';
-import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/features/pops/repositories/pop_repository.dart';
 import 'package:cts/models/pop_model.dart';
 
@@ -52,31 +51,16 @@ class PopRepositoryImpl implements PopRepository {
         ApiUrl.pickUpPointUrl,
       );
 
-      if (response != null) {
-        // Check if response is "PICK UP POINT CREATED" - this means success
-        if (response.toString() == "PICK UP POINT CREATED") {
-          SnackBarService.showsSuccessSnackbar(
-            "Pick-up point created successfully!",
-            "",
-          );
-          return ApiResult.success(null);
-        } else {
-          // If response is not "PICK UP POINT CREATED", treat as error
-          return ApiResult.failure(
-            ApiFailure(
-              type: ApiFailureType.server,
-              message: response.toString(),
-            ),
-          );
-        }
-      } else {
-        return ApiResult.failure(
-          ApiFailure(
-            type: ApiFailureType.parsing,
-            message: response?.toString() ?? "Create POP failed.",
-          ),
-        );
+      if (response != null && response.toString() == 'PICK UP POINT CREATED') {
+        return ApiResult.success(null);
       }
+
+      return ApiResult.failure(
+        ApiFailure(
+          type: ApiFailureType.server,
+          message: response?.toString() ?? 'Create pick-up point failed.',
+        ),
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
@@ -90,21 +74,17 @@ class PopRepositoryImpl implements PopRepository {
         data,
         ApiUrl.pickUpPointUrl,
       );
-      // Check if response is "PICK UP POINT UPDATED" - this means success
-      if (response != null && response.toString() == "PICK UP POINT UPDATED") {
-        SnackBarService.showsSuccessSnackbar(
-          "Pick-up point updated successfully!",
-          "",
-        );
+
+      if (response != null && response.toString() == 'PICK UP POINT UPDATED') {
         return ApiResult.success(null);
-      } else {
-        return ApiResult.failure(
-          ApiFailure(
-            type: ApiFailureType.server,
-            message: response?.toString() ?? "Update pick-up point failed.",
-          ),
-        );
       }
+
+      return ApiResult.failure(
+        ApiFailure(
+          type: ApiFailureType.server,
+          message: response?.toString() ?? 'Update pick-up point failed.',
+        ),
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
@@ -114,34 +94,20 @@ class PopRepositoryImpl implements PopRepository {
   Future<ApiResult<void>> deletePop(int id) async {
     try {
       final response = await _apiService.deleteApi(id, ApiUrl.pickUpPointUrl);
-      // Check if response contains "DELETED" (case-insensitive)
-      if (response != null) {
-        final responseStr = response.toString().toUpperCase();
-        if (responseStr.contains("DELETED")) {
-          SnackBarService.showsSuccessSnackbar(
-            "Pick-up point deleted successfully!",
-            "",
-          );
-          return ApiResult.success(null);
-        } else {
-          return ApiResult.failure(
-            ApiFailure(
-              type: ApiFailureType.server,
-              message: response.toString(),
-            ),
-          );
-        }
-      } else {
-        return ApiResult.failure(
-          ApiFailure(
-            type: ApiFailureType.parsing,
-            message: "Delete pick-up point failed. No response from server.",
-          ),
-        );
+
+      if (response != null &&
+          response.toString().toUpperCase().contains('DELETED')) {
+        return ApiResult.success(null);
       }
+
+      return ApiResult.failure(
+        ApiFailure(
+          type: ApiFailureType.server,
+          message: response?.toString() ?? 'Delete pick-up point failed.',
+        ),
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
   }
 }
-

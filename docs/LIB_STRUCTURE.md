@@ -1,6 +1,6 @@
 > **Doc:** docs/LIB_STRUCTURE.md
-> **Updated:** 2026-08-19 17:55 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-20 01:30 IST
+> **Session:** P9 sort_utils re-export stub removed
 
 # Library structure (human-friendly)
 
@@ -168,7 +168,7 @@ Update imports + barrel `index.dart` files. Order: `auth` → `splash` → CRUD 
 3. Move `core/network/*` implementation under `api/` OR document `api/` as the public import path.
 4. Delete stub folders: legacy `screens/`, `controllers/`, duplicate `data/repositories/` exports.
 
-**As of 2026-08-15:** (1) and (3) are done in code — canonical UI is `lib/widgets/`, HTTP is `lib/api/` (there is no `lib/core/network/`). (2) `appManager/` still exists. (4) root `controllers/` is gone; `lib/screens/` is only error + no-internet. High leftovers (A1, A6–A9, R4/R5) are **bugs**, not this restructure. Phase 9 and Phase E are the same offline decision (`offline_temp`).
+**As of 2026-08-20:** (1) and (3) are done in code — canonical UI is `lib/widgets/`, HTTP is `lib/api/`. (2) `appManager/` still exists. (4) root `controllers/` is gone; `lib/screens/` is only error + no-internet; `sort_utils.dart` no longer re-exports feature sort helpers (import feature utils directly). Phase 9 isolated `offline_temp/` via `offline_module.dart`. Phase C/D naming/stub removal still pending.
 
 ### Phase D — Naming cleanup
 

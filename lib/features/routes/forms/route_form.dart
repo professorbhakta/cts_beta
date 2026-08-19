@@ -158,6 +158,12 @@ class _RouteFormState extends State<RouteForm> {
                               });
 
                               if (success) {
+                                SnackBarService.showsSuccessSnackbar(
+                                  formProvider.forUpdate
+                                      ? 'Route updated successfully!'
+                                      : 'Route created successfully!',
+                                  '',
+                                );
                                 navigator.pop();
                               } else {
                                 final errorMessage =

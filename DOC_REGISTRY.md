@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 00:50 IST
-> **Session:** P8 merged to beta-ver
+> **Updated:** 2026-08-20 01:30 IST
+> **Session:** P9 debt burndown
 
 # Documentation Registry
 
@@ -24,14 +24,14 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 00:50 IST | P1–P8 on beta-ver |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 00:50 IST | P8 merge-check |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 00:50 IST | Next P9 |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 00:50 IST | P8 done on beta-ver |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 01:30 IST | P9 complete; next P10 merge |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 01:30 IST | P9 session sync |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 01:30 IST | Next P10 merge-check |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 01:30 IST | P9 done; Phase 9 isolated |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 01:30 IST | sort_utils re-export removed (P9) |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-20 01:30 IST | Verified unchanged |
+| [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-20 01:30 IST | Verified unchanged |
 | [docs/FEATURES.md](docs/FEATURES.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-19 23:55 IST | P4 Already IN + driver add |
@@ -42,7 +42,7 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 | [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:55 IST | P4 role + Already IN |
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 00:50 IST | P8 picker + batched status fetch |
 | [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
-| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-20 01:30 IST | Lab QA cleanup steps (Batch-08) |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
 
 ---
