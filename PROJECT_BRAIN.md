@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 00:15 IST
-> **Session:** P4 channel role governance — P10 merge gate
+> **Updated:** 2026-08-20 00:30 IST
+> **Session:** P1–P7 integration gate (Phase 0)
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P4 done.** Channel role governance + Already IN visibility. `D2dChannelRolePolicy` gates UI + provider actions; admin cannot STOP/confirm pickup; driver can add/remove/confirm/stop. WS `already_in` list on admin channel + driver log. Backend mirrors role gates on ADD/DELETE/REMOVE/STOP. **68 tests pass.**
+**P1–P7 integration in progress.** Branch `integration/p1-p7-validation` — merging P2→P7 onto beta-ver; sequential validation gate running.
 
-**Next:** P5 minimal degraded-network UX or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** Complete P1–P7 smoke + automated gate; merge to beta-ver on GO. Do **not** start P8/P9. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** P4 — `d2d_channel_role_policy.dart`, provider role guards, `D2dAlreadyInSection`, driver add sheet, backend `already_in` + action role gates.
+**Code this session:** Integration merge P2→P5 (P5 conflict: d2d_channel_provider — merged role + network guards).
 
-**Lab connectivity (2026-08-19 23:55 IST):** Unit gate **68/68**. Emulator: **fresh install** via `flutter install` (prior `flutter run` ended on reinstall). Branch `p4-channel-role-governance` ready to push.
+**Lab connectivity (2026-08-20 00:30 IST):** Phase 0 merge in progress. Backend Docker up. Emulator + phone listed.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -120,6 +120,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - P2 Security Boundary — backend POST/PATCH userType gates; Flutter session role refresh + fail-secure 401/4401 redirect; 46 flutter tests
 - P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
 - P4 Channel role governance — `D2dChannelRolePolicy`; provider + UI gating; WS `already_in` Already IN section; driver add FAB; backend action role gates; 68 flutter tests
+- P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
@@ -175,7 +176,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-19 | P4 Channel role governance | Role policy + Already IN view; driver add; 68 tests. Next: P5 |
+| 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P5; resolving conflicts |
 | 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
 | 2026-08-19 | P2 push + device verify | Manual login pass both devices; branch pushed. Next: P3 |
 

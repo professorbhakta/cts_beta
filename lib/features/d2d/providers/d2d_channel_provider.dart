@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:cts/app/session_invalidation.dart';
 import 'package:cts/core/lifecycle/app_lifecycle_phase.dart';
+import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -106,9 +107,10 @@ class D2dChannelProvider with ChangeNotifier {
   D2dChannelProvider(
     this._driverRepository,
     this._d2dRepository, {
+    NetworkActionGuard? networkGuard,
     this._onSessionInvalidated,
     @visibleForTesting this.sessionRoleOverride,
-  });
+  }) : _networkGuard = networkGuard;
 
   static const int _endedTripCloseCode = 4001;
   static const int _unauthorizedCloseCode = 4401;
@@ -124,6 +126,7 @@ class D2dChannelProvider with ChangeNotifier {
 
   final DriverRepository _driverRepository;
   final D2dRepository _d2dRepository;
+  final NetworkActionGuard? _networkGuard;
   final SessionInvalidatedCallback? _onSessionInvalidated;
 
   /// Test hook — when set, overrides [SessionRole.userType] for action gating.
@@ -200,6 +203,24 @@ class D2dChannelProvider with ChangeNotifier {
   }
 
   void connect(String batchId) {
+    unawaited(_connectGuarded(batchId));
+  }
+
+  Future<void> _connectGuarded(String batchId) async {
+    final networkGuard = _networkGuard;
+    if (networkGuard != null) {
+      final guard = await networkGuard.check(refresh: true);
+      if (!guard.isOnline) {
+        _connectedBatchId = batchId;
+        _connectionLost = true;
+        _state = ViewState.error;
+        _errorMessage =
+            guard.message ?? NetworkActionGuard.actionBlockedMessage;
+        _safeNotifyListeners();
+        return;
+      }
+    }
+
     disconnect(notify: false);
 
     _connectedBatchId = batchId;
@@ -696,6 +717,7 @@ class D2dChannelProvider with ChangeNotifier {
 
   /// Add commuter to the live fly list (admin or driver).
   bool addCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
     if (!_guardAction(D2dChannelAction.addCommuter)) return false;
 
     final id = _parseCommuterId(commuterId);
@@ -726,28 +748,40 @@ class D2dChannelProvider with ChangeNotifier {
 
   /// Remove commuter from live queue (admin or driver).
   bool removeCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
     if (!_guardAction(D2dChannelAction.removeFromQueue)) return false;
     return _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
   /// Driver confirms pickup — moves rider to Already IN (REMOVE on wire).
   bool confirmCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
     if (!_guardAction(D2dChannelAction.confirmPickup)) return false;
     return _sendAction('REMOVE', _parseCommuterId(commuterId));
   }
 
   /// Remove commuter from live queue (driver swipe red).
   bool denyCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
     if (!_guardAction(D2dChannelAction.removeFromQueue)) return false;
     return _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
   /// End the trip for the day — driver only. Admin Close channel must not call this.
   bool stopTrip() {
+    if (!_guardNetwork()) return false;
     if (!_guardAction(D2dChannelAction.stopTrip)) return false;
     _sendStopAction();
     disconnect(notify: false);
     return true;
+  }
+
+  bool _guardNetwork() {
+    final networkGuard = _networkGuard;
+    if (networkGuard == null || networkGuard.appearsOnline) return true;
+    _actionErrorMessage = NetworkActionGuard.actionBlockedMessage;
+    _safeNotifyListeners();
+    return false;
   }
 
   int _parseCommuterId(String commuterId) => int.tryParse(commuterId) ?? 0;

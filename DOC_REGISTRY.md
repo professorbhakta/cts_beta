@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 00:15 IST
-> **Session:** P4 channel role governance — P10 merge gate
+> **Updated:** 2026-08-20 00:30 IST
+> **Session:** P1–P7 integration gate
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 00:15 IST | P4 done; P10 gate |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 00:15 IST | P4 |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 00:15 IST | Next P5 |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 00:15 IST | P4 done |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 00:30 IST | P1–P7 integration gate |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 00:30 IST | Integration gate |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 00:30 IST | Integration gate |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 00:30 IST | Integration gate |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
@@ -38,10 +38,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 | [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-19 23:55 IST | WS already_in + forbidden role |
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-19 23:25 IST | Session refresh + 401/4401 |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-19 23:55 IST | P4 role governance tests |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-08-20 00:30 IST | P4+P5 integration tests |
 | [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:55 IST | P4 role + Already IN |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-19 23:35 IST | Verified unchanged |
-| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 00:20 IST | P5 NetworkActionGuard on return mutations |
+| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
 | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
 
@@ -62,7 +62,7 @@ Updated when content changes; not verified every session unless touched.
 | [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) | 2026-08-19 18:25 IST | view/ Home then Overflow |
 | [docs/backend/](docs/backend/) | 2026-08-19 18:25 IST | M4 view split |
 | [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt) | 2026-08-19 18:25 IST | M4 done; RESUME = M7 |
-| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-19 23:58 IST | P5 degraded mode section |
+| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-14 19:55 IST | /signUp redirect; sessionid + logout/401 |
 | [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-08-14 19:55 IST | Release has no cleartext |
 | [docs/guides/](docs/guides/) | 2026-08-14 22:00 IST | Driver RETURN LIST confirm/remove |

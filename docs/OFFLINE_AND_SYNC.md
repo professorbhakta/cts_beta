@@ -1,6 +1,6 @@
 > **Doc:** docs/OFFLINE_AND_SYNC.md
-> **Updated:** 2026-08-14 19:55 IST
-> **Session:** Auth/connectivity trim + A10/R6 — one ConnectivityService; commuter not wrapped
+> **Updated:** 2026-08-20 00:20 IST
+> **Session:** P5 degraded-network UX
 
 # Offline and sync
 
@@ -16,6 +16,23 @@ How offline behavior works today: **production batch sync** vs **offline_temp** 
 |--------|----------|--------|
 | **Production offline-first** | `OfflineFirstBatchRepository`, `SyncManager`, `AppDatabase` | Batches only |
 | **Offline temp module** | `lib/offline_temp/` | Prototype UI + separate DB; admin drawer entry |
+
+---
+
+## Degraded network (P5 — production app)
+
+Full offline queue/replay for live trips and return batches is **deferred**. Current behavior:
+
+| Component | Role |
+|-----------|------|
+| `NetworkActionGuard` | Pre-check before D2D connect/WS actions and return batch confirm/remove/end |
+| `NetworkDegradedBanner` | App-wide offline banner (MaterialApp builder) |
+| `OfflineAutoRedirect` | **Passthrough** — no auto-jump to `/offlineTempHome` (P5); drawer entry still available |
+| `ConnectivityService.isOnlineCached` | Fast path for sync UI guards without re-probing |
+
+**Extension point:** `NetworkActionPolicy.queueWhenOffline` reserved for future per-entity queue handlers (see `SyncManager` + batch registration today).
+
+**Future offline scope (not P5):** queue/replay for return batch POSTs, D2D WS action replay, commuter intents, full admin CRUD offline beyond batches.
 
 ---
 
