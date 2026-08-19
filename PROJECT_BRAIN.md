@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 00:20 IST
-> **Session:** P5 degraded-network UX
+> **Updated:** 2026-08-20 01:00 IST
+> **Session:** P6 state lifecycle hygiene
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P5 done.** Minimal degraded-network UX — no full offline queue. `NetworkActionGuard` pre-checks D2D connect/actions + return batch confirm/remove/end. App-wide `NetworkDegradedBanner` when offline. `OfflineAutoRedirect` no longer auto-jumps to offline_temp (drawer still available). Batch offline-first + SyncManager unchanged. **66 tests pass.**
+**P6 done.** Return batch state lifecycle — `beginReturnTripLoad` + load generation prevents stale flash on batch switch; screen dispose clears active trip; logout `reset()` clears status cache. Pull-to-refresh/resume keep existing data. **72 tests pass.**
 
-**Next:** P6 state lifecycle hygiene or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** P7 rule integrity or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** P5 — `network_action_guard.dart`, `NetworkDegradedBanner`, provider pre-checks, offline_temp redirect deferred.
+**Code this session:** P6 — `ReturnBatchProvider` batch switch hygiene, screen dispose clear, load generation, 6 lifecycle tests.
 
-**Lab connectivity (2026-08-20 00:25 IST):** Emulator smoke **PASS** — launched fresh (`flutter install` + single `flutter run`; no prior session). API/WS URLs load, no crash. Unit gate **66/66**. Branch `p5-network-degraded-mode` ready to commit/push.
+**Lab connectivity (2026-08-20 01:05 IST):** Emulator smoke **PASS** — `flutter install` + `flutter run` on `emulator-5554`; API/WS URLs load, no crash. Phone `5f36af49` install **PASS**. Unit gate **72/72**. Branch `p6-state-lifecycle-hygiene` ready for commit/push.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -120,6 +120,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - P2 Security Boundary — backend POST/PATCH userType gates; Flutter session role refresh + fail-secure 401/4401 redirect; 46 flutter tests
 - P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
 - P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
+- P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
@@ -175,9 +176,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests. Next: P7 |
 | 2026-08-20 | P5 Degraded network UX | NetworkActionGuard + banner; action pre-checks; 66 tests. Next: P6 |
 | 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
-| 2026-08-19 | P2 push + device verify | Manual login pass both devices; branch pushed. Next: P3 |
 
 ---
 

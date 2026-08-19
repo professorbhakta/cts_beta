@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-20 00:20 IST
-> **Session:** P5 — NetworkActionGuard on return mutations
+> **Updated:** 2026-08-20 01:00 IST
+> **Session:** P6 — state lifecycle hygiene
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -40,7 +40,9 @@ Feature owner for batch management, running batches, and evening return trips (R
 
 **Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, **app resume** (via `AppLifecycleHost`), return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
 
-**Return batch resume:** `ReturnBatchProvider.onAppResumed()` reloads the active trip when online; skipped while `actionInProgress` to protect in-flight confirm/remove/end.
+**Return batch resume:** `ReturnBatchProvider.onAppResumed()` reloads the active trip when online (`keepExistingData: true`); skipped while `actionInProgress` to protect in-flight confirm/remove/end.
+
+**State lifecycle (P6):** App-scoped singleton clears trip data on screen dispose (`clearActiveBatch()`). Batch switch calls `beginReturnTripLoad()` synchronously — no stale flash. In-flight loads use generation counter; superseded responses are dropped. Pull-to-refresh / resume use `keepExistingData: true`. Logout calls `reset()` via `ControllerResetUtil`.
 
 **Degraded network (P5):** `confirmCommuter`, `removeCommuter`, and `endReturnTrip` call `NetworkActionGuard.check()` first — offline returns explicit error message (no queue/replay yet).
 
