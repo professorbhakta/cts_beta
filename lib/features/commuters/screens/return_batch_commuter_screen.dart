@@ -37,6 +37,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    context.read<ReturnBatchProvider>().beginReturnTripLoad(widget.batchId);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<ReturnBatchProvider>().loadReturnTrip(widget.batchId);
@@ -44,13 +45,26 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   }
 
   @override
+  void didUpdateWidget(covariant ReturnCommuterListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.batchId != widget.batchId) {
+      context.read<ReturnBatchProvider>().beginReturnTripLoad(widget.batchId);
+      context.read<ReturnBatchProvider>().loadReturnTrip(widget.batchId);
+    }
+  }
+
+  @override
   void dispose() {
     _tabController.dispose();
+    context.read<ReturnBatchProvider>().clearActiveBatch();
     super.dispose();
   }
 
   Future<void> _refresh() async {
-    await context.read<ReturnBatchProvider>().loadReturnTrip(widget.batchId);
+    await context.read<ReturnBatchProvider>().loadReturnTrip(
+      widget.batchId,
+      keepExistingData: true,
+    );
   }
 
   Future<void> _confirmCommuter(
@@ -161,9 +175,12 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
       body: SafeArea(
         child: Consumer<ReturnBatchProvider>(
           builder: (context, provider, _) {
+            if (!provider.isDisplayingBatch(widget.batchId)) {
+              return const LoadingIndicator();
+            }
+
             if (provider.state == ViewState.loading &&
-                provider.availableCommuters.isEmpty &&
-                provider.confirmedCommuters.isEmpty) {
+                !provider.hasTripData) {
               return const LoadingIndicator();
             }
 

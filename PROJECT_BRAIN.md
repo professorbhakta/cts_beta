@@ -1,5 +1,5 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 00:30 IST
+> **Updated:** 2026-08-20 00:35 IST
 > **Session:** P1–P7 integration gate (Phase 0)
 
 # PROJECT BRAIN — CTS Flutter
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** Integration merge P2→P5 (P5 conflict: d2d_channel_provider — merged role + network guards).
+**Code this session:** Integration merge P2→P6 (P5 conflict resolved: role + network guards in d2d_channel_provider).
 
-**Lab connectivity (2026-08-20 00:30 IST):** Phase 0 merge in progress. Backend Docker up. Emulator + phone listed.
+**Lab connectivity (2026-08-20 00:35 IST):** Phase 0 merge in progress. Backend Docker up. Emulator + phone listed.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -121,6 +121,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
 - P4 Channel role governance — `D2dChannelRolePolicy`; provider + UI gating; WS `already_in` Already IN section; driver add FAB; backend action role gates; 68 flutter tests
 - P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
+- P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
@@ -176,9 +177,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P5; resolving conflicts |
+| 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P6 |
+| 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests. Next: P7 |
 | 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
-| 2026-08-19 | P2 push + device verify | Manual login pass both devices; branch pushed. Next: P3 |
 
 ---
 

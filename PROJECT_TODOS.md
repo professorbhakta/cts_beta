@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 00:15 IST
-> **Session:** P4 channel role governance — P10 merge gate
+> **Updated:** 2026-08-20 00:35 IST
+> **Session:** P1–P7 integration gate
 
 # Project Todo & Progress
 
@@ -74,6 +74,7 @@
 26. [x] Return allocation M4 GET view split lists + Flutter Available Home/Overflow
 26b. [x] Return allocation M7 enforce add_commuter (R2-R5): validate_add_commuter in return_pool.py
 26c. [x] P1 Truth Contract — `ApiResponseContract`; C1 (200+status:error → failure); 33 tests
+26f. [x] P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; 72 tests
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking

@@ -1,4 +1,5 @@
 ﻿import 'package:cts/features/batches/providers/batch_controller.dart';
+import 'package:cts/features/batches/providers/return_batch_provider.dart';
 import 'package:cts/features/cabs/providers/cab_controller.dart';
 import 'package:cts/features/commuters/providers/commuter_controller.dart';
 import 'package:cts/features/drivers/providers/driver_controller.dart';
@@ -17,6 +18,7 @@ class ControllerResetUtil {
     try {
       // Reset data controllers
       context.read<BatchProvider>().reset();
+      context.read<ReturnBatchProvider>().reset();
       context.read<CabProvider>().reset();
       context.read<CommuterController>().reset();
       context.read<DriverProvider>().reset();

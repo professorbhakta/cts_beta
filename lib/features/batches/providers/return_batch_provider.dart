@@ -46,9 +46,30 @@ class ReturnBatchProvider with ChangeNotifier {
   bool _actionInProgress = false;
   bool get actionInProgress => _actionInProgress;
 
+  int _loadGeneration = 0;
+
+  bool get hasTripData =>
+      _homeCommuters.isNotEmpty ||
+      _overflowCommuters.isNotEmpty ||
+      _confirmedCommuters.isNotEmpty ||
+      _capacity != null;
+
+  bool isDisplayingBatch(String batchId) => _activeBatchId == batchId;
+
   @visibleForTesting
   void bindActiveBatchForTesting(String batchId) {
     _activeBatchId = batchId;
+  }
+
+  /// Clears trip lists immediately when opening a different batch (before async load).
+  void beginReturnTripLoad(String batchId, {bool keepExistingData = false}) {
+    _activeBatchId = batchId;
+    _state = ViewState.loading;
+    _errorMessage = null;
+    if (!keepExistingData) {
+      _clearTripLists();
+    }
+    notifyListeners();
   }
 
   Future<void> fetchStatusesForBatches(List<String> batchIds) async {
@@ -70,17 +91,20 @@ class ReturnBatchProvider with ChangeNotifier {
   ReturnBatchStatusModel? statusForBatch(String batchId) =>
       _statusByBatchId[batchId];
 
-  Future<void> loadReturnTrip(String batchId) async {
-    _activeBatchId = batchId;
-    _state = ViewState.loading;
-    _errorMessage = null;
-    notifyListeners();
+  Future<void> loadReturnTrip(
+    String batchId, {
+    bool keepExistingData = false,
+  }) async {
+    final generation = ++_loadGeneration;
+    beginReturnTripLoad(batchId, keepExistingData: keepExistingData);
 
     final results = await Future.wait([
       _repository.getAvailableCommuters(batchId),
       _repository.getConfirmedCommuters(batchId),
       _repository.getReturnBatchStatus(batchId),
     ]);
+
+    if (generation != _loadGeneration) return;
 
     final availableResult = results[0] as ApiResult<ReturnAvailableResult>;
     final confirmedResult = results[1] as ApiResult<ReturnBatchConfirmedResult>;
@@ -188,14 +212,14 @@ class ReturnBatchProvider with ChangeNotifier {
       return _errorMessage;
     }
 
-    await loadReturnTrip(batchId);
+    await loadReturnTrip(batchId, keepExistingData: true);
     return result.data;
   }
 
   Future<void> onAppResumed({required bool isOnline}) async {
     final batchId = _activeBatchId;
     if (batchId == null || _actionInProgress || !isOnline) return;
-    await loadReturnTrip(batchId);
+    await loadReturnTrip(batchId, keepExistingData: true);
   }
 
   Future<String?> _ensureOnlineForMutation() async {
@@ -210,13 +234,30 @@ class ReturnBatchProvider with ChangeNotifier {
   }
 
   void clearActiveBatch() {
+    _loadGeneration++;
     _activeBatchId = null;
+    _clearTripLists();
+    _state = ViewState.idle;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  /// Full reset for logout — clears picker status cache too.
+  void reset() {
+    _loadGeneration++;
+    _activeBatchId = null;
+    _clearTripLists();
+    _statusByBatchId.clear();
+    _actionInProgress = false;
+    _state = ViewState.idle;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void _clearTripLists() {
     _homeCommuters = [];
     _overflowCommuters = [];
     _confirmedCommuters = [];
     _capacity = null;
-    _state = ViewState.idle;
-    _errorMessage = null;
-    notifyListeners();
   }
 }
