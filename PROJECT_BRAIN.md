@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 00:35 IST
-> **Session:** P1–P7 integration gate (Phase 0)
+> **Updated:** 2026-08-20 00:40 IST
+> **Session:** P1–P7 integration gate (Phase 0 complete)
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,7 +55,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P1–P7 integration in progress.** Branch `integration/p1-p7-validation` — merging P2→P7 onto beta-ver; sequential validation gate running.
+**P1–P7 integration in progress.** Branch `integration/p1-p7-validation` — all P2→P7 merged; sequential validation gate running.
 
 **Next:** Complete P1–P7 smoke + automated gate; merge to beta-ver on GO. Do **not** start P8/P9. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** Integration merge P2→P6 (P5 conflict resolved: role + network guards in d2d_channel_provider).
+**Code this session:** Integration merge P2→P7 complete (P5: role+network guards merged).
 
-**Lab connectivity (2026-08-20 00:35 IST):** Phase 0 merge in progress. Backend Docker up. Emulator + phone listed.
+**Lab connectivity (2026-08-20 00:40 IST):** Phase 0 merge complete. Backend Docker up. Emulator + phone listed.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -177,8 +177,8 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P6 |
-| 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests. Next: P7 |
+| 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P7 complete |
+| 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests |
 | 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
 
 ---
