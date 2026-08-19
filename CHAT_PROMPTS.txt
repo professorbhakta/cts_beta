@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-19 23:40 IST
-> **Session:** Pre-push device smoke in END PROMPT
+> **Updated:** 2026-08-20 00:15 IST
+> **Session:** P4 done — next P5
 
 ================================================================================
 QUICK START (minimal)
@@ -32,6 +32,7 @@ Context from last session:
 
 Constraints (optional):
   [e.g. no commits, minimal diff, iOS+Android, no new dependencies]
+  Device verify default: REUSE existing app session if running — do NOT relaunch flutter run on same device.
 
 ================================================================================
 MIDDLE CONTEXT (user fills each session — update as you go)

@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-19 23:35 IST
-> **Session:** P3 lifecycle resilience done
+> **Updated:** 2026-08-20 00:15 IST
+> **Session:** P4 channel role governance — P10 merge gate
 
 # Project Todo & Progress
 

@@ -45,7 +45,8 @@ flowchart TD
 | Mark coming today for a commuter | Batches → tap batch → Coming switch *or* Drawer → Commuters → Coming switch |
 | Add a commuter with email | Email is required. Address is optional; if left empty, the email is stored as address |
 | See live trips | Quick action **Running Batches** → tap batch → **D2D Channel** |
-| Add a rider to the live D2D list | D2D Channel → **+** sheet (all commuters). They appear on the list only after the server accepts ADD (needs a POP). |
+| Add a rider to the live D2D list | D2D Channel or driver log → **+** sheet (all commuters). They appear on the list only after the server accepts ADD (needs a POP). |
+| See who is already in the cab | **Already IN** section above Live queue on D2D Channel and driver log (from WS `already_in`) |
 | End a morning trip | Only the **driver** **STOP TRIP** button. Admin **Close channel** / back does not end the day. |
 | Manage return trip | Dashboard **Return Batches** *or* Batches toolbar return icon → pick batch (cards: Seats left = empty cab seats; Home hold / Overflow when extras present) → Available (**Home** then **Overflow**) / Confirmed (Remove) → **End return** |
 | Work offline | Drawer → **Offline Mode** (when enabled) |
@@ -62,7 +63,7 @@ flowchart TD
 | 1 | Open app → sign in as driver |
 | 2 | Review assignment card; optional **call admin** |
 | 3 | Tap **START TRIP** → `/d2dLog/:batchId` |
-| 4 | Use commuter list (call / status actions) |
+| 4 | Use commuter list — swipe green confirm pickup, red remove; **+** to add rider |
 | 5 | **STOP TRIP** (red FAB) → ends the day for this batch. Back / leaving the screen only disconnects; the trip stays active |
 | 6 | Optional: **RETURN LIST** → `/driverReturnCommuter/:batchId` (Confirm / Remove; admin **End return**) |
 

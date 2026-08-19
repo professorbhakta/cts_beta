@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-19 23:35 IST
-> **Session:** P3 lifecycle resilience
+> **Updated:** 2026-08-20 00:15 IST
+> **Session:** P4 channel role governance — P10 merge gate
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P3 done.** `AppLifecycleCoordinator` + `AppLifecycleHost` handle foreground/background/resume app-wide. On resume: connectivity refresh, session reconcile, running batches refresh, D2D WS reconnect + connection-lost banner, return batch reload (skips in-flight). 59 tests pass.
+**P4 done.** Channel role governance + Already IN visibility. `D2dChannelRolePolicy` gates UI + provider actions; admin cannot STOP/confirm pickup; driver can add/remove/confirm/stop. WS `already_in` list on admin channel + driver log. Backend mirrors role gates on ADD/DELETE/REMOVE/STOP. **68 tests pass.**
 
-**Next:** P4 channel role governance or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** P5 minimal degraded-network UX or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** P3 Lifecycle — `lib/core/lifecycle/`, `app_lifecycle_host.dart`, D2D reconnect/resume, `D2dConnectionLostBanner`, return batch resume guard, 13 lifecycle tests.
+**Code this session:** P4 — `d2d_channel_role_policy.dart`, provider role guards, `D2dAlreadyInSection`, driver add sheet, backend `already_in` + action role gates.
 
-**Lab connectivity (2026-08-19 23:40 IST):** Both devices online. Emulator smoke **PASS** — app launches, API/WS URLs load, no crash. Unit gate **59/59**. Branch `p3-lifecycle-resilience` ready to push.
+**Lab connectivity (2026-08-19 23:55 IST):** Unit gate **68/68**. Emulator: **fresh install** via `flutter install` (prior `flutter run` ended on reinstall). Branch `p4-channel-role-governance` ready to push.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -119,6 +119,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - P1 Truth Contract — `ApiResponseContract`; C1 fixed (200+status:error → failure); 33 flutter tests
 - P2 Security Boundary — backend POST/PATCH userType gates; Flutter session role refresh + fail-secure 401/4401 redirect; 46 flutter tests
 - P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
+- P4 Channel role governance — `D2dChannelRolePolicy`; provider + UI gating; WS `already_in` Already IN section; driver add FAB; backend action role gates; 68 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
@@ -146,6 +147,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 |------|------|
 | App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart`, `lib/app/app_lifecycle_host.dart` |
 | Lifecycle | `lib/core/lifecycle/` — foreground/background/resume coordinator |
+| Network guard | `lib/core/network/network_action_guard.dart` — pre-check before live/return mutations |
 | Router | `lib/app/router/app_router.dart` |
 | Network | `lib/api/` (canonical Dio client; not `core/network/`) |
 | API constants | `lib/api/api_list.dart` |
@@ -173,12 +175,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-19 | P4 Channel role governance | Role policy + Already IN view; driver add; 68 tests. Next: P5 |
 | 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
 | 2026-08-19 | P2 push + device verify | Manual login pass both devices; branch pushed. Next: P3 |
-| 2026-08-19 | P2 Security Boundary | Backend userType gates; session refresh; 401/4401 redirect; 46 tests. Next: P3 |
-| 2026-08-19 | P1 Truth Contract | ApiResponseContract; C1 fixed; 33 tests. Next: P2 or commuter intent |
-| 2026-08-19 | M7 add_commuter | validate_add_commuter R2-R5. Flutter error surfacing. Next: commuter intent + cutoff |
-| 2026-08-19 | M4 view split | GET view home/overflow + Flutter Available sections. Hot-restart required |
 
 ---
 

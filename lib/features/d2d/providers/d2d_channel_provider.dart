@@ -8,6 +8,7 @@ import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/models/d2d_commuter_model.dart';
+import 'package:cts/features/d2d/models/d2d_channel_role_policy.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/repositories/driver_repository.dart';
@@ -21,11 +22,92 @@ bool d2dResultMarksTripEnded(Map<String, dynamic> result) {
   return active == false;
 }
 
+/// Parses confirmed riders from WS `already_in` / `alreadyIn` / legacy `CList` hydrate.
+List<D2dCommuterModel>? parseAlreadyInFromResult(Map<String, dynamic> result) {
+  final raw = result['already_in'] ?? result['alreadyIn'] ?? result['CList'];
+  if (raw == null) return null;
+  return _parseCommutersFromPayloadData(raw);
+}
+
+List<D2dCommuterModel>? _parseCommutersFromPayloadData(dynamic data) {
+  if (data == null) return null;
+
+  if (data is List) {
+    final commuters = <D2dCommuterModel>[];
+    for (final item in data) {
+      final commuterJson = _unwrapCommuterEntryStatic(item);
+      if (commuterJson != null) {
+        commuters.add(D2dCommuterModel.fromJson(commuterJson));
+      }
+    }
+    return commuters;
+  }
+
+  if (data is Map) {
+    final commuters = <D2dCommuterModel>[];
+    for (final entry in data.entries) {
+      final commuterJson = _unwrapCommuterEntryStatic({entry.key: entry.value});
+      if (commuterJson != null) {
+        commuters.add(D2dCommuterModel.fromJson(commuterJson));
+      }
+    }
+    return commuters;
+  }
+
+  return null;
+}
+
+Map<String, dynamic>? _unwrapCommuterEntryStatic(dynamic item) {
+  if (item is! Map) return null;
+
+  final map = Map<String, dynamic>.from(item);
+
+  if (map.length == 1) {
+    final entry = map.entries.first;
+    final inner = entry.value;
+
+    if (inner is Map) {
+      final commuter = Map<String, dynamic>.from(inner);
+      final id = int.tryParse(entry.key.toString());
+      commuter.putIfAbsent('id', () => id ?? entry.key);
+      return commuter;
+    }
+
+    if (inner is String) {
+      try {
+        final decoded = json.decode(inner);
+        return _unwrapCommuterEntryStatic({entry.key: decoded});
+      } catch (_) {
+        final id = int.tryParse(entry.key.toString());
+        return {
+          'id': id ?? entry.key,
+          'username': inner,
+        };
+      }
+    }
+  }
+
+  if (_looksLikeCommuterStatic(map)) return map;
+
+  return null;
+}
+
+bool _looksLikeCommuterStatic(Map<String, dynamic> json) {
+  return json.containsKey('userId') ||
+      json.containsKey('username') ||
+      json.containsKey('mobile_number') ||
+      json.containsKey('mobileNumber') ||
+      json.containsKey('pickUpPoint') ||
+      json.containsKey('popId') ||
+      json.containsKey('inLine');
+}
+
 class D2dChannelProvider with ChangeNotifier {
   D2dChannelProvider(
     this._driverRepository,
     this._d2dRepository, {
     this._onSessionInvalidated,
+    @visibleForTesting this.sessionRoleOverride,
   });
 
   static const int _endedTripCloseCode = 4001;
@@ -44,11 +126,16 @@ class D2dChannelProvider with ChangeNotifier {
   final D2dRepository _d2dRepository;
   final SessionInvalidatedCallback? _onSessionInvalidated;
 
+  /// Test hook — when set, overrides [SessionRole.userType] for action gating.
+  @visibleForTesting
+  final String? sessionRoleOverride;
+
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   int _connectGeneration = 0;
   DriverModel? _driver;
   List<D2dCommuterModel> _commuters = [];
+  List<D2dCommuterModel> _alreadyInCommuters = [];
   bool _isAscending = true;
   bool _isConnected = false;
   bool _isDisposed = false;
@@ -69,6 +156,7 @@ class D2dChannelProvider with ChangeNotifier {
   D2dTripStatus get tripStatus => _tripStatus;
   DriverModel? get driver => _driver;
   List<D2dCommuterModel> get commuters => _commuters;
+  List<D2dCommuterModel> get alreadyInCommuters => _alreadyInCommuters;
   bool get isAscending => _isAscending;
   bool get connectionLost => _connectionLost;
   String? get connectedBatchId => _connectedBatchId;
@@ -334,6 +422,7 @@ class D2dChannelProvider with ChangeNotifier {
     }
     _channel = null;
     _commuters = [];
+    _alreadyInCommuters = [];
     _tripEnded = true;
     _tripStatus = D2dTripStatus.ended;
     _state = ViewState.error;
@@ -392,6 +481,11 @@ class D2dChannelProvider with ChangeNotifier {
       if (parsedCommuters != null) {
         _commuters = parsedCommuters;
         _sortCommuters();
+      }
+
+      final parsedAlreadyIn = parseAlreadyInFromResult(resultMap);
+      if (parsedAlreadyIn != null) {
+        _alreadyInCommuters = parsedAlreadyIn;
       }
 
       _state = ViewState.success;
@@ -562,6 +656,7 @@ class D2dChannelProvider with ChangeNotifier {
     }
     _channel = null;
     _commuters = [];
+    _alreadyInCommuters = [];
     _driver = null;
     _actionErrorMessage = null;
     _connectionLost = false;
@@ -589,8 +684,20 @@ class D2dChannelProvider with ChangeNotifier {
     });
   }
 
-  /// Admin channel: add commuter to the live fly list.
+  String? get _sessionRole => sessionRoleOverride ?? SessionRole.userType;
+
+  bool _guardAction(D2dChannelAction action) {
+    final role = _sessionRole;
+    if (D2dChannelRolePolicy.can(role, action)) return true;
+    _actionErrorMessage = D2dChannelRolePolicy.denialMessage(action);
+    _safeNotifyListeners();
+    return false;
+  }
+
+  /// Add commuter to the live fly list (admin or driver).
   bool addCommuter(String commuterId) {
+    if (!_guardAction(D2dChannelAction.addCommuter)) return false;
+
     final id = _parseCommuterId(commuterId);
     if (id == 0) {
       if (kDebugMode) {
@@ -617,40 +724,57 @@ class D2dChannelProvider with ChangeNotifier {
     return true;
   }
 
-  /// Admin channel: remove commuter from live list.
-  void removeCommuter(String commuterId) {
-    _sendAction('DELETE', _parseCommuterId(commuterId));
+  /// Remove commuter from live queue (admin or driver).
+  bool removeCommuter(String commuterId) {
+    if (!_guardAction(D2dChannelAction.removeFromQueue)) return false;
+    return _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
-  /// Driver log: add commuter entry to D2D log.
-  void confirmCommuter(String commuterId) {
-    _sendAction('REMOVE', _parseCommuterId(commuterId));
+  /// Driver confirms pickup — moves rider to Already IN (REMOVE on wire).
+  bool confirmCommuter(String commuterId) {
+    if (!_guardAction(D2dChannelAction.confirmPickup)) return false;
+    return _sendAction('REMOVE', _parseCommuterId(commuterId));
   }
 
-  /// Driver log: delete commuter from fly list.
-  void denyCommuter(String commuterId) {
-    _sendAction('DELETE', _parseCommuterId(commuterId));
+  /// Remove commuter from live queue (driver swipe red).
+  bool denyCommuter(String commuterId) {
+    if (!_guardAction(D2dChannelAction.removeFromQueue)) return false;
+    return _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
-  void stopTrip() {
+  /// End the trip for the day — driver only. Admin Close channel must not call this.
+  bool stopTrip() {
+    if (!_guardAction(D2dChannelAction.stopTrip)) return false;
     _sendStopAction();
     disconnect(notify: false);
+    return true;
   }
 
   int _parseCommuterId(String commuterId) => int.tryParse(commuterId) ?? 0;
 
-  void _sendAction(String action, int commuterId) {
+  bool _sendAction(String action, int commuterId) {
     if (commuterId == 0) {
       if (kDebugMode) {
         debugPrint('D2D: Skipping $action — invalid commuter id');
       }
-      return;
+      return false;
+    }
+
+    if (!_isConnected || _channel == null) {
+      _actionErrorMessage = _tripEnded
+          ? _tripEndedMessage
+          : _connectionLost
+              ? _connectionLostMessage
+              : 'Live channel is not connected.';
+      _safeNotifyListeners();
+      return false;
     }
 
     _sendPayload({
       'ACTION': action,
       'CLIST': [commuterId],
     });
+    return true;
   }
 
   void _sendStopAction() {

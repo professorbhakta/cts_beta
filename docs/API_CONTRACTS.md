@@ -79,8 +79,11 @@ Handshake: `ADMIN` may join any batch; `DRIVER` only if assigned to that batch. 
 ### Server → client
 
 ```json
-{ "result": { "data": [...], "D2D_id": 12, "driver": { ... } } }
+{ "result": { "data": [...], "already_in": [...], "D2D_id": 12, "driver": { ... } } }
 ```
+
+- **`data`** — live fly queue.
+- **`already_in`** — CList riders confirmed in the cab (same entry shape as `data`).
 
 ### Client → server
 
@@ -116,7 +119,7 @@ When an action fails, server sends JSON (not `result`):
 | `no_driver` / `no_cab` | Batch has no driver/cab assigned |
 | `invalid_commuter` | Commuter missing popId or user not found |
 | `unknown_action` | Unsupported ACTION value |
-| `forbidden` | Authenticated user not allowed to mutate this trip |
+| `forbidden` | Authenticated user not allowed to mutate this trip (wrong role for ACTION) |
 
 Flutter should check for `error` key before reading `result`.
 

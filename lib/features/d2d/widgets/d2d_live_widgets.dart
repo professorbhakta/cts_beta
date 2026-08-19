@@ -1,4 +1,6 @@
+import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/colors.dart';
+import 'package:cts/features/d2d/models/d2d_channel_role_policy.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/models/d2d_commuter_model.dart';
 import 'package:cts/widgets/admin_form_header.dart';
@@ -208,6 +210,110 @@ class D2dLiveControlsBar extends StatelessWidget {
   }
 }
 
+class D2dAlreadyInSection extends StatelessWidget {
+  const D2dAlreadyInSection({
+    super.key,
+    required this.commuters,
+    this.onCall,
+  });
+
+  final List<D2dCommuterModel> commuters;
+  final void Function(D2dCommuterModel commuter)? onCall;
+
+  @override
+  Widget build(BuildContext context) {
+    if (commuters.isEmpty) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.check_circle_rounded,
+              size: 20,
+              color: AppColors.acGreen,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Already IN (${commuters.length})',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.acGreen,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Confirmed in the cab — removed from the live queue.',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+          ),
+        ),
+        const SizedBox(height: 12),
+        for (var i = 0; i < commuters.length; i++) ...[
+          D2dAlreadyInTile(
+            commuter: commuters[i],
+            onCall: onCall == null
+                ? null
+                : () => onCall!(commuters[i]),
+          ),
+          if (i < commuters.length - 1) const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+}
+
+class D2dAlreadyInTile extends StatelessWidget {
+  const D2dAlreadyInTile({
+    super.key,
+    required this.commuter,
+    this.onCall,
+  });
+
+  final D2dCommuterModel commuter;
+  final VoidCallback? onCall;
+
+  @override
+  Widget build(BuildContext context) {
+    return ModernListCard(
+      title: commuter.username,
+      subtitle: 'Picked up · Stop #${commuter.inLine ?? '?'}',
+      icon: Icons.check_circle_outline_rounded,
+      iconColor: AppColors.acGreen,
+      trailing: onCall == null
+          ? null
+          : IconButton(
+              tooltip: 'Call commuter',
+              onPressed: onCall,
+              icon: Icon(
+                Icons.call_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+      children: [
+        InfoRow(
+          icon: Icons.location_on_rounded,
+          label: 'POP:',
+          value: commuter.popId?.pickUpPointName ?? 'N/A',
+          iconColor: AppColors.acBlue,
+        ),
+        if (commuter.mobileNumber?.isNotEmpty ?? false)
+          InfoRow(
+            icon: Icons.phone_android_rounded,
+            label: 'Mobile:',
+            value: commuter.mobileNumber,
+            iconColor: AppColors.acYellowDark,
+          ),
+      ],
+    );
+  }
+}
+
 class D2dDriverCommuterTile extends StatelessWidget {
   const D2dDriverCommuterTile({
     super.key,
@@ -223,53 +329,62 @@ class D2dDriverCommuterTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final commuterId = commuter.id?.toString();
+    final role = SessionRole.userType;
+    final canConfirm =
+        D2dChannelRolePolicy.can(role, D2dChannelAction.confirmPickup);
+    final canRemove =
+        D2dChannelRolePolicy.can(role, D2dChannelAction.removeFromQueue);
 
     return Slidable(
       key: ValueKey(commuterId ?? commuter.inLine ?? commuter.hashCode),
-      startActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        extentRatio: 0.25,
-        children: [
-          SlidableAction(
-            onPressed: (_) {
-              if (commuterId != null) {
-                provider.denyCommuter(commuterId);
-              }
-            },
-            backgroundColor: AppColors.acRed,
-            foregroundColor: AppColors.acWhite,
-            icon: Icons.delete_rounded,
-            label: 'Delete',
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
-            ),
-            flex: 1,
-          ),
-        ],
-      ),
-      endActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        extentRatio: 0.25,
-        children: [
-          SlidableAction(
-            onPressed: (_) {
-              if (commuterId != null) {
-                provider.confirmCommuter(commuterId);
-              }
-            },
-            backgroundColor: AppColors.acGreen,
-            foregroundColor: AppColors.acWhite,
-            icon: Icons.check_circle_rounded,
-            label: 'Picked up',
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(16),
-              bottomRight: Radius.circular(16),
-            ),
-            flex: 1,
-          ),
-        ],
-      ),
+      startActionPane: canRemove
+          ? ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (_) {
+                    if (commuterId != null) {
+                      provider.denyCommuter(commuterId);
+                    }
+                  },
+                  backgroundColor: AppColors.acRed,
+                  foregroundColor: AppColors.acWhite,
+                  icon: Icons.delete_rounded,
+                  label: 'Delete',
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    bottomLeft: Radius.circular(16),
+                  ),
+                  flex: 1,
+                ),
+              ],
+            )
+          : null,
+      endActionPane: canConfirm
+          ? ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (_) {
+                    if (commuterId != null) {
+                      provider.confirmCommuter(commuterId);
+                    }
+                  },
+                  backgroundColor: AppColors.acGreen,
+                  foregroundColor: AppColors.acWhite,
+                  icon: Icons.check_circle_rounded,
+                  label: 'Picked up',
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                  flex: 1,
+                ),
+              ],
+            )
+          : null,
       child: ModernListCard(
         title: commuter.username,
         subtitle: 'Stop #${commuter.inLine ?? '?'}',
@@ -318,6 +433,41 @@ class D2dAdminCommuterTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final commuterId = commuter.id?.toString();
+    final canRemove =
+        D2dChannelRolePolicy.can(SessionRole.userType, D2dChannelAction.removeFromQueue);
+
+    final card = ModernListCard(
+      title: commuter.username,
+      subtitle: 'ID ${commuter.id ?? '?'}',
+      icon: Icons.person_rounded,
+      iconColor: AppColors.acYellowWarm,
+      trailing: IconButton(
+        tooltip: 'Call commuter',
+        onPressed: onCall,
+        icon: Icon(
+          Icons.call_rounded,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+      children: [
+        InfoRow(
+          icon: Icons.location_on_rounded,
+          label: 'POP:',
+          value: commuter.popId?.pickUpPointName ?? 'N/A',
+          iconColor: AppColors.acBlue,
+        ),
+        InfoRow(
+          icon: Icons.format_list_numbered_rounded,
+          label: 'Stop #:',
+          value: commuter.inLine?.toString() ?? 'N/A',
+          iconColor: AppColors.acYellowDark,
+        ),
+      ],
+    );
+
+    if (!canRemove) {
+      return card;
+    }
 
     return Slidable(
       key: ValueKey(commuterId ?? commuter.inLine ?? commuter.hashCode),
@@ -343,34 +493,7 @@ class D2dAdminCommuterTile extends StatelessWidget {
           ),
         ],
       ),
-      child: ModernListCard(
-        title: commuter.username,
-        subtitle: 'ID ${commuter.id ?? '?'}',
-        icon: Icons.person_rounded,
-        iconColor: AppColors.acYellowWarm,
-        trailing: IconButton(
-          tooltip: 'Call commuter',
-          onPressed: onCall,
-          icon: Icon(
-            Icons.call_rounded,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        children: [
-          InfoRow(
-            icon: Icons.location_on_rounded,
-            label: 'POP:',
-            value: commuter.popId?.pickUpPointName ?? 'N/A',
-            iconColor: AppColors.acBlue,
-          ),
-          InfoRow(
-            icon: Icons.format_list_numbered_rounded,
-            label: 'Stop #:',
-            value: commuter.inLine?.toString() ?? 'N/A',
-            iconColor: AppColors.acYellowDark,
-          ),
-        ],
-      ),
+      child: card,
     );
   }
 }

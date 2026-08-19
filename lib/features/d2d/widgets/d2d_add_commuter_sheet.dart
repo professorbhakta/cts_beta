@@ -20,17 +20,20 @@ class D2dAddCommuterSheet extends StatefulWidget {
     required this.batchId,
     required this.d2dProvider,
     required this.liveCommuterIds,
+    this.alreadyInCommuterIds = const {},
   });
 
   final String batchId;
   final D2dChannelProvider d2dProvider;
   final Set<int> liveCommuterIds;
+  final Set<int> alreadyInCommuterIds;
 
   static Future<void> show(
     BuildContext context, {
     required String batchId,
     required D2dChannelProvider d2dProvider,
     required Set<int> liveCommuterIds,
+    Set<int> alreadyInCommuterIds = const {},
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -42,6 +45,7 @@ class D2dAddCommuterSheet extends StatefulWidget {
         batchId: batchId,
         d2dProvider: d2dProvider,
         liveCommuterIds: liveCommuterIds,
+        alreadyInCommuterIds: alreadyInCommuterIds,
       ),
     );
   }
@@ -89,7 +93,9 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
     if (result.isSuccess) {
       final available = (result.data ?? []).where((commuter) {
         final id = commuter.userId?.id;
-        return id != null && !widget.liveCommuterIds.contains(id);
+        return id != null &&
+            !widget.liveCommuterIds.contains(id) &&
+            !widget.alreadyInCommuterIds.contains(id);
       }).toList();
 
       _commuters = sortListAZMultiple<CommuterModel>(available, [
