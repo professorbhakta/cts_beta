@@ -54,7 +54,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**M7 done.** `POST add_commuter` now enforces R2–R5 via `validate_add_commuter()` in `return_pool.py`. Rejects: not_eligible, already_allocated, later_return, overflow_full. Flutter overflow confirm already disabled when `overflowRemaining==0` (M4). Error messages flow through `ApiExceptionHandler` → SnackBar.
+**M7 done.** `POST add_commuter` enforces R2, R3, R5 via `validate_add_commuter()`. R4 **relaxed**: commuters may take any return (earlier or later); home-batch riders get priority (home_hold reserved); admin/driver adds overflow. Rejects: not_eligible, already_allocated, overflow_full. Flutter overflow confirm disabled when `overflowRemaining==0` (M4). Error messages flow through `ApiExceptionHandler` → SnackBar.
 
 **Next:** Commuter POST intent (skip/home/earlier) + cutoff/no-show release. Manual QA with dummy org. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 

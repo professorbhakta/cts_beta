@@ -101,10 +101,11 @@ R2  No CList today → not eligible for any return seat.
 R3  One return allocation per student per day.
     Confirmed on D → cannot also sit on any other return today.
 
-R4  Direction: students may move EARLIER only.
-    Home return 16:00 may request 14:00.
-    Home return 14:00 may NOT take 16:00 unless product later allows
-    “missed home cab” (open decision D1).
+R4  Direction: RELAXED — commuters may take ANY return (earlier or later).
+    A commuter may have work and need a later batch. Home-batch riders
+    always get priority (home_hold seats reserved on their cab).
+    Admin/driver is the only one who adds overflow. No commuter self-serve.
+    (Previously: earlier-only. Changed 2026-08-19.)
 
 R5  Seat math for departure D (recompute on STOP, skip, confirm, remove, cutoff):
 
@@ -258,7 +259,7 @@ Cabs stay un-overbookable after step 2, even before student self-serve.
 
 9. OPEN DECISIONS (PHASE 0)
 ---------------------------
-D1  Missed home cab: may that student take a LATER return? Default: NO.
+D1  Missed home cab: RESOLVED YES. Commuters may take any return (R4 relaxed 2026-08-19).
 D2  Walk-up: may driver confirm overflow with no app request if remaining>0
     and student is eligible? Default: YES (matches today’s swipe UX).
 D3  Cutoff clock: T−15 minutes, or only at first boarding scan?
