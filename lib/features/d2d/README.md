@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-08-19 17:55 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-19 23:15 IST
+> **Session:** P2 — WS 4401/4403 triggers session invalidation
 
 # D2D Feature — Live WebSocket
 
@@ -69,8 +69,8 @@ Always use **user ID** in CLIST.
 | Close code | Meaning | UI |
 |------------|---------|-----|
 | **4001** | Trip already ended | `isTripEnded`; retry hidden |
-| **4401** | No session cookie | error, not an empty list |
-| **4403** | Not ADMIN / assigned DRIVER | error, not an empty list |
+| **4401** | No session cookie | error + session invalidation → sign-in |
+| **4403** | Not ADMIN / assigned DRIVER | error + session invalidation → sign-in |
 
 Message for 4001: *"This trip has already ended. A new trip can be started tomorrow."*
 

@@ -1,5 +1,6 @@
 import 'package:cts/api/api_exceptions_handler.dart';
 import 'package:cts/api/api_list.dart';
+import 'package:cts/api/api_response_contract.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/features/batches/models/return_available_model.dart';
@@ -98,7 +99,12 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
         {'commuter_id': userId, 'batch_id': batchId},
         ApiUrl.returnBatchAddCommuter,
       );
-      return ApiResult.success(_statusMessage(response, fallback: 'Commuter confirmed'));
+      return ApiResponseContract.toStringResult(
+        response,
+        successMessage: 'Commuter confirmed',
+        failureMessage: 'Could not confirm commuter for return',
+        statusMessages: ApiResponseContract.returnBatchActionMessages,
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
@@ -114,7 +120,12 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
         {'commuter_id': userId, 'batch_id': batchId},
         ApiUrl.returnBatchRemoveCommuter,
       );
-      return ApiResult.success(_statusMessage(response, fallback: 'Commuter removed'));
+      return ApiResponseContract.toStringResult(
+        response,
+        successMessage: 'Commuter removed',
+        failureMessage: 'Could not remove commuter from return list',
+        statusMessages: ApiResponseContract.returnBatchActionMessages,
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
@@ -123,8 +134,12 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
   @override
   Future<ApiResult<void>> endReturnTrip(String batchId) async {
     try {
-      await _apiService.postApi({}, '${ApiUrl.returnBatchEnd}$batchId');
-      return ApiResult.success(null);
+      final response =
+          await _apiService.postApi({}, '${ApiUrl.returnBatchEnd}$batchId');
+      return ApiResponseContract.toVoidResult(
+        response,
+        failureMessage: 'Could not end return trip',
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
@@ -148,20 +163,4 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
         .toList();
   }
 
-  String _statusMessage(dynamic response, {required String fallback}) {
-    if (response is Map) {
-      final status = response['status']?.toString();
-      if (status == 'added') return 'Commuter confirmed for return';
-      if (status == 'removed') return 'Commuter removed from return list';
-      if (status == 'already_confirmed') {
-        return 'Commuter is already confirmed';
-      }
-      if (status == 'ended') return 'Return trip ended';
-      if (status == 'error') {
-        final message = response['message']?.toString();
-        if (message != null && message.isNotEmpty) return message;
-      }
-    }
-    return fallback;
-  }
 }

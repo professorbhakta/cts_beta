@@ -95,8 +95,9 @@ Project goal (`.cursorrules`): run analyze, pub get, and test after substantive 
 |----------|------|--------|
 | P1 | Widget | `SignInScreen` form validation |
 | P1 | Widget | `DashboardShell` responsive breakpoints |
-| P2 | Unit | `GetInitialRouteUseCase` with mock session |
-| P2 | Unit | `RouteName.homeForRole` / redirect logic (extracted pure functions) |
+| P2 | Unit | `GetInitialRouteUseCase` with mock session — **done** (`test/domain/get_initial_route_usecase_test.dart`) |
+| P2 | Unit | `resolveAuthRedirect` / redirect logic — **done** (`test/app/router/auth_redirect_test.dart`) |
+| P2 | Unit | `refreshSessionFromServer` + disabled signUp — **done** (`test/data/authentication_repository_session_test.dart`) |
 | P3 | Integration | Login flow with mocked `AuthenticationRepository` |
 | P3 | Golden | Admin dashboard stat cards (optional) |
 

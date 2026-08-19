@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 Available tab Home then Overflow; GET view split
+> **Updated:** 2026-08-19 22:45 IST
+> **Session:** P1 Truth Contract on POST actions
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -57,6 +57,8 @@ Entry: Admin home or batch screen → Return Batches.
 **ID rule:** Always pass **`userId.id`** as `commuter_id` in POST body.
 
 **Client notes:** `get_commuter` does not send `?hydrate=` (backend default hydrates `commuters`). `end` is **POST only** from Flutter even though the backend also allows GET.
+
+**Truth contract (P1):** POST add/remove/end parse body via `ApiResponseContract` (`lib/api/api_response_contract.dart`). HTTP 200 + `{status:error}` → `ApiResult.failure` (provider skips reload; screen shows error SnackBar). Known success statuses: `added`, `removed`, `ended`, `already_confirmed`, `ok`. Unknown status → fail closed.
 
 ---
 

@@ -1,4 +1,5 @@
 import 'package:cts/api/api_exceptions_handler.dart';
+import 'package:cts/api/api_response_contract.dart';
 import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
@@ -123,11 +124,16 @@ class CommuterRepositoryImpl implements CommuterRepository {
         ApiUrl.commuterUrl,
       );
 
-      if (_isFailedPatchBody(response)) {
+      final contract = ApiResponseContract.parse(
+        response,
+        failureMessage: 'Could not update coming status',
+      );
+
+      if (contract.isFailure) {
         return ApiResult.failure(
           ApiFailure(
             type: ApiFailureType.invalidRequest,
-            message: response.toString(),
+            message: contract.message,
           ),
         );
       }
@@ -135,25 +141,6 @@ class CommuterRepositoryImpl implements CommuterRepository {
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
-  }
-
-  /// Django sometimes returns HTTP 200 with an error dict instead of 4xx.
-  bool _isFailedPatchBody(dynamic response) {
-    if (response is Map) {
-      if (response['status'] == 'ok') return false;
-      if (response.containsKey('error') ||
-          response.containsKey('non_field_errors')) {
-        return true;
-      }
-      final isComingErrors = response['isComing'];
-      return isComingErrors is List || isComingErrors is String;
-    }
-    if (response is String) {
-      final lower = response.toLowerCase();
-      if (lower.contains('updated') || lower.contains('ok')) return false;
-      return lower.contains('error') || lower.contains('required');
-    }
-    return false;
   }
 
   @override

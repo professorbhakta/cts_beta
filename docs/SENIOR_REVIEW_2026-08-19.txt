@@ -419,6 +419,491 @@ These items require checking the backend (cts-docker) to confirm:
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 11: EXECUTION GAME PLAN (9 BRANCHES + 10TH MERGE CHECK)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Date:       2026-08-19 22:35 IST
+Source:     Product/implementation planning update from user + agent strategy
+Intent:     Execute C/M/L/E in themed tracks with isolated branches and safe merge order
+Updated:    Section 11.5/11.6 now contains exact copy-paste agent prompts (P1-P10)
+
+11.1 Dependency Order (Depends-On List)
+---------------------------------------
+P1  p1-truth-contract
+  Depends on: none
+
+P2  p2-security-boundary
+  Depends on: P1
+
+P3  p3-lifecycle-resilience
+  Depends on: P1, P2
+
+P4  p4-channel-role-governance
+  Depends on: P1, P2, P3
+
+P5  p5-network-degraded-mode
+  Depends on: P1, P3
+  Note: Full offline mode deferred for now (minimal degraded UX only)
+
+P6  p6-state-lifecycle-hygiene
+  Depends on: P1, P3, P5
+
+P7  p7-rule-integrity-r4-r9
+  Depends on: P1, P2, P4
+
+P8  p8-scale-layout-stability
+  Depends on: P4, P6, P7
+
+P9  p9-debt-health-burndown
+  Depends on: P1 through P8
+
+11.2 Recommended Merge Sequence
+-------------------------------
+1) P1
+2) P2
+3) P3
+4) P4
+5) P5
+6) P6
+7) P7
+8) P8
+9) P9
+10) Run P10 merge checklist after each merge and once after all nine merges.
+
+11.3 User Feedback Integrated Into Strategy
+-------------------------------------------
+F1 (P1): status/message/code handling must be robust against backend mid-change across modules/features.
+F2 (P2): security hardening accepted but can be sequenced later if needed.
+F3 (P3): include OS/platform lifecycle behavior; not client behavior only.
+F4 (P4): channel ownership rules clarified:
+         - Driver closes channel session
+         - Admin connects and can add commuter in running log
+         - Driver can add/remove commuter
+         - Must provide a clear "already IN" view.
+F5 (P5): full offline mode is not priority right now; keep minimal degraded behavior.
+F6 (P6): proceed with agent-discretion implementation.
+F7 (P7): accepted.
+F8 (P8): accepted.
+F9 (P9): accepted.
+F10 (execution): run one branch at a time (sequential), not 9 parallel agents.
+
+11.4 Standard Doc Attachments and Session Sync (All P Prompts)
+------------------------------------------------------------
+Every P-branch session MUST follow the project doc workflow from CHAT_PROMPTS.txt.
+
+Always attach on start:
+  @PROJECT_BRAIN.md
+  @docs/SENIOR_REVIEW_2026-08-19.txt
+
+Always attach task pack (per P below) from PROJECT_BRAIN §4.
+
+End-of-session doc sync (required before merge):
+1) Update PROJECT_BRAIN.md
+   - §5 Current focus (next P or idle)
+   - §6 Status snapshot (done + open backlog)
+   - §9 Session handoff log (prepend new entry; keep max 3)
+   - 3-line header (Updated timestamp IST, Session note)
+2) Update Session sync set docs (content if changed; else header "Verified unchanged")
+   - See DOC_REGISTRY.md for full list
+3) Update DOC_REGISTRY.md rows for touched docs
+4) Update PROJECT_TODOS.md if backlog changed
+5) Feature changes: update lib/features/<name>/README.md for that feature
+6) Reply with summary + suggested next START PROMPT (filled shell ready to copy)
+
+Quality gate before merge:
+  flutter analyze
+  flutter pub get
+  flutter test (relevant suites)
+  Device verify (required before push):
+    - Start Android emulator (e.g. Pixel_10_Pro / emulator-5554) AND physical phone if available
+    - flutter devices  (confirm both show connected)
+    - flutter run on emulator; smoke-test touched role/flow (admin/driver/commuter as relevant)
+    - Repeat critical path on phone when UI/network behavior differs
+    - See PROJECT_BRAIN §5 for lab logins (.env LAN, dummy org accounts)
+  iOS sanity where applicable
+
+11.5 Copy-Paste Agent Prompts (Exact — One-by-One)
+--------------------------------------------------
+Usage: open a new agent chat, copy one block below, paste, run.
+Run branches sequentially (P1 -> P2 -> ... -> P9). Use P10 after each merge.
+
+*** GOLDEN RULE (every P session — non-negotiable) ***
+- Work locally on the named branch until that P is FULLY done (code + doc sync + analyze + tests + device verify).
+- BEFORE push: start emulator + phone, run flutter devices, smoke-test the changed flow on device(s). See PROJECT_BRAIN §5 lab logins.
+- AFTER device verify passes, you MUST push to GitHub:
+    git push -u origin <branch-name-from-block>
+- Do NOT finish the chat without push unless push failed (report the error).
+- "Done" = device smoke passed + pushed branch on remote + summary returned. Local-only is NOT complete.
+
+Git workflow:
+1) Confirm current base branch (usually beta-ver, or latest branch after previous P merge).
+2) Pull/rebase latest if needed.
+3) Create and checkout the named branch:
+   git checkout -b <branch-name-from-block>
+4) Do all code changes ONLY on that branch.
+5) Do all implementation/testing/doc sync locally first on that P branch.
+6) Device verify before push: start emulator + phone → flutter devices → flutter run → smoke-test touched flow(s).
+7) Push branch to remote only after steps 5–6 pass:
+   git push -u origin <branch-name-from-block>
+8) At end: report branch name, files changed, test results, device verify notes, and merge readiness.
+
+Note: "Branch: p1-truth-contract" in each block is the git branch name — not just a label.
+
+--- P1 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/LIB_STRUCTURE.md @docs/ARCHITECTURE.md @docs/CODE_MAP.md
+@lib/features/batches/README.md @docs/API_CONTRACTS.md @docs/FLOWS_BY_ROLE.md
+
+Branch: p1-truth-contract
+Depends on: none
+Task: P1 - Truth Contract (API outcome must equal app outcome)
+
+Git start (required):
+- git checkout beta-ver
+- git pull
+- git checkout -b p1-truth-contract
+- work locally on this branch for all P1 changes
+- push only at P1 completion: git push -u origin p1-truth-contract
+
+Focus from me:
+make sure status(message/code) handling is better because server/backend may mid-change as per module or feature base.
+
+Requirements:
+1) Never treat business error payload as success, even on HTTP 200.
+2) Centralize normalized response contract for status/message/code.
+3) Add safe fallback for missing/renamed fields and unknown status/code.
+4) Keep UI notifications in provider/screen layer (not repository side-effects).
+5) Add regression tests: 200+status:error, 4xx/5xx, missing fields, unknown codes.
+
+Mandatory end:
+- Do doc sync as per project practice (PROJECT_BRAIN §5/§6/§9, DOC_REGISTRY, PROJECT_TODOS if changed, feature README if touched).
+- Run flutter analyze, flutter pub get, flutter test.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return summary + next START prompt.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P1 COPY BLOCK END ---
+
+--- P2 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/LIB_STRUCTURE.md @docs/ARCHITECTURE.md @docs/CODE_MAP.md
+@docs/API_CONTRACTS.md @docs/LOCAL_DEV.md @docs/backend/README.md
+
+Branch: p2-security-boundary
+Depends on: P1 merged
+Task: P2 - Security and Access Control Boundary
+
+Git start (required):
+- git checkout beta-ver   (or branch where P1 was merged)
+- git pull
+- git checkout -b p2-security-boundary
+- work locally on this branch for all P2 changes
+- push only at P2 completion: git push -u origin p2-security-boundary
+
+Focus from me:
+Okay but later we need to think on that — still create strong base now.
+
+Requirements:
+1) Public user creation must not allow unsafe role elevation.
+2) Client role/session refresh must be safe for stale/changed role.
+3) Session-expiry transition should fail secure and redirect clearly.
+4) Add tests for unauthorized/privilege paths.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return summary + risks kept for later.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P2 COPY BLOCK END ---
+
+--- P3 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/LIB_STRUCTURE.md @docs/ARCHITECTURE.md @docs/CODE_MAP.md
+@lib/features/d2d/README.md @docs/API_CONTRACTS.md @docs/UI_ARCHITECTURE.md
+
+Branch: p3-lifecycle-resilience
+Depends on: P1, P2 merged
+Task: P3 - Lifecycle-Aware Resilience (Client + OS behavior)
+
+Git start (required):
+- git checkout beta-ver   (or branch where P2 was merged)
+- git pull
+- git checkout -b p3-lifecycle-resilience
+- work locally on this branch for all P3 changes
+- push only at P3 completion: git push -u origin p3-lifecycle-resilience
+
+Focus from me:
+Don't treat this as client behavior only. Platform/OS has its own lifecycle handling. Keep that in mind.
+
+Requirements:
+1) Define behavior for foreground/background/resume.
+2) Protect in-flight actions across lifecycle transitions.
+3) Handle transient network/sleep-wake safely.
+4) Include Android/iOS lifecycle considerations.
+5) Add validation/tests for lifecycle edge cases.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return lifecycle matrix + summary.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P3 COPY BLOCK END ---
+
+--- P4 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@lib/features/d2d/README.md @docs/API_CONTRACTS.md @docs/UI_ARCHITECTURE.md
+@lib/features/batches/README.md @docs/FLOWS_BY_ROLE.md
+
+Branch: p4-channel-role-governance
+Depends on: P1, P2, P3 merged
+Task: P4 - Channel Role Governance and Already-IN Visibility
+
+Git start (required):
+- git checkout beta-ver   (or branch where P3 was merged)
+- git pull
+- git checkout -b p4-channel-role-governance
+- work locally on this branch for all P4 changes
+- push only at P4 completion: git push -u origin p4-channel-role-governance
+
+Focus from me:
+session of channel can be closed by driver only.
+admin can connect and add commuter in running log.
+driver can add/remove.
+also need clear view to show who is already IN.
+
+Requirements:
+1) Enforce role rules at UI gating + action validation.
+2) Unauthorized attempts must fail clearly.
+3) Add accurate live "Already IN" view/list.
+4) Ensure admin never owns channel closure.
+5) Add role-action and visibility tests.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return permission matrix + summary.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P4 COPY BLOCK END ---
+
+--- P5 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md
+@lib/features/batches/README.md @docs/API_CONTRACTS.md @docs/FLOWS_BY_ROLE.md
+
+Branch: p5-network-degraded-mode
+Depends on: P1, P3 merged
+Task: P5 - Minimal Degraded-Network UX (full offline deferred)
+
+Git start (required):
+- git checkout beta-ver   (or branch where P3 was merged)
+- git pull
+- git checkout -b p5-network-degraded-mode
+- work locally on this branch for all P5 changes
+- push only at P5 completion: git push -u origin p5-network-degraded-mode
+
+Focus from me:
+offline full mode can be neglected for now, not so important RN. keep graceful minimal behavior.
+
+Requirements:
+1) Pre-check connectivity before key actions.
+2) Show explicit degraded/offline message.
+3) Do not build full queue/replay now.
+4) Keep extension points ready for future offline mode.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return what is done now vs future offline scope.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P5 COPY BLOCK END ---
+
+--- P6 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/LIB_STRUCTURE.md @docs/ARCHITECTURE.md @docs/CODE_MAP.md
+@lib/features/batches/README.md @docs/API_CONTRACTS.md @docs/FLOWS_BY_ROLE.md
+
+Branch: p6-state-lifecycle-hygiene
+Depends on: P1, P3, P5 merged
+Task: P6 - State Lifecycle Hygiene and Stale Data Prevention
+
+Git start (required):
+- git checkout beta-ver   (or branch where P5 was merged)
+- git pull
+- git checkout -b p6-state-lifecycle-hygiene
+- work locally on this branch for all P6 changes
+- push only at P6 completion: git push -u origin p6-state-lifecycle-hygiene
+
+Focus from me:
+it's up to you, I trust your implementation judgment.
+
+Requirements:
+1) Clear/reset batch state on context change/dispose.
+2) Prevent old data flash before new load.
+3) Reduce stale behavior from global/singleton coupling.
+4) Add tests for batch switch/reset.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return before/after behavior summary.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P6 COPY BLOCK END ---
+
+--- P7 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/next-plan/return-trip-allocation-roadmap.txt @docs/backend/README.md @docs/API_CONTRACTS.md
+@lib/features/batches/README.md @docs/FLOWS_BY_ROLE.md
+
+Branch: p7-rule-integrity-r4-r9
+Depends on: P1, P2, P4 merged
+Task: P7 - Business Rule Integrity (R4/R9 and day scoping)
+
+Git start (required):
+- git checkout beta-ver   (or branch where P4 was merged)
+- git pull
+- git checkout -b p7-rule-integrity-r4-r9
+- work locally on this branch for all P7 changes
+- push only at P7 completion: git push -u origin p7-rule-integrity-r4-r9
+
+Focus from me:
+Okay. Keep rule integrity strict and practical.
+
+Requirements:
+1) Validate bidirectional overflow (R4 relaxed).
+2) Validate eligibility/attendance filtering (R9).
+3) Verify timezone/day-boundary assumptions.
+4) Align tests/docs with implemented rules.
+5) Record backend/frontend contract gaps clearly.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return verification checklist with pass/fail.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P7 COPY BLOCK END ---
+
+--- P8 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/FLOWS_BY_ROLE.md @docs/UI_ARCHITECTURE.md @docs/FEATURES.md @docs/LIB_STRUCTURE.md
+@lib/features/batches/README.md @docs/API_CONTRACTS.md
+
+Branch: p8-scale-layout-stability
+Depends on: P4, P6, P7 merged
+Task: P8 - Scale and Layout Stability
+
+Git start (required):
+- git checkout beta-ver   (or branch where P7 was merged)
+- git pull
+- git checkout -b p8-scale-layout-stability
+- work locally on this branch for all P8 changes
+- push only at P8 completion: git push -u origin p8-scale-layout-stability
+
+Focus from me:
+Okay. Make it robust on small screens and high batch volume.
+
+Requirements:
+1) Fix nested-scroll pain in cards.
+2) Avoid unbounded parallel status calls.
+3) Add controlled concurrency/pagination where needed.
+4) Add widget tests for small-screen + high-volume scenarios.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return performance/UX impact summary.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P8 COPY BLOCK END ---
+
+--- P9 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@docs/LIB_STRUCTURE.md @docs/ARCHITECTURE.md @docs/CODE_MAP.md
+
+Branch: p9-debt-health-burndown
+Depends on: P1 through P8 merged
+Task: P9 - Technical Debt and Platform Health Cleanup
+
+Git start (required):
+- git checkout beta-ver   (or branch where P8 was merged)
+- git pull
+- git checkout -b p9-debt-health-burndown
+- work locally on this branch for all P9 changes
+- push only at P9 completion: git push -u origin p9-debt-health-burndown
+
+Focus from me:
+Got it. Do cleanup after functional items are stable.
+
+Requirements:
+1) Prioritize critical dependency upgrades first.
+2) Clean stale QA operational state.
+3) Remove/finish migration leftovers.
+4) Reassess temporary/prototype modules.
+5) Improve baseline tests where needed.
+
+Mandatory end:
+- Doc sync practice.
+- Analyze/pub get/tests.
+- Device verify: start emulator + phone; smoke-test touched flow before push (PROJECT_BRAIN §5 lab).
+- Return debt checklist with done/pending split.
+- Do not push mid-task; push only after final checks + device verify pass.
+--- P9 COPY BLOCK END ---
+
+11.6 P10 Copy-Paste Prompt (Merge Checklist / Integration Gate)
+---------------------------------------------------------------
+Use after each P-branch is complete and before merge.
+
+--- P10 COPY BLOCK START ---
+@PROJECT_BRAIN.md
+@docs/SENIOR_REVIEW_2026-08-19.txt
+@CHAT_PROMPTS.txt
+
+Branch: integration/merge-check
+Depends on: one completed P-branch ready to merge
+Task: P10 - Merge Checklist and Integration Verification
+
+Git start (required):
+- git checkout <completed-p-branch>   (example: p1-truth-contract)
+- git fetch
+- git rebase beta-ver   (or latest merged base)
+- if rebase is clean and validations pass, push the updated branch:
+  git push -u origin <completed-p-branch>
+
+Goal:
+validate branch before and after merge so integration remains safe.
+
+Checklist:
+1) Confirm branch only contains assigned P-scope changes.
+2) Confirm no unexpected overlap with already merged branches.
+3) Rebase/merge latest target and resolve conflicts carefully.
+4) Run relevant analyze/tests for touched modules.
+5) Verify no regression in already-merged behavior areas.
+6) Verify doc sync done (PROJECT_BRAIN §5/§6/§9, DOC_REGISTRY, PROJECT_TODOS, feature READMEs).
+7) Provide risk note + rollback note + follow-up list.
+8) Give final go/no-go merge recommendation.
+
+Deliverables:
+- pre-merge summary
+- conflict/risk summary
+- post-merge verification summary
+- go/no-go
+- next START prompt for next P branch
+--- P10 COPY BLOCK END ---
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 END OF REVIEW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

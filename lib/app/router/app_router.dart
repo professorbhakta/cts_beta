@@ -1,3 +1,4 @@
+import 'package:cts/app/router/auth_redirect.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/appManager/d2d_route_args.dart';
@@ -46,51 +47,12 @@ GoRouter createAppRouter({
     refreshListenable: authNotifier,
     debugLogDiagnostics: false,
     redirect: (context, state) {
-      final location = state.matchedLocation;
-      final isPublic = RouteName.isPublicLocation(location);
-
-      // Splash always allowed while session is resolving.
-      if (location == RouteName.splashScreen) return null;
-
-      if (!authNotifier.ready) return null;
-
-      final loggedIn = authNotifier.loggedIn;
-      final userType = authNotifier.userType;
-
-      // Public self-registration is disabled (S1). Keep the path so old
-      // deep links do not 404; send them to sign-in.
-      if (location == RouteName.signUp) {
-        return RouteName.signIn;
-      }
-
-      if (!loggedIn) {
-        if (isPublic) return null;
-        return RouteName.signIn;
-      }
-
-      // Logged-in users leave auth screens.
-      if (location == RouteName.signIn) {
-        return RouteName.homeForRole(userType);
-      }
-
-      if (_matchesAny(location, RouteName.adminOnlyPrefixes) &&
-          userType != 'ADMIN') {
-        return RouteName.homeForRole(userType);
-      }
-
-      if (_matchesAny(location, RouteName.driverOnlyPrefixes) &&
-          userType != 'DRIVER' &&
-          userType != 'ADMIN') {
-        return RouteName.homeForRole(userType);
-      }
-
-      if (_matchesAny(location, RouteName.commuterOnlyPrefixes) &&
-          userType != 'COMMUTER' &&
-          userType != 'ADMIN') {
-        return RouteName.homeForRole(userType);
-      }
-
-      return null;
+      return resolveAuthRedirect(
+        location: state.matchedLocation,
+        authReady: authNotifier.ready,
+        loggedIn: authNotifier.loggedIn,
+        userType: authNotifier.userType,
+      );
     },
     routes: [
       GoRoute(
@@ -301,13 +263,4 @@ GoRouter createAppRouter({
     ],
     errorBuilder: (context, state) => const ErrorPage(),
   );
-}
-
-bool _matchesAny(String location, Set<String> prefixes) {
-  for (final prefix in prefixes) {
-    if (location == prefix || location.startsWith('$prefix/')) {
-      return true;
-    }
-  }
-  return false;
 }

@@ -20,6 +20,7 @@ Future<void> main() async {
       syncManager: bootstrap.syncManager,
       offlineFirstBatchRepository: bootstrap.offlineFirstBatchRepository,
       sessionAuthNotifier: bootstrap.sessionAuthNotifier,
+      onSessionInvalidated: bootstrap.onSessionInvalidated,
     ),
   );
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cts/app/session_invalidation.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -20,7 +21,11 @@ bool d2dResultMarksTripEnded(Map<String, dynamic> result) {
 }
 
 class D2dChannelProvider with ChangeNotifier {
-  D2dChannelProvider(this._driverRepository, this._d2dRepository);
+  D2dChannelProvider(
+    this._driverRepository,
+    this._d2dRepository, {
+    this._onSessionInvalidated,
+  });
 
   static const int _endedTripCloseCode = 4001;
   static const int _unauthorizedCloseCode = 4401;
@@ -32,6 +37,7 @@ class D2dChannelProvider with ChangeNotifier {
 
   final DriverRepository _driverRepository;
   final D2dRepository _d2dRepository;
+  final SessionInvalidatedCallback? _onSessionInvalidated;
 
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
@@ -210,6 +216,11 @@ class D2dChannelProvider with ChangeNotifier {
     _state = ViewState.error;
     _errorMessage = _unauthorizedMessage;
     _safeNotifyListeners();
+
+    final callback = _onSessionInvalidated;
+    if (callback != null) {
+      unawaited(callback());
+    }
   }
 
   void _handleTripEndedClose() {
