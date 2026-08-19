@@ -1,13 +1,12 @@
 CTS — Dynamic Return-Trip Allocation Roadmap
 Updated: 2026-08-19 18:25 IST
-Status: M4 DONE. GET view home[] / overflow[] + Flutter Available sections. Not M7.
+Status: M7 DONE. POST add_commuter enforces R2–R5 (not eligible, already allocated, later return, overflow full).
 
 RESUME (next session)
   Repo     D:\cts-docker AND D:\cts_beta
-  Do       M7 — POST add_commuter rejects: not on CList; already allocated;
-           overflow while remaining==0; later-return (R4).
+  Do       Commuter POST intent (skip/home/earlier). Cutoff / no-show release.
   Do not   Re-parse GET status extras. Do not re-split GET view.
-           Do not change STOP.
+           Do not change STOP. Do not change validate_add_commuter.
   Verify   Hot-restart / new APK required — old APK cannot parse split view/.
   Tests    python d2d_log/test_return_allocator.py
            python manage.py test d2d_log.tests.ReturnAllocatorTests \
@@ -33,9 +32,13 @@ Implementation progress
             Flutter picker + banner parse extras (Seats left still remaining_capacity).
   M4  DONE  GET view returns home[] then overflow[]. Flutter Available tab Home then Overflow.
             Fail closed empty lists (not org dump). add_commuter / STOP unchanged.
+  M7  DONE  POST add_commuter enforces R2–R5 via validate_add_commuter() in return_pool.py.
+            Rejects: not_eligible (R2), already_allocated (R3), later_return (R4), overflow_full (R5).
+            Flutter already disables overflow confirm when overflowRemaining==0 (M4).
+            Error messages flow through ApiExceptionHandler → SnackBar.
   JSON      view: home, overflow, home_count, overflow_count (no commuters key)
   Test      test_return_allocator.py 15/15; Django TestCase includes ReturnBatchViewSplitTests
-  Next      M7 — enforce add_commuter (R2–R5). Not status re-parse.
+  Next      Commuter POST intent (skip/home/earlier) + cutoff. Manual QA with dummy org.
 
 This file is the plan for n-batch return allocation.
 Do not treat the 2-batch 5:00 / 7:00 story as hardcoded product logic.

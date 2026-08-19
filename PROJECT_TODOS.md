@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 done; next M7 add_commuter
+> **Updated:** 2026-08-19 19:15 IST
+> **Session:** M7 done; next commuter intent + cutoff
 
 # Project Todo & Progress
 
@@ -72,7 +72,8 @@
 25. [x] Return allocation M3: merge `status_pool_extras()` into GET status (keep remaining_capacity). Not M7.
 25b. [x] Flutter parse status extras on picker + return banner; Seats left still remaining_capacity
 26. [x] Return allocation M4 GET view split lists + Flutter Available Home/Overflow
-26b. [ ] Return allocation M7 enforce add_commuter (R2–R5)
+26b. [x] Return allocation M7 enforce add_commuter (R2-R5): validate_add_commuter in return_pool.py
+26c. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking
 

@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 view split + Flutter Available Home/Overflow. Next M7 add_commuter
+> **Updated:** 2026-08-19 19:15 IST
+> **Session:** M7 add_commuter enforcement (R2–R5). Next: commuter intent + cutoff
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -54,9 +54,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Paused after M4.** GET `view/<id>` returns `home[]` then `overflow[]`. Flutter Available tab has Home then Overflow. Old APK cannot stay on view/ — hot-restart / new install required. Full device UAT deferred.
+**M7 done.** `POST add_commuter` now enforces R2–R5 via `validate_add_commuter()` in `return_pool.py`. Rejects: not_eligible, already_allocated, later_return, overflow_full. Flutter overflow confirm already disabled when `overflowRemaining==0` (M4). Error messages flow through `ApiExceptionHandler` → SnackBar.
 
-**Next: M7** — enforce `POST add_commuter` (not on CList; already allocated; overflow while remaining==0; later-return R4). Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP.
+**Next:** Commuter POST intent (skip/home/earlier) + cutoff/no-show release. Manual QA with dummy org. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -74,7 +74,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** M4 GET view `home[]`/`overflow[]` via `return_pool.view_pool_lists` (walk-up overflow = later returnTime). Flutter `ReturnAvailableResult` + Available tab sections. `add_commuter` / STOP / status extras unchanged. Seats left still `remaining_capacity`.
+**Code this session:** M7 `validate_add_commuter()` in `return_pool.py` — R2 not_eligible, R3 already_allocated, R4 later_return, R5 overflow_full. Wired into `AddCommuter` view before Redis SADD. Flutter `_statusMessage` handles error status. No UI changes needed (overflow disable shipped M4).
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -112,10 +112,11 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - Return allocation M3 — GET status merges those extras; `remaining_capacity` / `available_count` unchanged; `get_commuter` unchanged
 - Flutter M3 — picker + return banner show Home hold / Overflow in / Overflow open when extras present; Seats left still empty-cab seats
 - Return allocation M4 — GET view `home[]` / `overflow[]`; Flutter Available Home then Overflow. Empty if no CList. Not M7.
+- Return allocation M7 — `validate_add_commuter()` enforces R2–R5 on POST add_commuter. Flutter error surfacing + overflow disable.
 
 ### Open backlog (from PROJECT_TODOS)
 
-- Return allocation M7 `add_commuter` rejects (R2–R5). View split and status extras already shipped.
+- Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
 - Batch-08 still LIVE; STOP `isComing` for other-batch ADD; admin End return skipped (5 confirmed tonight)
 - Remaining Application High: A1 Track Cab vehicle, A6–A9 (plus A11/A12 from bug audit)
 - Deferred Reliability: R4 logout reset, R5 STOP flush
@@ -165,9 +166,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-19 | M4 view split | GET view home/overflow + Flutter Available sections. Hot-restart required. Next **M7** add_commuter. Full UAT later |
+| 2026-08-19 | M7 add_commuter | validate_add_commuter R2-R5. Flutter error surfacing. Next: commuter intent + cutoff |
+| 2026-08-19 | M4 view split | GET view home/overflow + Flutter Available sections. Hot-restart required |
 | 2026-08-19 | Wrap M3 | Status extras on GET + Flutter picker/banner. Seats left = remaining_capacity |
-| 2026-08-19 | Wrap return allocation | Adapter ready, views unwired. Plan: `docs/next-plan/` |
 
 ---
 

@@ -157,6 +157,10 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
         return 'Commuter is already confirmed';
       }
       if (status == 'ended') return 'Return trip ended';
+      if (status == 'error') {
+        final message = response['message']?.toString();
+        if (message != null && message.isNotEmpty) return message;
+      }
     }
     return fallback;
   }
