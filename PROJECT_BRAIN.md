@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 00:40 IST
-> **Session:** P1–P7 integration gate (Phase 0 complete)
+> **Updated:** 2026-08-20 01:05 IST
+> **Session:** P8 scale/layout stability
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P1–P7 integration in progress.** Branch `integration/p1-p7-validation` — all P2→P7 merged; sequential validation gate running.
+**P8 in progress.** Branch `p8-scale-layout-stability` — return picker layout + batched status fetch.
 
-**Next:** Complete P1–P7 smoke + automated gate; merge to beta-ver on GO. Do **not** start P8/P9. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** P9 or merge after P1–P7 lands on beta-ver and P8 rebases. **Device verify deferred** — other session owns lab. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** Integration merge P2→P7 complete (P5: role+network guards merged).
+**Code this session:** P8 — `batched_runner.dart`; return picker list/grid layout; status fetch capped at 10 concurrent; 94 tests.
 
-**Lab connectivity (2026-08-20 00:40 IST):** Phase 0 merge complete. Backend Docker up. Emulator + phone listed.
+**Lab connectivity (2026-08-20 01:05 IST):** **94/94 tests pass.** Device smoke deferred — P1–P7 integration owns emulator + phone.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -122,6 +122,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - P4 Channel role governance — `D2dChannelRolePolicy`; provider + UI gating; WS `already_in` Already IN section; driver add FAB; backend action role gates; 68 flutter tests
 - P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
 - P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
+- P8 Scale/layout stability — batched status fetch (10 concurrent); return picker list on narrow/extras; no nested card scroll; 94 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
@@ -150,6 +151,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart`, `lib/app/app_lifecycle_host.dart` |
 | Lifecycle | `lib/core/lifecycle/` — foreground/background/resume coordinator |
 | Network guard | `lib/core/network/network_action_guard.dart` — pre-check before live/return mutations |
+| Concurrency | `lib/core/concurrency/batched_runner.dart` — capped parallel task runner (P8 status fetch) |
 | Router | `lib/app/router/app_router.dart` |
 | Network | `lib/api/` (canonical Dio client; not `core/network/`) |
 | API constants | `lib/api/api_list.dart` |
@@ -177,9 +179,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | P8 Scale/layout stability | Batched status fetch; picker layout fix; 94 tests. Device verify deferred |
 | 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P7 complete |
 | 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests |
-| 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
 
 ---
 

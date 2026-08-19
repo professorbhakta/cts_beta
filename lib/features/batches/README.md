@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
 > **Updated:** 2026-08-20 01:00 IST
-> **Session:** P6 — state lifecycle hygiene
+> **Session:** P8 — scale/layout stability for return picker
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -17,7 +17,8 @@ Feature owner for batch management, running batches, and evening return trips (R
 | Batch CRUD screen | `screens/batch_screen.dart` |
 | Nested batch commuters | `../commuters/screens/commuter_list_screen.dart` — swipe EDIT passes `CommuterModel`; `ComingTodaySwitch` → `updateCommuterIsComing` (`PATCH /user/commuter/<userId>`) |
 | Running batch screen | `screens/running_batch_screen.dart` |
-| Return batch picker | `screens/returning_batch_screen.dart` |
+| Return batch picker | `screens/returning_batch_screen.dart` — list on narrow screens / pool extras; grid on wide |
+| Return picker card | `widgets/return_batch_picker_card.dart` — fixed-height tile, no nested scroll |
 | Return commuter UI | `../commuters/screens/return_batch_commuter_screen.dart` |
 | Return provider | `providers/return_batch_provider.dart` |
 | Running provider | `providers/running_batch_provider.dart` |
@@ -54,7 +55,7 @@ Entry: Admin home or batch screen → Return Batches.
 
 | Method | Backend |
 |--------|---------|
-| `fetchStatusesForBatches(ids)` | `GET return_batch/status/{id}` |
+| `fetchStatusesForBatches(ids)` | `GET return_batch/status/{id}` — **max 10 concurrent** (P8); progressive UI updates |
 | `loadReturnTrip(batchId)` | Parallel `view/` + `get_commuter/` |
 | `confirmCommuter(userId, batchId)` | `POST add_commuter` |
 | `removeCommuter(userId, batchId)` | `POST remove_commuter` |
@@ -83,7 +84,7 @@ returnBatchEnd = "d2d/return_batch/end/";
 
 ## UI behavior (return)
 
-**ReturningBatchScreen:** `BatchProvider.fetchBatches()` + `ReturnBatchProvider.fetchStatusesForBatches()` — cards show return time, available count, **Seats left** (`remaining_capacity` / `total_capacity`), confirmed count, active dot, driver name. When GET status includes pool extras: **Home hold**, **Overflow in**, **Overflow open**. Fail closed (keys omitted) hides those three rows. Tap → `/returnCommuterScreen/$batchId`.
+**ReturningBatchScreen:** `BatchProvider.fetchBatches()` + `ReturnBatchProvider.fetchStatusesForBatches()` — cards show return time, available count, **Seats left** (`remaining_capacity` / `total_capacity`), confirmed count, active dot, driver name. When GET status includes pool extras: **Home hold**, **Overflow in**, **Overflow open**. Fail closed (keys omitted) hides those three rows. Tap → `/returnCommuterScreen/$batchId`. **P8:** narrow screens (&lt;400px) or any pool extras → full-width list cards; wide screens → grid with taller aspect ratio (0.72 base, 0.52 with extras). No nested scroll inside cards.
 
 **ReturnCommuterListScreen (admin + driver):** capacity banner (seats remaining = `remaining_capacity`; extras line when `hasPoolExtras`); Available tab **Home** then **Overflow** (GET view `home[]` / `overflow[]`); Confirmed tab (swipe Remove); search by name, mobile, batch, POP. End return FAB is admin-only. Confirmed riders are dropped from both Available sections. Overflow Confirm is disabled when `overflow_remaining == 0` (not Seats left). `loadReturnTrip` also GET status (extras). Old flat `commuters` is ignored.
 
