@@ -37,6 +37,7 @@ import 'package:cts/features/drivers/providers/driver_controller.dart';
 import 'package:cts/features/drivers/providers/driver_form_provider.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/api/connectivity_service.dart';
+import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/core/sync/sync_manager.dart';
 import 'package:cts/data/local/cache/cache_service.dart';
 import 'package:cts/data/repositories/authentication_repository_impl.dart';
@@ -76,6 +77,10 @@ class AppProviders {
     return [
       Provider<BaseApiServices>.value(value: apiService),
       Provider<ConnectivityService>.value(value: connectivityService),
+      Provider<NetworkActionGuard>(
+        create: (context) =>
+            NetworkActionGuard(context.read<ConnectivityService>()),
+      ),
       ChangeNotifierProvider<SyncManager>.value(value: syncManager),
       Provider<CacheService>(create: (_) => CacheService()),
       ChangeNotifierProvider<SessionAuthNotifier>.value(
@@ -170,14 +175,17 @@ class AppProviders {
             RunningBatchProvider(context.read<RunningBatchRepository>()),
       ),
       ChangeNotifierProvider(
-        create: (context) =>
-            ReturnBatchProvider(context.read<ReturnBatchRepository>()),
+        create: (context) => ReturnBatchProvider(
+          context.read<ReturnBatchRepository>(),
+          networkGuard: context.read<NetworkActionGuard>(),
+        ),
       ),
       ChangeNotifierProvider(
         create: (context) =>
             D2dChannelProvider(
               context.read<DriverRepository>(),
               context.read<D2dRepository>(),
+              networkGuard: context.read<NetworkActionGuard>(),
               onSessionInvalidated: onSessionInvalidated,
             ),
       ),

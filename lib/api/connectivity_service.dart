@@ -19,6 +19,10 @@ class ConnectivityService {
 
   bool? _lastOnline;
 
+  /// Last known online state. Null until the first probe — treated as online
+  /// so startup is not blocked before connectivity is measured.
+  bool get isOnlineCached => _lastOnline ?? true;
+
   Stream<bool> get onOnlineStatusChanged => _onlineController.stream;
 
   Future<bool> get isOnline async {

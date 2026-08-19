@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:cts/app/session_invalidation.dart';
 import 'package:cts/core/lifecycle/app_lifecycle_phase.dart';
+import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -25,8 +26,9 @@ class D2dChannelProvider with ChangeNotifier {
   D2dChannelProvider(
     this._driverRepository,
     this._d2dRepository, {
+    NetworkActionGuard? networkGuard,
     this._onSessionInvalidated,
-  });
+  }) : _networkGuard = networkGuard;
 
   static const int _endedTripCloseCode = 4001;
   static const int _unauthorizedCloseCode = 4401;
@@ -42,6 +44,7 @@ class D2dChannelProvider with ChangeNotifier {
 
   final DriverRepository _driverRepository;
   final D2dRepository _d2dRepository;
+  final NetworkActionGuard? _networkGuard;
   final SessionInvalidatedCallback? _onSessionInvalidated;
 
   WebSocketChannel? _channel;
@@ -112,6 +115,24 @@ class D2dChannelProvider with ChangeNotifier {
   }
 
   void connect(String batchId) {
+    unawaited(_connectGuarded(batchId));
+  }
+
+  Future<void> _connectGuarded(String batchId) async {
+    final networkGuard = _networkGuard;
+    if (networkGuard != null) {
+      final guard = await networkGuard.check(refresh: true);
+      if (!guard.isOnline) {
+        _connectedBatchId = batchId;
+        _connectionLost = true;
+        _state = ViewState.error;
+        _errorMessage =
+            guard.message ?? NetworkActionGuard.actionBlockedMessage;
+        _safeNotifyListeners();
+        return;
+      }
+    }
+
     disconnect(notify: false);
 
     _connectedBatchId = batchId;
@@ -591,6 +612,8 @@ class D2dChannelProvider with ChangeNotifier {
 
   /// Admin channel: add commuter to the live fly list.
   bool addCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
+
     final id = _parseCommuterId(commuterId);
     if (id == 0) {
       if (kDebugMode) {
@@ -619,22 +642,34 @@ class D2dChannelProvider with ChangeNotifier {
 
   /// Admin channel: remove commuter from live list.
   void removeCommuter(String commuterId) {
+    if (!_guardNetwork()) return;
     _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
   /// Driver log: add commuter entry to D2D log.
   void confirmCommuter(String commuterId) {
+    if (!_guardNetwork()) return;
     _sendAction('REMOVE', _parseCommuterId(commuterId));
   }
 
   /// Driver log: delete commuter from fly list.
   void denyCommuter(String commuterId) {
+    if (!_guardNetwork()) return;
     _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
   void stopTrip() {
+    if (!_guardNetwork()) return;
     _sendStopAction();
     disconnect(notify: false);
+  }
+
+  bool _guardNetwork() {
+    final networkGuard = _networkGuard;
+    if (networkGuard == null || networkGuard.appearsOnline) return true;
+    _actionErrorMessage = NetworkActionGuard.actionBlockedMessage;
+    _safeNotifyListeners();
+    return false;
   }
 
   int _parseCommuterId(String commuterId) => int.tryParse(commuterId) ?? 0;

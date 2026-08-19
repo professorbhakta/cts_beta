@@ -7,6 +7,7 @@ import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/app/session_invalidation.dart';
 import 'package:cts/theme/app_theme.dart';
 import 'package:cts/appManager/snackbar_service.dart';
+import 'package:cts/widgets/network_degraded_banner.dart';
 import 'package:cts/api/connectivity_service.dart';
 import 'package:cts/core/sync/sync_manager.dart';
 import 'package:cts/features/batches/repositories/offline_first_batch_repository.dart';
@@ -71,7 +72,11 @@ class _CtsAppState extends State<CtsApp> {
           scaffoldMessengerKey: SnackBarService.scaffoldMessengerKey,
           debugShowCheckedModeBanner: false,
           routerConfig: _router,
-          builder: EasyLoading.init(),
+          builder: (context, child) {
+            return NetworkDegradedBanner(
+              child: EasyLoading.init()(context, child),
+            );
+          },
         ),
       ),
     );

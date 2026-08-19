@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-19 23:35 IST
-> **Session:** P3 lifecycle resilience
+> **Updated:** 2026-08-20 00:20 IST
+> **Session:** P5 degraded-network UX
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P3 done.** `AppLifecycleCoordinator` + `AppLifecycleHost` handle foreground/background/resume app-wide. On resume: connectivity refresh, session reconcile, running batches refresh, D2D WS reconnect + connection-lost banner, return batch reload (skips in-flight). 59 tests pass.
+**P5 done.** Minimal degraded-network UX — no full offline queue. `NetworkActionGuard` pre-checks D2D connect/actions + return batch confirm/remove/end. App-wide `NetworkDegradedBanner` when offline. `OfflineAutoRedirect` no longer auto-jumps to offline_temp (drawer still available). Batch offline-first + SyncManager unchanged. **66 tests pass.**
 
-**Next:** P4 channel role governance or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** P6 state lifecycle hygiene or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** P3 Lifecycle — `lib/core/lifecycle/`, `app_lifecycle_host.dart`, D2D reconnect/resume, `D2dConnectionLostBanner`, return batch resume guard, 13 lifecycle tests.
+**Code this session:** P5 — `network_action_guard.dart`, `NetworkDegradedBanner`, provider pre-checks, offline_temp redirect deferred.
 
-**Lab connectivity (2026-08-19 23:40 IST):** Both devices online. Emulator smoke **PASS** — app launches, API/WS URLs load, no crash. Unit gate **59/59**. Branch `p3-lifecycle-resilience` ready to push.
+**Lab connectivity (2026-08-20 00:25 IST):** Emulator smoke **PASS** — launched fresh (`flutter install` + single `flutter run`; no prior session). API/WS URLs load, no crash. Unit gate **66/66**. Branch `p5-network-degraded-mode` ready to commit/push.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -119,6 +119,7 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - P1 Truth Contract — `ApiResponseContract`; C1 fixed (200+status:error → failure); 33 flutter tests
 - P2 Security Boundary — backend POST/PATCH userType gates; Flutter session role refresh + fail-secure 401/4401 redirect; 46 flutter tests
 - P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
+- P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
@@ -146,6 +147,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 |------|------|
 | App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart`, `lib/app/app_lifecycle_host.dart` |
 | Lifecycle | `lib/core/lifecycle/` — foreground/background/resume coordinator |
+| Network guard | `lib/core/network/network_action_guard.dart` — pre-check before live/return mutations |
 | Router | `lib/app/router/app_router.dart` |
 | Network | `lib/api/` (canonical Dio client; not `core/network/`) |
 | API constants | `lib/api/api_list.dart` |
@@ -173,12 +175,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | P5 Degraded network UX | NetworkActionGuard + banner; action pre-checks; 66 tests. Next: P6 |
 | 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
 | 2026-08-19 | P2 push + device verify | Manual login pass both devices; branch pushed. Next: P3 |
-| 2026-08-19 | P2 Security Boundary | Backend userType gates; session refresh; 401/4401 redirect; 46 tests. Next: P3 |
-| 2026-08-19 | P1 Truth Contract | ApiResponseContract; C1 fixed; 33 tests. Next: P2 or commuter intent |
-| 2026-08-19 | M7 add_commuter | validate_add_commuter R2-R5. Flutter error surfacing. Next: commuter intent + cutoff |
-| 2026-08-19 | M4 view split | GET view home/overflow + Flutter Available sections. Hot-restart required |
 
 ---
 

@@ -1,5 +1,6 @@
 import 'package:cts/api/api_result.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository.dart';
@@ -7,9 +8,11 @@ import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:flutter/foundation.dart';
 
 class ReturnBatchProvider with ChangeNotifier {
-  ReturnBatchProvider(this._repository);
+  ReturnBatchProvider(this._repository, {NetworkActionGuard? networkGuard})
+      : _networkGuard = networkGuard;
 
   final ReturnBatchRepository _repository;
+  final NetworkActionGuard? _networkGuard;
 
   ViewState _state = ViewState.idle;
   ViewState get state => _state;
@@ -42,6 +45,11 @@ class ReturnBatchProvider with ChangeNotifier {
 
   bool _actionInProgress = false;
   bool get actionInProgress => _actionInProgress;
+
+  @visibleForTesting
+  void bindActiveBatchForTesting(String batchId) {
+    _activeBatchId = batchId;
+  }
 
   Future<void> fetchStatusesForBatches(List<String> batchIds) async {
     if (batchIds.isEmpty) return;
@@ -129,6 +137,9 @@ class ReturnBatchProvider with ChangeNotifier {
   }
 
   Future<String?> endReturnTrip(String batchId) async {
+    final blocked = await _ensureOnlineForMutation();
+    if (blocked != null) return blocked;
+
     _actionInProgress = true;
     notifyListeners();
 
@@ -162,6 +173,9 @@ class ReturnBatchProvider with ChangeNotifier {
     final batchId = _activeBatchId;
     if (batchId == null) return 'No active batch';
 
+    final blocked = await _ensureOnlineForMutation();
+    if (blocked != null) return blocked;
+
     _actionInProgress = true;
     notifyListeners();
 
@@ -182,6 +196,17 @@ class ReturnBatchProvider with ChangeNotifier {
     final batchId = _activeBatchId;
     if (batchId == null || _actionInProgress || !isOnline) return;
     await loadReturnTrip(batchId);
+  }
+
+  Future<String?> _ensureOnlineForMutation() async {
+    final networkGuard = _networkGuard;
+    if (networkGuard == null) return null;
+    final guard = await networkGuard.check();
+    if (guard.isOnline) return null;
+    final message = guard.message ?? NetworkActionGuard.actionBlockedMessage;
+    _errorMessage = message;
+    notifyListeners();
+    return message;
   }
 
   void clearActiveBatch() {
