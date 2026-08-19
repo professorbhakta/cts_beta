@@ -172,6 +172,10 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     return ListView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, fabPadding),
       children: [
+        D2dConnectionLostBanner(
+          provider: provider,
+          batchId: widget.batchId,
+        ),
         D2dTripHeader(
           title: 'Live Commuter Log',
           subtitle: 'Batch #${widget.batchId}',

@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-19 22:45 IST
-> **Session:** P1 Truth Contract done
+> **Updated:** 2026-08-19 23:35 IST
+> **Session:** P3 lifecycle resilience done
 
 # Project Todo & Progress
 

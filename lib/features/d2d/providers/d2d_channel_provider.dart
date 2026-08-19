@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cts/app/session_invalidation.dart';
+import 'package:cts/core/lifecycle/app_lifecycle_phase.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -34,6 +35,10 @@ class D2dChannelProvider with ChangeNotifier {
       'This trip has already ended. A new trip can be started tomorrow.';
   static const String _unauthorizedMessage =
       'You are not allowed to join this live trip. Please sign in again.';
+  static const String _connectionLostMessage =
+      'Live connection lost. Reconnecting…';
+  static const String _offlineMessage =
+      'No network connection. Live updates will resume when you are back online.';
 
   final DriverRepository _driverRepository;
   final D2dRepository _d2dRepository;
@@ -47,6 +52,9 @@ class D2dChannelProvider with ChangeNotifier {
   bool _isAscending = true;
   bool _isConnected = false;
   bool _isDisposed = false;
+  bool _lifecyclePaused = false;
+  bool _connectionLost = false;
+  String? _connectedBatchId;
 
   ViewState _state = ViewState.idle;
   String? _errorMessage;
@@ -62,6 +70,14 @@ class D2dChannelProvider with ChangeNotifier {
   DriverModel? get driver => _driver;
   List<D2dCommuterModel> get commuters => _commuters;
   bool get isAscending => _isAscending;
+  bool get connectionLost => _connectionLost;
+  String? get connectedBatchId => _connectedBatchId;
+
+  /// Binds an active batch for lifecycle resume tests without opening a socket.
+  @visibleForTesting
+  void bindActiveBatchForLifecycle(String batchId) {
+    _connectedBatchId = batchId;
+  }
 
   String? get driverMobile {
     final mobile = _driver?.userId?.mobileNumber?.trim();
@@ -98,6 +114,8 @@ class D2dChannelProvider with ChangeNotifier {
   void connect(String batchId) {
     disconnect(notify: false);
 
+    _connectedBatchId = batchId;
+    _connectionLost = false;
     _state = ViewState.loading;
     _errorMessage = null;
     _actionErrorMessage = null;
@@ -148,10 +166,10 @@ class D2dChannelProvider with ChangeNotifier {
           if (kDebugMode) {
             debugPrint('D2D: WebSocket error: $error');
           }
-          _state = ViewState.error;
-          _errorMessage =
-              'Live connection failed. Please check your internet and try again.';
-          _safeNotifyListeners();
+          _handleUnexpectedDisconnect(
+            message:
+                'Live connection failed. Please check your internet and try again.',
+          );
         },
         onDone: () {
           if (!_isConnected || _isDisposed) return;
@@ -166,11 +184,7 @@ class D2dChannelProvider with ChangeNotifier {
           if (kDebugMode) {
             debugPrint('D2D: WebSocket connection closed');
           }
-          _isConnected = false;
-          _channel = null;
-          _subscription = null;
-          _state = ViewState.idle;
-          _safeNotifyListeners();
+          _handleUnexpectedDisconnect();
         },
       );
 
@@ -225,6 +239,74 @@ class D2dChannelProvider with ChangeNotifier {
 
   void _handleTripEndedClose() {
     _markTripEnded();
+  }
+
+  void _handleUnexpectedDisconnect({String? message}) {
+    if (_tripEnded || _isDisposed) return;
+
+    _isConnected = false;
+    _subscription?.cancel();
+    _subscription = null;
+    _channel = null;
+    _connectionLost = true;
+
+    if (_commuters.isNotEmpty) {
+      _state = ViewState.success;
+      _errorMessage = message ?? _connectionLostMessage;
+    } else {
+      _state = ViewState.error;
+      _errorMessage = message ?? _connectionLostMessage;
+    }
+    _safeNotifyListeners();
+
+    if (!_lifecyclePaused && _connectedBatchId != null) {
+      unawaited(_reconnectAfterDrop(_connectedBatchId!));
+    }
+  }
+
+  /// Called when the OS moves the app to background or foreground.
+  void onLifecyclePhase(AppLifecyclePhase phase) {
+    _lifecyclePaused = isBackgroundPhase(phase);
+  }
+
+  /// Refreshes live state after resume from background / sleep-wake.
+  Future<void> onAppResumed({required bool isOnline}) async {
+    final batchId = _connectedBatchId;
+    if (batchId == null || _isDisposed || _tripEnded) return;
+
+    if (!isOnline) {
+      _connectionLost = true;
+      if (_commuters.isNotEmpty) {
+        _state = ViewState.success;
+      } else {
+        _state = ViewState.error;
+      }
+      _errorMessage = _offlineMessage;
+      _safeNotifyListeners();
+      return;
+    }
+
+    await fetchTripStatus(batchId);
+    if (_isDisposed || _tripEnded) return;
+
+    if (!_isConnected || _connectionLost) {
+      await _reconnectAfterDrop(batchId);
+    }
+  }
+
+  Future<void> _reconnectAfterDrop(String batchId) async {
+    if (_isDisposed || _tripEnded) return;
+    if (_isConnected && _channel != null) return;
+
+    _connectionLost = false;
+    _errorMessage = null;
+    if (_commuters.isEmpty) {
+      _state = ViewState.loading;
+    }
+    _safeNotifyListeners();
+
+    final generation = ++_connectGeneration;
+    await _openSocket(batchId, generation);
   }
 
   void _markTripEnded() {
@@ -290,6 +372,9 @@ class D2dChannelProvider with ChangeNotifier {
         _markTripEnded();
         return;
       }
+
+      _connectionLost = false;
+      _errorMessage = null;
 
       if (resultMap['driver'] is Map) {
         try {
@@ -458,7 +543,7 @@ class D2dChannelProvider with ChangeNotifier {
   void disconnect({bool notify = true}) {
     _connectGeneration++;
     if (!_isConnected && _channel == null && _subscription == null) {
-      return;
+      if (_connectedBatchId == null) return;
     }
 
     if (kDebugMode) {
@@ -479,6 +564,8 @@ class D2dChannelProvider with ChangeNotifier {
     _commuters = [];
     _driver = null;
     _actionErrorMessage = null;
+    _connectionLost = false;
+    _connectedBatchId = null;
     _state = ViewState.idle;
 
     if (notify) {
@@ -515,7 +602,9 @@ class D2dChannelProvider with ChangeNotifier {
     if (!_isConnected || _channel == null) {
       _actionErrorMessage = _tripEnded
           ? _tripEndedMessage
-          : 'Live channel is not connected.';
+          : _connectionLost
+              ? _connectionLostMessage
+              : 'Live channel is not connected.';
       _safeNotifyListeners();
       return false;
     }

@@ -144,6 +144,10 @@ class _D2dChannelState extends State<D2dChannel> {
               ListView(
                 padding: EdgeInsets.fromLTRB(0, 8, 0, fabPadding + 72),
                 children: [
+              D2dConnectionLostBanner(
+                provider: provider,
+                batchId: widget.batchId,
+              ),
               D2dTripHeader(
                 title: 'Currently Running',
                 subtitle: driverName != null && driverName.isNotEmpty

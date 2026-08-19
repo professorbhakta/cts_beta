@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/services.dart';
 
 /// Wraps connectivity checks and exposes a simple online/offline stream.
 ///
@@ -22,8 +23,11 @@ class ConnectivityService {
 
   Future<bool> get isOnline async {
     if (_lastOnline != null) return _lastOnline!;
-    return _refresh();
+    return refreshOnlineStatus();
   }
+
+  /// Forces a fresh connectivity probe (e.g. after sleep/wake or app resume).
+  Future<bool> refreshOnlineStatus() async => _refresh();
 
   void startListening() {
     if (_subscription != null) return;
@@ -44,10 +48,14 @@ class ConnectivityService {
   }
 
   Future<bool> _refresh() async {
-    final results = await _connectivity.checkConnectivity();
-    final online = _hasConnection(results);
-    _lastOnline = online;
-    return online;
+    try {
+      final results = await _connectivity.checkConnectivity();
+      final online = _hasConnection(results);
+      _lastOnline = online;
+      return online;
+    } on MissingPluginException {
+      return _lastOnline ?? true;
+    }
   }
 
   bool _hasConnection(List<ConnectivityResult> results) {

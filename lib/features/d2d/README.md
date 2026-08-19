@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-08-19 23:15 IST
-> **Session:** P2 — WS 4401/4403 triggers session invalidation
+> **Updated:** 2026-08-19 23:35 IST
+> **Session:** P3 lifecycle resilience — reconnect on resume
 
 # D2D Feature — Live WebSocket
 
@@ -33,6 +33,8 @@ _channel = IOWebSocketChannel.connect(uri, headers: {HttpHeaders.cookieHeader: c
 ```
 
 Both screens call `provider.connect(batchId)` in `initState` and `disconnect()` on dispose.
+
+**Lifecycle (P3):** `AppLifecycleHost` observes OS foreground/background. On resume after background: session reconcile, running batches refresh, D2D reconnect if socket dropped (keeps stale list + `D2dConnectionLostBanner` until fresh WS frame). Android may kill the process; iOS may suspend with a dead socket — both recover on resume. Explicit leave/back still only `disconnect()` (not STOP).
 
 **Disconnect ≠ STOP.** Leaving the screen (back, Close channel, `dispose`) only closes the WebSocket. The `DTODLOG` row stays `isActive=true` until the driver **STOP TRIP** FAB sends `{ACTION: STOP}`.
 

@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-19 23:25 IST
-> **Session:** P2 Security Boundary pushed
+> **Updated:** 2026-08-19 23:35 IST
+> **Session:** P3 lifecycle resilience
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-19 23:25 IST | P2 pushed; device verify pass |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-19 23:25 IST | P2 |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-19 23:25 IST | Next P3 lifecycle |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-19 23:25 IST | P2 done |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-19 23:35 IST | P3 lifecycle done |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-19 23:35 IST | P3 |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-19 23:35 IST | Next P4 |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-19 23:35 IST | P3 done |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
@@ -38,9 +38,9 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 | [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-19 23:25 IST | P2 security + truth contract |
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-19 23:25 IST | Session refresh + 401/4401 |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-19 23:25 IST | P2 auth tests done |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:25 IST | WS 4401/4403 sign-in |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-19 23:25 IST | ApiResponseContract on POST actions |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-08-19 23:35 IST | P3 lifecycle tests |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:35 IST | P3 reconnect on resume |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-19 23:35 IST | P3 resume refresh |
 | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
 

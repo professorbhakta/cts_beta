@@ -178,6 +178,12 @@ class ReturnBatchProvider with ChangeNotifier {
     return result.data;
   }
 
+  Future<void> onAppResumed({required bool isOnline}) async {
+    final batchId = _activeBatchId;
+    if (batchId == null || _actionInProgress || !isOnline) return;
+    await loadReturnTrip(batchId);
+  }
+
   void clearActiveBatch() {
     _activeBatchId = null;
     _homeCommuters = [];

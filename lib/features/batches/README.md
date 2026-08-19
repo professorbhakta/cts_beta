@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-19 22:45 IST
-> **Session:** P1 Truth Contract on POST actions
+> **Updated:** 2026-08-19 23:35 IST
+> **Session:** P3 — resume refresh via AppLifecycleHost (screen observer removed)
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -38,7 +38,9 @@ Feature owner for batch management, running batches, and evening return trips (R
 | `/runningBatchScreen` | `RunningBatchScreen` — morning live DTODLOG snapshot only |
 | `/driverReturnCommuter/:batchId` | Driver return list (confirm/remove; no End) |
 
-**Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, app resume, return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
+**Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, **app resume** (via `AppLifecycleHost`), return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
+
+**Return batch resume:** `ReturnBatchProvider.onAppResumed()` reloads the active trip when online; skipped while `actionInProgress` to protect in-flight confirm/remove/end.
 
 Entry: Admin home or batch screen → Return Batches.
 

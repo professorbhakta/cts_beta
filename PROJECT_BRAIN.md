@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-19 23:25 IST
-> **Session:** P2 pushed — device verify pass; lab connectivity confirmed
+> **Updated:** 2026-08-19 23:35 IST
+> **Session:** P3 lifecycle resilience
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -25,7 +25,8 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - **Routing:** go_router with role-protected redirects
 - **Layout:** module-based per [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) — `screens/`, `providers/`, `models/`, `repositories/` inside each feature
 - **No re-export stubs** — one canonical path per file
-- **Quality:** `flutter analyze`, `flutter pub get`, test on iOS + Android after code changes
+- **Quality:** `flutter analyze`, `flutter pub get`, `flutter test` after code changes
+- **Pre-push device smoke (required):** both lab devices — emulator admin + phone driver — manual login via `flutter run`; see [docs/TESTING.md](docs/TESTING.md) § Pre-push gate. Unit tests alone are not enough before `git push`.
 - **End-of-session doc sync** via [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) + [DOC_REGISTRY.md](DOC_REGISTRY.md)
 
 ---
@@ -54,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P2 done.** Backend `POST /user/` rejects privileged `userType` without admin auth; `PATCH` role changes admin-only. Flutter validates session role on startup (`refreshSessionFromServer`), unified 401/4401 → snackbar + `/signIn`, extracted `resolveAuthRedirect` + 13 auth tests. 46 tests pass.
+**P3 done.** `AppLifecycleCoordinator` + `AppLifecycleHost` handle foreground/background/resume app-wide. On resume: connectivity refresh, session reconcile, running batches refresh, D2D WS reconnect + connection-lost banner, return batch reload (skips in-flight). 59 tests pass.
 
-**Next:** P3 lifecycle resilience or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** P4 channel role governance or commuter POST intent + cutoff/no-show release. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -74,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** P2 Security Boundary — backend role elevation guards (`cts-docker` `user_servcies/views.py` + `test_user_security.py`); Flutter `refreshSessionFromServer`, `createSessionInvalidatedHandler`, `auth_redirect.dart`, D2D 4401/4403 triggers sign-in; 46 flutter tests.
+**Code this session:** P3 Lifecycle — `lib/core/lifecycle/`, `app_lifecycle_host.dart`, D2D reconnect/resume, `D2dConnectionLostBanner`, return batch resume guard, 13 lifecycle tests.
 
-**Lab connectivity (2026-08-19 23:25 IST — verified):** Both devices online. Manual device verify **PASS**: emulator admin → Dashboard; phone driver → driver home; no errors. Docker + REST login OK at `192.168.1.6`. Unit gate **46/46**. Branch `p2-security-boundary` pushed after verify. Device smoke: `flutter run -d <id>` (skip slow `integration_test` first build).
+**Lab connectivity (2026-08-19 23:40 IST):** Both devices online. Emulator smoke **PASS** — app launches, API/WS URLs load, no crash. Unit gate **59/59**. Branch `p3-lifecycle-resilience` ready to push.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -117,11 +118,11 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - Return allocation M7 — `validate_add_commuter()` enforces R2–R5 on POST add_commuter. Flutter error surfacing + overflow disable.
 - P1 Truth Contract — `ApiResponseContract`; C1 fixed (200+status:error → failure); 33 flutter tests
 - P2 Security Boundary — backend POST/PATCH userType gates; Flutter session role refresh + fail-secure 401/4401 redirect; 46 flutter tests
+- P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
 - Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
-- P3 lifecycle resilience (foreground/background/resume)
 - Batch-08 still LIVE; lab leftovers from manual QA
 - Remaining Application High: A1 Track Cab vehicle, A6–A9
 - Expand automated tests (P1 added contract + return batch repo tests)
@@ -143,7 +144,8 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Area | Path |
 |------|------|
-| App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart` |
+| App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart`, `lib/app/app_lifecycle_host.dart` |
+| Lifecycle | `lib/core/lifecycle/` — foreground/background/resume coordinator |
 | Router | `lib/app/router/app_router.dart` |
 | Network | `lib/api/` (canonical Dio client; not `core/network/`) |
 | API constants | `lib/api/api_list.dart` |
@@ -171,6 +173,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
 | 2026-08-19 | P2 push + device verify | Manual login pass both devices; branch pushed. Next: P3 |
 | 2026-08-19 | P2 Security Boundary | Backend userType gates; session refresh; 401/4401 redirect; 46 tests. Next: P3 |
 | 2026-08-19 | P1 Truth Contract | ApiResponseContract; C1 fixed; 33 tests. Next: P2 or commuter intent |

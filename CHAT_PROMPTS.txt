@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-19 23:25 IST
-> **Session:** P2 done. Next P3 lifecycle.
+> **Updated:** 2026-08-19 23:40 IST
+> **Session:** Pre-push device smoke in END PROMPT
 
 ================================================================================
 QUICK START (minimal)
@@ -82,4 +82,22 @@ End-of-session doc sync. Do not duplicate long specs into PROJECT_BRAIN.
 
 6. Reply with:
    - Summary of what was done
+   - Device smoke checklist (emulator + phone pass/fail) if branch was pushed
    - Suggested next START PROMPT (filled shell ready to copy)
+
+================================================================================
+PRE-PUSH GATE (required before git push — every P session)
+================================================================================
+
+Do NOT push until ALL of:
+  flutter pub get && flutter analyze && flutter test   (pass)
+  flutter devices   (emulator-5554 + phone 5f36af49 when available)
+  Manual smoke on BOTH devices (flutter run + login):
+    - emulator: admin 7069036462 / password → Dashboard
+    - phone:    driver 9876544111 / password → driver home
+  Doc sync (PROJECT_BRAIN §5/§6/§9, DOC_REGISTRY, PROJECT_TODOS if changed)
+
+If Gradle build is too slow for agent: user runs flutter run + login on both
+devices; agent records pass/fail and only then runs git push.
+
+See docs/TESTING.md § Pre-push gate · SENIOR_REVIEW §11.4 GOLDEN RULE.

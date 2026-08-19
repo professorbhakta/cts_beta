@@ -6,6 +6,61 @@ import 'package:cts/widgets/modern_list_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
+/// Shown when the WebSocket dropped but stale rider data is still visible.
+class D2dConnectionLostBanner extends StatelessWidget {
+  const D2dConnectionLostBanner({
+    super.key,
+    required this.provider,
+    required this.batchId,
+  });
+
+  final D2dChannelProvider provider;
+  final String batchId;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!provider.connectionLost || provider.isTripEnded) {
+      return const SizedBox.shrink();
+    }
+
+    final theme = Theme.of(context);
+    final message = provider.errorMessage ?? 'Live connection lost. Reconnecting…';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: theme.colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                Icons.cloud_off_rounded,
+                color: theme.colorScheme.onErrorContainer,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  message,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => provider.connect(batchId),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class D2dTripHeader extends StatelessWidget {
   const D2dTripHeader({
     super.key,

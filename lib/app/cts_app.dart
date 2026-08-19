@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cts/app/app_lifecycle_host.dart';
 import 'package:cts/app/app_providers.dart';
 import 'package:cts/app/router/app_router.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
@@ -61,15 +62,17 @@ class _CtsAppState extends State<CtsApp> {
         sessionAuthNotifier: widget.sessionAuthNotifier,
         onSessionInvalidated: widget.onSessionInvalidated,
       ),
-      child: MaterialApp.router(
-        title: 'CTS',
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
-        scaffoldMessengerKey: SnackBarService.scaffoldMessengerKey,
-        debugShowCheckedModeBanner: false,
-        routerConfig: _router,
-        builder: EasyLoading.init(),
+      child: AppLifecycleHost(
+        child: MaterialApp.router(
+          title: 'CTS',
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: ThemeMode.system,
+          scaffoldMessengerKey: SnackBarService.scaffoldMessengerKey,
+          debugShowCheckedModeBanner: false,
+          routerConfig: _router,
+          builder: EasyLoading.init(),
+        ),
       ),
     );
   }
