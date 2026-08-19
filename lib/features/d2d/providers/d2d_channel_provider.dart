@@ -13,6 +13,12 @@ import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+/// STOP snapshot from the live group: `{ "isActive": false }` (snake_case allowed).
+bool d2dResultMarksTripEnded(Map<String, dynamic> result) {
+  final active = result['isActive'] ?? result['is_active'];
+  return active == false;
+}
+
 class D2dChannelProvider with ChangeNotifier {
   D2dChannelProvider(this._driverRepository, this._d2dRepository);
 
@@ -143,8 +149,8 @@ class D2dChannelProvider with ChangeNotifier {
         },
         onDone: () {
           if (!_isConnected || _isDisposed) return;
-          if (_isEndedTripClose(null)) {
-            _handleTripEndedClose();
+          if (_tripEnded || _isEndedTripClose(null)) {
+            _markTripEnded();
             return;
           }
           if (_isAuthClose(null)) {
@@ -207,17 +213,36 @@ class D2dChannelProvider with ChangeNotifier {
   }
 
   void _handleTripEndedClose() {
-    if (!_isConnected || _isDisposed) return;
+    _markTripEnded();
+  }
+
+  void _markTripEnded() {
+    if (_isDisposed) return;
+    if (_tripEnded && _state == ViewState.error) {
+      _isConnected = false;
+      return;
+    }
 
     if (kDebugMode) {
-      debugPrint('D2D: Trip already ended (close code $_endedTripCloseCode)');
+      debugPrint(
+        'D2D: Trip already ended (close code ${_channel?.closeCode})',
+      );
     }
 
     _isConnected = false;
     _subscription?.cancel();
     _subscription = null;
+    try {
+      _channel?.sink.close();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('D2D: Error closing ended-trip socket: $e');
+      }
+    }
     _channel = null;
+    _commuters = [];
     _tripEnded = true;
+    _tripStatus = D2dTripStatus.ended;
     _state = ViewState.error;
     _errorMessage = _tripEndedMessage;
     _safeNotifyListeners();
@@ -249,6 +274,11 @@ class D2dChannelProvider with ChangeNotifier {
       _actionErrorMessage = null;
 
       final resultMap = Map<String, dynamic>.from(result);
+
+      if (d2dResultMarksTripEnded(resultMap)) {
+        _markTripEnded();
+        return;
+      }
 
       if (resultMap['driver'] is Map) {
         try {

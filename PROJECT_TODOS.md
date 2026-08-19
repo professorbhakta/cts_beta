@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Driver return ADD done; R5 STOP flush still open
+> **Updated:** 2026-08-19 18:25 IST
+> **Session:** M4 done; next M7 add_commuter
 
 # Project Todo & Progress
 
@@ -50,7 +50,10 @@
 9. [x] Phase 7: migrate **batches** (running + return)
 10. [x] Pending-sync badge in admin drawer
 11. [x] Phase 8 polish (admin_home, d2d, profile) — architecture freeze + structure/UX; then Phase 9–10
-12. [x] APK validation pass: analyze/test clean; Gradle assembleDebug SUCCESS; emulator smoke deferred (emulator stayed offline)
+12. [x] APK validation pass: analyze/test clean; Gradle assembleDebug SUCCESS
+12b. [x] 2-device QA 2026-08-17: other-batch D2D ADD, STOP ended UI, driver 4001, return 5 other-batch, UG4 coming. [docs/TESTING.md](docs/TESTING.md)
+12c. [x] Admin D2D STOP: `isActive: false` → `isTripEnded` + refresh running batches; STOP FAB hidden; Django group close **4001** (no `disconnect(0)`); send on closed socket is swallowed
+12d. [ ] Lab leftovers: Batch-08 still LIVE; optional admin End return (Batch-01 has 5 confirmed); STOP may not clear `isComing` for other-batch D2D ADD
 
 ### Application wave (bug audit A2–A4 + ride-alongs)
 13. [x] Slice 1 (A2): batch commuter swipe-edit and route edit/delete pass the model, not the sorted index
@@ -64,6 +67,12 @@
 21. [x] Admin Coming switch persists (`ComingTodaySwitch` + PATCH `{status, isComing}`)
 22. [x] Admin D2D ADD: user-ID lookup + no optimistic toast / no WS crash
 23. [x] Driver return ADD: confirm/remove; org-wide available pool; hide confirmed
+24. [x] Return allocation M1+M2 (`cts-docker`): CList attendance read + pure allocator; views not wired
+24b. [x] Adapter `return_pool.py`; STOP-gated CList; extras named overflow_remaining; fail closed; TestCase DB
+25. [x] Return allocation M3: merge `status_pool_extras()` into GET status (keep remaining_capacity). Not M7.
+25b. [x] Flutter parse status extras on picker + return banner; Seats left still remaining_capacity
+26. [x] Return allocation M4 GET view split lists + Flutter Available Home/Overflow
+26b. [ ] Return allocation M7 enforce add_commuter (R2–R5)
 
 ### Open backlog — API / networking
 
@@ -75,12 +84,13 @@
 
 ### Open backlog — manual QA checklist
 
-- [ ] Admin: running batches after driver WS connect
-- [ ] Admin: D2D channel + add sheet
-- [ ] Driver: connect, pickup, STOP
-- [ ] Driver/admin: reconnect after STOP → ended message
-- [ ] Admin: return batch confirm / remove / end
-- [ ] Commuter: isComing toggle affects **morning** D2D pool (evening return is not gated on isComing)
+- [x] Admin: running batches after driver WS connect *(LIVE Batch-01 while trip active; empty after STOP + pull-to-refresh)*
+- [x] Admin: D2D channel + add sheet *(2026-08-17: PG10/UG2/UG4 other-batch via search)*
+- [x] Driver: connect, pickup, STOP *(2026-08-17: reconnect live, STOP finalized, 4001)*
+- [x] Driver/admin: reconnect after STOP → ended message *(admin on-channel + driver 4001 2026-08-17)*
+- [x] Admin: return batch confirm / remove / end *(confirm/remove yes; End skipped — 5 confirmed tonight)*
+- [x] Driver: RETURN LIST confirm/remove; no End FAB *(UG3/UG5/PG2/UG10/UG4 → 5/53)*
+- [x] Commuter: isComing toggle *(UG4 PATCH + pull-to-refresh → COMING; Switch adb tap missed)*
 
 ## APK validation notes (2026-07-17)
 - Fixed: deprecated `encryptedSharedPreferences` in `session_manager.dart`

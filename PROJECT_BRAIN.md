@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Driver return ADD — any-batch pool, hide confirmed
+> **Updated:** 2026-08-19 18:25 IST
+> **Session:** M4 view split + Flutter Available Home/Overflow. Next M7 add_commuter
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -48,12 +48,35 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 | **New UI** | @docs/FLOWS_BY_ROLE.md @docs/UI_ARCHITECTURE.md @docs/FEATURES.md @docs/LIB_STRUCTURE.md |
 | **Backend** | @docs/API_CONTRACTS.md @docs/LOCAL_DEV.md @docs/backend/README.md |
 | **Offline** | @docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md |
+| **Return allocation** | @docs/next-plan/return-trip-allocation-roadmap.txt @docs/backend/README.md @docs/API_CONTRACTS.md |
 
 ---
 
 ## 5. Current focus
 
-**Idle after driver return ADD (2026-08-14):** Driver can confirm/remove on `/driverReturnCommuter` (End remains admin). Evening available pool is all org commuters except anyone already confirmed today (any batch; not gated on `isComing`). Django restarted; `test_return_batch_fixes.py` 14/14. Next: remaining Application High (A1, A6–A9) or R4/R5 STOP flush.
+**Paused after M4.** GET `view/<id>` returns `home[]` then `overflow[]`. Flutter Available tab has Home then Overflow. Old APK cannot stay on view/ — hot-restart / new install required. Full device UAT deferred.
+
+**Next: M7** — enforce `POST add_commuter` (not on CList; already allocated; overflow while remaining==0; later-return R4). Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP.
+
+Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
+
+Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036462`; `.env` LAN `192.168.1.6`. Do not wipe Parul `9898927941`.
+
+| Device | Last role | Login |
+|--------|-----------|--------|
+| `emulator-5554` | Admin | `7069036462` / `password` |
+| Phone `5f36af49` | User logging in as Driver 1 | Driver 1 **`9876544111`** (not 4114). Was UG4. |
+
+| State | Detail |
+|-------|--------|
+| Batch-01 morning | **Ended** (`GET /d2d/get_d2d_log_status/4` → ended). Same-day START = **4001** |
+| Batch-01 return | **5 confirmed:** UG3, UG4, UG5, UG10, PG2. End not run |
+| Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
+| `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
+
+**Code this session:** M4 GET view `home[]`/`overflow[]` via `return_pool.view_pool_lists` (walk-up overflow = later returnTime). Flutter `ReturnAvailableResult` + Available tab sections. `add_commuter` / STOP / status extras unchanged. Seats left still `remaining_capacity`.
+
+**Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
 ---
 
@@ -67,7 +90,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - Flutter WS action error handling — SnackBar on admin + driver
 - Return batch backend R1–R6 + Flutter (tabs, confirm/remove/end)
 - Driver return screen — confirm/remove on `/driverReturnCommuter/:batchId` (End admin-only)
-- Backend hardening — `test_d2d_fixes.py` (10/10, includes anonymous WS 4401), `test_return_batch_fixes.py` (10/10)
+- Backend hardening — `test_d2d_fixes.py` (**11/11**, includes anonymous WS 4401 + STOP close 4001), `test_return_batch_fixes.py` (10/10)
 - Flutter UX polish — driver log badge, swipe labels, return cards
 - Phase 7 batches migration; go_router; Provider retained; `flutter analyze` clean
 - Phase 8 polish — admin home partial-load UX, D2D status via `D2dRepository`, ProfileProvider + logout confirm
@@ -82,14 +105,23 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - Admin Coming switch actually persists — switch outside InkWell/Slidable; PATCH `{isComing}` by user ID; Django returns `{status, isComing}`
 - Admin D2D ADD — lookup by user ID (not batch-only); Http404 no longer drops the socket; success toast after live list updates
 - Driver return ADD — confirm/remove via REST; available = org commuters not confirmed today; End FAB still admin-only
+- 2-device QA lab online (phone `5f36af49` + Pixel_10_Pro); off-screen window + 0.25 scale for 1536×816 laptop documented in LOCAL_DEV
+- Dummy org bulk-loaded (admin `7069036462`; dump org untouched)
+- Admin on-channel STOP (2026-08-17 code): `isActive: false` → `isTripEnded`; running batches refresh; STOP FAB hidden; Django group close **4001**
+- Return allocation adapter — `return_pool.py`; STOP-gated CList; extras `home_hold` / `overflow_confirmed` / `overflow_remaining`; fail closed omits extras
+- Return allocation M3 — GET status merges those extras; `remaining_capacity` / `available_count` unchanged; `get_commuter` unchanged
+- Flutter M3 — picker + return banner show Home hold / Overflow in / Overflow open when extras present; Seats left still empty-cab seats
+- Return allocation M4 — GET view `home[]` / `overflow[]`; Flutter Available Home then Overflow. Empty if no CList. Not M7.
 
 ### Open backlog (from PROJECT_TODOS)
 
-- Remaining Application High: A1 Track Cab vehicle, A6–A9
+- Return allocation M7 `add_commuter` rejects (R2–R5). View split and status extras already shipped.
+- Batch-08 still LIVE; STOP `isComing` for other-batch ADD; admin End return skipped (5 confirmed tonight)
+- Remaining Application High: A1 Track Cab vehicle, A6–A9 (plus A11/A12 from bug audit)
 - Deferred Reliability: R4 logout reset, R5 STOP flush
 - Backend `POST /user/` still trusts client `userType`
-- Phase 9: promote `offline_temp` entity coverage
-- Phase C–E restructure: delete re-export stubs, naming, offline merge
+- Phase 9 / E: promote or isolate `offline_temp` (separate from High leftovers)
+- Phase C–D: `appManager` → `app/services`; rename `*_controller.dart` (widgets + `lib/api/` already canonical)
 - Admin CRUD placeholder screens / TODOs
 - Expand automated tests
 - REST d2d view permissions still open in dev
@@ -108,7 +140,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 |------|------|
 | App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart` |
 | Router | `lib/app/router/app_router.dart` |
-| Network | `lib/core/network/` |
+| Network | `lib/api/` (canonical Dio client; not `core/network/`) |
 | API constants | `lib/api/api_list.dart` |
 | Config | `AppConfig` in `lib/appManager/app_class.dart` |
 | D2D live | `lib/features/d2d/` |
@@ -133,9 +165,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-14 | Driver return ADD | Driver confirm/remove; pool is any org commuter; confirmed IDs hidden from all return available lists |
-| 2026-08-14 | Doc sync | Coming switch, STOP vs disconnect/4001, D2D ADD user-ID lookup written into owners |
-| 2026-08-14 | Admin D2D ADD | Sheet listed all commuters; WS ADD 404-crashed. Lookup by user ID; toast only if list updates |
+| 2026-08-19 | M4 view split | GET view home/overflow + Flutter Available sections. Hot-restart required. Next **M7** add_commuter. Full UAT later |
+| 2026-08-19 | Wrap M3 | Status extras on GET + Flutter picker/banner. Seats left = remaining_capacity |
+| 2026-08-19 | Wrap return allocation | Adapter ready, views unwired. Plan: `docs/next-plan/` |
 
 ---
 

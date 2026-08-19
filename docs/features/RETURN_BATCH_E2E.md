@@ -1,6 +1,6 @@
 > **Doc:** docs/features/RETURN_BATCH_E2E.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Driver confirm/remove; any-batch available pool
+> **Updated:** 2026-08-19 18:25 IST
+> **Session:** M4 Available Home/Overflow; view/ split
 
 # Evening Return Trip (End-to-End)
 
@@ -12,7 +12,7 @@ Full-stack flow for return batch — REST + Redis, **not** WebSocket.
 
 ## Participants
 
-- **Commuter** — appears in every org return batch until confirmed
+- **Commuter** — appears on Home if this is their batch and they are on today's CList; Overflow if their home return is later
 - **Admin** — confirms return seats (capacity-limited); ends trip
 - **Driver** — confirm/remove on `/driverReturnCommuter/:batchId` (no End)
 - **Backend** — Redis set + REST under `/d2d/return_batch/`
@@ -25,8 +25,8 @@ Every evening endpoint is called from `ReturnBatchRepositoryImpl`. Contract: [..
 
 | Call | When |
 |------|------|
-| `GET …/status/<id>` | Batch picker cards |
-| `GET …/view/<id>` | Available tab (org commuters not confirmed today) |
+| `GET …/status/<id>` | Batch picker cards — Available, Seats left (`remaining_capacity`), Confirmed; optional Home hold / Overflow in / Overflow open |
+| `GET …/view/<id>` | Available tab — `home[]` then `overflow[]` |
 | `GET …/get_commuter/<id>` | Confirmed tab (default hydrate; no query param) |
 | `POST …/add_commuter` `{ batch_id, commuter_id }` | Admin or driver Confirm (`commuter_id` = user id, any batch) |
 | `POST …/remove_commuter` same body | Admin or driver Remove |

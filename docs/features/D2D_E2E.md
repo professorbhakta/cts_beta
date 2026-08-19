@@ -1,6 +1,6 @@
 > **Doc:** docs/features/D2D_E2E.md
-> **Updated:** 2026-08-14 21:55 IST
-> **Session:** Doc sync — DTODLOG on connect; ADD by user ID; STOP vs DC
+> **Updated:** 2026-08-17 22:15 IST
+> **Session:** Wrap — 2-device STOP UX verified
 
 # Morning D2D Trip (End-to-End)
 
@@ -72,8 +72,9 @@ All mutations broadcast `{"result": DS}` to group.
 |------|-------|---------|----------|
 | STOP | Driver | ACTION STOP | STOP TRIP FAB |
 | Finalize log | Backend | isActive=False, endTime, CList → isComing=False | — |
+| Broadcast + close | Backend | `{isActive: false, data: []}` then close **4001** | Admin `isTripEnded` + refresh running list |
 | Clear live state | Backend | `delete_live_state()` | disconnect |
-| Reconnect same day | Backend | Close **4001** | "Trip already ended", no retry |
+| Reconnect same day | Backend | Close **4001** | "Trip already ended", no retry; STOP FAB hidden |
 
 ---
 

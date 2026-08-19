@@ -1,5 +1,5 @@
 > **Doc:** docs/LIB_STRUCTURE.md
-> **Updated:** 2026-08-14 22:00 IST
+> **Updated:** 2026-08-19 17:55 IST
 > **Session:** Verified unchanged
 
 # Library structure (human-friendly)
@@ -167,6 +167,8 @@ Update imports + barrel `index.dart` files. Order: `auth` → `splash` → CRUD 
 2. Move `appManager/*` → `app/services/` (keep thin re-exports temporarily if needed).
 3. Move `core/network/*` implementation under `api/` OR document `api/` as the public import path.
 4. Delete stub folders: legacy `screens/`, `controllers/`, duplicate `data/repositories/` exports.
+
+**As of 2026-08-15:** (1) and (3) are done in code — canonical UI is `lib/widgets/`, HTTP is `lib/api/` (there is no `lib/core/network/`). (2) `appManager/` still exists. (4) root `controllers/` is gone; `lib/screens/` is only error + no-internet. High leftovers (A1, A6–A9, R4/R5) are **bugs**, not this restructure. Phase 9 and Phase E are the same offline decision (`offline_temp`).
 
 ### Phase D — Naming cleanup
 

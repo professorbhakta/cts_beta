@@ -5,6 +5,7 @@ import 'package:cts/features/commuters/repositories/commuter_repository.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/loading_indicator.dart';
+import 'package:cts/widgets/search_bar_widget.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,8 @@ import 'package:provider/provider.dart';
 ///
 /// Loads all commuters for the logged-in admin via
 /// `GET user/admin/commuter/{adminCode}` (same as the main Commuters screen).
-class D2dAddCommuterSheet extends StatefulWidget {  const D2dAddCommuterSheet({
+class D2dAddCommuterSheet extends StatefulWidget {
+  const D2dAddCommuterSheet({
     super.key,
     required this.batchId,
     required this.d2dProvider,
@@ -52,6 +54,21 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
   ViewState _state = ViewState.loading;
   String? _errorMessage;
   List<CommuterModel> _commuters = [];
+  String _searchQuery = '';
+
+  List<CommuterModel> get _visibleCommuters {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return _commuters;
+    return _commuters.where((commuter) {
+      final haystack = [
+        commuter.userId?.username,
+        commuter.userId?.mobileNumber,
+        commuter.popId?.pickUpPointName,
+        commuter.batchId?.batchName,
+      ].whereType<String>().join(' ').toLowerCase();
+      return haystack.contains(query);
+    }).toList();
+  }
 
   @override
   void initState() {
@@ -144,7 +161,16 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
-              ),              const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 8),
+              SearchBarWidget(
+                hintText: 'Search name, mobile, batch, or POP...',
+                debounceDuration: const Duration(milliseconds: 200),
+                onSearchChanged: (query) {
+                  setState(() => _searchQuery = query);
+                },
+              ),
+              const SizedBox(height: 8),
               Expanded(
                 child: switch (_state) {
                   ViewState.loading => const LoadingIndicator(),
@@ -158,15 +184,23 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
                       message:
                           'Everyone in this batch is already on the live list.',
                     ),
+                  _ when _visibleCommuters.isEmpty => const StatusMessage(
+                      icon: Icons.search_off,
+                      title: 'No commuters match your search',
+                    ),
                   _ => ListView.separated(
-                      itemCount: _commuters.length,
+                      itemCount: _visibleCommuters.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 8),
                       itemBuilder: (context, index) {
-                        final commuter = _commuters[index];
+                        final commuter = _visibleCommuters[index];
                         final name =
                             commuter.userId?.username ?? 'Unknown commuter';
                         final pop = commuter.popId?.pickUpPointName ??
                             'No pick-up point';
+                        final batch = commuter.batchId?.batchName;
+                        final subtitle = batch == null || batch.isEmpty
+                            ? pop
+                            : '$pop • $batch';
 
                         return ListTile(
                           shape: RoundedRectangleBorder(
@@ -190,7 +224,7 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
                             ),
                           ),
                           title: Text(name),
-                          subtitle: Text(pop),
+                          subtitle: Text(subtitle),
                           trailing: IconButton(
                             tooltip: 'Add to live list',
                             onPressed: () => _addCommuter(commuter),

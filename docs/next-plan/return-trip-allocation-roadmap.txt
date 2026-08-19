@@ -1,0 +1,275 @@
+CTS — Dynamic Return-Trip Allocation Roadmap
+Updated: 2026-08-19 18:25 IST
+Status: M4 DONE. GET view home[] / overflow[] + Flutter Available sections. Not M7.
+
+RESUME (next session)
+  Repo     D:\cts-docker AND D:\cts_beta
+  Do       M7 — POST add_commuter rejects: not on CList; already allocated;
+           overflow while remaining==0; later-return (R4).
+  Do not   Re-parse GET status extras. Do not re-split GET view.
+           Do not change STOP.
+  Verify   Hot-restart / new APK required — old APK cannot parse split view/.
+  Tests    python d2d_log/test_return_allocator.py
+           python manage.py test d2d_log.tests.ReturnAllocatorTests \
+             d2d_log.tests.ReturnAttendanceTests \
+             d2d_log.tests.ReturnPoolAdapterTests \
+             d2d_log.tests.ReturnBatchStatusMergeTests \
+             d2d_log.tests.ReturnBatchViewSplitTests
+           flutter test test/features/batches/return_batch_status_model_test.dart \
+             test/features/batches/return_available_model_test.dart
+  Call     from d2d_log.return_pool import status_pool_extras, view_pool_lists
+           Views must not import return_attendance / return_allocator.
+
+App: D:\cts_beta (Flutter)
+Backend: D:\cts-docker (Django + Redis + Postgres)
+
+Implementation progress
+  M0  Rules frozen (D1 no, D2 yes, D3 later)
+  M1  DONE  return_attendance.py — STOP-gated CList (live trip = not eligible)
+  M2  DONE  return_allocator.py — overflow_remaining (not remaining_capacity)
+  M2b DONE  return_pool.py — views must call this only. Fail closed omits extras.
+  M3  DONE  GET status merges extras; remaining_capacity / available_count kept.
+            Fail closed omits extras. get_commuter / add_commuter unchanged.
+            Flutter picker + banner parse extras (Seats left still remaining_capacity).
+  M4  DONE  GET view returns home[] then overflow[]. Flutter Available tab Home then Overflow.
+            Fail closed empty lists (not org dump). add_commuter / STOP unchanged.
+  JSON      view: home, overflow, home_count, overflow_count (no commuters key)
+  Test      test_return_allocator.py 15/15; Django TestCase includes ReturnBatchViewSplitTests
+  Next      M7 — enforce add_commuter (R2–R5). Not status re-parse.
+
+This file is the plan for n-batch return allocation.
+Do not treat the 2-batch 5:00 / 7:00 story as hardcoded product logic.
+
+
+1. PURPOSE
+----------
+Every day: n morning batches, n matching return departures, n cabs
+(current model: one cab per batch).
+
+Morning: student rides only their home batch.
+Return: student may skip, ride their home return, or take an EARLIER
+return if seats remain after home-batch demand is reserved.
+
+The system must not overbook, must prefer home-batch riders on each
+departure, and must scale to any n.
+
+
+2. WHAT ALREADY EXISTS (REUSE, DO NOT FORK)
+-------------------------------------------
+Morning who-rode     DTODLOG.CList (user IDs) at STOP
+Home batch           commuter.batchId
+Return clock         Batch.end_time (Flutter: returnTime) — display only today
+Return seats         Redis set {dd-mm-yyyy}_{batchId}
+Capacity             cab.capacity; POST add_commuter is atomic; 409 capacity_full
+Return APIs          /d2d/return_batch/ view, status, get_commuter, add, remove, end
+Transport            Morning = WebSocket D2D; evening = REST. Keep that split.
+
+Today’s evening pool is wrong for this feature:
+  GET view lists every org commuter not already confirmed today.
+  It does not use CList, home priority, or earlier-return intent.
+
+
+3. DEFINITIONS (USE THESE WORDS ONLY)
+-------------------------------------
+Home batch          The batch the student is assigned to (preferred timing).
+Departure D         One return trip: batch D’s cab, at D.returnTime, capacity = that cab.
+Home rider on D     Eligible student whose home batch is D.
+Overflow on D       Eligible student whose home returnTime is STRICTLY LATER than D,
+                    and who wants D (request or driver walk-up).
+Eligible today      On this calendar day’s CList (actually boarded this morning).
+Allocated           Confirmed on exactly one return Redis set today.
+Skip                Eligible but not returning today; must not hold a seat.
+
+Overflow is NOT “students from an earlier morning batch.”
+In the example, Batch B (7:00 morning, 4:00 return) is overflow onto
+Batch A’s 2:00 return.
+
+
+4. HARD RULES
+-------------
+R1  Return vehicle size is always cab.capacity.
+    Morning occupancy is NOT the return capacity.
+    Example: A boarded 25 in a 53-seat cab → 2:00 still has 53 seats.
+    The 25 only sets how many HOME seats to reserve on that cab.
+
+R2  No CList today → not eligible for any return seat.
+    Driver/admin add_commuter must reject that (breaking vs today’s any-org add).
+
+R3  One return allocation per student per day.
+    Confirmed on D → cannot also sit on any other return today.
+
+R4  Direction: students may move EARLIER only.
+    Home return 16:00 may request 14:00.
+    Home return 14:00 may NOT take 16:00 unless product later allows
+    “missed home cab” (open decision D1).
+
+R5  Seat math for departure D (recompute on STOP, skip, confirm, remove, cutoff):
+
+      home_hold     = eligible home riders on D who have not skipped
+      remaining     = capacity - home_hold - overflow_confirmed
+                      (equivalently: free seats that overflow may take)
+      overflow may confirm only while remaining > 0
+      overflow must NEVER take a still-held home seat
+
+    Soft-reserve, do not block leftover seats until cutoff:
+      If home_hold=25 and capacity=53, overflow may take up to 28 AT ONCE.
+      Do not wait until T−15 to open those 28.
+
+R6  Skip releases that home seat immediately (remaining goes up now).
+
+R7  Cutoff / no-show only releases UNCONFIRMED home holds.
+    Needed when home_hold + overflow_demand > capacity.
+    Not required for the 25+25 vs 53 example (see section 5).
+
+R8  Sort departures by returnTime, then batch id. Never hardcode A/B.
+    Two batches with the same returnTime are two cabs, not one pool.
+    Overflow requires a STRICTLY later home returnTime.
+
+R9  A student enters the day’s eligible set only after THEIR morning STOP
+    (their user id is on that batch’s CList). Batch B cannot overflow onto
+    A’s return until B has boarded this morning.
+
+R10 Do not reuse isComing as return intent.
+    isComing is morning. Return uses ReturnIntent (skip | home | earlier).
+
+
+5. WORKED EXAMPLE (CHECK THE MATH)
+----------------------------------
+Batch A: morning 05:00, return 14:00, cab 53, CList=25
+Batch B: morning 07:00, return 16:00, cab 53, CList=full (53)
+Assume 25 B students request 14:00. 3 A students no-show at boarding.
+
+Clock 1 — after both morning STOPs, before 14:00 boarding
+  A home_hold     = 25
+  remaining       = 53 - 25 = 28
+  B overflow      = 25  → all 25 fit, 3 seats unused
+  No cutoff needed for B to get in.
+
+Clock 2 — 14:00 boarding, 3 A no-shows (never confirmed)
+  A home boarded  = 22
+  B overflow      = 25
+  Occupied        = 47
+  Empty           = 6
+  Still ≤ 53. No overbook.
+
+When cutoff WOULD matter (do not confuse with the story above):
+  A CList=50, B wants 25, cap=53
+  remaining before cutoff = 3  → only 3 B confirmed
+  After 3 A no-shows, remaining += 3 → 3 more B, total 6 B, 47 A.
+  19 B stay on the 16:00 home cab (or waitlist).
+
+4-batch sanity: same formulas, loop D in returnTime order.
+Never special-case “Batch A” in code.
+
+
+6. STATE (PER STUDENT, PER DAY)
+-------------------------------
+                    ┌─ skip ───────────────────────────── (no seat)
+eligible (on CList)─┼─ home (default) ── hold ── confirmed ── boarded
+                    │                      └─ no-show / cutoff → seat to remaining
+                    └─ earlier(D) ── overflow queue ── confirmed on D
+                                     └─ remaining=0 → waitlist / stay on home return
+
+Home riders do not need to tap “request.”
+Overflow needs a request OR a driver walk-up into remaining seats (decision D2).
+
+
+7. PHASES
+---------
+Phase 0  Freeze rules R1–R10 and decisions D1–D3. No code.
+
+Phase 1  Data model (day-scoped, derived pool)
+  MorningAttendance   snapshot of each batch CList at STOP
+  ReturnIntent        skip | home | request_earlier(targetBatchId)
+  ReturnAllocation    which departure, reason=home|overflow
+  ReturnPool(D)       derived: capacity, home_hold, remaining,
+                      overflow_confirmed, overflow_waitlist
+  Reuse User, Batch, Cab, existing Redis confirmed set.
+  Exit: ER + the state machine in section 6.
+
+Phase 2  Allocator (pure function, any n)
+  Input:  today’s CLists, intents, confirmed sets, each D’s cab.capacity
+  For each D in returnTime order:
+    eligible = CList riders, not skip, not allocated
+    home     = eligible where homeBatch == D
+    overflow = eligible where home.returnTime > D.returnTime
+               and (intent.target == D or walk-up)
+    allow overflow confirm iff remaining > 0 (R5)
+  Atomic confirm: same as today’s Lua/SADD; plus R2–R4 checks.
+  Exit: pseudocode + section 5 fixtures (25/25/53 AND 50/25/53) + n=4.
+
+Phase 3  APIs — extend /d2d/return_batch/, do not add a second service
+  Do NOT add GET /pool (duplicates status).
+
+  GET  status/<id>     Merge status_pool_extras(): home_hold,
+                       overflow_confirmed, overflow_remaining.
+                       Keep total_capacity, remaining_capacity (cab empty seats).
+                       Omit extras (fail closed) if a confirmed id has no RiderDay.
+                       Do not overload today’s available_count
+                       (that is org-pool size, a different meaning).
+  GET  view/<id>       Return TWO lists: home[] then overflow[].
+                       Breaking vs today’s flat org dump — Flutter must
+                       ship in the same change. Do not leave “all org
+                       commuters” as confirmable.
+  POST add_commuter    Keep body {batch_id, commuter_id}.
+                       NEW rejects: not on CList; already allocated;
+                       overflow while remaining==0; later-return (R4).
+  POST remove / end    Unchanged idea; pool recomputes.
+  POST intent          Later slice: skip | home | earlier(target_id).
+                       Until this exists, driver/admin walk-up into
+                       remaining is the overflow path.
+
+Phase 4  Daily runbook
+  Morning              D2D unchanged; home batch only.
+  Each STOP            Freeze that batch CList into attendance; pool grows.
+  Afternoon            Intents open for anyone already on CList.
+  Before each D        Home confirm / board; overflow may fill remaining.
+  Cutoff (optional)    Unconfirmed home_hold → remaining (R7).
+  End D                Delete Redis set for D only; later departures stay.
+
+Phase 5  Flutter (after contract)
+  features/batches/ + commuter home. Provider. No new feature folder.
+  Picker cards: home_hold vs remaining.
+  Available tab: Home section, then Overflow section.
+  Overflow confirm disabled when remaining==0.
+  Commuter: skip / request earlier (only targets with earlier returnTime).
+
+Phase 6  Prove
+  Backend tests: n=2, n=3, n=10; 25/25/53 all-fit; 50/25/53 waitlist;
+  capacity race; double-confirm two departures; not-on-CList reject.
+  Flutter: parse split view; hide/disable overflow at remaining=0.
+  Manual: dummy org (10 batches, cap 53).
+
+
+8. BUILD ORDER (IMPLEMENTATION, LATER)
+--------------------------------------
+1. Freeze CList into attendance; allocator unit tests; no UI.
+2. Tighten add_commuter (R2–R5) + split view/status.
+   Admin/driver can already place overflow into remaining.
+3. Commuter POST intent + home-screen skip / earlier.
+4. Cutoff / no-show release (only needed when demand > remaining).
+5. Flutter split lists + remaining on picker cards.
+
+Cabs stay un-overbookable after step 2, even before student self-serve.
+
+
+9. OPEN DECISIONS (PHASE 0)
+---------------------------
+D1  Missed home cab: may that student take a LATER return? Default: NO.
+D2  Walk-up: may driver confirm overflow with no app request if remaining>0
+    and student is eligible? Default: YES (matches today’s swipe UX).
+D3  Cutoff clock: T−15 minutes, or only at first boarding scan?
+    Default: first unconfirmed home seats release when driver starts boarding
+    or at T−15, whichever you pick and then keep consistent.
+
+Approve R1–R10 and D1–D3 before writing the detailed design.
+
+
+10. NEXT DESIGN (AFTER PHASE 0 APPROVAL)
+----------------------------------------
+A. Data model — tables / Redis keys / day identity
+B. Allocator — n-batch pseudocode + both fixtures in section 5
+C. API request/response shapes on existing return_batch module
+D. Daily sequence: Admin, Driver, Commuter, Django, Redis, DTODLOG
+
+Still design-only until an Agent implementation chat is opened on purpose.

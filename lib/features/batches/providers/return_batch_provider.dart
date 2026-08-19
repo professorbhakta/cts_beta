@@ -1,5 +1,6 @@
 import 'package:cts/api/api_result.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
@@ -19,8 +20,16 @@ class ReturnBatchProvider with ChangeNotifier {
   String? _activeBatchId;
   String? get activeBatchId => _activeBatchId;
 
-  List<CommuterModel> _availableCommuters = [];
-  List<CommuterModel> get availableCommuters => _availableCommuters;
+  List<CommuterModel> _homeCommuters = [];
+  List<CommuterModel> get homeCommuters => _homeCommuters;
+
+  List<CommuterModel> _overflowCommuters = [];
+  List<CommuterModel> get overflowCommuters => _overflowCommuters;
+
+  List<CommuterModel> get availableCommuters => [
+    ..._homeCommuters,
+    ..._overflowCommuters,
+  ];
 
   List<CommuterModel> _confirmedCommuters = [];
   List<CommuterModel> get confirmedCommuters => _confirmedCommuters;
@@ -62,11 +71,12 @@ class ReturnBatchProvider with ChangeNotifier {
     final results = await Future.wait([
       _repository.getAvailableCommuters(batchId),
       _repository.getConfirmedCommuters(batchId),
+      _repository.getReturnBatchStatus(batchId),
     ]);
 
-    final availableResult = results[0] as ApiResult<List<CommuterModel>>;
-    final confirmedResult =
-        results[1] as ApiResult<ReturnBatchConfirmedResult>;
+    final availableResult = results[0] as ApiResult<ReturnAvailableResult>;
+    final confirmedResult = results[1] as ApiResult<ReturnBatchConfirmedResult>;
+    final statusResult = results[2] as ApiResult<ReturnBatchStatusModel>;
 
     if (availableResult.isFailure) {
       _errorMessage = availableResult.failure?.message;
@@ -89,11 +99,19 @@ class ReturnBatchProvider with ChangeNotifier {
         if (commuter.userId?.id != null) commuter.userId!.id.toString(),
     };
     _confirmedCommuters = confirmed;
-    _availableCommuters = (availableResult.data ?? []).where((commuter) {
+    bool isOpen(CommuterModel commuter) {
       final id = commuter.userId?.id?.toString();
       return id != null && !confirmedIds.contains(id);
-    }).toList();
+    }
+
+    final split = availableResult.data ??
+        const ReturnAvailableResult(home: [], overflow: []);
+    _homeCommuters = split.home.where(isOpen).toList();
+    _overflowCommuters = split.overflow.where(isOpen).toList();
     _capacity = confirmedResult.data?.capacity;
+    if (statusResult.isSuccess && statusResult.data != null) {
+      _statusByBatchId[batchId] = statusResult.data!;
+    }
     _state = ViewState.success;
     notifyListeners();
   }
@@ -123,8 +141,10 @@ class ReturnBatchProvider with ChangeNotifier {
       return _errorMessage;
     }
 
-    _availableCommuters = [];
+    _homeCommuters = [];
+    _overflowCommuters = [];
     _confirmedCommuters = [];
+    _statusByBatchId.remove(batchId);
     _capacity = const ReturnBatchCapacityModel(
       totalCapacity: 0,
       remainingCapacity: 0,
@@ -160,7 +180,8 @@ class ReturnBatchProvider with ChangeNotifier {
 
   void clearActiveBatch() {
     _activeBatchId = null;
-    _availableCommuters = [];
+    _homeCommuters = [];
+    _overflowCommuters = [];
     _confirmedCommuters = [];
     _capacity = null;
     _state = ViewState.idle;

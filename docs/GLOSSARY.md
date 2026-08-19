@@ -1,6 +1,6 @@
 > **Doc:** docs/GLOSSARY.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Return available pool is not isComing
+> **Updated:** 2026-08-19 17:55 IST
+> **Session:** Verified unchanged
 
 # Glossary
 

@@ -264,12 +264,20 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _stopTrip,
-        label: const Text('STOP TRIP'),
-        icon: const Icon(Icons.stop_circle_outlined),
-        backgroundColor: AppColors.acRed,
-        foregroundColor: AppColors.acWhite,
+      floatingActionButton: Consumer<D2dChannelProvider>(
+        builder: (context, provider, _) {
+          if (provider.isTripEnded ||
+              provider.tripStatus == D2dTripStatus.ended) {
+            return const SizedBox.shrink();
+          }
+          return FloatingActionButton.extended(
+            onPressed: _stopTrip,
+            label: const Text('STOP TRIP'),
+            icon: const Icon(Icons.stop_circle_outlined),
+            backgroundColor: AppColors.acRed,
+            foregroundColor: AppColors.acWhite,
+          );
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

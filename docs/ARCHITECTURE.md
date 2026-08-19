@@ -1,5 +1,5 @@
 > **Doc:** docs/ARCHITECTURE.md
-> **Updated:** 2026-08-14 22:00 IST
+> **Updated:** 2026-08-19 17:55 IST
 > **Session:** Verified unchanged
 
 # Architecture
@@ -87,7 +87,7 @@ flowchart TB
 | `lib/app/` | `CtsApp`, theme, router, `AppProviders` |
 | `lib/api/` | HTTP client, endpoints, API helpers |
 | `lib/core/sync/` | `SyncManager` — offline mutation queue |
-| `lib/core/network/` | Dio implementation (import via `api/` where possible) |
+| `lib/api/` | HTTP client, endpoints, API helpers (canonical; there is no `lib/core/network/`) |
 | `lib/features/<name>/` | Business modules: `screens/`, `providers/`, `models/`, `repositories/` |
 | `lib/widgets/` | Shared UI (canonical; `shared/widgets/` merging here) |
 | `lib/models/` | Shared models only (e.g. `UserModel`) |

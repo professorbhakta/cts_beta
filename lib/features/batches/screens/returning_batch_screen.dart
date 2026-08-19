@@ -33,8 +33,8 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
           .toList();
       if (batchIds.isNotEmpty) {
         await context.read<ReturnBatchProvider>().fetchStatusesForBatches(
-              batchIds,
-            );
+          batchIds,
+        );
       }
     });
   }
@@ -50,8 +50,8 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
         .toList();
     if (batchIds.isNotEmpty) {
       await context.read<ReturnBatchProvider>().fetchStatusesForBatches(
-            batchIds,
-          );
+        batchIds,
+      );
     }
   }
 
@@ -90,7 +90,7 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
                 crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.85,
+                childAspectRatio: 0.68,
               ),
               itemCount: batchProvider.batches.length,
               itemBuilder: (context, index) {
@@ -103,104 +103,127 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
                     onTap: batchId.isEmpty
                         ? null
                         : () => context.push(
-                              '${RouteName.returnCommuterScreen}/$batchId',
-                            ),
+                            '${RouteName.returnCommuterScreen}/$batchId',
+                          ),
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      batch.batchName ?? 'N/A',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (batch.driver?.userId?.username !=
-                                            null &&
-                                        batch.driver!.userId!.username!
-                                            .isNotEmpty) ...[
-                                      const SizedBox(height: 4),
+                      child: SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
                                       Text(
-                                        batch.driver!.userId!.username!,
+                                        batch.batchName ?? 'N/A',
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodySmall
+                                            .titleMedium
                                             ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.65),
+                                              fontWeight: FontWeight.bold,
                                             ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
+                                      if (batch.driver?.userId?.username !=
+                                              null &&
+                                          batch
+                                              .driver!
+                                              .userId!
+                                              .username!
+                                              .isNotEmpty) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          batch.driver!.userId!.username!,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withValues(alpha: 0.65),
+                                              ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ],
-                                  ],
-                                ),
-                              ),
-                              if (status?.isActive == true)
-                                Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.acGreen,
-                                    shape: BoxShape.circle,
                                   ),
-                                )
-                              else
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 16,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.6),
                                 ),
+                                if (status?.isActive == true)
+                                  Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.acGreen,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  )
+                                else
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            InfoRow(
+                              icon: Icons.assignment_return,
+                              label: 'Return Time',
+                              value: batch.returnTime?.substring(0, 5) ?? 'N/A',
+                            ),
+                            InfoRow(
+                              icon: Icons.people,
+                              label: 'Available',
+                              value: status != null
+                                  ? '${status.availableCount}'
+                                  : '…',
+                            ),
+                            InfoRow(
+                              icon: Icons.event_seat,
+                              label: 'Seats left',
+                              value: status != null
+                                  ? '${status.remainingCapacity}/${status.totalCapacity}'
+                                  : '…',
+                            ),
+                            InfoRow(
+                              icon: Icons.check_circle_outline,
+                              label: 'Confirmed',
+                              value: status != null
+                                  ? '${status.confirmedCount}'
+                                  : '…',
+                            ),
+                            if (status?.hasPoolExtras == true) ...[
+                              InfoRow(
+                                icon: Icons.home_outlined,
+                                label: 'Home hold',
+                                value: '${status!.homeHold}',
+                              ),
+                              InfoRow(
+                                icon: Icons.swap_horiz,
+                                label: 'Overflow in',
+                                value: '${status.overflowConfirmed}',
+                              ),
+                              InfoRow(
+                                icon: Icons.airline_seat_recline_normal,
+                                label: 'Overflow open',
+                                value: '${status.overflowRemaining}',
+                              ),
                             ],
-                          ),
-                          const SizedBox(height: 12),
-                          InfoRow(
-                            icon: Icons.assignment_return,
-                            label: 'Return Time',
-                            value:
-                                batch.returnTime?.substring(0, 5) ?? 'N/A',
-                          ),
-                          InfoRow(
-                            icon: Icons.people,
-                            label: 'Available',
-                            value: status != null
-                                ? '${status.availableCount}'
-                                : '…',
-                          ),
-                          InfoRow(
-                            icon: Icons.event_seat,
-                            label: 'Seats left',
-                            value: status != null
-                                ? '${status.remainingCapacity}/${status.totalCapacity}'
-                                : '…',
-                          ),
-                          InfoRow(
-                            icon: Icons.check_circle_outline,
-                            label: 'Confirmed',
-                            value: status != null
-                                ? '${status.confirmedCount}'
-                                : '…',
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

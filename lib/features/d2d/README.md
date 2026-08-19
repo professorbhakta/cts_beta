@@ -1,5 +1,5 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-08-14 22:00 IST
+> **Updated:** 2026-08-19 17:55 IST
 > **Session:** Verified unchanged
 
 # D2D Feature — Live WebSocket
@@ -20,7 +20,7 @@ Feature owner for morning door-to-door live trips. Single provider powers admin 
 | Driver screen | `screens/d2d_log_screen.dart` |
 | Live widgets | `widgets/d2d_live_widgets.dart` |
 | Action error SnackBar | `widgets/d2d_action_error_listener.dart` |
-| Add commuter sheet | `widgets/d2d_add_commuter_sheet.dart` |
+| Add commuter sheet | `widgets/d2d_add_commuter_sheet.dart` — search by name, mobile, batch, POP |
 
 ---
 
@@ -99,7 +99,16 @@ Provider sets `actionErrorMessage` without disconnecting. Admin + driver show Sn
 
 Connection errors (`isTripEnded`, retry UI) are separate from action errors.
 
-When admin is on the channel and the socket closes with trip-ended (4001 / STOP), the screen calls `RunningBatchProvider.fetchOnce()` and `AdminProvider.refreshRunningBatches()` once. That is a REST snapshot after the WS event — not a 20s poll. Evening return trips stay on `ReturnBatchProvider` REST and are never mixed into this path.
+When admin is on the channel and the trip ends, the provider sets `isTripEnded` from:
+
+1. STOP snapshot `{ "result": { "isActive": false, "data": [] } }`, or
+2. WebSocket close **4001**
+
+The admin screen then calls `RunningBatchProvider.fetchOnce()` and `AdminProvider.refreshRunningBatches()` once. Close channel / Go back also snapshot those lists so the dashboard LIVE tile is not stale. Evening return trips stay on `ReturnBatchProvider` REST and are never mixed into this path.
+
+Driver **STOP TRIP** FAB is hidden when `isTripEnded` or REST status is `ended`.
+
+**QA 2026-08-17:** Admin watching STOP showed ended UI (not WAITING). Close channel cleared Batch-01 LIVE tile. Driver same-day START showed 4001 / TRIP ENDED TODAY.
 
 ---
 
@@ -118,7 +127,7 @@ Parsed by `_decodePayload`, `_parseCommutersFromData`, `D2dCommuterModel.fromJso
 1. Start morning D2D — driver connects, admin opens channel.
 2. **Capacity:** Fill cab; admin ADD via sheet → SnackBar with server message.
 3. **Happy path:** Valid ADD (any commuter with a POP) → list updates, then success SnackBar. Missing POP → `invalid_commuter`, socket stays up.
-4. **Ended trip:** Driver STOP; admin tries ADD → SnackBar (`no_live_state` or ended UI).
-5. Repeat on **driver log** (swipe green/red).
+4. **Ended trip:** Driver STOP; admin watching shows ended UI (not WAITING); dashboard LIVE tile clears without pull-to-refresh. ADD is unavailable.
+5. Repeat on **driver log** (swipe green/red). STOP FAB hidden after ended / 4001.
 6. Reconnect after STOP → ended-trip message (4001), not action error.
 7. Leave Channel / back **without** STOP → trip stays active; reconnect joins the same live queue.

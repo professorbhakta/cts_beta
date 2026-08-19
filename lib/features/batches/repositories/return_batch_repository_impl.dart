@@ -2,6 +2,7 @@ import 'package:cts/api/api_exceptions_handler.dart';
 import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
+import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
@@ -35,14 +36,21 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
   }
 
   @override
-  Future<ApiResult<List<CommuterModel>>> getAvailableCommuters(
+  Future<ApiResult<ReturnAvailableResult>> getAvailableCommuters(
     String batchId,
   ) async {
     try {
       final response = await _apiService.getApi(
         '${ApiUrl.returnBatchView}$batchId',
       );
-      return ApiResult.success(_parseCommuterList(response, listKey: 'commuters'));
+      if (response is! Map) {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle('Invalid return batch view response'),
+        );
+      }
+      return ApiResult.success(
+        ReturnAvailableResult.fromJson(Map<String, dynamic>.from(response)),
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }

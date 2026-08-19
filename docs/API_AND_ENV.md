@@ -1,5 +1,5 @@
 > **Doc:** docs/API_AND_ENV.md
-> **Updated:** 2026-08-14 22:00 IST
+> **Updated:** 2026-08-19 17:55 IST
 > **Session:** Verified unchanged
 
 # API and environment
@@ -52,10 +52,10 @@ flowchart LR
 
 | File | Role |
 |------|------|
-| `lib/core/network/network_api_services.dart` | Concrete API client |
-| `lib/core/network/dio_factory.dart` | Dio setup |
-| `lib/core/network/base_api_services.dart` | Abstract API surface |
-| `lib/core/network/connectivity_service.dart` | Online/offline detection |
+| `lib/api/network_api_services.dart` | Concrete API client (Dio) |
+| `lib/api/logging_interceptor.dart` | Dio logging |
+| `lib/api/base_api_services.dart` | Abstract API surface |
+| `lib/api/connectivity_service.dart` | Online/offline detection |
 
 Repositories receive `BaseApiServices` from Provider DI.
 
@@ -115,7 +115,7 @@ Ensure backend WebSocket path matches `WEBSOCKET_URL` and batch id format expect
 
 1. Find host machine IP on Wi‑Fi with `ipconfig` (not `localhost` on physical device)
 2. Set `API_BASE_URL=http://<ip>/` and `WEBSOCKET_URL=ws://<ip>/ws/` (Docker uses port 80 via Nginx)
-3. Android emulator: use `10.0.2.2` instead of your LAN IP
+3. Phone **and** emulator: keep the **LAN IP** so both devices share one `.env`. `10.0.2.2` is emulator-only.
 4. Ensure phone and PC on same network; firewall allows connections
 5. Android HTTP LAN: debug/profile already allow cleartext; release does not
 
@@ -123,4 +123,4 @@ Ensure backend WebSocket path matches `WEBSOCKET_URL` and batch id format expect
 
 ## Related legacy / duplicate paths
 
-- `lib/api/` may re-export `core/network` — prefer `package:cts/core/network/...` in new code
+- Canonical imports: `package:cts/api/...` — there is no `lib/core/network/`

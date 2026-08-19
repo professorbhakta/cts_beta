@@ -68,7 +68,9 @@ class _D2dChannelState extends State<D2dChannel> {
     super.dispose();
   }
 
-  void _closeChannel() {
+  void _leaveChannel() {
+    context.read<RunningBatchProvider>().fetchOnce();
+    context.read<AdminProvider>().refreshRunningBatches();
     _d2dProvider?.disconnect(notify: false);
     Navigator.of(context).pop();
   }
@@ -100,7 +102,7 @@ class _D2dChannelState extends State<D2dChannel> {
     return DashboardShell(
       title: 'D2D Channel',
       fab: FloatingActionButton.extended(
-        onPressed: _closeChannel,
+        onPressed: _leaveChannel,
         backgroundColor: AppColors.acRed,
         foregroundColor: AppColors.acWhite,
         icon: const Icon(Icons.close_rounded),
@@ -123,7 +125,7 @@ class _D2dChannelState extends State<D2dChannel> {
                       : () => provider.connect(widget.batchId),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: _leaveChannel,
                   child: const Text('Go back'),
                 ),
               ],

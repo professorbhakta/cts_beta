@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Driver return ADD — any-batch pool, hide confirmed
+> **Updated:** 2026-08-19 18:25 IST
+> **Session:** M4 view split + Flutter Available sections
 
 # Documentation Registry
 
@@ -24,23 +24,23 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-14 22:00 IST | Driver return ADD; any-batch pool |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-14 22:00 IST | Driver return ADD |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-14 22:00 IST | Verified unchanged |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-14 22:00 IST | Driver return ADD done; R5 still open |
-| [.cursorrules](.cursorrules) | 2026-08-14 22:00 IST | Verified unchanged |
-| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-14 22:00 IST | Verified unchanged |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-14 22:00 IST | Verified unchanged |
-| [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-14 22:00 IST | Verified unchanged |
-| [docs/FEATURES.md](docs/FEATURES.md) | 2026-08-14 22:00 IST | Driver return confirm/remove |
-| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-08-14 22:00 IST | Driver return confirm/remove; End admin |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-14 22:00 IST | Driver RETURN LIST confirm/remove |
-| [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-08-14 22:00 IST | Verified unchanged |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-14 22:00 IST | Return ADD any batch; driver confirm |
-| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-14 22:00 IST | Return pool no longer requires isComing |
-| [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-14 22:00 IST | Available pool not gated on isComing |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-14 22:00 IST | Verified unchanged |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-14 22:00 IST | Driver return ADD; any-batch pool |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-19 18:25 IST | M4 view split; next M7 |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-19 18:25 IST | M4 |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-19 18:25 IST | Next M7 add_commuter |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-19 18:25 IST | 26 M4 done; 26b M7 |
+| [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/FEATURES.md](docs/FEATURES.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-19 18:25 IST | Available Home then Overflow |
+| [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-19 18:25 IST | view/ home[] overflow[] |
+| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-19 18:25 IST | Available Home/Overflow |
 
 ---
 
@@ -54,13 +54,14 @@ Updated when content changes; not verified every session unless touched.
 | [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-14 19:55 IST | Accounts created by admin, not public sign-up |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-08-14 21:55 IST | DTODLOG on connect; driver STOP; ADD by user ID |
 | [docs/CHANGELOG_SPRINTS.md](docs/CHANGELOG_SPRINTS.md) | 2026-08-14 22:00 IST | Driver return ADD sprint section |
-| [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) | 2026-08-14 21:55 IST | DTODLOG on connect; ADD by user ID; STOP vs DC |
-| [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) | 2026-08-14 22:00 IST | Driver confirm/remove; any-batch pool |
-| [docs/backend/](docs/backend/) | 2026-08-14 22:00 IST | Return view org pool minus confirmed |
+| [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) | 2026-08-17 22:15 IST | STOP UX 2-device verified |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-08-17 22:15 IST | Wrap; 2-device leftovers passed |
+| [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) | 2026-08-19 18:25 IST | view/ Home then Overflow |
+| [docs/backend/](docs/backend/) | 2026-08-19 18:25 IST | M4 view split |
+| [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt) | 2026-08-19 18:25 IST | M4 done; RESUME = M7 |
 | [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-14 19:55 IST | One ConnectivityService; A10/R6 retained |
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-14 19:55 IST | /signUp redirect; sessionid + logout/401 |
 | [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-08-14 19:55 IST | Release has no cleartext |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-14 22:00 IST | Driver return confirm; hide confirmed |
 | [docs/guides/](docs/guides/) | 2026-08-14 22:00 IST | Driver RETURN LIST confirm/remove |
 | [docs/wireframes/](docs/wireframes/) | 2026-08-14 19:55 IST | Sign up row: HTML-only; app redirects |
 | [lib/README.md](lib/README.md) | 2026-08-05 11:37 IST | CODE_MAP + LIB_STRUCTURE links |

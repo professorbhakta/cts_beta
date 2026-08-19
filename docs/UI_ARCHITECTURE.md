@@ -1,6 +1,6 @@
 > **Doc:** docs/UI_ARCHITECTURE.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Driver return confirm/remove; End stays admin
+> **Updated:** 2026-08-19 17:55 IST
+> **Session:** Verified unchanged
 
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 

@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Driver return ADD; any-batch available pool
+> **Updated:** 2026-08-19 18:25 IST
+> **Session:** M4 Available Home then Overflow
 
 # Flows by role
 
@@ -47,7 +47,7 @@ flowchart TD
 | See live trips | Quick action **Running Batches** → tap batch → **D2D Channel** |
 | Add a rider to the live D2D list | D2D Channel → **+** sheet (all commuters). They appear on the list only after the server accepts ADD (needs a POP). |
 | End a morning trip | Only the **driver** **STOP TRIP** button. Admin **Close channel** / back does not end the day. |
-| Manage return trip | Dashboard **Return Batches** *or* Batches toolbar return icon → pick batch → Available (any unconfirmed org commuter) / Confirmed (Remove) → **End return** |
+| Manage return trip | Dashboard **Return Batches** *or* Batches toolbar return icon → pick batch (cards: Seats left = empty cab seats; Home hold / Overflow when extras present) → Available (**Home** then **Overflow**) / Confirmed (Remove) → **End return** |
 | Work offline | Drawer → **Offline Mode** (when enabled) |
 | Log out | Drawer → Profile → **Logout** |
 

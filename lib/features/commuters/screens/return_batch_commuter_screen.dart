@@ -6,6 +6,7 @@ import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/headline_widget.dart';
 import 'package:cts/widgets/loading_indicator.dart';
+import 'package:cts/widgets/search_bar_widget.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -38,11 +39,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
     _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final provider = context.read<ReturnBatchProvider>();
-      provider.loadReturnTrip(widget.batchId);
-      if (!widget.canEndTrip) {
-        provider.fetchStatusesForBatches([widget.batchId]);
-      }
+      context.read<ReturnBatchProvider>().loadReturnTrip(widget.batchId);
     });
   }
 
@@ -53,11 +50,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   }
 
   Future<void> _refresh() async {
-    final provider = context.read<ReturnBatchProvider>();
-    await provider.loadReturnTrip(widget.batchId);
-    if (!widget.canEndTrip) {
-      await provider.fetchStatusesForBatches([widget.batchId]);
-    }
+    await context.read<ReturnBatchProvider>().loadReturnTrip(widget.batchId);
   }
 
   Future<void> _confirmCommuter(
@@ -71,9 +64,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message ?? 'Commuter confirmed for return'),
-      ),
+      SnackBar(content: Text(message ?? 'Commuter confirmed for return')),
     );
   }
 
@@ -88,9 +79,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message ?? 'Commuter removed from return list'),
-      ),
+      SnackBar(content: Text(message ?? 'Commuter removed from return list')),
     );
   }
 
@@ -122,15 +111,15 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
     if (!mounted) return;
 
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error)));
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Return trip ended')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Return trip ended')));
     Navigator.of(context).pop();
   }
 
@@ -188,9 +177,8 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
             final capacity = provider.capacity;
             final remaining = capacity?.remainingCapacity ?? 0;
             final total = capacity?.totalCapacity ?? 0;
-            final isActive = capacity?.isActive ??
-                provider.statusForBatch(widget.batchId)?.isActive ??
-                false;
+            final status = provider.statusForBatch(widget.batchId);
+            final isActive = capacity?.isActive ?? status?.isActive ?? false;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -200,16 +188,16 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Headline(
-                        headline: _headline(),
-                        fontSize: 21,
-                      ),
+                      Headline(headline: _headline(), fontSize: 21),
                       const SizedBox(height: 12),
                       _CapacityBanner(
                         remaining: remaining,
                         total: total,
                         confirmedCount: capacity?.confirmedCount ?? 0,
                         isActive: isActive,
+                        homeHold: status?.homeHold,
+                        overflowConfirmed: status?.overflowConfirmed,
+                        overflowRemaining: status?.overflowRemaining,
                       ),
                     ],
                   ),
@@ -229,22 +217,23 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      _CommuterListTab(
-                        commuters: provider.availableCommuters,
-                        emptyTitle: 'No commuters available',
+                      _AvailableListTab(
+                        home: provider.homeCommuters,
+                        overflow: provider.overflowCommuters,
                         emptyMessage: _emptyMessage(
                           defaultMessage:
-                              'Commuters not yet confirmed for a return trip will appear here.',
+                              'Home-batch riders who boarded this morning appear here. Overflow is later-return walk-up.',
                           isActive: isActive,
                         ),
-                        actionLabel: 'Confirm',
-                        actionColor: AppColors.acGreen,
-                        actionIcon: Icons.check_circle_outline,
-                        onAction: (commuter) =>
+                        onConfirm: (commuter) =>
                             _confirmCommuter(provider, commuter),
                         onRefresh: _refresh,
                         actionInProgress: provider.actionInProgress,
                         readOnly: widget.readOnly,
+                        overflowConfirmAllowed:
+                            status == null ||
+                            !status.hasPoolExtras ||
+                            (status.overflowRemaining ?? 0) > 0,
                       ),
                       _CommuterListTab(
                         commuters: provider.confirmedCommuters,
@@ -275,18 +264,210 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   }
 }
 
+class _AvailableListTab extends StatefulWidget {
+  const _AvailableListTab({
+    required this.home,
+    required this.overflow,
+    required this.emptyMessage,
+    required this.onConfirm,
+    required this.onRefresh,
+    required this.actionInProgress,
+    required this.overflowConfirmAllowed,
+    this.readOnly = false,
+  });
+
+  final List<CommuterModel> home;
+  final List<CommuterModel> overflow;
+  final String emptyMessage;
+  final ValueChanged<CommuterModel> onConfirm;
+  final Future<void> Function() onRefresh;
+  final bool actionInProgress;
+  final bool overflowConfirmAllowed;
+  final bool readOnly;
+
+  @override
+  State<_AvailableListTab> createState() => _AvailableListTabState();
+}
+
+class _AvailableListTabState extends State<_AvailableListTab> {
+  String _searchQuery = '';
+
+  List<CommuterModel> _filter(List<CommuterModel> commuters) {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return commuters;
+    return commuters.where((commuter) {
+      final haystack = [
+        commuter.userId?.username,
+        commuter.userId?.mobileNumber,
+        commuter.popId?.pickUpPointName,
+        commuter.batchId?.batchName,
+      ].whereType<String>().join(' ').toLowerCase();
+      return haystack.contains(query);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final home = _filter(widget.home);
+    final overflow = _filter(widget.overflow);
+    final isEmpty = widget.home.isEmpty && widget.overflow.isEmpty;
+
+    if (isEmpty) {
+      return RefreshIndicator(
+        onRefresh: widget.onRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            StatusMessage(
+              icon: Icons.people_outline,
+              title: 'No commuters available',
+              message: widget.emptyMessage,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        SearchBarWidget(
+          hintText: 'Search name, mobile, batch, or POP...',
+          debounceDuration: const Duration(milliseconds: 200),
+          onSearchChanged: (query) {
+            setState(() => _searchQuery = query);
+          },
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: widget.onRefresh,
+            child: home.isEmpty && overflow.isEmpty
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      StatusMessage(
+                        icon: Icons.search_off,
+                        title: 'No commuters match your search',
+                      ),
+                    ],
+                  )
+                : ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    children: [
+                      _sectionHeader(context, 'Home', home.length),
+                      if (home.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Text('No home-batch riders waiting.'),
+                        )
+                      else
+                        for (final commuter in home)
+                          _availableTile(
+                            commuter,
+                            confirmAllowed: true,
+                          ),
+                      _sectionHeader(context, 'Overflow', overflow.length),
+                      if (overflow.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Text('No later-return walk-up riders.'),
+                        )
+                      else
+                        for (final commuter in overflow)
+                          _availableTile(
+                            commuter,
+                            confirmAllowed: widget.overflowConfirmAllowed,
+                          ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _sectionHeader(BuildContext context, String title, int count) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Text(
+        '$title ($count)',
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _availableTile(
+    CommuterModel commuter, {
+    required bool confirmAllowed,
+  }) {
+    final mobile = commuter.userId?.mobileNumber ?? '';
+    final pop = commuter.popId?.pickUpPointName ?? 'N/A';
+    final batch = commuter.batchId?.batchName;
+    final subtitle = batch == null || batch.isEmpty ? pop : '$pop • $batch';
+    final tile = ListTile(
+      title: Text(commuter.userId?.username ?? 'N/A'),
+      subtitle: Text(subtitle),
+      trailing: IconButton(
+        tooltip: 'Call commuter',
+        icon: const Icon(Icons.call),
+        onPressed: mobile.isEmpty ? null : () => calling(mobile),
+      ),
+    );
+
+    if (widget.readOnly || !confirmAllowed) {
+      return tile;
+    }
+
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const StretchMotion(),
+        children: [
+          SlidableAction(
+            onPressed: widget.actionInProgress
+                ? null
+                : (_) => widget.onConfirm(commuter),
+            backgroundColor: AppColors.acGreen,
+            icon: Icons.check_circle_outline,
+            label: 'Confirm',
+          ),
+        ],
+      ),
+      child: tile,
+    );
+  }
+}
+
 class _CapacityBanner extends StatelessWidget {
   const _CapacityBanner({
     required this.remaining,
     required this.total,
     required this.confirmedCount,
     required this.isActive,
+    this.homeHold,
+    this.overflowConfirmed,
+    this.overflowRemaining,
   });
 
   final int remaining;
   final int total;
   final int confirmedCount;
   final bool isActive;
+  final int? homeHold;
+  final int? overflowConfirmed;
+  final int? overflowRemaining;
+
+  bool get _hasPoolExtras =>
+      homeHold != null &&
+      overflowConfirmed != null &&
+      overflowRemaining != null;
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +500,15 @@ class _CapacityBanner extends StatelessWidget {
                   '$confirmedCount confirmed${isActive ? ' • trip active' : ''}',
                   style: theme.textTheme.bodySmall,
                 ),
+                if (_hasPoolExtras)
+                  Text(
+                    'Home hold $homeHold • Overflow in $overflowConfirmed • Overflow open $overflowRemaining',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
               ],
             ),
           ),
@@ -328,7 +518,7 @@ class _CapacityBanner extends StatelessWidget {
   }
 }
 
-class _CommuterListTab extends StatelessWidget {
+class _CommuterListTab extends StatefulWidget {
   const _CommuterListTab({
     required this.commuters,
     required this.emptyTitle,
@@ -354,62 +544,115 @@ class _CommuterListTab extends StatelessWidget {
   final bool readOnly;
 
   @override
+  State<_CommuterListTab> createState() => _CommuterListTabState();
+}
+
+class _CommuterListTabState extends State<_CommuterListTab> {
+  String _searchQuery = '';
+
+  List<CommuterModel> get _visibleCommuters {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return widget.commuters;
+    return widget.commuters.where((commuter) {
+      final haystack = [
+        commuter.userId?.username,
+        commuter.userId?.mobileNumber,
+        commuter.popId?.pickUpPointName,
+        commuter.batchId?.batchName,
+      ].whereType<String>().join(' ').toLowerCase();
+      return haystack.contains(query);
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (commuters.isEmpty) {
+    if (widget.commuters.isEmpty) {
       return RefreshIndicator(
-        onRefresh: onRefresh,
+        onRefresh: widget.onRefresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             StatusMessage(
               icon: Icons.people_outline,
-              title: emptyTitle,
-              message: emptyMessage,
+              title: widget.emptyTitle,
+              message: widget.emptyMessage,
             ),
           ],
         ),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: commuters.length,
-        itemBuilder: (context, index) {
-          final commuter = commuters[index];
-          final mobile = commuter.userId?.mobileNumber ?? '';
+    final visible = _visibleCommuters;
 
-          final tile = ListTile(
-            title: Text(commuter.userId?.username ?? 'N/A'),
-            subtitle: Text(commuter.popId?.pickUpPointName ?? 'N/A'),
-            trailing: IconButton(
-              tooltip: 'Call commuter',
-              icon: const Icon(Icons.call),
-              onPressed: mobile.isEmpty ? null : () => calling(mobile),
-            ),
-          );
+    return Column(
+      children: [
+        SearchBarWidget(
+          hintText: 'Search name, mobile, batch, or POP...',
+          debounceDuration: const Duration(milliseconds: 200),
+          onSearchChanged: (query) {
+            setState(() => _searchQuery = query);
+          },
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: widget.onRefresh,
+            child: visible.isEmpty
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      StatusMessage(
+                        icon: Icons.search_off,
+                        title: 'No commuters match your search',
+                      ),
+                    ],
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: visible.length,
+                    itemBuilder: (context, index) {
+                      final commuter = visible[index];
+                      final mobile = commuter.userId?.mobileNumber ?? '';
+                      final pop = commuter.popId?.pickUpPointName ?? 'N/A';
+                      final batch = commuter.batchId?.batchName;
+                      final subtitle = batch == null || batch.isEmpty
+                          ? pop
+                          : '$pop • $batch';
 
-          if (readOnly) return tile;
+                      final tile = ListTile(
+                        title: Text(commuter.userId?.username ?? 'N/A'),
+                        subtitle: Text(subtitle),
+                        trailing: IconButton(
+                          tooltip: 'Call commuter',
+                          icon: const Icon(Icons.call),
+                          onPressed: mobile.isEmpty
+                              ? null
+                              : () => calling(mobile),
+                        ),
+                      );
 
-          return Slidable(
-            endActionPane: ActionPane(
-              motion: const StretchMotion(),
-              children: [
-                SlidableAction(
-                  onPressed: actionInProgress
-                      ? null
-                      : (_) => onAction(commuter),
-                  backgroundColor: actionColor,
-                  icon: actionIcon,
-                  label: actionLabel,
-                ),
-              ],
-            ),
-            child: tile,
-          );
-        },
-      ),
+                      if (widget.readOnly) return tile;
+
+                      return Slidable(
+                        endActionPane: ActionPane(
+                          motion: const StretchMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: widget.actionInProgress
+                                  ? null
+                                  : (_) => widget.onAction(commuter),
+                              backgroundColor: widget.actionColor,
+                              icon: widget.actionIcon,
+                              label: widget.actionLabel,
+                            ),
+                          ],
+                        ),
+                        child: tile,
+                      );
+                    },
+                  ),
+          ),
+        ),
+      ],
     );
   }
 }

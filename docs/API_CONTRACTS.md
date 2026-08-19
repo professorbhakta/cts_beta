@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Return ADD any batch; driver confirm/remove
+> **Updated:** 2026-08-19 18:25 IST
+> **Session:** M4 view/ home[] overflow[]; Flutter Available sections
 
 # API Contracts — Backend ↔ Flutter
 
@@ -72,7 +72,7 @@ Handshake: `ADMIN` may join any batch; `DRIVER` only if assigned to that batch. 
 | `REMOVE` | `[user_id]` | `confirmCommuter()` |
 | `DELETE` | `[user_id]` | `denyCommuter()` / `removeCommuter()` |
 | `ADD` | scalar `user_id` | `addCommuter()` — lookup by user ID (this batch first, then any). Needs a POP. Flutter success toast only after the rider is on the live list |
-| `STOP` | — | `stopTrip()` — **driver only**. Admin Close channel / back is disconnect, not STOP |
+| `STOP` | — | `stopTrip()` — **driver only**. Broadcasts `{ result: { isActive: false, data: [] } }` then closes the group with **4001**. Admin Close channel / back is disconnect, not STOP |
 
 ### Ended trip / auth close
 
@@ -134,8 +134,8 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 
 | Backend | Purpose | Flutter `ApiUrl` / method | UI |
 |---------|---------|---------------------------|----|
-| `GET /d2d/return_batch/view/<batch_id>` | Available pool (org commuters not confirmed today) | `returnBatchView` · `getAvailableCommuters` | Available tab |
-| `GET /d2d/return_batch/status/<batch_id>` | Counts, capacity, confirmed ids, `is_active` | `returnBatchStatus` · `getReturnBatchStatus` | Batch picker cards |
+| `GET /d2d/return_batch/view/<batch_id>` | Available `home[]` then `overflow[]` (breaking) | `returnBatchView` · `getAvailableCommuters` | Available tab Home / Overflow |
+| `GET /d2d/return_batch/status/<batch_id>` | Counts, capacity, confirmed ids, `is_active`; optional pool extras | `returnBatchStatus` · `getReturnBatchStatus` | Batch picker cards |
 | `GET /d2d/return_batch/get_commuter/<batch_id>` | Confirmed ids + profiles (any assigned batch) | `returnBatchGetCommuter` · `getConfirmedCommuters` | Confirmed tab + capacity banner |
 | `POST /d2d/return_batch/add_commuter` | Confirm seat | `returnBatchAddCommuter` · `addCommuterToConfirmList` | Admin + driver swipe Confirm |
 | `POST /d2d/return_batch/remove_commuter` | Remove seat | `returnBatchRemoveCommuter` · `removeCommuterFromConfirmList` | Admin + driver swipe Remove |
@@ -147,7 +147,9 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 - **`end`:** backend accepts GET or POST. Flutter uses **POST only** (`postApi({}, …end/$batchId)`).
 - **`commuter_id`** in add/remove = **user ID** (`CommuterModel.userId.id`), not the commuter-row PK. Lookup is by user ID (any morning batch in the same org).
 - Driver screen `/driverReturnCommuter/:batchId` reuses `loadReturnTrip` — confirm/remove enabled; End FAB stays admin-only (`canEndTrip: false`).
-- Available excludes anyone already in a return Redis set today. Flutter also drops confirmed IDs from the Available tab.
+- Available is `home[]` then `overflow[]` from GET view. Flutter drops anyone already on today's confirmed set. Old flat `commuters` is ignored (empty lists).
+- **`status/` extras (M3, additive):** `home_hold`, `overflow_confirmed`, `overflow_remaining` may appear. Flutter `ReturnBatchStatusModel` parses them only when **all three** keys are present (`hasPoolExtras`). Fail closed (keys omitted) → extras stay null; picker/banner hide those rows. **Seats left** is still `remaining_capacity` (empty cab seats), never `overflow_remaining`. `available_count` is still org-pool size. `get_commuter/` does not include extras.
+- Overflow Confirm is disabled when `hasPoolExtras` and `overflow_remaining == 0`. That is not Seats left.
 
 ### POST body (add / remove)
 
@@ -157,13 +159,41 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 
 `commuter_id` = **user ID** (`CommuterModel.userId.id`).
 
+### `status/` response
+
+```json
+{
+  "status": "ok",
+  "batch_id": "1",
+  "trip_date": "19-08-2026",
+  "is_active": true,
+  "available_count": 12,
+  "confirmed_count": 3,
+  "confirmed_user_ids": ["4", "7"],
+  "total_capacity": 40,
+  "remaining_capacity": 37,
+  "home_hold": 25,
+  "overflow_confirmed": 0,
+  "overflow_remaining": 28
+}
+```
+
+`home_hold` / `overflow_confirmed` / `overflow_remaining` are optional. Omitted when the adapter fail-closes (`extras == {}`). `get_commuter/` does **not** include these keys.
+
 ### `view/` response
 
 ```json
-{ "status": "ok", "commuters": [{ "userId": { "id": 4 }, "popId": {...} }] }
+{
+  "status": "ok",
+  "batch_id": "4",
+  "home": [{ "userId": { "id": 21 }, "popId": {...}, "batchId": {...} }],
+  "overflow": [{ "userId": { "id": 780 }, "popId": {...}, "batchId": {...} }],
+  "home_count": 1,
+  "overflow_count": 1
+}
 ```
 
-Not filtered by morning `batchId` or `isComing`. Same org as the return batch. Omits user IDs confirmed on **any** return trip today.
+`home[]` = eligible CList riders whose home batch is this departure. `overflow[]` = eligible riders with a **strictly later** home returnTime (walk-up). No flat `commuters` key. Empty lists if nobody STOPped this morning (no CList).
 
 ### `get_commuter/` response
 

@@ -1,6 +1,6 @@
 > **Doc:** docs/backend/04-return-batch-lifecycle.md
-> **Updated:** 2026-08-14 22:00 IST
-> **Session:** Any-batch ADD; available excludes confirmed today
+> **Updated:** 2026-08-19 18:25 IST
+> **Session:** M4 GET view home[] / overflow[]; not org dump
 
 # Backend — Return Batch Lifecycle (Redis + REST)
 
@@ -50,21 +50,31 @@ One call for admin batch cards:
   "confirmed_count": 3,
   "confirmed_user_ids": ["4", "7"],
   "total_capacity": 40,
-  "remaining_capacity": 37
+  "remaining_capacity": 37,
+  "home_hold": 25,
+  "overflow_confirmed": 0,
+  "overflow_remaining": 28
 }
 ```
 
+`remaining_capacity` is still empty cab seats (`capacity - confirmed`). `available_count` is still org-pool size. Pool extras (`home_hold`, `overflow_confirmed`, `overflow_remaining`) are additive; omitted when the adapter fail-closes. Flutter picker/banner show those three only when all are present (`hasPoolExtras`). `get_commuter/` does not include extras.
+
 ### GET `view/<batch_id>` — Available pool ✅
 
-All commuters in the batch's org except user IDs already in **any** return Redis set today. Not gated on morning `batchId` or `isComing`.
+**Breaking (M4):** two lists, not the old flat org dump. `home[]` = eligible CList riders whose home batch is this departure. `overflow[]` = eligible riders whose home returnTime is strictly later (walk-up, D2). No CList → both empty. Confirmed today are omitted. Flutter Available tab must ship with this.
 
 ```json
 {
   "status": "ok",
-  "available_count": 5,
-  "commuters": [{ "userId": { "id": 4, ... }, "popId": { ... } }]
+  "batch_id": "4",
+  "home": [{ "userId": { "id": 21 }, "popId": { ... }, "batchId": { "id": 4, "batchName": "Batch-01" } }],
+  "overflow": [{ "userId": { "id": 780 }, "popId": { ... }, "batchId": { "id": 13, "batchName": "Batch-10" } }],
+  "home_count": 1,
+  "overflow_count": 1
 }
 ```
+
+There is no `commuters` key. `available_count` stays on **status/** (org-pool size), not on view/.
 
 ### GET `get_commuter/<batch_id>` — Confirmed + capacity ✅
 
@@ -102,7 +112,7 @@ Body: `{ "batch_id": "1", "commuter_id": "4" }` — **`commuter_id` = user ID** 
 ## Relationship to morning D2D
 
 - Morning STOP sets `isComing=False` for picked-up CList + queue — that does **not** empty the evening available pool
-- Return `view/` lists org commuters minus anyone already confirmed today
+- Return `view/` is `home[]` then `overflow[]` (CList-eligible). Not the org dump.
 - Confirm still sets `isComing=False`; remove/end restore `isComing=True` (commuter home switch)
 
 ## Flutter status
