@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 01:30 IST
-> **Session:** P9 debt/health burndown complete
+> **Updated:** 2026-08-20 01:35 IST
+> **Session:** FINAL GATE P1–P9 complete; beta-ver RC
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,13 +55,13 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**beta-ver = P1–P9.** P9 debt burndown on branch `p9-debt-health-burndown` (ready merge). **101 tests pass.** Dependency upgrades: dio 5.11, flutter_secure_storage 11, firebase_messaging 16.5, go_router 17.5; Android `compileSdk = 37`.
+**beta-ver = P1–P9 integrated (FINAL GATE GO).** Merge `4222e40` on `beta-ver`. **101 tests pass.** Senior-review wave complete through P9 debt burndown.
 
-**Next:** P10 merge-check → merge P9 to `beta-ver`. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** Application wave (A1 Track Cab, A6–A9) or release-candidate handoff. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
-Lab leftovers: Batch-08 LIVE cleanup **pending backend up** (status API 404 at session time). Dummy org `7069036462`; `.env` LAN `192.168.1.6`. Do not wipe Parul `9898927941`. See [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) § Lab QA cleanup.
+Gate reports: [docs/final-gate/](docs/final-gate/) (PHASE_01–06 txt). Dummy org `7069036462`; `.env` LAN `192.168.1.6`. Batch-08 no longer LIVE (0 running batches on admin dashboard 2026-08-20).
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -72,12 +72,12 @@ Lab leftovers: Batch-08 LIVE cleanup **pending backend up** (status API 404 at s
 |-------|--------|
 | Batch-01 morning | **Ended** |
 | Batch-01 return | **5 confirmed** (UG3, UG4, UG5, UG10, PG2); End not run |
-| Batch-08 | **LIVE** until driver STOP or backend cleared — cleanup deferred (backend unreachable) |
+| Batch-08 | **Not LIVE** (admin dashboard: 0 running batches) |
 | `.env` | LAN `192.168.1.6` |
 
-**Code this session (P9):** Critical pub upgrades; CRUD repos no longer show SnackBars (UI layer only); `sort_utils` re-export stub removed; `offline_temp/offline_module.dart` isolation doc; `compileSdk 37` for secure_storage 11; +7 tests (101 total).
+**FINAL GATE (2026-08-20):** P9 merged → beta-ver; P1–P9 auto PASS; integrated smoke PASS (partial admin return-picker nav). Tag candidate: `senior-review-2026-08-complete`.
 
-**Lab connectivity (2026-08-20 01:30 IST):** Debug APK built + installed both devices; emulator app launch OK. Admin batch list smoke (dependency + repo-layer changes).
+**Lab connectivity:** Reused debug APK both devices; admin dashboard + driver return Batch #4 verified via UI dump.
 
 ---
 
@@ -126,10 +126,10 @@ Lab leftovers: Batch-08 LIVE cleanup **pending backend up** (status API 404 at s
 ### Open backlog (from PROJECT_TODOS)
 
 - Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
-- Batch-08 still LIVE (backend cleanup when cts-docker up)
+- Batch-08 LIVE cleared (2026-08-20 gate — 0 running batches)
 - Remaining Application High: A1 Track Cab vehicle, A6–A9
 - Expand automated tests (P1 added contract + return batch repo tests)
-- Phase 9 / E: promote or isolate `offline_temp` (separate from High leftovers)
+- Phase 9 / E: promote or isolate `offline_temp` (P9 isolated via offline_module.dart; full promote deferred)
 - Phase C–D: `appManager` → `app/services`; rename `*_controller.dart` (widgets + `lib/api/` already canonical)
 - Admin CRUD placeholder screens / TODOs
 - Expand automated tests
@@ -178,9 +178,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | P9 debt/health burndown | Deps upgraded; repo SnackBar cleanup; 101 tests; debug APK both devices |
-| 2026-08-20 | P8 → beta-ver merge-check | P1–P7 + P8 on beta-ver; 94 tests; pushed origin/beta-ver |
-| 2026-08-20 | P1–P7 integration gate | P2→P7 merged; conditional GO |
+| 2026-08-20 | FINAL GATE P1–P9 | P9 merged beta-ver 4222e40; 101 tests; GO RC; docs/final-gate/ |
+| 2026-08-20 | P9 debt/health burndown | Deps upgraded; repo SnackBar cleanup; 101 tests |
+| 2026-08-20 | P8 → beta-ver merge-check | P1–P7 + P8 on beta-ver; 94 tests |
 
 ---
 

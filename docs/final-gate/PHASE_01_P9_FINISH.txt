@@ -1,0 +1,90 @@
+================================================================================
+FINAL GATE — PHASE 1: FINISH P9 (debt & platform health)
+================================================================================
+Session:  2026-08-20 ~01:18 IST
+Branch:   p9-debt-health-burndown
+Remote:   origin/p9-debt-health-burndown
+Commit:   66e9fbcff76b432c2a07c101abb9dc365df82020
+Message:  P9: debt and platform health cleanup
+Author:   professorbhakta
+Result:   PASS
+
+--------------------------------------------------------------------------------
+1.1  flutter pub get && flutter analyze
+--------------------------------------------------------------------------------
+pub get:     PASS (dependencies resolved)
+analyze:     PASS* (6 issues — 1 warning, 5 info; no errors)
+  - unused_field: app_lifecycle_coordinator._connectivityService (warning)
+  - prefer_initializing_formals: lifecycle/provider/test files (info)
+
+--------------------------------------------------------------------------------
+1.2  flutter test
+--------------------------------------------------------------------------------
+Count:       101 / 101 PASS
+Baseline:    beta-ver had 94 (P8); P9 adds +7 tests
+
+New P9 tests:
+  - test/features/batches/batch_repository_impl_test.dart (3 tests)
+  - test/utils/sort_utils_test.dart (4 tests)
+
+--------------------------------------------------------------------------------
+1.3–1.4  Commit + push
+--------------------------------------------------------------------------------
+Committed:   YES — 66e9fbc on origin/p9-debt-health-burndown
+Pushed:      YES — local branch synced with origin
+Local only:  PROJECT_BRAIN.md unstaged edit (session handoff; not in P9 commit)
+
+--------------------------------------------------------------------------------
+P9 SCOPE DELIVERABLES
+--------------------------------------------------------------------------------
+
+A) Critical dependency upgrades (pubspec.yaml vs beta-ver):
+   - dio: ^5.6.0 → ^5.11.0
+   - dio_cookie_manager: ^3.1.1 → ^3.5.0
+   - flutter_secure_storage: ^10.3.1 → ^11.0.0
+   - firebase_messaging: 16.0.4 → 16.5.0
+   - go_router: ^17.3.0 → ^17.5.0
+   - share_plus: ^13.2.1 → ^13.3.0
+   - webview_flutter_android: ^4.13.0 → ^4.14.0
+   - android/app/build.gradle.kts: compileSdk = 37 (secure_storage 11)
+
+B) Stale QA / doc cleanup:
+   - DOC_REGISTRY.md, PROJECT_TODOS.md, CHAT_PROMPTS.txt, LOCAL_DEV.md updated
+   - LIB_STRUCTURE.md offline_temp note
+
+C) Migration leftovers (document, no scope creep):
+   - sort_utils.dart re-export stub removed (canonical: lib/utils/sort_utils.dart)
+   - *_controller naming: documented in PROJECT_TODOS — NOT renamed this wave
+
+D) offline_temp reassess:
+   - lib/offline_temp/offline_module.dart added (isolation doc + exports)
+   - OfflineAutoRedirect deferred (P5); production path = OfflineFirstBatchRepository
+
+E) Baseline tests:
+   - batch_repository_impl_test (repo layer no SnackBar side effects)
+   - sort_utils_test (AZ, empty-last, multi-field, numeric)
+
+F) CRUD repo layer:
+   - batch/cab/pop/route repositories: SnackBars moved to UI forms/screens
+
+--------------------------------------------------------------------------------
+DEBT CHECKLIST (P9)
+--------------------------------------------------------------------------------
+DONE:
+  [x] Critical pub upgrades + compileSdk 37
+  [x] CRUD SnackBar → UI layer
+  [x] sort_utils re-export stub removed
+  [x] offline_temp isolation documented
+  [x] +7 unit tests (101 total)
+  [x] Doc/registry/todos sync on P9 branch
+
+PENDING / DEFERRED (not P9 blockers):
+  [ ] appManager → app/services rename (Phase C–D)
+  [ ] *_controller.dart rename (widgets + lib/api/)
+  [ ] offline_temp promotion or delete
+  [ ] Admin CRUD placeholder screens
+  [ ] Commuter POST intent (skip/home/earlier)
+
+--------------------------------------------------------------------------------
+PHASE 1 VERDICT: PASS — ready for Phase 2 merge to beta-ver
+================================================================================

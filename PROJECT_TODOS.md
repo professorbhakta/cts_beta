@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 01:30 IST
-> **Session:** P9 debt burndown done
+> **Updated:** 2026-08-20 01:35 IST
+> **Session:** FINAL GATE P1–P9 complete on beta-ver
 
 # Project Todo & Progress
 
@@ -53,7 +53,7 @@
 12. [x] APK validation pass: analyze/test clean; Gradle assembleDebug SUCCESS
 12b. [x] 2-device QA 2026-08-17: other-batch D2D ADD, STOP ended UI, driver 4001, return 5 other-batch, UG4 coming. [docs/TESTING.md](docs/TESTING.md)
 12c. [x] Admin D2D STOP: `isActive: false` → `isTripEnded` + refresh running batches; STOP FAB hidden; Django group close **4001** (no `disconnect(0)`); send on closed socket is swallowed
-12d. [ ] Lab leftovers: Batch-08 still LIVE — cleanup when backend up (driver STOP on Batch-08 / admin End return optional for Batch-01)
+12d. [x] Lab leftovers: Batch-08 LIVE cleared (2026-08-20 FINAL GATE — 0 running batches)
 
 ### Application wave (bug audit A2–A4 + ride-alongs)
 13. [x] Slice 1 (A2): batch commuter swipe-edit and route edit/delete pass the model, not the sorted index

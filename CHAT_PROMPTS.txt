@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 01:30 IST
-> **Session:** P9 done — start P10 merge-check
+> **Updated:** 2026-08-20 01:35 IST
+> **Session:** FINAL GATE GO — next Application wave
 
 ================================================================================
 QUICK START (minimal)
@@ -39,16 +39,19 @@ MIDDLE CONTEXT (user fills each session — update as you go)
 ================================================================================
 
 Current files in focus:
-  -
+  - docs/final-gate/PHASE_06_FINAL_GO_NOGO.txt
+  - beta-ver @ 4222e40 (P1–P9 integrated)
 
 What we already tried:
-  -
+  - FINAL GATE Phases 0–6 complete 2026-08-20
+  - P9 merged to beta-ver; 101/101 flutter tests; integrated smoke PASS
 
 Open questions:
-  -
+  - Application wave A1 (Track Cab) vs RC tag senior-review-2026-08-complete
 
 Related docs read:
-  -
+  - docs/final-gate/PHASE_01–06.txt
+  - PROJECT_BRAIN §5–§9
 
 ================================================================================
 QUICK CLOSE (minimal)
