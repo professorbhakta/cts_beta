@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 00:35 IST
-> **Session:** P1–P7 integration gate
+> **Updated:** 2026-08-20 00:50 IST
+> **Session:** P8 merged to beta-ver
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 00:35 IST | P1–P7 integration gate |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 00:35 IST | Integration gate |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 00:35 IST | Integration gate |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 00:35 IST | Integration gate |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 00:50 IST | P1–P8 on beta-ver |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 00:50 IST | P8 merge-check |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 00:50 IST | Next P9 |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 00:50 IST | P8 done on beta-ver |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |

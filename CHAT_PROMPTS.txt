@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 00:30 IST
-> **Session:** P1–P7 integration gate
+> **Updated:** 2026-08-20 00:50 IST
+> **Session:** P8 on beta-ver — start P9
 
 ================================================================================
 QUICK START (minimal)

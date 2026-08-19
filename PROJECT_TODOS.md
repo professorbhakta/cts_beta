@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 00:40 IST
-> **Session:** P1–P7 integration gate
+> **Updated:** 2026-08-20 00:50 IST
+> **Session:** P8 merged to beta-ver
 
 # Project Todo & Progress
 

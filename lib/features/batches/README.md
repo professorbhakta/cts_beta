@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-20 01:00 IST
-> **Session:** P8 — scale/layout stability for return picker
+> **Updated:** 2026-08-20 00:50 IST
+> **Session:** P8 on beta-ver — picker + batched status fetch
 
 # Batches Feature — CRUD, Running, Return REST
 

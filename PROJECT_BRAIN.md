@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 01:05 IST
-> **Session:** P8 scale/layout stability
+> **Updated:** 2026-08-20 00:50 IST
+> **Session:** P8 merged to beta-ver (P1–P8)
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**P8 in progress.** Branch `p8-scale-layout-stability` — return picker layout + batched status fetch.
+**beta-ver = P1–P8.** Integration gate + P8 scale/layout merged (`583b3f4`). Return picker list/grid; status fetch max 10 concurrent. **94 tests pass.**
 
-**Next:** P9 or merge after P1–P7 lands on beta-ver and P8 rebases. **Device verify deferred** — other session owns lab. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** P9 debt/health burndown from `beta-ver`. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -75,9 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** P8 — `batched_runner.dart`; return picker list/grid layout; status fetch capped at 10 concurrent; 94 tests.
+**Code this session:** Merged `integration/p1-p7-validation` + `p8-scale-layout-stability` → `beta-ver`. P8: `batched_runner.dart`, `return_batch_picker_card.dart`, bounded `fetchStatusesForBatches`.
 
-**Lab connectivity (2026-08-20 01:05 IST):** **94/94 tests pass.** Device smoke deferred — P1–P7 integration owns emulator + phone.
+**Lab connectivity (2026-08-20 00:50 IST):** Post-merge `flutter install` both devices (release APK). Manual login adb partial on release build; P8 picker/concurrency covered by widget tests (42 spot-check green).
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -179,8 +179,8 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | P8 Scale/layout stability | Batched status fetch; picker layout fix; 94 tests. Device verify deferred |
-| 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P7 complete |
+| 2026-08-20 | P8 → beta-ver merge-check | P1–P7 + P8 on beta-ver; 94 tests; pushed origin/beta-ver |
+| 2026-08-20 | P1–P7 integration gate | P2→P7 merged; conditional GO |
 | 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests |
 
 ---
