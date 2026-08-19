@@ -6,7 +6,7 @@ import 'package:cts/features/drivers/providers/driver_controller.dart';
 import 'package:cts/features/drivers/providers/driver_form_provider.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/utils/driver_sort_options.dart';
-import 'package:cts/utils/sort_utils.dart';
+import 'package:cts/features/drivers/utils/driver_sort_utils.dart';
 import 'package:cts/widgets/admin_search_sort_row.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/dashboard_shell.dart';

@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 00:50 IST
-> **Session:** P8 on beta-ver — start P9
+> **Updated:** 2026-08-20 01:30 IST
+> **Session:** P9 done — start P10 merge-check
 
 ================================================================================
 QUICK START (minimal)

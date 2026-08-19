@@ -232,6 +232,12 @@ class _PopFormState extends State<PopForm> {
                               });
 
                               if (success) {
+                                SnackBarService.showsSuccessSnackbar(
+                                  formProvider.forUpdate
+                                      ? 'Pick-up point updated successfully!'
+                                      : 'Pick-up point created successfully!',
+                                  '',
+                                );
                                 navigator.pop();
                               } else {
                                 final errorMessage =

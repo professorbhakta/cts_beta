@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 00:50 IST
-> **Session:** P8 merged to beta-ver
+> **Updated:** 2026-08-20 01:30 IST
+> **Session:** P9 debt burndown done
 
 # Project Todo & Progress
 
@@ -40,7 +40,7 @@
 1. [x] Confirm state management approach → **Provider retained**
 2. [x] Feature-first migration through Phase 7 (batches)
 3. [x] Splash → auth → role routing via go_router guards
-4. [~] Offline: SyncManager + drawer badge; entity coverage still `offline_temp` promote (Phase 9)
+4. [~] Offline: SyncManager + drawer badge; `offline_temp` isolated prototype (P9); full promote deferred
 5. [x] Baseline `flutter pub get`, `flutter analyze`, `flutter test`
 
 ### Follow-ups
@@ -53,7 +53,7 @@
 12. [x] APK validation pass: analyze/test clean; Gradle assembleDebug SUCCESS
 12b. [x] 2-device QA 2026-08-17: other-batch D2D ADD, STOP ended UI, driver 4001, return 5 other-batch, UG4 coming. [docs/TESTING.md](docs/TESTING.md)
 12c. [x] Admin D2D STOP: `isActive: false` → `isTripEnded` + refresh running batches; STOP FAB hidden; Django group close **4001** (no `disconnect(0)`); send on closed socket is swallowed
-12d. [ ] Lab leftovers: Batch-08 still LIVE; optional admin End return (Batch-01 has 5 confirmed); STOP may not clear `isComing` for other-batch D2D ADD
+12d. [ ] Lab leftovers: Batch-08 still LIVE — cleanup when backend up (driver STOP on Batch-08 / admin End return optional for Batch-01)
 
 ### Application wave (bug audit A2–A4 + ride-alongs)
 13. [x] Slice 1 (A2): batch commuter swipe-edit and route edit/delete pass the model, not the sorted index
@@ -74,7 +74,7 @@
 26. [x] Return allocation M4 GET view split lists + Flutter Available Home/Overflow
 26b. [x] Return allocation M7 enforce add_commuter (R2-R5): validate_add_commuter in return_pool.py
 26c. [x] P1 Truth Contract — `ApiResponseContract`; C1 (200+status:error → failure); 33 tests
-26f. [x] P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; 72 tests
+26g. [x] P9 Debt/health burndown — critical deps; repo SnackBar → UI; sort_utils stub; offline_temp isolated; compileSdk 37; 101 tests
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking
@@ -117,7 +117,7 @@ Phases **0–7 are frozen** (layout + migration complete). Do not reopen them fo
 | **6** Drivers + commuters | Frozen | CRUD + role homes + list/return screens |
 | **7** Batches (running + return) | Frozen | `features/batches/` |
 | **8** admin_home, d2d, profile | Done | Structure/UX polish (no token redesign) |
-| **9** Promote offline_temp | Pending | |
+| **9** Promote offline_temp | Isolated (P9) | `offline_module.dart`; drawer-only prototype |
 | **10** Remove legacy + Reviewer | Pending | Re-export stubs still present |
 
 ### Restructure for readability (new — [LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md))
@@ -128,7 +128,7 @@ Phases **0–7 are frozen** (layout + migration complete). Do not reopen them fo
 | **B** Flatten feature folders | Done (local) | All features use `screens/`, `providers/`, `models/`, `repositories/`; old `presentation/domain/data` paths are re-export stubs |
 | **C** Single canonical root | Pending | `widgets/`, `app/services/`, delete re-export stubs |
 | **D** Naming | Pending | `*_provider.dart`, move `AdminProvider`, reduce `AppClass` statics |
-| **E** Offline | Pending | Merge or isolate `offline_temp/` |
+| **E** Offline | Isolated (P9) | Full promote to `features/offline/` deferred |
 
 ### Structure (frozen after Phase 8)
 ```
@@ -155,8 +155,8 @@ lib/
 - Production offline-first for batches remains wired via `OfflineFirstBatchRepository`
 
 ### Lint / env
-- [x] `flutter analyze` — 0 issues
-- [x] `flutter test` — passed
+- [x] `flutter analyze` — 0 errors (7 pre-existing info/warnings)
+- [x] `flutter test` — 101 passed (P9)
 
 ## Build fixes (2026-07-17)
 - [x] Fixed Windows assembleDebug blocker: Kotlin incremental cache crash across drives (Pub cache on C:, project on D:)

@@ -138,8 +138,12 @@ class _PopScreenState extends State<PopScreen> {
           SnackBarService.showErrorSnackbar(
             controller.errorMessage ?? 'Failed to delete pick-up point.',
           );
+        } else {
+          SnackBarService.showsSuccessSnackbar(
+            'Pick-up point deleted successfully!',
+            '',
+          );
         }
-        // Success snackbar is already shown in repository
       }
     });
   }

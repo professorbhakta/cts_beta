@@ -1,6 +1,6 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-08-19 17:55 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-20 01:30 IST
+> **Session:** Lab QA cleanup steps (Batch-08)
 
 # Local Development Setup
 
@@ -49,6 +49,18 @@ Ask the user for passwords. Seed extra dummy routes/POPs/cabs/drivers/commuters 
 **Xiaomi phone:** User must tap the **cts_beta** icon once (MIUI `am start` still drops to launcher). `adb shell input` works for LOGIN / START / swipe Confirm / STOP. Flutter **Switch** thumb on commuter home often misses — pull-to-refresh after a REST PATCH if needed.
 
 **2026-08-17 lab:** Batch-01 morning **ended**. Return Batch-01 has 5 confirmed. Batch-08 still LIVE. Phone last role: UG4. Keep `.env` on LAN `192.168.1.6`.
+
+### Lab QA cleanup (stale LIVE trips)
+
+When manual QA leaves a morning trip **LIVE** (e.g. Batch-08, DTODLOG 10, WS `/ws/11/`), clear it before the next D2D test run:
+
+1. Start `cts-docker` (`docker compose up -d`) and confirm `API_BASE_URL` resolves (e.g. `GET http://192.168.1.6/`).
+2. **Driver path (preferred):** Phone login as Batch-08 driver (`9876544118`), open D2D log, tap **STOP**. Expect WS close **4001** and admin running list empty after refresh.
+3. **Admin verify:** Login `7069036462`, pull-to-refresh **Running batches** — Batch-08 should not appear LIVE.
+4. **Optional return cleanup:** Batch-01 return has 5 confirmed — admin may **End** return trip from return commuter list when testing end flow.
+5. Do **not** wipe Parul commuter `9898927941` or re-seed dummy org `7069036462`.
+
+If backend is down, status API returns 404 — defer cleanup until Docker is up.
 
 org.gradle.jvmargs is now **-Xmx2G** in `android/gradle.properties`. The previous **-Xmx8G / 4G metaspace** crashed the Gradle JVM (`hs_err` Chunk::new) while Pixel_10_Pro used ~5GB on a 15GB Windows laptop. Keep 2G for mixed emulator runs.
 

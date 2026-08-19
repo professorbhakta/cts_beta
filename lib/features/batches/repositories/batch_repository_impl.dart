@@ -3,7 +3,6 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/features/batches/models/batch_model.dart';
 import 'package:cts/features/batches/repositories/batch_repository.dart';
 
@@ -45,20 +44,16 @@ class BatchRepositoryImpl implements BatchRepository {
       final requestData = {...data, 'adminCode': adminCode};
       final response = await _apiService.postApi(requestData, ApiUrl.batchUrl);
 
-      if (response != null) {
-        if (response.toString() == "BATCH CREATED") {
-          SnackBarService.showsSuccessSnackbar("BATCH CREATED", "");
-        } else {
-          SnackBarService.showsSuccessSnackbar(response.toString(), "error");
-        }
+      if (response != null && response.toString() == 'BATCH CREATED') {
         return ApiResult.success(null);
-      } else {
-        final errorMessage = response?.toString() ?? "Create Batch failed.";
-        SnackBarService.showErrorSnackbar(errorMessage);
-        return ApiResult.failure(
-          ApiFailure(type: ApiFailureType.server, message: errorMessage),
-        );
       }
+
+      return ApiResult.failure(
+        ApiFailure(
+          type: ApiFailureType.server,
+          message: response?.toString() ?? 'Create batch failed.',
+        ),
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
@@ -69,20 +64,16 @@ class BatchRepositoryImpl implements BatchRepository {
     try {
       final response = await _apiService.patchApi(id, data, ApiUrl.batchUrl);
 
-      if (response != null) {
-        if (response.toString() == "BATCH UPDATED") {
-          SnackBarService.showsSuccessSnackbar("BATCH UPDATED", "");
-        } else {
-          SnackBarService.showsSuccessSnackbar(response.toString(), "error");
-        }
+      if (response != null && response.toString() == 'BATCH UPDATED') {
         return ApiResult.success(null);
-      } else {
-        final errorMessage = response?.toString() ?? "Update Batch failed.";
-        SnackBarService.showErrorSnackbar(errorMessage);
-        return ApiResult.failure(
-          ApiFailure(type: ApiFailureType.parsing, message: errorMessage),
-        );
       }
+
+      return ApiResult.failure(
+        ApiFailure(
+          type: ApiFailureType.server,
+          message: response?.toString() ?? 'Update batch failed.',
+        ),
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
@@ -93,20 +84,17 @@ class BatchRepositoryImpl implements BatchRepository {
     try {
       final response = await _apiService.deleteApi(id, ApiUrl.batchUrl);
 
-      if (response != null) {
-        if (response.toString() == "BATCH DELETED") {
-          SnackBarService.showsSuccessSnackbar("BATCH DELETED", "");
-        } else {
-          SnackBarService.showsSuccessSnackbar(response.toString(), "error");
-        }
+      if (response != null &&
+          response.toString().toUpperCase().contains('DELETED')) {
         return ApiResult.success(null);
-      } else {
-        final errorMessage = response?.toString() ?? "Delete Batch failed.";
-        SnackBarService.showErrorSnackbar(errorMessage);
-        return ApiResult.failure(
-          ApiFailure(type: ApiFailureType.parsing, message: errorMessage),
-        );
       }
+
+      return ApiResult.failure(
+        ApiFailure(
+          type: ApiFailureType.server,
+          message: response?.toString() ?? 'Delete batch failed.',
+        ),
+      );
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }

@@ -104,6 +104,11 @@ class BatchScreenState extends State<BatchScreen> {
           SnackBarService.showErrorSnackbar(
             batchProvider.errorMessage ?? 'Failed to delete batch.',
           );
+        } else if (mounted) {
+          SnackBarService.showsSuccessSnackbar(
+            'Batch deleted successfully!',
+            '',
+          );
         }
       }
     });

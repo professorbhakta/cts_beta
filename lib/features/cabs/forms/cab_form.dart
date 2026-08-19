@@ -288,6 +288,12 @@ class _CabFormState extends State<CabForm> {
                               });
 
                               if (success) {
+                                SnackBarService.showsSuccessSnackbar(
+                                  formProvider.forUpdate
+                                      ? 'Cab updated successfully!'
+                                      : 'Cab created successfully!',
+                                  '',
+                                );
                                 navigator.pop();
                               } else {
                                 final errorMessage =
