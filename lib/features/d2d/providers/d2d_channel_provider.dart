@@ -2,10 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cts/app/session_invalidation.dart';
+import 'package:cts/core/lifecycle/app_lifecycle_phase.dart';
+import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/models/d2d_commuter_model.dart';
+import 'package:cts/features/d2d/models/d2d_channel_role_policy.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/repositories/driver_repository.dart';
@@ -19,8 +23,94 @@ bool d2dResultMarksTripEnded(Map<String, dynamic> result) {
   return active == false;
 }
 
+/// Parses confirmed riders from WS `already_in` / `alreadyIn` / legacy `CList` hydrate.
+List<D2dCommuterModel>? parseAlreadyInFromResult(Map<String, dynamic> result) {
+  final raw = result['already_in'] ?? result['alreadyIn'] ?? result['CList'];
+  if (raw == null) return null;
+  return _parseCommutersFromPayloadData(raw);
+}
+
+List<D2dCommuterModel>? _parseCommutersFromPayloadData(dynamic data) {
+  if (data == null) return null;
+
+  if (data is List) {
+    final commuters = <D2dCommuterModel>[];
+    for (final item in data) {
+      final commuterJson = _unwrapCommuterEntryStatic(item);
+      if (commuterJson != null) {
+        commuters.add(D2dCommuterModel.fromJson(commuterJson));
+      }
+    }
+    return commuters;
+  }
+
+  if (data is Map) {
+    final commuters = <D2dCommuterModel>[];
+    for (final entry in data.entries) {
+      final commuterJson = _unwrapCommuterEntryStatic({entry.key: entry.value});
+      if (commuterJson != null) {
+        commuters.add(D2dCommuterModel.fromJson(commuterJson));
+      }
+    }
+    return commuters;
+  }
+
+  return null;
+}
+
+Map<String, dynamic>? _unwrapCommuterEntryStatic(dynamic item) {
+  if (item is! Map) return null;
+
+  final map = Map<String, dynamic>.from(item);
+
+  if (map.length == 1) {
+    final entry = map.entries.first;
+    final inner = entry.value;
+
+    if (inner is Map) {
+      final commuter = Map<String, dynamic>.from(inner);
+      final id = int.tryParse(entry.key.toString());
+      commuter.putIfAbsent('id', () => id ?? entry.key);
+      return commuter;
+    }
+
+    if (inner is String) {
+      try {
+        final decoded = json.decode(inner);
+        return _unwrapCommuterEntryStatic({entry.key: decoded});
+      } catch (_) {
+        final id = int.tryParse(entry.key.toString());
+        return {
+          'id': id ?? entry.key,
+          'username': inner,
+        };
+      }
+    }
+  }
+
+  if (_looksLikeCommuterStatic(map)) return map;
+
+  return null;
+}
+
+bool _looksLikeCommuterStatic(Map<String, dynamic> json) {
+  return json.containsKey('userId') ||
+      json.containsKey('username') ||
+      json.containsKey('mobile_number') ||
+      json.containsKey('mobileNumber') ||
+      json.containsKey('pickUpPoint') ||
+      json.containsKey('popId') ||
+      json.containsKey('inLine');
+}
+
 class D2dChannelProvider with ChangeNotifier {
-  D2dChannelProvider(this._driverRepository, this._d2dRepository);
+  D2dChannelProvider(
+    this._driverRepository,
+    this._d2dRepository, {
+    NetworkActionGuard? networkGuard,
+    this._onSessionInvalidated,
+    @visibleForTesting this.sessionRoleOverride,
+  }) : _networkGuard = networkGuard;
 
   static const int _endedTripCloseCode = 4001;
   static const int _unauthorizedCloseCode = 4401;
@@ -29,18 +119,32 @@ class D2dChannelProvider with ChangeNotifier {
       'This trip has already ended. A new trip can be started tomorrow.';
   static const String _unauthorizedMessage =
       'You are not allowed to join this live trip. Please sign in again.';
+  static const String _connectionLostMessage =
+      'Live connection lost. Reconnecting…';
+  static const String _offlineMessage =
+      'No network connection. Live updates will resume when you are back online.';
 
   final DriverRepository _driverRepository;
   final D2dRepository _d2dRepository;
+  final NetworkActionGuard? _networkGuard;
+  final SessionInvalidatedCallback? _onSessionInvalidated;
+
+  /// Test hook — when set, overrides [SessionRole.userType] for action gating.
+  @visibleForTesting
+  final String? sessionRoleOverride;
 
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   int _connectGeneration = 0;
   DriverModel? _driver;
   List<D2dCommuterModel> _commuters = [];
+  List<D2dCommuterModel> _alreadyInCommuters = [];
   bool _isAscending = true;
   bool _isConnected = false;
   bool _isDisposed = false;
+  bool _lifecyclePaused = false;
+  bool _connectionLost = false;
+  String? _connectedBatchId;
 
   ViewState _state = ViewState.idle;
   String? _errorMessage;
@@ -55,7 +159,16 @@ class D2dChannelProvider with ChangeNotifier {
   D2dTripStatus get tripStatus => _tripStatus;
   DriverModel? get driver => _driver;
   List<D2dCommuterModel> get commuters => _commuters;
+  List<D2dCommuterModel> get alreadyInCommuters => _alreadyInCommuters;
   bool get isAscending => _isAscending;
+  bool get connectionLost => _connectionLost;
+  String? get connectedBatchId => _connectedBatchId;
+
+  /// Binds an active batch for lifecycle resume tests without opening a socket.
+  @visibleForTesting
+  void bindActiveBatchForLifecycle(String batchId) {
+    _connectedBatchId = batchId;
+  }
 
   String? get driverMobile {
     final mobile = _driver?.userId?.mobileNumber?.trim();
@@ -90,8 +203,28 @@ class D2dChannelProvider with ChangeNotifier {
   }
 
   void connect(String batchId) {
+    unawaited(_connectGuarded(batchId));
+  }
+
+  Future<void> _connectGuarded(String batchId) async {
+    final networkGuard = _networkGuard;
+    if (networkGuard != null) {
+      final guard = await networkGuard.check(refresh: true);
+      if (!guard.isOnline) {
+        _connectedBatchId = batchId;
+        _connectionLost = true;
+        _state = ViewState.error;
+        _errorMessage =
+            guard.message ?? NetworkActionGuard.actionBlockedMessage;
+        _safeNotifyListeners();
+        return;
+      }
+    }
+
     disconnect(notify: false);
 
+    _connectedBatchId = batchId;
+    _connectionLost = false;
     _state = ViewState.loading;
     _errorMessage = null;
     _actionErrorMessage = null;
@@ -142,10 +275,10 @@ class D2dChannelProvider with ChangeNotifier {
           if (kDebugMode) {
             debugPrint('D2D: WebSocket error: $error');
           }
-          _state = ViewState.error;
-          _errorMessage =
-              'Live connection failed. Please check your internet and try again.';
-          _safeNotifyListeners();
+          _handleUnexpectedDisconnect(
+            message:
+                'Live connection failed. Please check your internet and try again.',
+          );
         },
         onDone: () {
           if (!_isConnected || _isDisposed) return;
@@ -160,11 +293,7 @@ class D2dChannelProvider with ChangeNotifier {
           if (kDebugMode) {
             debugPrint('D2D: WebSocket connection closed');
           }
-          _isConnected = false;
-          _channel = null;
-          _subscription = null;
-          _state = ViewState.idle;
-          _safeNotifyListeners();
+          _handleUnexpectedDisconnect();
         },
       );
 
@@ -210,10 +339,83 @@ class D2dChannelProvider with ChangeNotifier {
     _state = ViewState.error;
     _errorMessage = _unauthorizedMessage;
     _safeNotifyListeners();
+
+    final callback = _onSessionInvalidated;
+    if (callback != null) {
+      unawaited(callback());
+    }
   }
 
   void _handleTripEndedClose() {
     _markTripEnded();
+  }
+
+  void _handleUnexpectedDisconnect({String? message}) {
+    if (_tripEnded || _isDisposed) return;
+
+    _isConnected = false;
+    _subscription?.cancel();
+    _subscription = null;
+    _channel = null;
+    _connectionLost = true;
+
+    if (_commuters.isNotEmpty) {
+      _state = ViewState.success;
+      _errorMessage = message ?? _connectionLostMessage;
+    } else {
+      _state = ViewState.error;
+      _errorMessage = message ?? _connectionLostMessage;
+    }
+    _safeNotifyListeners();
+
+    if (!_lifecyclePaused && _connectedBatchId != null) {
+      unawaited(_reconnectAfterDrop(_connectedBatchId!));
+    }
+  }
+
+  /// Called when the OS moves the app to background or foreground.
+  void onLifecyclePhase(AppLifecyclePhase phase) {
+    _lifecyclePaused = isBackgroundPhase(phase);
+  }
+
+  /// Refreshes live state after resume from background / sleep-wake.
+  Future<void> onAppResumed({required bool isOnline}) async {
+    final batchId = _connectedBatchId;
+    if (batchId == null || _isDisposed || _tripEnded) return;
+
+    if (!isOnline) {
+      _connectionLost = true;
+      if (_commuters.isNotEmpty) {
+        _state = ViewState.success;
+      } else {
+        _state = ViewState.error;
+      }
+      _errorMessage = _offlineMessage;
+      _safeNotifyListeners();
+      return;
+    }
+
+    await fetchTripStatus(batchId);
+    if (_isDisposed || _tripEnded) return;
+
+    if (!_isConnected || _connectionLost) {
+      await _reconnectAfterDrop(batchId);
+    }
+  }
+
+  Future<void> _reconnectAfterDrop(String batchId) async {
+    if (_isDisposed || _tripEnded) return;
+    if (_isConnected && _channel != null) return;
+
+    _connectionLost = false;
+    _errorMessage = null;
+    if (_commuters.isEmpty) {
+      _state = ViewState.loading;
+    }
+    _safeNotifyListeners();
+
+    final generation = ++_connectGeneration;
+    await _openSocket(batchId, generation);
   }
 
   void _markTripEnded() {
@@ -241,6 +443,7 @@ class D2dChannelProvider with ChangeNotifier {
     }
     _channel = null;
     _commuters = [];
+    _alreadyInCommuters = [];
     _tripEnded = true;
     _tripStatus = D2dTripStatus.ended;
     _state = ViewState.error;
@@ -280,6 +483,9 @@ class D2dChannelProvider with ChangeNotifier {
         return;
       }
 
+      _connectionLost = false;
+      _errorMessage = null;
+
       if (resultMap['driver'] is Map) {
         try {
           _driver = DriverModel.fromJson(
@@ -296,6 +502,11 @@ class D2dChannelProvider with ChangeNotifier {
       if (parsedCommuters != null) {
         _commuters = parsedCommuters;
         _sortCommuters();
+      }
+
+      final parsedAlreadyIn = parseAlreadyInFromResult(resultMap);
+      if (parsedAlreadyIn != null) {
+        _alreadyInCommuters = parsedAlreadyIn;
       }
 
       _state = ViewState.success;
@@ -447,7 +658,7 @@ class D2dChannelProvider with ChangeNotifier {
   void disconnect({bool notify = true}) {
     _connectGeneration++;
     if (!_isConnected && _channel == null && _subscription == null) {
-      return;
+      if (_connectedBatchId == null) return;
     }
 
     if (kDebugMode) {
@@ -466,8 +677,11 @@ class D2dChannelProvider with ChangeNotifier {
     }
     _channel = null;
     _commuters = [];
+    _alreadyInCommuters = [];
     _driver = null;
     _actionErrorMessage = null;
+    _connectionLost = false;
+    _connectedBatchId = null;
     _state = ViewState.idle;
 
     if (notify) {
@@ -491,8 +705,21 @@ class D2dChannelProvider with ChangeNotifier {
     });
   }
 
-  /// Admin channel: add commuter to the live fly list.
+  String? get _sessionRole => sessionRoleOverride ?? SessionRole.userType;
+
+  bool _guardAction(D2dChannelAction action) {
+    final role = _sessionRole;
+    if (D2dChannelRolePolicy.can(role, action)) return true;
+    _actionErrorMessage = D2dChannelRolePolicy.denialMessage(action);
+    _safeNotifyListeners();
+    return false;
+  }
+
+  /// Add commuter to the live fly list (admin or driver).
   bool addCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
+    if (!_guardAction(D2dChannelAction.addCommuter)) return false;
+
     final id = _parseCommuterId(commuterId);
     if (id == 0) {
       if (kDebugMode) {
@@ -504,7 +731,9 @@ class D2dChannelProvider with ChangeNotifier {
     if (!_isConnected || _channel == null) {
       _actionErrorMessage = _tripEnded
           ? _tripEndedMessage
-          : 'Live channel is not connected.';
+          : _connectionLost
+              ? _connectionLostMessage
+              : 'Live channel is not connected.';
       _safeNotifyListeners();
       return false;
     }
@@ -517,40 +746,69 @@ class D2dChannelProvider with ChangeNotifier {
     return true;
   }
 
-  /// Admin channel: remove commuter from live list.
-  void removeCommuter(String commuterId) {
-    _sendAction('DELETE', _parseCommuterId(commuterId));
+  /// Remove commuter from live queue (admin or driver).
+  bool removeCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
+    if (!_guardAction(D2dChannelAction.removeFromQueue)) return false;
+    return _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
-  /// Driver log: add commuter entry to D2D log.
-  void confirmCommuter(String commuterId) {
-    _sendAction('REMOVE', _parseCommuterId(commuterId));
+  /// Driver confirms pickup — moves rider to Already IN (REMOVE on wire).
+  bool confirmCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
+    if (!_guardAction(D2dChannelAction.confirmPickup)) return false;
+    return _sendAction('REMOVE', _parseCommuterId(commuterId));
   }
 
-  /// Driver log: delete commuter from fly list.
-  void denyCommuter(String commuterId) {
-    _sendAction('DELETE', _parseCommuterId(commuterId));
+  /// Remove commuter from live queue (driver swipe red).
+  bool denyCommuter(String commuterId) {
+    if (!_guardNetwork()) return false;
+    if (!_guardAction(D2dChannelAction.removeFromQueue)) return false;
+    return _sendAction('DELETE', _parseCommuterId(commuterId));
   }
 
-  void stopTrip() {
+  /// End the trip for the day — driver only. Admin Close channel must not call this.
+  bool stopTrip() {
+    if (!_guardNetwork()) return false;
+    if (!_guardAction(D2dChannelAction.stopTrip)) return false;
     _sendStopAction();
     disconnect(notify: false);
+    return true;
+  }
+
+  bool _guardNetwork() {
+    final networkGuard = _networkGuard;
+    if (networkGuard == null || networkGuard.appearsOnline) return true;
+    _actionErrorMessage = NetworkActionGuard.actionBlockedMessage;
+    _safeNotifyListeners();
+    return false;
   }
 
   int _parseCommuterId(String commuterId) => int.tryParse(commuterId) ?? 0;
 
-  void _sendAction(String action, int commuterId) {
+  bool _sendAction(String action, int commuterId) {
     if (commuterId == 0) {
       if (kDebugMode) {
         debugPrint('D2D: Skipping $action — invalid commuter id');
       }
-      return;
+      return false;
+    }
+
+    if (!_isConnected || _channel == null) {
+      _actionErrorMessage = _tripEnded
+          ? _tripEndedMessage
+          : _connectionLost
+              ? _connectionLostMessage
+              : 'Live channel is not connected.';
+      _safeNotifyListeners();
+      return false;
     }
 
     _sendPayload({
       'ACTION': action,
       'CLIST': [commuterId],
     });
+    return true;
   }
 
   void _sendStopAction() {

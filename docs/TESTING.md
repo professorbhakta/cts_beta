@@ -1,6 +1,6 @@
 > **Doc:** docs/TESTING.md
-> **Updated:** 2026-08-17 22:15 IST
-> **Session:** Wrap — 2-device leftovers passed; lab on UG4 / Batch-08 LIVE
+> **Updated:** 2026-08-19 23:40 IST
+> **Session:** Pre-push both-device smoke rule added
 
 # Testing
 
@@ -18,6 +18,9 @@ Location: `test/`
 |------|------|----------------|
 | Theme smoke | `test/widget_test.dart` | `AppTheme.light()` + basic `MaterialApp` renders “CTS” |
 | D2D STOP snapshot | `test/features/d2d/d2d_result_ended_test.dart` | `isActive: false` marks trip ended |
+| Lifecycle phase map | `test/core/lifecycle/app_lifecycle_phase_test.dart` | Foreground/background/inactive mapping |
+| Lifecycle coordinator | `test/core/lifecycle/app_lifecycle_coordinator_test.dart` | Resume after background; phase listeners |
+| D2D lifecycle | `test/features/d2d/d2d_channel_lifecycle_test.dart` | Reconnect guard, offline message, in-flight skip |
 
 Run:
 
@@ -32,6 +35,24 @@ flutter analyze
 ```
 
 Project goal (`.cursorrules`): run analyze, pub get, and test after substantive changes.
+
+---
+
+## Pre-push gate (required before `git push`)
+
+**Unit tests + analyze are necessary but not sufficient.** Before pushing any P-branch:
+
+1. Backend reachable (`.env` LAN — see PROJECT_BRAIN §5).
+2. `flutter devices` — **both** must show when plugged in:
+   - Emulator `emulator-5554` (Pixel_10_Pro)
+   - Phone `5f36af49`
+3. `flutter run -d emulator-5554` — admin login `7069036462` / `password` → **Dashboard** (no redirect loop).
+4. `flutter run -d 5f36af49` — driver login `9876544111` / `password` → **driver home** (no auth crash).
+5. Report pass/fail per device in session summary. If a device is unavailable, say why — do not push without at least documenting the gap.
+
+Prefer `flutter run` + manual login over `integration_test` for first build (Gradle can take 5–15 min). Agent may ask the user to run/login on both devices when local build is too slow.
+
+**Done** for a P session = code + doc sync + analyze + tests + **both-device smoke** + push.
 
 ---
 
@@ -95,8 +116,9 @@ Project goal (`.cursorrules`): run analyze, pub get, and test after substantive 
 |----------|------|--------|
 | P1 | Widget | `SignInScreen` form validation |
 | P1 | Widget | `DashboardShell` responsive breakpoints |
-| P2 | Unit | `GetInitialRouteUseCase` with mock session |
-| P2 | Unit | `RouteName.homeForRole` / redirect logic (extracted pure functions) |
+| P2 | Unit | `GetInitialRouteUseCase` with mock session — **done** (`test/domain/get_initial_route_usecase_test.dart`) |
+| P2 | Unit | `resolveAuthRedirect` / redirect logic — **done** (`test/app/router/auth_redirect_test.dart`) |
+| P2 | Unit | `refreshSessionFromServer` + disabled signUp — **done** (`test/data/authentication_repository_session_test.dart`) |
 | P3 | Integration | Login flow with mocked `AuthenticationRepository` |
 | P3 | Golden | Admin dashboard stat cards (optional) |
 

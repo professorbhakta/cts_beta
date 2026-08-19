@@ -88,6 +88,42 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   }
 
   @override
+  Future<bool> refreshSessionFromServer() async {
+    final userId = AppManager.instance.getString(ManagerKey.userId);
+    if (userId.isEmpty || userId == '0') return false;
+
+    try {
+      final response = await _apiService.getApi("${ApiUrl.userUrl}/$userId");
+      if (response is! Map<String, dynamic>) return true;
+
+      final serverType = response['userType']?.toString().trim();
+      if (serverType == null || serverType.isEmpty) return true;
+
+      final localType = AppManager.instance.getString(ManagerKey.userType);
+      if (localType != serverType) {
+        AppManager.instance.setString(ManagerKey.userType, serverType);
+        _syncAppClassUserType(serverType);
+      }
+      return true;
+    } catch (e) {
+      final failure = ApiExceptionHandler.handle(e);
+      if (failure.type == ApiFailureType.unauthorized) {
+        return false;
+      }
+      return true;
+    }
+  }
+
+  void _syncAppClassUserType(String userType) {
+    AppClass.userType = switch (userType) {
+      'COMMUTER' => 1,
+      'DRIVER' => 2,
+      'ADMIN' => 3,
+      _ => 0,
+    };
+  }
+
+  @override
   Future<ApiResult<void>> signUp({
     required String username,
     required String mobileNumber,

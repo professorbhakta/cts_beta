@@ -1,11 +1,14 @@
+import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/d2d/models/d2d_channel_role_policy.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:cts/features/d2d/widgets/d2d_action_error_listener.dart';
+import 'package:cts/features/d2d/widgets/d2d_add_commuter_sheet.dart';
 import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/widgets/admin_form_header.dart';
@@ -168,10 +171,28 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     double fabPadding,
   ) {
     final isLive = provider.commuters.isNotEmpty;
+    final liveCommuterIds = provider.commuters
+        .map((c) => c.id)
+        .whereType<int>()
+        .toSet();
+    final alreadyInIds = provider.alreadyInCommuters
+        .map((c) => c.id)
+        .whereType<int>()
+        .toSet();
+    final canAdd = D2dChannelRolePolicy.can(
+      SessionRole.userType,
+      D2dChannelAction.addCommuter,
+    );
 
-    return ListView(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, fabPadding),
+    return Stack(
       children: [
+        ListView(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, fabPadding + (canAdd ? 72 : 0)),
+      children: [
+        D2dConnectionLostBanner(
+          provider: provider,
+          batchId: widget.batchId,
+        ),
         D2dTripHeader(
           title: 'Live Commuter Log',
           subtitle: 'Batch #${widget.batchId}',
@@ -186,6 +207,20 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           onToggleSort: provider.toggleSortOrder,
         ),
         const SizedBox(height: 16),
+        if (provider.alreadyInCommuters.isNotEmpty) ...[
+          D2dAlreadyInSection(
+            commuters: provider.alreadyInCommuters,
+            onCall: (commuter) => _callCommuter(commuter.mobileNumber),
+          ),
+          const SizedBox(height: 20),
+        ],
+        Text(
+          'Live queue',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+        const SizedBox(height: 8),
         if (provider.commuters.isEmpty)
           const StatusMessage(
             icon: Icons.hourglass_empty_rounded,
@@ -209,6 +244,27 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
             if (i < provider.commuters.length - 1) const SizedBox(height: 8),
           ],
         ],
+      ],
+        ),
+        if (canAdd)
+          Positioned(
+            right: 16,
+            bottom: fabPadding,
+            child: FloatingActionButton(
+              heroTag: 'd2dDriverAddCommuter',
+              tooltip: 'Add commuter',
+              backgroundColor: AppColors.acYellowWarm,
+              foregroundColor: AppColors.acBlack,
+              onPressed: () => D2dAddCommuterSheet.show(
+                context,
+                batchId: widget.batchId,
+                d2dProvider: provider,
+                liveCommuterIds: liveCommuterIds,
+                alreadyInCommuterIds: alreadyInIds,
+              ),
+              child: const Icon(Icons.person_add_rounded),
+            ),
+          ),
       ],
     );
   }
@@ -266,7 +322,12 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       ),
       floatingActionButton: Consumer<D2dChannelProvider>(
         builder: (context, provider, _) {
-          if (provider.isTripEnded ||
+          final canStop = D2dChannelRolePolicy.can(
+            SessionRole.userType,
+            D2dChannelAction.stopTrip,
+          );
+          if (!canStop ||
+              provider.isTripEnded ||
               provider.tripStatus == D2dTripStatus.ended) {
             return const SizedBox.shrink();
           }

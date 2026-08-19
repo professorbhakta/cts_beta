@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-08-19 17:55 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-19 23:55 IST
+> **Session:** P4 channel role governance — Already IN + role gates
 
 # D2D Feature — Live WebSocket
 
@@ -14,11 +14,12 @@ Feature owner for morning door-to-door live trips. Single provider powers admin 
 
 | Role | Path |
 |------|------|
+| Role policy | `models/d2d_channel_role_policy.dart` |
 | Provider | `providers/d2d_channel_provider.dart` |
 | Status API | `repositories/d2d_repository.dart` (+ impl) |
 | Admin screen | `screens/d2d_channel.dart` |
 | Driver screen | `screens/d2d_log_screen.dart` |
-| Live widgets | `widgets/d2d_live_widgets.dart` |
+| Live widgets | `widgets/d2d_live_widgets.dart` — includes `D2dAlreadyInSection` |
 | Action error SnackBar | `widgets/d2d_action_error_listener.dart` |
 | Add commuter sheet | `widgets/d2d_add_commuter_sheet.dart` — search by name, mobile, batch, POP |
 
@@ -33,6 +34,8 @@ _channel = IOWebSocketChannel.connect(uri, headers: {HttpHeaders.cookieHeader: c
 ```
 
 Both screens call `provider.connect(batchId)` in `initState` and `disconnect()` on dispose.
+
+**Lifecycle (P3):** `AppLifecycleHost` observes OS foreground/background. On resume after background: session reconcile, running batches refresh, D2D reconnect if socket dropped (keeps stale list + `D2dConnectionLostBanner` until fresh WS frame). Android may kill the process; iOS may suspend with a dead socket — both recover on resume. Explicit leave/back still only `disconnect()` (not STOP).
 
 **Disconnect ≠ STOP.** Leaving the screen (back, Close channel, `dispose`) only closes the WebSocket. The `DTODLOG` row stays `isActive=true` until the driver **STOP TRIP** FAB sends `{ACTION: STOP}`.
 
@@ -52,13 +55,14 @@ Also loads driver via REST: `_driverRepository.getDriverByBatch(batchId)`.
 
 ## WS actions (client → server)
 
-| UI action | Provider method | WS payload |
-|-----------|-----------------|------------|
-| Driver swipe green | `confirmCommuter(id)` | `{ACTION: REMOVE, CLIST: [id]}` |
-| Driver swipe red | `denyCommuter(id)` | `{ACTION: DELETE, CLIST: [id]}` |
-| Admin swipe red | `removeCommuter(id)` | `{ACTION: DELETE, CLIST: [id]}` |
-| Admin add sheet | `addCommuter(id)` | `{ACTION: ADD, CLIST: id}` — success toast only after the rider appears on the live list |
-| Driver STOP FAB | `stopTrip()` | `{ACTION: STOP}` |
+| UI action | Who | Provider method | WS payload |
+|-----------|-----|-----------------|------------|
+| Driver swipe green | Driver | `confirmCommuter(id)` | `{ACTION: REMOVE, CLIST: [id]}` |
+| Driver swipe red | Admin/Driver | `denyCommuter(id)` / `removeCommuter(id)` | `{ACTION: DELETE, CLIST: [id]}` |
+| Add sheet **+** | Admin/Driver | `addCommuter(id)` | `{ACTION: ADD, CLIST: id}` |
+| Driver STOP FAB | Driver only | `stopTrip()` | `{ACTION: STOP}` |
+
+Role gating is enforced in Flutter (`D2dChannelRolePolicy`) and on the backend consumer. Unauthorized attempts set `actionErrorMessage` (SnackBar) without disconnecting.
 
 Always use **user ID** in CLIST.
 
@@ -69,8 +73,8 @@ Always use **user ID** in CLIST.
 | Close code | Meaning | UI |
 |------------|---------|-----|
 | **4001** | Trip already ended | `isTripEnded`; retry hidden |
-| **4401** | No session cookie | error, not an empty list |
-| **4403** | Not ADMIN / assigned DRIVER | error, not an empty list |
+| **4401** | No session cookie | error + session invalidation → sign-in |
+| **4403** | Not ADMIN / assigned DRIVER | error + session invalidation → sign-in |
 
 Message for 4001: *"This trip has already ended. A new trip can be started tomorrow."*
 
@@ -115,10 +119,13 @@ Driver **STOP TRIP** FAB is hidden when `isTripEnded` or REST status is `ended`.
 ## Incoming payload
 
 ```json
-{ "result": { "data": [...], "D2D_id": 12, "driver": { ... } } }
+{ "result": { "data": [...], "already_in": [...], "D2D_id": 12, "driver": { ... } } }
 ```
 
-Parsed by `_decodePayload`, `_parseCommutersFromData`, `D2dCommuterModel.fromJson`.
+- **`data`** — live queue (not yet picked up).
+- **`already_in`** — confirmed pickups (CList), hydrated same shape as queue entries.
+
+Parsed by `_decodePayload`, `_parseCommutersFromData`, `parseAlreadyInFromResult`, `D2dCommuterModel.fromJson`.
 
 ---
 
@@ -131,3 +138,5 @@ Parsed by `_decodePayload`, `_parseCommutersFromData`, `D2dCommuterModel.fromJso
 5. Repeat on **driver log** (swipe green/red). STOP FAB hidden after ended / 4001.
 6. Reconnect after STOP → ended-trip message (4001), not action error.
 7. Leave Channel / back **without** STOP → trip stays active; reconnect joins the same live queue.
+8. **Already IN:** Driver confirms pickup → rider moves from Live queue to **Already IN** on both admin channel and driver log.
+9. **Role guard:** Admin cannot STOP or confirm pickup; SnackBar shows driver-only message if attempted via provider.

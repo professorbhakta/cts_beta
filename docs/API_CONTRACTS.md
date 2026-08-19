@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 view/ home[] overflow[]; Flutter Available sections
+> **Updated:** 2026-08-19 23:15 IST
+> **Session:** P2 Security Boundary client notes
 
 # API Contracts — Backend ↔ Flutter
 
@@ -10,6 +10,21 @@ Single reference for aligning `D:\cts-docker` endpoints with `D:\cts_beta` clien
 
 **Feature owners:** [lib/features/d2d/README.md](../lib/features/d2d/README.md) · [lib/features/batches/README.md](../lib/features/batches/README.md)
 
+### Client truth contract (P1)
+
+Flutter normalizes JSON bodies through `lib/api/api_response_contract.dart` before mapping to `ApiResult`:
+
+| Rule | Behavior |
+|------|----------|
+| HTTP 200 + `status: error` (or `fail` / `failed`) | **Failure** — never `ApiResult.success` |
+| Known success `status` | `ok`, `success`, `added`, `removed`, `ended`, `already_confirmed` |
+| Unknown / new `status` | Fail closed → failure with safe fallback message |
+| Message fields (first match) | `message`, `msg`, `detail`, then string `error` / `code` |
+| Status aliases | `status`, `result`, `state` |
+| UI toasts / SnackBars | Provider/screen only — repositories return `ApiResult`, no side effects |
+
+HTTP 4xx/5xx still flow through `ApiExceptionHandler` (Dio `badResponse`), which reuses the same message extraction.
+
 ---
 
 ## Authentication (REST)
@@ -18,9 +33,11 @@ Single reference for aligning `D:\cts-docker` endpoints with `D:\cts_beta` clien
 |---------|---------|-------|
 | `POST /user/login` | `ApiUrl.loginUrl` | Session cookie stored in FlutterSecureStorage |
 | `POST /user/logout` | `ApiUrl.logoutUrl` | Client always clears cookies + prefs, even if POST fails |
-| HTTP 401 (not login) | Dio interceptor | Clears local session; go_router returns to `/signIn` |
+| HTTP 401 (not login) | Dio interceptor + `createSessionInvalidatedHandler` | Clears local session; snackbar; go_router → `/signIn` |
 
-Public `/signUp` is disabled on the Flutter client (redirects to sign-in). **Backend `POST /user/` still trusts client `userType`.**
+Public `/signUp` is disabled on the Flutter client (redirects to sign-in). **Backend `POST /user/` (P2):** unauthenticated callers may only create `COMMUTER`; `DRIVER`/`ADMIN` require authenticated admin session. `PATCH /user/<pk>` `userType` changes are admin-only.
+
+On startup/splash, Flutter calls `GET /user/<userId>` via `refreshSessionFromServer()` to reconcile cached role with server.
 
 D2D WebSocket requires a Django session cookie. Role is checked **once on connect** (anonymous **4401**, wrong role **4403**). Actions on an accepted socket are not re-authorized per message.
 
@@ -62,8 +79,11 @@ Handshake: `ADMIN` may join any batch; `DRIVER` only if assigned to that batch. 
 ### Server → client
 
 ```json
-{ "result": { "data": [...], "D2D_id": 12, "driver": { ... } } }
+{ "result": { "data": [...], "already_in": [...], "D2D_id": 12, "driver": { ... } } }
 ```
+
+- **`data`** — live fly queue.
+- **`already_in`** — CList riders confirmed in the cab (same entry shape as `data`).
 
 ### Client → server
 
@@ -99,7 +119,7 @@ When an action fails, server sends JSON (not `result`):
 | `no_driver` / `no_cab` | Batch has no driver/cab assigned |
 | `invalid_commuter` | Commuter missing popId or user not found |
 | `unknown_action` | Unsupported ACTION value |
-| `forbidden` | Authenticated user not allowed to mutate this trip |
+| `forbidden` | Authenticated user not allowed to mutate this trip (wrong role for ACTION) |
 
 Flutter should check for `error` key before reading `result`.
 

@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 Available tab Home then Overflow; GET view split
+> **Updated:** 2026-08-20 01:00 IST
+> **Session:** P6 — state lifecycle hygiene
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -38,7 +38,13 @@ Feature owner for batch management, running batches, and evening return trips (R
 | `/runningBatchScreen` | `RunningBatchScreen` — morning live DTODLOG snapshot only |
 | `/driverReturnCommuter/:batchId` | Driver return list (confirm/remove; no End) |
 
-**Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, app resume, return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
+**Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, **app resume** (via `AppLifecycleHost`), return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
+
+**Return batch resume:** `ReturnBatchProvider.onAppResumed()` reloads the active trip when online (`keepExistingData: true`); skipped while `actionInProgress` to protect in-flight confirm/remove/end.
+
+**State lifecycle (P6):** App-scoped singleton clears trip data on screen dispose (`clearActiveBatch()`). Batch switch calls `beginReturnTripLoad()` synchronously — no stale flash. In-flight loads use generation counter; superseded responses are dropped. Pull-to-refresh / resume use `keepExistingData: true`. Logout calls `reset()` via `ControllerResetUtil`.
+
+**Degraded network (P5):** `confirmCommuter`, `removeCommuter`, and `endReturnTrip` call `NetworkActionGuard.check()` first — offline returns explicit error message (no queue/replay yet).
 
 Entry: Admin home or batch screen → Return Batches.
 
@@ -57,6 +63,8 @@ Entry: Admin home or batch screen → Return Batches.
 **ID rule:** Always pass **`userId.id`** as `commuter_id` in POST body.
 
 **Client notes:** `get_commuter` does not send `?hydrate=` (backend default hydrates `commuters`). `end` is **POST only** from Flutter even though the backend also allows GET.
+
+**Truth contract (P1):** POST add/remove/end parse body via `ApiResponseContract` (`lib/api/api_response_contract.dart`). HTTP 200 + `{status:error}` → `ApiResult.failure` (provider skips reload; screen shows error SnackBar). Known success statuses: `added`, `removed`, `ended`, `already_confirmed`, `ok`. Unknown status → fail closed.
 
 ---
 

@@ -1,3 +1,4 @@
+import 'package:cts/api/api_response_contract.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
@@ -84,7 +85,10 @@ class ApiExceptionHandler {
         case 404:
           return 'The requested resource was not found.';
         case 409:
-          return 'This action conflicts with existing data. Please check and try again.';
+          return responseMessage.isNotEmpty &&
+                  responseMessage != 'An unknown error occurred.'
+              ? responseMessage
+              : 'This action conflicts with existing data. Please check and try again.';
         case 422:
           return responseMessage.isNotEmpty && responseMessage != 'An unknown error occurred.'
               ? responseMessage
@@ -130,14 +134,14 @@ class ApiExceptionHandler {
 
   static String _messageFromResponse(Response? response) {
     if (response?.data is Map) {
-      final data = response!.data as Map<String, dynamic>;
-      // Check for common error keys first.
-      if (data.containsKey('detail')) return data['detail'].toString();
-      if (data.containsKey('error')) return data['error'].toString();
-      if (data.containsKey('message')) return data['message'].toString();
-      if (data.containsKey('msg')) return data['msg'].toString();
-
-      // If no common key is found, convert the whole map to a string for debugging.
+      final data = Map<String, dynamic>.from(response!.data as Map);
+      final extracted = ApiResponseContract.extractMessage(data);
+      if (extracted != null && extracted.isNotEmpty) {
+        return extracted;
+      }
+      if (data.isEmpty) {
+        return 'An unknown error occurred.';
+      }
       return data.toString();
     }
     // Fallback for non-map data or null response.

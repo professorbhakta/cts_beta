@@ -1,6 +1,7 @@
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/api/network_api_services.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
+import 'package:cts/app/session_invalidation.dart';
 import 'package:cts/features/admin_home/providers/admin_provider.dart';
 import 'package:cts/features/batches/repositories/batch_repository_impl.dart';
 import 'package:cts/features/batches/repositories/offline_first_batch_repository.dart';
@@ -36,6 +37,7 @@ import 'package:cts/features/drivers/providers/driver_controller.dart';
 import 'package:cts/features/drivers/providers/driver_form_provider.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/api/connectivity_service.dart';
+import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/core/sync/sync_manager.dart';
 import 'package:cts/data/local/cache/cache_service.dart';
 import 'package:cts/data/repositories/authentication_repository_impl.dart';
@@ -70,10 +72,15 @@ class AppProviders {
     required SyncManager syncManager,
     required OfflineFirstBatchRepository offlineFirstBatchRepository,
     required SessionAuthNotifier sessionAuthNotifier,
+    required SessionInvalidatedCallback onSessionInvalidated,
   }) {
     return [
       Provider<BaseApiServices>.value(value: apiService),
       Provider<ConnectivityService>.value(value: connectivityService),
+      Provider<NetworkActionGuard>(
+        create: (context) =>
+            NetworkActionGuard(context.read<ConnectivityService>()),
+      ),
       ChangeNotifierProvider<SyncManager>.value(value: syncManager),
       Provider<CacheService>(create: (_) => CacheService()),
       ChangeNotifierProvider<SessionAuthNotifier>.value(
@@ -168,14 +175,18 @@ class AppProviders {
             RunningBatchProvider(context.read<RunningBatchRepository>()),
       ),
       ChangeNotifierProvider(
-        create: (context) =>
-            ReturnBatchProvider(context.read<ReturnBatchRepository>()),
+        create: (context) => ReturnBatchProvider(
+          context.read<ReturnBatchRepository>(),
+          networkGuard: context.read<NetworkActionGuard>(),
+        ),
       ),
       ChangeNotifierProvider(
         create: (context) =>
             D2dChannelProvider(
               context.read<DriverRepository>(),
               context.read<D2dRepository>(),
+              networkGuard: context.read<NetworkActionGuard>(),
+              onSessionInvalidated: onSessionInvalidated,
             ),
       ),
       ChangeNotifierProvider(
@@ -204,13 +215,20 @@ class AppProviders {
 
   static Future<AppBootstrap> bootstrapServices() async {
     final sessionAuthNotifier = SessionAuthNotifier(SessionRepositoryImpl());
-    await sessionAuthNotifier.refresh();
+
+    late final SessionInvalidatedCallback onSessionInvalidated;
+    onSessionInvalidated = createSessionInvalidatedHandler(
+      authNotifier: sessionAuthNotifier,
+    );
 
     final apiService = NetworkApiServices(
-      onUnauthorized: () async {
-        await sessionAuthNotifier.refresh();
-      },
+      onUnauthorized: onSessionInvalidated,
     );
+
+    final authRepository = AuthenticationRepositoryImpl(apiService: apiService);
+    sessionAuthNotifier.bindAuthRepository(authRepository);
+    await sessionAuthNotifier.refresh(validateWithServer: true);
+
     final connectivityService = ConnectivityService();
     final syncManager = SyncManager(connectivityService: connectivityService);
     final offlineFirstBatchRepository = OfflineFirstBatchRepository(
@@ -226,6 +244,7 @@ class AppProviders {
       syncManager: syncManager,
       offlineFirstBatchRepository: offlineFirstBatchRepository,
       sessionAuthNotifier: sessionAuthNotifier,
+      onSessionInvalidated: onSessionInvalidated,
     );
   }
 }
@@ -237,6 +256,7 @@ class AppBootstrap {
     required this.syncManager,
     required this.offlineFirstBatchRepository,
     required this.sessionAuthNotifier,
+    required this.onSessionInvalidated,
   });
 
   final NetworkApiServices apiService;
@@ -244,4 +264,5 @@ class AppBootstrap {
   final SyncManager syncManager;
   final OfflineFirstBatchRepository offlineFirstBatchRepository;
   final SessionAuthNotifier sessionAuthNotifier;
+  final SessionInvalidatedCallback onSessionInvalidated;
 }

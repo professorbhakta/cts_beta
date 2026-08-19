@@ -19,31 +19,16 @@ class RunningBatchScreen extends StatefulWidget {
   State<RunningBatchScreen> createState() => _RunningBatchScreenState();
 }
 
-class _RunningBatchScreenState extends State<RunningBatchScreen>
-    with WidgetsBindingObserver {
+class _RunningBatchScreenState extends State<RunningBatchScreen> {
   late final RunningBatchProvider _provider;
 
   @override
   void initState() {
     super.initState();
     _provider = context.read<RunningBatchProvider>();
-    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _provider.fetchOnce();
     });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _provider.fetchOnce();
-    }
   }
 
   @override

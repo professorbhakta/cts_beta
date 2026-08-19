@@ -1,6 +1,6 @@
 > **Doc:** docs/ROUTING_AND_AUTH.md
-> **Updated:** 2026-08-14 19:55 IST
-> **Session:** Auth security wave — public /signUp redirect; sessionid + logout/401
+> **Updated:** 2026-08-19 23:15 IST
+> **Session:** P2 Security Boundary — session refresh + 401/4401 redirect
 
 # Routing and authentication
 
@@ -16,7 +16,9 @@ How users move through the app: **go_router**, **session**, and **role-based acc
 |------|---------|
 | `lib/app/router/app_router.dart` | `GoRouter` definition, redirects, builders |
 | `lib/app/router/route_names.dart` | Path constants, role prefix sets |
-| `lib/app/router/session_auth_notifier.dart` | Login + role snapshot for redirects |
+| `lib/app/router/auth_redirect.dart` | Pure `resolveAuthRedirect()` — unit tested |
+| `lib/app/router/session_auth_notifier.dart` | Login + role snapshot; optional server reconcile |
+| `lib/app/session_invalidation.dart` | Shared 401/4401 handler — snackbar + `/signIn` |
 | `lib/domain/usecases/get_initial_route_usecase.dart` | Post-splash destination |
 | `lib/data/repositories/session_repository_impl.dart` | Persisted session |
 
@@ -35,7 +37,7 @@ stateDiagram-v2
   RoleHome --> Commuter: COMMUTER
 ```
 
-1. **Splash** calls `SessionAuthNotifier.refresh()` then `SplashProvider.determineInitialRoute()`.
+1. **Splash** calls `SessionAuthNotifier.refresh(validateWithServer: true)` then `SplashProvider.determineInitialRoute()`.
 2. **GetInitialRouteUseCase** returns `signIn` or `RouteName.homeForRole(userType)`.
 3. Splash uses `context.go(route)`.
 
@@ -111,12 +113,12 @@ Fallback builders redirect to safe screens if params missing (e.g. empty batchId
 `SessionAuthNotifier`:
 
 - `loggedIn` — `isLogin` **and** a non-empty `sessionid` in `SessionManager` (in-memory after first secure-storage read)
-- `userType` — `ADMIN` | `DRIVER` | `COMMUTER` (string from session)
+- `userType` — `ADMIN` | `DRIVER` | `COMMUTER` (string from session; reconciled with `GET /user/<id>` on startup via `refreshSessionFromServer()`)
 - `ready` — first refresh completed
 
-Router `refreshListenable: authNotifier` re-runs redirects when session changes. HTTP **401** (except login) clears local session and refreshes the notifier — no extra session ping.
+Router `refreshListenable: authNotifier` re-runs redirects when session changes. HTTP **401** (except login) and D2D WS **4401/4403** call `createSessionInvalidatedHandler`: clear local session, error snackbar, explicit `context.go(/signIn)`.
 
-Public **sign-up is disabled**. `/signUp` redirects to `/signIn`. Admins create DRIVER/COMMUTER via CRUD. Backend `POST /user/` still trusts client `userType` (follow-up).
+Public **sign-up is disabled**. `/signUp` redirects to `/signIn`. Admins create DRIVER/COMMUTER via CRUD. Backend `POST /user/` enforces COMMUTER-only for unauthenticated callers (P2).
 
 ---
 

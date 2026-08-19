@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<SessionAuthNotifier>().refresh();
+      await context.read<SessionAuthNotifier>().refresh(validateWithServer: true);
       if (!mounted) return;
       await context.read<SplashProvider>().determineInitialRoute();
     });

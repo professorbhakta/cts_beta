@@ -1,5 +1,6 @@
 import 'package:cts/api/api_result.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/core/network/network_action_guard.dart';
 import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository.dart';
@@ -7,9 +8,11 @@ import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:flutter/foundation.dart';
 
 class ReturnBatchProvider with ChangeNotifier {
-  ReturnBatchProvider(this._repository);
+  ReturnBatchProvider(this._repository, {NetworkActionGuard? networkGuard})
+      : _networkGuard = networkGuard;
 
   final ReturnBatchRepository _repository;
+  final NetworkActionGuard? _networkGuard;
 
   ViewState _state = ViewState.idle;
   ViewState get state => _state;
@@ -43,6 +46,32 @@ class ReturnBatchProvider with ChangeNotifier {
   bool _actionInProgress = false;
   bool get actionInProgress => _actionInProgress;
 
+  int _loadGeneration = 0;
+
+  bool get hasTripData =>
+      _homeCommuters.isNotEmpty ||
+      _overflowCommuters.isNotEmpty ||
+      _confirmedCommuters.isNotEmpty ||
+      _capacity != null;
+
+  bool isDisplayingBatch(String batchId) => _activeBatchId == batchId;
+
+  @visibleForTesting
+  void bindActiveBatchForTesting(String batchId) {
+    _activeBatchId = batchId;
+  }
+
+  /// Clears trip lists immediately when opening a different batch (before async load).
+  void beginReturnTripLoad(String batchId, {bool keepExistingData = false}) {
+    _activeBatchId = batchId;
+    _state = ViewState.loading;
+    _errorMessage = null;
+    if (!keepExistingData) {
+      _clearTripLists();
+    }
+    notifyListeners();
+  }
+
   Future<void> fetchStatusesForBatches(List<String> batchIds) async {
     if (batchIds.isEmpty) return;
 
@@ -62,17 +91,20 @@ class ReturnBatchProvider with ChangeNotifier {
   ReturnBatchStatusModel? statusForBatch(String batchId) =>
       _statusByBatchId[batchId];
 
-  Future<void> loadReturnTrip(String batchId) async {
-    _activeBatchId = batchId;
-    _state = ViewState.loading;
-    _errorMessage = null;
-    notifyListeners();
+  Future<void> loadReturnTrip(
+    String batchId, {
+    bool keepExistingData = false,
+  }) async {
+    final generation = ++_loadGeneration;
+    beginReturnTripLoad(batchId, keepExistingData: keepExistingData);
 
     final results = await Future.wait([
       _repository.getAvailableCommuters(batchId),
       _repository.getConfirmedCommuters(batchId),
       _repository.getReturnBatchStatus(batchId),
     ]);
+
+    if (generation != _loadGeneration) return;
 
     final availableResult = results[0] as ApiResult<ReturnAvailableResult>;
     final confirmedResult = results[1] as ApiResult<ReturnBatchConfirmedResult>;
@@ -129,6 +161,9 @@ class ReturnBatchProvider with ChangeNotifier {
   }
 
   Future<String?> endReturnTrip(String batchId) async {
+    final blocked = await _ensureOnlineForMutation();
+    if (blocked != null) return blocked;
+
     _actionInProgress = true;
     notifyListeners();
 
@@ -162,6 +197,9 @@ class ReturnBatchProvider with ChangeNotifier {
     final batchId = _activeBatchId;
     if (batchId == null) return 'No active batch';
 
+    final blocked = await _ensureOnlineForMutation();
+    if (blocked != null) return blocked;
+
     _actionInProgress = true;
     notifyListeners();
 
@@ -174,18 +212,52 @@ class ReturnBatchProvider with ChangeNotifier {
       return _errorMessage;
     }
 
-    await loadReturnTrip(batchId);
+    await loadReturnTrip(batchId, keepExistingData: true);
     return result.data;
   }
 
+  Future<void> onAppResumed({required bool isOnline}) async {
+    final batchId = _activeBatchId;
+    if (batchId == null || _actionInProgress || !isOnline) return;
+    await loadReturnTrip(batchId, keepExistingData: true);
+  }
+
+  Future<String?> _ensureOnlineForMutation() async {
+    final networkGuard = _networkGuard;
+    if (networkGuard == null) return null;
+    final guard = await networkGuard.check();
+    if (guard.isOnline) return null;
+    final message = guard.message ?? NetworkActionGuard.actionBlockedMessage;
+    _errorMessage = message;
+    notifyListeners();
+    return message;
+  }
+
   void clearActiveBatch() {
+    _loadGeneration++;
     _activeBatchId = null;
+    _clearTripLists();
+    _state = ViewState.idle;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  /// Full reset for logout — clears picker status cache too.
+  void reset() {
+    _loadGeneration++;
+    _activeBatchId = null;
+    _clearTripLists();
+    _statusByBatchId.clear();
+    _actionInProgress = false;
+    _state = ViewState.idle;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void _clearTripLists() {
     _homeCommuters = [];
     _overflowCommuters = [];
     _confirmedCommuters = [];
     _capacity = null;
-    _state = ViewState.idle;
-    _errorMessage = null;
-    notifyListeners();
   }
 }

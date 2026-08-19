@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-19 19:15 IST
-> **Session:** M7 done; next commuter intent + cutoff
+> **Updated:** 2026-08-20 00:40 IST
+> **Session:** P1–P7 integration gate
 
 # Project Todo & Progress
 
@@ -45,7 +45,7 @@
 
 ### Follow-ups
 6. [ ] Replace / harden deprecated or placeholder screens and TODOs in admin CRUD flows
-7. [ ] Expand automated tests beyond default `widget_test.dart`
+7. [~] Expand automated tests beyond default `widget_test.dart` — P1 added `test/api/api_response_contract_test.dart` + return batch repo tests (33 total)
 8. [x] Auth security wave: TLS keep, session cookies cached, logout/401, D2D WS cookie (REST d2d permissions + `POST /user/` userType still open)
 9. [x] Phase 7: migrate **batches** (running + return)
 10. [x] Pending-sync badge in admin drawer
@@ -73,13 +73,15 @@
 25b. [x] Flutter parse status extras on picker + return banner; Seats left still remaining_capacity
 26. [x] Return allocation M4 GET view split lists + Flutter Available Home/Overflow
 26b. [x] Return allocation M7 enforce add_commuter (R2-R5): validate_add_commuter in return_pool.py
-26c. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
+26c. [x] P1 Truth Contract — `ApiResponseContract`; C1 (200+status:error → failure); 33 tests
+26f. [x] P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; 72 tests
+26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking
 
 - [x] D2D WebSocket auth — session cookie on connect; Django rejects anonymous (4401) and wrong role (4403)
 - [x] Session cookies on WebSocket — `IOWebSocketChannel.connect` Cookie header
-- [ ] Backend `POST /user/` still trusts client `userType` (public Flutter sign-up disabled)
+- [x] Backend `POST /user/` userType — public create COMMUTER-only; admin auth required for DRIVER/ADMIN (P2, `cts-docker`)
 - [ ] `DEFAULT_ADMIN_CODE` empty — admin registration may need manual code entry
 - [ ] `channels_redis` for WS broadcast scaling (backend)
 

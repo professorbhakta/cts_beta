@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:cts/app/app_lifecycle_host.dart';
 import 'package:cts/app/app_providers.dart';
 import 'package:cts/app/router/app_router.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
+import 'package:cts/app/session_invalidation.dart';
 import 'package:cts/theme/app_theme.dart';
 import 'package:cts/appManager/snackbar_service.dart';
+import 'package:cts/widgets/network_degraded_banner.dart';
 import 'package:cts/api/connectivity_service.dart';
 import 'package:cts/core/sync/sync_manager.dart';
 import 'package:cts/features/batches/repositories/offline_first_batch_repository.dart';
@@ -22,6 +25,7 @@ class CtsApp extends StatefulWidget {
     required this.syncManager,
     required this.offlineFirstBatchRepository,
     required this.sessionAuthNotifier,
+    required this.onSessionInvalidated,
   });
 
   final BaseApiServices apiService;
@@ -29,6 +33,7 @@ class CtsApp extends StatefulWidget {
   final SyncManager syncManager;
   final OfflineFirstBatchRepository offlineFirstBatchRepository;
   final SessionAuthNotifier sessionAuthNotifier;
+  final SessionInvalidatedCallback onSessionInvalidated;
 
   @override
   State<CtsApp> createState() => _CtsAppState();
@@ -56,16 +61,23 @@ class _CtsAppState extends State<CtsApp> {
         syncManager: widget.syncManager,
         offlineFirstBatchRepository: widget.offlineFirstBatchRepository,
         sessionAuthNotifier: widget.sessionAuthNotifier,
+        onSessionInvalidated: widget.onSessionInvalidated,
       ),
-      child: MaterialApp.router(
-        title: 'CTS',
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
-        scaffoldMessengerKey: SnackBarService.scaffoldMessengerKey,
-        debugShowCheckedModeBanner: false,
-        routerConfig: _router,
-        builder: EasyLoading.init(),
+      child: AppLifecycleHost(
+        child: MaterialApp.router(
+          title: 'CTS',
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: ThemeMode.system,
+          scaffoldMessengerKey: SnackBarService.scaffoldMessengerKey,
+          debugShowCheckedModeBanner: false,
+          routerConfig: _router,
+          builder: (context, child) {
+            return NetworkDegradedBanner(
+              child: EasyLoading.init()(context, child),
+            );
+          },
+        ),
       ),
     );
   }

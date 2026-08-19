@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-19 19:15 IST
-> **Session:** M7 add_commuter enforcement (R2–R5). Next: commuter intent + cutoff
+> **Updated:** 2026-08-20 00:40 IST
+> **Session:** P1–P7 integration gate (Phase 0 complete)
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -25,7 +25,8 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - **Routing:** go_router with role-protected redirects
 - **Layout:** module-based per [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) — `screens/`, `providers/`, `models/`, `repositories/` inside each feature
 - **No re-export stubs** — one canonical path per file
-- **Quality:** `flutter analyze`, `flutter pub get`, test on iOS + Android after code changes
+- **Quality:** `flutter analyze`, `flutter pub get`, `flutter test` after code changes
+- **Pre-push device smoke (required):** both lab devices — emulator admin + phone driver — manual login via `flutter run`; see [docs/TESTING.md](docs/TESTING.md) § Pre-push gate. Unit tests alone are not enough before `git push`.
 - **End-of-session doc sync** via [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) + [DOC_REGISTRY.md](DOC_REGISTRY.md)
 
 ---
@@ -54,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**M7 done.** `POST add_commuter` enforces R2, R3, R5 via `validate_add_commuter()`. R4 **relaxed**: commuters may take any return (earlier or later); home-batch riders get priority (home_hold reserved); admin/driver adds overflow. Rejects: not_eligible, already_allocated, overflow_full. Flutter overflow confirm disabled when `overflowRemaining==0` (M4). Error messages flow through `ApiExceptionHandler` → SnackBar.
+**P1–P7 integration in progress.** Branch `integration/p1-p7-validation` — all P2→P7 merged; sequential validation gate running.
 
-**Next:** Commuter POST intent (skip/home/earlier) + cutoff/no-show release. Manual QA with dummy org. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** Complete P1–P7 smoke + automated gate; merge to beta-ver on GO. Do **not** start P8/P9. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -74,7 +75,9 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 | Batch-08 | Still **LIVE** (`DTODLOG` 10 / `/ws/11/` / Driver 8 `9876544118`) |
 | `.env` | LAN `192.168.1.6`. Do not wipe Parul `9898927941` |
 
-**Code this session:** M7 `validate_add_commuter()` in `return_pool.py` — R2 not_eligible, R3 already_allocated, R4 later_return, R5 overflow_full. Wired into `AddCommuter` view before Redis SADD. Flutter `_statusMessage` handles error status. No UI changes needed (overflow disable shipped M4).
+**Code this session:** Integration merge P2→P7 complete (P5: role+network guards merged).
+
+**Lab connectivity (2026-08-20 00:40 IST):** Phase 0 merge complete. Backend Docker up. Emulator + phone listed.
 
 **Lab (2026-08-17):** Pixel_10_Pro is `emulator-5554`. Qt often restores it off-screen (`Y ≈ -942`). Laptop work area is **1536×816**; auto scale (`-1`) made the skin **864px** tall (clips under the taskbar). `emulator-user.ini`: `window.x=40`, `window.y=16`, **`window.scale=0.25`**. Move with `SetWindowPos` on `qemu-system-x86_64` if the taskbar icon shows nothing.
 
@@ -113,14 +116,19 @@ Lab leftovers from 2026-08-17 still apply: Batch-08 was LIVE; dummy org `7069036
 - Flutter M3 — picker + return banner show Home hold / Overflow in / Overflow open when extras present; Seats left still empty-cab seats
 - Return allocation M4 — GET view `home[]` / `overflow[]`; Flutter Available Home then Overflow. Empty if no CList. Not M7.
 - Return allocation M7 — `validate_add_commuter()` enforces R2–R5 on POST add_commuter. Flutter error surfacing + overflow disable.
+- P1 Truth Contract — `ApiResponseContract`; C1 fixed (200+status:error → failure); 33 flutter tests
+- P2 Security Boundary — backend POST/PATCH userType gates; Flutter session role refresh + fail-secure 401/4401 redirect; 46 flutter tests
+- P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
+- P4 Channel role governance — `D2dChannelRolePolicy`; provider + UI gating; WS `already_in` Already IN section; driver add FAB; backend action role gates; 68 flutter tests
+- P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
+- P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
 
 ### Open backlog (from PROJECT_TODOS)
 
 - Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
-- Batch-08 still LIVE; STOP `isComing` for other-batch ADD; admin End return skipped (5 confirmed tonight)
-- Remaining Application High: A1 Track Cab vehicle, A6–A9 (plus A11/A12 from bug audit)
-- Deferred Reliability: R4 logout reset, R5 STOP flush
-- Backend `POST /user/` still trusts client `userType`
+- Batch-08 still LIVE; lab leftovers from manual QA
+- Remaining Application High: A1 Track Cab vehicle, A6–A9
+- Expand automated tests (P1 added contract + return batch repo tests)
 - Phase 9 / E: promote or isolate `offline_temp` (separate from High leftovers)
 - Phase C–D: `appManager` → `app/services`; rename `*_controller.dart` (widgets + `lib/api/` already canonical)
 - Admin CRUD placeholder screens / TODOs
@@ -139,10 +147,13 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Area | Path |
 |------|------|
-| App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart` |
+| App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart`, `lib/app/app_lifecycle_host.dart` |
+| Lifecycle | `lib/core/lifecycle/` — foreground/background/resume coordinator |
+| Network guard | `lib/core/network/network_action_guard.dart` — pre-check before live/return mutations |
 | Router | `lib/app/router/app_router.dart` |
 | Network | `lib/api/` (canonical Dio client; not `core/network/`) |
 | API constants | `lib/api/api_list.dart` |
+| Response contract | `lib/api/api_response_contract.dart` — status/message/code truth layer |
 | Config | `AppConfig` in `lib/appManager/app_class.dart` |
 | D2D live | `lib/features/d2d/` |
 | Batches + return | `lib/features/batches/` |
@@ -166,9 +177,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-19 | M7 add_commuter | validate_add_commuter R2-R5. Flutter error surfacing. Next: commuter intent + cutoff |
-| 2026-08-19 | M4 view split | GET view home/overflow + Flutter Available sections. Hot-restart required |
-| 2026-08-19 | Wrap M3 | Status extras on GET + Flutter picker/banner. Seats left = remaining_capacity |
+| 2026-08-20 | P1–P7 integration gate | Phase 0 merge P2→P7 complete |
+| 2026-08-20 | P6 State lifecycle hygiene | Batch switch clear + load gen; dispose/reset; 72 tests |
+| 2026-08-19 | P3 Lifecycle resilience | AppLifecycleCoordinator; D2D reconnect + banner; 59 tests. Next: P4 |
 
 ---
 

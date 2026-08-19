@@ -72,7 +72,7 @@ See [../../PROJECT_BRAIN.md](../../PROJECT_BRAIN.md#6-status-snapshot) for short
 | Issue | Detail |
 |-------|--------|
 | REST auth / permissions | All d2d REST views still open in dev |
-| `POST /user/` trusts `userType` | Public Flutter sign-up disabled; backend still honors client role |
+| `POST /user/` trusts `userType` | **Fixed P2** — public COMMUTER-only; admin auth for privileged roles |
 | InMemoryChannelLayer | OK for single worker; migrate when scaling |
 | `return_start_time` / `return_end_time` | Unused on DTODLOG — product decision |
 
