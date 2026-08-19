@@ -40,7 +40,7 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-19 23:25 IST | Session refresh + 401/4401 |
 | [docs/TESTING.md](docs/TESTING.md) | 2026-08-20 00:30 IST | P4+P5 integration tests |
 | [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:55 IST | P4 role + Already IN |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 00:20 IST | P5 NetworkActionGuard on return mutations |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 00:50 IST | P8 picker + batched status fetch |
 | [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
 | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
