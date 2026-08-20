@@ -1,7 +1,7 @@
 ================================================================================
 FINAL GATE — SMOKE CATCH-UP (P1, P3, P5, P6)
 ================================================================================
-Status:   CLOSED 2026-08-20 ~11:40 IST — P3/P5/P6 smoke PASS; P1 N/A (path C)
+Status:   CLOSED 2026-08-20 ~11:55 IST — all four smoke PASS (P1 re-smoke)
 Branch:   beta-ver @ 90ed8ef
 When:     emulator-5554 Admin + phone 5f36af49 Driver; .env 172.20.10.2 FRESH run
 Duration: ~30 min after user ready
@@ -32,13 +32,12 @@ Goal: UI shows error on business failure; no false success reload.
 
 [x] 3.1.2a  Admin → Return Batches → Batch #5 → Confirmed tab
             N/A evidence: "No confirmed commuters"; 0 confirmed
-[ ] 3.1.2b  Try confirm someone NOT eligible (or overflow when overflow_remaining=0)
-            N/A — overflow_remaining=53; Available(0) at P1 time; no swipe
-[ ] 3.1.2c  Pull-to-refresh — confirmed count unchanged after rejected add
-            N/A — no rejected add executed
+[x] 3.1.2b  Driver confirmed PG11 Batch #4; admin Batch #5 Overflow Confirm PG11
+            SnackBar: already confirmed on another return trip today; count stayed 0
+[x] 3.1.2c  PTR + GET status/5 — confirmed_count=0
 
 Pass criteria: rejection visible; no silent success; no crash reload loop.
-SMOKE: N/A (path C: empty Home+Overflow, overflow_remaining>0, cab not full)
+SMOKE: PASS (re-smoke path B — cross-batch duplicate)
 
 --------------------------------------------------------------------------------
 P3 — LIFECYCLE RESILIENCE (both devices)
@@ -83,10 +82,10 @@ Note: beginReturnTripLoad notifyListeners-during-build in logs; UI still correct
 --------------------------------------------------------------------------------
 CLOSE-OUT
 --------------------------------------------------------------------------------
-  1. PHASE_03 smoke column P1=N/A P3/P5/P6=PASS
-  2. PHASE_06 GO CONDITIONAL (P1 N/A needs user accept)
+  1. PHASE_03 smoke column all four PASS
+  2. PHASE_06 GO (smoke closed; RC tag when user ready)
   3. PROJECT_BRAIN §9 smoke row
   4. PHASE_03B_SMOKE_RESULT.txt written
-  Do not tag RC until P1 N/A accepted or re-run with a reject path.
+  RC tag only when user explicitly requests.
 
 ================================================================================

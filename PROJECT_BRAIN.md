@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 11:45 IST
-> **Session:** Device smoke catch-up P1/P3/P5/P6
+> **Updated:** 2026-08-20 11:55 IST
+> **Session:** P1 re-smoke PASS; smoke catch-up closed
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,11 +55,11 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**beta-ver = P1–P9 integrated.** Merge `4222e40` on `beta-ver`. Auto tests still pass. **GO is CONDITIONAL** until P1 device-reject N/A is accepted (or re-smoked).
+**beta-ver = P1–P9 integrated.** Auto tests pass. **Device smoke catch-up closed** (P1/P3/P5/P6 PASS). **GO** for RC; tag `senior-review-2026-08-complete` only when user asks.
 
-**Next:** User accept P1 N/A **or** re-run P1 when Available is non-empty / overflow_remaining==0. Then A6–A9 or Commuter POST intent. Do **not** tag `senior-review-2026-08-complete` yet. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** Application wave **A6–A9** or **Commuter POST intent** (backend). A1 Track Cab lib still uncommitted — separate session. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
 
-**Smoke catch-up (2026-08-20):** FRESH `flutter run` both devices @ **`172.20.10.2`**. P6/P3/P5 PASS. P1 N/A (admin Available empty). Detail: [docs/final-gate/PHASE_03B_SMOKE_RESULT.txt](docs/final-gate/PHASE_03B_SMOKE_RESULT.txt)
+**Smoke catch-up (2026-08-20):** FRESH `flutter run` @ **`172.20.10.2`**. P1 re-smoke: driver PG11 Batch #4 → admin Batch #5 duplicate reject SnackBar. [PHASE_03B_SMOKE_RESULT.txt](docs/final-gate/PHASE_03B_SMOKE_RESULT.txt)
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
@@ -73,7 +73,8 @@ Gate reports: [docs/final-gate/](docs/final-gate/) (PHASE_01–06 + PHASE_03B). 
 | State | Detail |
 |-------|--------|
 | Batch-01 morning | **Ended** |
-| Return Batch #4 / #5 | Admin 0 confirmed; did not End |
+| Return Batch #4 | Driver **1 confirmed** (PG11); trip active |
+| Return Batch #5 | Admin 0 confirmed; P1 reject verified |
 | Driver RETURN LIST | Batch #4 Home(6) after P3 |
 | `.env` | LAN **`172.20.10.2`** (hotspot) |
 
@@ -178,9 +179,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | Smoke catch-up P1/P3/P5/P6 | P6/P3/P5 PASS; P1 N/A; GO CONDITIONAL; 172.20.10.2 FRESH |
+| 2026-08-20 | P1 re-smoke + push | Duplicate reject PASS; GO; smoke closed |
+| 2026-08-20 | Smoke catch-up P1/P3/P5/P6 | P6/P3/P5 PASS; initial P1 N/A |
 | 2026-08-20 | A1 Track Cab vehicle | Cab trackingVehicleId → commuter WebView; 106 tests |
-| 2026-08-20 | FINAL GATE P1–P9 | P9 merged beta-ver 4222e40; 101 tests; GO RC |
 
 ---
 

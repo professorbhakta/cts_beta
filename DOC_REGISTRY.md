@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 11:45 IST | Smoke catch-up CONDITIONAL GO |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 11:45 IST | Gate smoke result |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 11:45 IST | P1 N/A vs A6–A9 next |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 11:45 IST | P1 smoke N/A accept |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 11:55 IST | P1 re-smoke; GO smoke closed |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 11:55 IST | P1 PASS update |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 11:55 IST | Next A6–A9 or POST |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 11:55 IST | Smoke catch-up done |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 01:30 IST | sort_utils re-export removed (P9) |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-20 01:30 IST | Verified unchanged |
@@ -43,7 +43,7 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 00:50 IST | P8 picker + batched status fetch |
 | [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
 | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-20 01:35 IST | Batch-08 cleared; gate smoke |
-| [docs/final-gate/](docs/final-gate/) | 2026-08-20 11:45 IST | PHASE_03B smoke result; P3/P5/P6 PASS |
+| [docs/final-gate/](docs/final-gate/) | 2026-08-20 11:55 IST | P1 re-smoke PASS; GO |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
 
 ---

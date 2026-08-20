@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 11:45 IST
-> **Session:** Smoke catch-up; P1 N/A pending accept
+> **Updated:** 2026-08-20 11:55 IST
+> **Session:** P1 re-smoke; smoke closed
 
 # Project Todo & Progress
 
@@ -76,7 +76,7 @@
 26c. [x] P1 Truth Contract — `ApiResponseContract`; C1 (200+status:error → failure); 33 tests
 26g. [x] P9 Debt/health burndown — critical deps; repo SnackBar → UI; sort_utils stub; offline_temp isolated; compileSdk 37; 101 tests
 26h. [x] A1 Track Cab vehicle — cab `trackingVehicleId` → commuter Fleet Edge WebView; admin cab form; backend field; 106 tests
-26i. [~] Device smoke catch-up 2026-08-20 — P3/P5/P6 PASS; **P1 N/A** (empty Available) pending user accept; GO CONDITIONAL
+26i. [x] Device smoke catch-up 2026-08-20 — P1/P3/P5/P6 PASS (P1 re-smoke duplicate reject)
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking

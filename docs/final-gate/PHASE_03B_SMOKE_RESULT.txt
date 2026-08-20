@@ -13,7 +13,7 @@ DEVICE MATRIX
 --------------------------------------------------------------------------------
 | Device        | Role   | Launch | Result |
 |---------------|--------|--------|--------|
-| emulator-5554 | Admin  | FRESH  | P6 PASS; P1 N/A; P3 PASS; P5 PASS |
+| emulator-5554 | Admin  | FRESH  | P6 PASS; P1 PASS (re-smoke); P3 PASS; P5 PASS |
 | 5f36af49      | Driver | FRESH  | P3 PASS (home + RETURN LIST) |
 
 Admin dashboard: 10 batches, 0 running ("No running batches right now").
@@ -37,13 +37,14 @@ P6 PASS (Admin)
     ReturnBatchProvider.beginReturnTripLoad from ReturnCommuterListScreen.initState
     UI still showed the correct batch id.
 
-P1 N/A (Admin — path C)
-  3.1.2a Confirmed tab on Batch #5: "No confirmed commuters", count 0
-  Path A: overflow_remaining=53 (not 0) — Confirm not disabled
-  Path B: Available(0) at P1 time — no swipe target for capacity_full/duplicate/not_eligible
-  Cab not full (53/53 remaining)
-  Did not End return. Did not fake PASS.
-  Later (P5 PTR after airplane restore) Available tab showed (6); P1 already closed as N/A.
+P1 PASS (Admin — re-smoke 2026-08-20 ~11:55 IST, path B)
+  Setup: Driver confirmed PG11 on Batch #4 first (1 confirmed, trip active)
+  3.1.2a Confirmed tab Batch #5: 0 confirmed before attempt
+  3.1.2b Admin Batch #5 Overflow → swipe Confirm PG11 (already on Batch #4)
+            SnackBar: "Commuter is already confirmed on another return trip today."
+            Confirmed count stayed 0; PG11 not added to Batch #5
+  3.1.2c PTR → Confirmed (0); GET status/5 confirmed_count=0
+  Did not End return on either batch.
 
 P3 PASS
   Admin: return Batch #5 visible → Home 32s → resume same screen, flutter run alive
@@ -67,13 +68,10 @@ P5 PASS (Admin emulator, last)
 --------------------------------------------------------------------------------
 BLOCKERS / GAPS
 --------------------------------------------------------------------------------
-  - P1 rejection UI not exercisable on admin at smoke time (empty Available)
   - beginReturnTripLoad notifyListeners-during-build (log exception)
-  - Driver showed a live D2D queue while admin dashboard showed 0 running
-  - GO stays CONDITIONAL until user accepts P1 N/A
-
-Do not tag senior-review-2026-08-complete until P1 N/A accepted or re-smoked
-when Available is non-empty and a reject path exists.
+  - Driver showed live D2D queue while admin dashboard showed 0 running
+  - P1 initial pass N/A (empty Available); closed via re-smoke duplicate reject
+  - RC tag senior-review-2026-08-complete: user may apply when ready (smoke closed)
 
 ================================================================================
 END

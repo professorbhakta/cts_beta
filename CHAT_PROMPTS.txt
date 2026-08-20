@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 11:45 IST
-> **Session:** Smoke catch-up closed CONDITIONAL (P1 N/A)
+> **Updated:** 2026-08-20 11:55 IST
+> **Session:** P1 re-smoke PASS; next A6–A9 or POST intent
 
 ================================================================================
 QUICK START (minimal)
@@ -28,7 +28,8 @@ Task pack (attach @ files from PROJECT_BRAIN §4):
   - Offline:   @docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md
 
 Context from last session:
-  [Paste from PROJECT_BRAIN §9 session handoff log]
+  Smoke catch-up closed. P1 re-smoke PASS (duplicate reject SnackBar).
+  GO for RC; tag only when user asks. A1 lib uncommitted.
 
 Constraints (optional):
   [e.g. no commits, minimal diff, iOS+Android, no new dependencies]
@@ -44,13 +45,12 @@ Current files in focus:
   - docs/final-gate/PHASE_06_FINAL_GO_NOGO.txt
 
 What we already tried:
-  - Device smoke catch-up: FRESH flutter run Admin+Driver @ 172.20.10.2
-  - P6 Batch #4→#5 no stale names; P3 32s both devices; P5 airplane End blocked
-  - P1 N/A (empty Available, overflow still open)
+  - Device smoke P1/P3/P5/P6 closed; P1 duplicate reject on Batch #5
+  - Gate docs pushed on beta-ver (32dc872+)
 
 Open questions:
-  - Accept P1 N/A for RC, or re-smoke P1 when admin Available is non-empty?
-  - Then A6–A9 or Commuter POST intent (A1 lib still uncommitted)
+  - A6–A9 vs Commuter POST intent vs A1 commit (separate)
+  - RC tag senior-review-2026-08-complete when user ready
 
 Related docs read:
   - docs/final-gate/PHASE_03B_SMOKE_CATCHUP_P1_P3_P5_P6.txt

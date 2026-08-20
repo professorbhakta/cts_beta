@@ -1,17 +1,17 @@
 ================================================================================
 FINAL GATE — PHASE 3: P1→P9 CHECKLIST (auto + smoke notes)
 ================================================================================
-Session:  2026-08-20 ~11:40 IST
-Branch:   beta-ver @ 90ed8ef
+Session:  2026-08-20 ~11:55 IST
+Branch:   beta-ver @ 32dc872+
 Rule:     One P at a time; auto first, smoke noted separately
-Catch-up: P3/P5/P6 device smoke PASS; P1 smoke N/A (empty Available)
+Catch-up: P1/P3/P5/P6 device smoke PASS (P1 re-smoke duplicate reject)
 
 --------------------------------------------------------------------------------
 SUMMARY TABLE
 --------------------------------------------------------------------------------
 | P  | Auto Tests                          | Auto | Smoke | Result | Notes |
 |----|-------------------------------------|------|-------|--------|-------|
-| P1 | api_response_contract + return_repo | PASS | N/A   | PASS | 22/22 auto; smoke N/A path C (empty Available, overflow open) |
+| P1 | api_response_contract + return_repo | PASS | PASS  | PASS | 22/22 auto; re-smoke duplicate reject SnackBar |
 | P2 | auth_redirect + session + route     | PASS | PASS  | PASS | 13/13 auto; signUp disabled; role routing |
 | P3 | lifecycle coordinator + d2d lifecycle | PASS | PASS  | PASS | 13/13 auto; 32s background both devices 2026-08-20 |
 | P4 | role governance + role policy         | PASS | SKIP  | PASS | 9/9 auto; D2D live trip none (no running batches) |
@@ -31,11 +31,10 @@ Total: 22/22 PASS
 
 Checklist:
   [x] 3.1.1  200+status:error → failure path (ApiResponseContract tests)
-  [~] 3.1.2  Smoke: return confirm rejection — N/A 2026-08-20
-             Admin Batch #5 Available(0); overflow_remaining=53; cab not full.
-             See PHASE_03B_SMOKE_RESULT.txt
+  [x] 3.1.2  Smoke: return confirm rejection — PASS 2026-08-20 re-smoke
+             Driver PG11 Batch #4; admin Batch #5 overflow reject SnackBar
 
-P1: PASS (auto); smoke N/A path C — user must accept before RC tag
+P1: PASS (auto + smoke)
 
 --------------------------------------------------------------------------------
 P2 — SECURITY BOUNDARY
@@ -160,5 +159,5 @@ Checklist:
 P9: PASS
 
 --------------------------------------------------------------------------------
-PHASE 3 VERDICT: PASS auto; smoke catch-up 2026-08-20 P3/P5/P6 PASS, P1 N/A
+PHASE 3 VERDICT: PASS — auto + smoke catch-up closed (P1 re-smoke PASS)
 ================================================================================
