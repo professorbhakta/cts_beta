@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 22:47 IST
-> **Session:** Flutter git cleanup APPLIED — tag + P1–P9 delete
+> **Updated:** 2026-08-20 23:10 IST
+> **Session:** Unused-file cleanup — final-gate dumps + seed PNGs + dead Dart
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Next:** Idle on Flutter branch hygiene. Pick next from backlog (26d Commuter POST intent, A6–A9, or backend `cts-docker` P7 — separate repo/session). Do **not** re-create deleted P1–P9 branches.
+**Next:** Pick from backlog (26d Commuter POST intent, A6–A9, or backend `cts-docker` P7 — separate repo/session). Optional follow-up: `qa_lab/` / `qa_screens/` clutter. Do **not** re-create deleted P1–P9 branches.
 
-**This session:** APPLIED Flutter git cleanup on `beta-ver` @ `72b6aa5`. Tagged `p1-p9-merged` (pushed). Deleted P1–P9 + `integration/p1-p7-validation` local (`-d`) and remote. Kept `beta-ver`, `main`, `origin/cursor/setup-dev-environment-96cd`. Did not touch `cts-docker`.
+**This session:** Unused-file cleanup on `beta-ver`. Deleted all `docs/final-gate/` XML/PNG dumps (kept 12 `.txt`); deleted `seed/_*.png` (kept loader py + xlsx); deleted unused `lib/offline_temp/offline_module.dart` + `lib/main_offline.dart`. Living docs / `offline_temp` product code untouched. No commit unless asked.
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -70,7 +70,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 | Return Batch #5 | UG2 confirmed (`user id 22`); seats 52/53; trip active |
 | Backend | `isComing` pool live; Available(196) after UG12 remove |
 | Flutter role UI | **PASS** — Admin Confirm/view-only/no End; Driver Confirm/Remove/End FAB |
-| Git | `beta-ver` @ **`72b6aa5`**; tag **`p1-p9-merged`** on origin. Remaining remotes: `main`, `beta-ver`, `cursor/setup-dev-environment-96cd` |
+| Git | `beta-ver` @ **`849115f`** (+ local unused-file cleanup dirty); tag **`p1-p9-merged`** on origin |
 
 ---
 
@@ -125,7 +125,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
 - Remaining Application High: A6–A9
 - Expand automated tests (P1 added contract + return batch repo tests)
-- Phase 9 / E: promote or isolate `offline_temp` (P9 isolated via offline_module.dart; full promote deferred)
+- Phase 9 / E: promote or isolate `offline_temp` (drawer-scoped; full promote deferred)
 - Phase C–D: `appManager` → `app/services`; rename `*_controller.dart` (widgets + `lib/api/` already canonical)
 - Admin CRUD placeholder screens / TODOs
 - Expand automated tests
@@ -174,9 +174,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | Git cleanup APPLY | Tag `p1-p9-merged`; deleted P1–P9 + integration local/remote; kept main + cursor branch |
+| 2026-08-20 | Unused-file cleanup | final-gate XML/PNG gone; seed `_*.png` gone; `offline_module` + `main_offline` deleted |
+| 2026-08-20 | Git cleanup APPLY | Tag `p1-p9-merged`; deleted P1–P9 + integration local/remote |
 | 2026-08-20 | Push `72b6aa5` | Return roles + Track Cab + Batch-02 smoke on origin |
-| 2026-08-20 | Batch-02 / Driver 2 role UI | **PASS** — Admin no-End, Driver End FAB, confirm/remove UG12 |
 
 ---
 

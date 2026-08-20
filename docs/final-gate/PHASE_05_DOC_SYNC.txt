@@ -53,7 +53,7 @@ New artifacts this phase:
   docs/final-gate/PHASE_04_PRODUCTION_SMOKE.txt
   docs/final-gate/PHASE_05_DOC_SYNC.txt (this file)
   docs/final-gate/PHASE_06_FINAL_GO_NOGO.txt
-  docs/final-gate/ui_*.xml (smoke UI dumps)
+  (ui_*.xml smoke dumps removed in 2026-08-20 unused-file cleanup)
 
 --------------------------------------------------------------------------------
 PHASE 5 VERDICT: PASS (push recorded in PHASE_06 after commit)

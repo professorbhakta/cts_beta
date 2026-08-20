@@ -70,10 +70,8 @@ Return batch fixes script:      13/14 PASS (case 13 not_eligible — R9 gate)
 --------------------------------------------------------------------------------
 UI DUMP ARTIFACTS (this session)
 --------------------------------------------------------------------------------
-docs/final-gate/ui_emulator.xml          — admin dashboard
-docs/final-gate/ui_phone.xml             — driver home
-docs/final-gate/ui_phone_return.xml      — driver return batch #4
-docs/final-gate/ui_emulator_drawer.xml   — admin drawer
+(Removed 2026-08-20 cleanup — UIAutomator XML/PNG dumps deleted; phase .txt
+checklists retained under docs/final-gate/.)
 
 --------------------------------------------------------------------------------
 PHASE 4 VERDICT: PASS (with PARTIAL admin return-picker navigation)

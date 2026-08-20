@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 22:47 IST
-> **Session:** 26l Flutter git cleanup APPLIED
+> **Updated:** 2026-08-20 23:10 IST
+> **Session:** Unused-file cleanup
 
 # Project Todo & Progress
 
@@ -80,6 +80,7 @@
 26j. [x] Return list realignment — `isComing` available pool, confirmed order fix, admin add/view only, driver confirm/remove/end
 26k. [x] Batch-02 / Driver 2 production smoke — role UI PASS (Admin no-End / Driver End FAB); confirm/remove UG12 + ID/name ([BATCH2_DRIVER2_SMOKE_CHECKLIST.txt](docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt))
 26l. [x] Flutter git cleanup — tagged `p1-p9-merged` @ `72b6aa5`; deleted P1–P9 + `integration/p1-p7-validation` local/remote; kept `beta-ver`/`main`/`cursor/setup-dev-environment-96cd`. Did not touch `cts-docker`.
+26m. [x] Unused-file cleanup — final-gate XML/PNG deleted (12 .txt kept); seed `_*.png` deleted (loader kept); `offline_module.dart` + `main_offline.dart` deleted
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking
@@ -122,8 +123,8 @@ Phases **0–7 are frozen** (layout + migration complete). Do not reopen them fo
 | **6** Drivers + commuters | Frozen | CRUD + role homes + list/return screens |
 | **7** Batches (running + return) | Frozen | `features/batches/` |
 | **8** admin_home, d2d, profile | Done | Structure/UX polish (no token redesign) |
-| **9** Promote offline_temp | Isolated (P9) | `offline_module.dart`; drawer-only prototype |
-| **10** Remove legacy + Reviewer | Pending | Re-export stubs still present |
+| **9** Promote offline_temp | Isolated (P9) | drawer-only prototype (`offline_module` barrel removed) |
+| **10** Remove legacy + Reviewer | Pending | Remaining: `appManager` → `app/services`; naming |
 
 ### Restructure for readability (new — [LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md))
 
