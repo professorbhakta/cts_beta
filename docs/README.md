@@ -1,6 +1,6 @@
 > **Doc:** docs/README.md
-> **Updated:** 2026-08-20 23:40 IST
-> **Session:** Wireframes removed (HTML + Flutter debug gallery)
+> **Updated:** 2026-08-20 23:50 IST
+> **Session:** Safe DROP prune (changelog, senior review, screenshots scaffold, design review, backend 05/06)
 
 # CTS (c2s) — Documentation
 
@@ -18,18 +18,19 @@ docs/
 ├── GLOSSARY.md            ← terms (D2D, POP, CList, etc.)
 ├── INTEGRATION.md         ← full-stack overview + diagrams
 ├── API_CONTRACTS.md       ← REST + WebSocket contracts
-├── CHANGELOG_SPRINTS.md   ← completed sprint history
-├── backend/               ← Django/Docker deep docs
+├── backend/               ← Django/Docker deep docs (01–04)
 ├── features/              ← E2E flow docs (D2D, return batch)
+├── next-plan/             ← return allocation roadmap
 ├── FLOWS_BY_ROLE.md       ← click paths by role
 ├── UI_ARCHITECTURE.md     ← screens + providers + ASCII layouts
 ├── CODE_MAP.md            ← where code lives in lib/
 ├── ARCHITECTURE.md        ← layers, DI, data flow
-├── ROUTING_AND_AUTH.md    ← go_router, session, logout/401, no public sign-up
+├── ROUTING_AND_AUTH.md    ← go_router, session, logout/401
 ├── OFFLINE_AND_SYNC.md    ← batches sync + offline_temp
 ├── BUILD_AND_RELEASE.md   ← APK / iOS / .env
 ├── TESTING.md             ← analyze, test, QA checklists
 ├── API_AND_ENV.md         ← API_BASE_URL, WebSocket
+├── LIB_STRUCTURE.md       ← module layout rules
 └── guides/                ← Admin / Driver / Commuter how-tos
 ```
 
@@ -58,19 +59,18 @@ docs/
 | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | Click-path diagrams by role |
 | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Navigation matrix, controls, ASCII layouts |
 | [CODE_MAP.md](./CODE_MAP.md) | `lib/` folder map |
-| [SCREENSHOTS.md](./SCREENSHOTS.md) | Screenshot checklist & assets folder |
 | [guides/README.md](./guides/README.md) | Admin / Driver / Commuter how-tos |
 
-### P1 — Architecture & product
+### Architecture & product
 
 | Document | Status |
 |----------|--------|
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Published |
+| [LIB_STRUCTURE.md](./LIB_STRUCTURE.md) | Published |
 | [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) | Published |
 | [FEATURES.md](./FEATURES.md) | Published |
-| [DESIGN_SYSTEM_REVIEW.md](./DESIGN_SYSTEM_REVIEW.md) | Published — maintainability + color psychology |
 
-### P2 — Operations
+### Operations
 
 | Document | Status |
 |----------|--------|
@@ -81,18 +81,10 @@ docs/
 | [API_CONTRACTS.md](./API_CONTRACTS.md) | Published |
 | [LOCAL_DEV.md](./LOCAL_DEV.md) | Published |
 | [GLOSSARY.md](./GLOSSARY.md) | Published |
-| [INTEGRATION.md](./INTEGRATION.md) | Published |
-| [CHANGELOG_SPRINTS.md](./CHANGELOG_SPRINTS.md) | Published |
-| [backend/](./backend/) | Django/Docker detail |
+| [INTEGRATION.md](./INTEGRATION.md) | Published (optional overview) |
+| [backend/](./backend/) | Django/Docker detail (01–04) |
 | [features/](./features/) | D2D + return E2E flows |
-
-### P3 — Guides & visuals
-
-| Item | Status |
-|------|--------|
-| [guides/](./guides/) role user guides | Done |
-| [SCREENSHOTS.md](./SCREENSHOTS.md) | Published (PNG capture optional) |
-| HTML / Flutter wireframe galleries | Removed 2026-08-20 |
+| [next-plan/](./next-plan/) | Return allocation roadmap |
 
 ---
 

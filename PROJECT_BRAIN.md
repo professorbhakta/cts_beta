@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 23:40 IST
-> **Session:** Removed HTML + Flutter wireframe galleries
+> **Updated:** 2026-08-20 23:50 IST
+> **Session:** Safe DROP docs prune; next = 26d
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Next:** Product backlog — 26d Commuter POST intent or A6–A9. Do **not** re-create deleted P1–P9 branches.
+**Next:** **26d** Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
 
-**This session:** Removed `docs/wireframes/`, `docs/WIREFRAME_GALLERY.md`, and `lib/design/` (debug gallery + `/designWireframes` route + sign-in preview). Earlier: final-gate, qa_lab, qa_screens purged.
+**This session:** Safe DROP prune — removed CHANGELOG_SPRINTS, SENIOR_REVIEW, DESIGN_SYSTEM_REVIEW, SCREENSHOTS + empty assets, backend 05/06. Living docs kept.
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -174,9 +174,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | Docs DROP prune | Changelog/senior/screenshots/design-review/backend 05–06 gone |
 | 2026-08-20 | Wireframes remove | HTML + Flutter debug galleries + route/button gone |
 | 2026-08-20 | final-gate remove | Deleted historical phase/smoke `.txt` folder |
-| 2026-08-20 | QA dump purge | Removed `qa_lab/` + `qa_screens/` from git; gitignored |
 
 ---
 
@@ -193,7 +193,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | Backend detail | [docs/backend/README.md](docs/backend/README.md) · [docs/INTEGRATION.md](docs/INTEGRATION.md) |
 | Local dev | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) · [docs/GLOSSARY.md](docs/GLOSSARY.md) |
 | E2E flows | [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) · [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) |
-| Sprint history | [docs/CHANGELOG_SPRINTS.md](docs/CHANGELOG_SPRINTS.md) |
+| Sprint history | — (removed; use [PROJECT_TODOS.md](PROJECT_TODOS.md) / brain §9) |
 | Doc registry | [DOC_REGISTRY.md](DOC_REGISTRY.md) |
 | Chat templates | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) |
 | Live backlog | [PROJECT_TODOS.md](PROJECT_TODOS.md) |

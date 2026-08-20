@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 23:40 IST
-> **Session:** Wireframes removed
+> **Updated:** 2026-08-20 23:50 IST
+> **Session:** Safe DROP docs prune; next 26d
 
 ================================================================================
 QUICK START (minimal)
@@ -41,18 +41,17 @@ MIDDLE CONTEXT (user fills each session — update as you go)
 ================================================================================
 
 Current files in focus:
-  - origin/beta-ver (wireframes removed)
+  - 26d Commuter POST intent (next)
 
 What we already tried:
-  - Removed docs/wireframes, WIREFRAME_GALLERY, lib/design
-  - Dropped /designWireframes route + sign-in preview button
+  - Safe DROP prune of archive/scaffold docs
 
 Open questions:
-  - Next: 26d Commuter POST intent or A6–A9
+  - Scope of 26d (Flutter-only vs backend+Flutter)
 
 Related docs read:
-  - PROJECT_BRAIN §5 / §9
-  - docs/UI_ARCHITECTURE.md / FLOWS_BY_ROLE.md for layouts
+  - docs/next-plan/return-trip-allocation-roadmap.txt
+  - docs/API_CONTRACTS.md / features/RETURN_BATCH_E2E.md
 
 
 ================================================================================
@@ -103,5 +102,5 @@ Do NOT push until ALL of:
 If Gradle build is too slow for agent: user runs flutter run + login on both
 devices; agent records pass/fail and only then runs git push.
 
-See docs/TESTING.md § Pre-push gate · SENIOR_REVIEW §11.4 GOLDEN RULE.
+See docs/TESTING.md § Pre-push gate.
 

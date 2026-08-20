@@ -76,7 +76,7 @@ DS loaded/saved via **Redis** on each action (Fix 2). If the socket was never au
 
 - REST d2d views still open in dev (no DRF permissions)
 - InMemoryChannelLayer for broadcast only (OK for single worker)
-- See [05-audit-and-gaps.md](./05-audit-and-gaps.md) for full backlog
+- Living backlog: [../../PROJECT_TODOS.md](../../PROJECT_TODOS.md)
 
 ## Flutter mapping
 
@@ -85,5 +85,5 @@ See [../../lib/features/d2d/README.md](../../lib/features/d2d/README.md). Close 
 ## Related
 
 - [02-data-model.md](./02-data-model.md)
-- [06-planned-fixes.md](./06-planned-fixes.md)
+- [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md)
 - [../../lib/features/d2d/README.md](../../lib/features/d2d/README.md)

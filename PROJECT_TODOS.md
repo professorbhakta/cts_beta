@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 23:40 IST
-> **Session:** Wireframes removed
+> **Updated:** 2026-08-20 23:50 IST
+> **Session:** Safe DROP docs prune; next 26d
 
 # Project Todo & Progress
 
@@ -22,15 +22,13 @@
 ### Published
 
 - P0: START_HERE, FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE
-- P1: ARCHITECTURE, ROUTING_AND_AUTH, FEATURES, DESIGN_SYSTEM_REVIEW
+- P1: ARCHITECTURE, ROUTING_AND_AUTH, FEATURES
 - P2: OFFLINE_AND_SYNC, BUILD_AND_RELEASE, TESTING, API_AND_ENV
-- P3: guides/ (Admin, Driver, Commuter), SCREENSHOTS + assets/screenshots/ category folders (PNGs pending capture)
+- P3: guides/ (Admin, Driver, Commuter)
 
 ### Optional follow-up
 
-- [ ] Commit screenshot PNGs per [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md)
-- [ ] Uncomment screenshot embeds in [docs/guides/](docs/guides/)
-- [ ] Pilot semantic color tokens from [docs/DESIGN_SYSTEM_REVIEW.md](docs/DESIGN_SYSTEM_REVIEW.md) on Admin dashboard
+- [ ] (Deferred) Screenshot PNGs / design tokens — docs removed until needed
 
 ## Next Features / Tasks
 
@@ -82,6 +80,7 @@
 26n. [x] QA dump purge — removed `qa_lab/` + `qa_screens/` from git; gitignored
 26o. [x] Removed `docs/final-gate/` historical phase checklists (gate closed)
 26p. [x] Removed HTML + Flutter wireframe galleries (`docs/wireframes/`, `lib/design/`, `WIREFRAME_GALLERY.md`)
+26q. [x] Safe DROP docs prune — CHANGELOG_SPRINTS, SENIOR_REVIEW, DESIGN_SYSTEM_REVIEW, SCREENSHOTS+assets, backend 05/06
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking

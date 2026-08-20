@@ -167,4 +167,3 @@ erDiagram
 
 - [03-d2d-websocket-lifecycle.md](./03-d2d-websocket-lifecycle.md)
 - [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md)
-- [06-planned-fixes.md](./06-planned-fixes.md)

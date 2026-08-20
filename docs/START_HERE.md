@@ -27,7 +27,7 @@ Full doc index: [README.md](./README.md)
 |------|------|
 | **P1 Architecture** | [ARCHITECTURE.md](./ARCHITECTURE.md) · [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) · [FEATURES.md](./FEATURES.md) |
 | **P2 Operations** | [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md) · [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [TESTING.md](./TESTING.md) · [API_AND_ENV.md](./API_AND_ENV.md) |
-| **P3 Guides & visuals** | [guides/](./guides/) · [SCREENSHOTS.md](./SCREENSHOTS.md) · [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
+| **P3 Guides** | [guides/](./guides/) · [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
 
 ---
 

@@ -11,6 +11,5 @@ Short how-to guides for people using the app (not developers).
 **Related**
 
 - Click paths: [../FLOWS_BY_ROLE.md](../FLOWS_BY_ROLE.md)
-- Screenshots (when captured): [../SCREENSHOTS.md](../SCREENSHOTS.md)
 - UI notes: [../UI_ARCHITECTURE.md](../UI_ARCHITECTURE.md)
 - Doc index: [../README.md](../README.md)

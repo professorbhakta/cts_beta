@@ -62,9 +62,6 @@ All used by Flutter. Full mapping: [../API_CONTRACTS.md](../API_CONTRACTS.md). L
 | [02-data-model.md](./02-data-model.md) | Postgres, **two Redis key spaces**; User.email / address Flutter rules |
 | [03-d2d-websocket-lifecycle.md](./03-d2d-websocket-lifecycle.md) | Live D2D |
 | [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md) | Evening REST + Redis |
-| [05-audit-and-gaps.md](./05-audit-and-gaps.md) | Remaining flaws |
-| [06-planned-fixes.md](./06-planned-fixes.md) | Morning fixes ✅ done |
-| [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md) | Evening return ✅ done |
 
 ## Cross-repo references
 

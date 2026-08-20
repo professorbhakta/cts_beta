@@ -138,6 +138,5 @@ sequenceDiagram
 ## Related
 
 - [../backend/03-d2d-websocket-lifecycle.md](../backend/03-d2d-websocket-lifecycle.md)
-- [../CHANGELOG_SPRINTS.md](../CHANGELOG_SPRINTS.md)
 - [../../lib/features/d2d/README.md](../../lib/features/d2d/README.md)
 - [RETURN_BATCH_E2E.md](./RETURN_BATCH_E2E.md) — separate evening flow
