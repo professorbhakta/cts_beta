@@ -1,6 +1,6 @@
 > **Doc:** docs/README.md
-> **Updated:** 2026-08-14 19:55 IST
-> **Session:** Auth security wave — index tree includes ROUTING_AND_AUTH
+> **Updated:** 2026-08-20 23:40 IST
+> **Session:** Wireframes removed (HTML + Flutter debug gallery)
 
 # CTS (c2s) — Documentation
 
@@ -22,9 +22,8 @@ docs/
 ├── backend/               ← Django/Docker deep docs
 ├── features/              ← E2E flow docs (D2D, return batch)
 ├── FLOWS_BY_ROLE.md       ← click paths by role
-├── UI_ARCHITECTURE.md     ← screens + providers + wireframe ASCII
+├── UI_ARCHITECTURE.md     ← screens + providers + ASCII layouts
 ├── CODE_MAP.md            ← where code lives in lib/
-├── wireframes/            ← interactive HTML demo (open index.html)
 ├── ARCHITECTURE.md        ← layers, DI, data flow
 ├── ROUTING_AND_AUTH.md    ← go_router, session, logout/401, no public sign-up
 ├── OFFLINE_AND_SYNC.md    ← batches sync + offline_temp
@@ -33,8 +32,6 @@ docs/
 ├── API_AND_ENV.md         ← API_BASE_URL, WebSocket
 └── guides/                ← Admin / Driver / Commuter how-tos
 ```
-
-**Preferred UI demo:** open [wireframes/index.html](./wireframes/index.html) in a browser.
 
 ---
 
@@ -47,7 +44,7 @@ docs/
 | Driver | [guides/DRIVER_USER_GUIDE.md](./guides/DRIVER_USER_GUIDE.md) |
 | Commuter | [guides/COMMUTER_USER_GUIDE.md](./guides/COMMUTER_USER_GUIDE.md) |
 | Developer | [CODE_MAP.md](./CODE_MAP.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) |
-| Designer / QA | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) + [wireframes/](./wireframes/) |
+| Designer / QA | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) + [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
 
 ---
 
@@ -59,10 +56,8 @@ docs/
 |----------|-------------|
 | [START_HERE.md](./START_HERE.md) | Entry paths and 1-minute overview |
 | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | Click-path diagrams by role |
-| [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Navigation matrix, controls, wireframes |
+| [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Navigation matrix, controls, ASCII layouts |
 | [CODE_MAP.md](./CODE_MAP.md) | `lib/` folder map |
-| [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md) | Flutter debug in-app layout gallery |
-| **[wireframes/](./wireframes/)** | **HTML gallery — open `index.html` locally in a browser** |
 | [SCREENSHOTS.md](./SCREENSHOTS.md) | Screenshot checklist & assets folder |
 | [guides/README.md](./guides/README.md) | Admin / Driver / Commuter how-tos |
 
@@ -95,23 +90,14 @@ docs/
 
 | Item | Status |
 |------|--------|
-| Wireframe debug gallery (`lib/design/wireframes/`) | Done |
-| **HTML wireframes ([wireframes/index.html](./wireframes/index.html))** | Done — view locally first |
 | [guides/](./guides/) role user guides | Done |
-| [assets/screenshots/](./assets/screenshots/) | Folder ready; PNGs to be added |
-| [SCREENSHOTS.md](./SCREENSHOTS.md) | Checklist done |
+| [SCREENSHOTS.md](./SCREENSHOTS.md) | Published (PNG capture optional) |
+| HTML / Flutter wireframe galleries | Removed 2026-08-20 |
 
 ---
 
-## Suggested reading order (developers)
+## Related root docs
 
-1. START_HERE → FLOWS_BY_ROLE  
-2. ARCHITECTURE → ROUTING_AND_AUTH → FEATURES  
-3. OFFLINE_AND_SYNC + API_AND_ENV  
-4. BUILD_AND_RELEASE + TESTING  
-
----
-
-## Maintenance
-
-Update docs when changing routes, roles, offline behavior, or env vars. Track tasks in [../PROJECT_TODOS.md](../PROJECT_TODOS.md).
+- [PROJECT_BRAIN.md](../PROJECT_BRAIN.md) — session handoff
+- [DOC_REGISTRY.md](../DOC_REGISTRY.md) — sync tracker
+- [PROJECT_TODOS.md](../PROJECT_TODOS.md) — backlog

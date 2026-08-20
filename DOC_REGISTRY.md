@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 23:35 IST
-> **Session:** docs/final-gate removed
+> **Updated:** 2026-08-20 23:40 IST
+> **Session:** Wireframes removed
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 23:35 IST | docs/final-gate removed |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 23:35 IST | final-gate removed from sync set |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 23:35 IST | Dropped final-gate START pointer |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 23:35 IST | 26o final-gate removed |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 23:40 IST | Wireframes removed |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 23:40 IST | Wireframes removed |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 23:40 IST | Post wireframe purge |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 23:40 IST | 26p wireframes removed |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 23:10 IST | offline_module barrel removed note |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
@@ -66,7 +66,7 @@ Updated when content changes; not verified every session unless touched.
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-14 19:55 IST | /signUp redirect; sessionid + logout/401 |
 | [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-08-14 19:55 IST | Release has no cleartext |
 | [docs/guides/](docs/guides/) | 2026-08-14 22:00 IST | Driver RETURN LIST confirm/remove |
-| [docs/wireframes/](docs/wireframes/) | 2026-08-14 19:55 IST | Sign up row: HTML-only; app redirects |
+| [docs/wireframes/](docs/wireframes/) | — | **Removed** 2026-08-20 |
 | [lib/README.md](lib/README.md) | 2026-08-05 11:37 IST | CODE_MAP + LIB_STRUCTURE links |
 
 ---
@@ -81,3 +81,4 @@ Updated when content changes; not verified every session unless touched.
 
 - `docs/final-gate/` — P1–P9 / Batch-02 phase checklists + smoke prompts (historical; gate closed)
 - `qa_lab/`, `qa_screens/` — device UI dumps (gitignored)
+- `docs/wireframes/`, `docs/WIREFRAME_GALLERY.md`, `lib/design/` — HTML + Flutter debug galleries

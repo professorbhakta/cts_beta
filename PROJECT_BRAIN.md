@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 23:35 IST
-> **Session:** Removed docs/final-gate historical checklists
+> **Updated:** 2026-08-20 23:40 IST
+> **Session:** Removed HTML + Flutter wireframe galleries
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -57,7 +57,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 **Next:** Product backlog — 26d Commuter POST intent or A6–A9. Do **not** re-create deleted P1–P9 branches.
 
-**This session:** Removed `docs/final-gate/` (12 historical phase/smoke `.txt` files). Earlier: `qa_lab/` + `qa_screens/` purged + gitignored. P7 already on cts-docker feature branch.
+**This session:** Removed `docs/wireframes/`, `docs/WIREFRAME_GALLERY.md`, and `lib/design/` (debug gallery + `/designWireframes` route + sign-in preview). Earlier: final-gate, qa_lab, qa_screens purged.
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -174,9 +174,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | Wireframes remove | HTML + Flutter debug galleries + route/button gone |
 | 2026-08-20 | final-gate remove | Deleted historical phase/smoke `.txt` folder |
 | 2026-08-20 | QA dump purge | Removed `qa_lab/` + `qa_screens/` from git; gitignored |
-| 2026-08-20 | Unused-file cleanup | final-gate XML/PNG gone; seed `_*.png` gone; dead Dart stubs |
 
 ---
 
@@ -189,7 +189,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | API | [docs/API_AND_ENV.md](docs/API_AND_ENV.md) · [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) |
 | UI / flows | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) · [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) |
 | Guides | [docs/guides/](docs/guides/) |
-| Wireframes | [docs/wireframes/index.html](docs/wireframes/index.html) |
+| Wireframes | — (removed; use live app + [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md)) |
 | Backend detail | [docs/backend/README.md](docs/backend/README.md) · [docs/INTEGRATION.md](docs/INTEGRATION.md) |
 | Local dev | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) · [docs/GLOSSARY.md](docs/GLOSSARY.md) |
 | E2E flows | [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) · [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) |

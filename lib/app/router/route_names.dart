@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// Canonical route path constants for go_router + legacy call sites.
 class RouteName {
   static const String splashScreen = '/splashScreen';
@@ -48,9 +46,6 @@ class RouteName {
   static const String offlineBatchCommuters = '/offlineBatchCommuters';
   static const String offlineRoutePops = '/offlineRoutePops';
 
-  /// Debug UI gallery (see docs/WIREFRAME_GALLERY.md).
-  static const String designWireframeGallery = '/designWireframes';
-
   /// Public routes (no login required).
   static const Set<String> public = {
     splashScreen,
@@ -59,19 +54,11 @@ class RouteName {
     noInternet,
   };
 
-  /// Routes reachable without login in debug builds only.
+  /// Routes reachable without login.
   static bool isPublicLocation(String location) {
-    if (public.any(
+    return public.any(
       (path) => location == path || location.startsWith('$path/'),
-    )) {
-      return true;
-    }
-    if (kDebugMode &&
-        (location == designWireframeGallery ||
-            location.startsWith('$designWireframeGallery/'))) {
-      return true;
-    }
-    return false;
+    );
   }
 
   /// Admin-only routes (CRUD + admin D2D channel).

@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 23:35 IST
-> **Session:** docs/final-gate removed
+> **Updated:** 2026-08-20 23:40 IST
+> **Session:** Wireframes removed
 
 ================================================================================
 QUICK START (minimal)
@@ -41,18 +41,19 @@ MIDDLE CONTEXT (user fills each session — update as you go)
 ================================================================================
 
 Current files in focus:
-  - origin/beta-ver (final-gate removed)
+  - origin/beta-ver (wireframes removed)
 
 What we already tried:
-  - Removed docs/final-gate/ (12 historical .txt)
-  - Earlier: qa_lab/ + qa_screens/ purged + gitignored
+  - Removed docs/wireframes, WIREFRAME_GALLERY, lib/design
+  - Dropped /designWireframes route + sign-in preview button
 
 Open questions:
   - Next: 26d Commuter POST intent or A6–A9
 
 Related docs read:
   - PROJECT_BRAIN §5 / §9
-  - docs/TESTING.md for ongoing smoke (not final-gate)
+  - docs/UI_ARCHITECTURE.md / FLOWS_BY_ROLE.md for layouts
+
 
 ================================================================================
 QUICK CLOSE (minimal)

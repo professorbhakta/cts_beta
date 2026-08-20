@@ -1,6 +1,6 @@
 > **Doc:** docs/CODE_MAP.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-20 23:40 IST
+> **Session:** design/wireframes removed
 
 # Code map
 
@@ -17,7 +17,6 @@ lib/
 ├── core/sync/           # SyncManager (offline queue)
 ├── features/            # Feature-first modules (main product code)
 ├── widgets/             # Shared UI components
-├── design/wireframes/   # Debug layout gallery only
 ├── offline_temp/        # Offline prototype module
 ├── appManager/          # Session globals, colors, snackbar, view state
 ├── screens/             # App-wide error + no-internet screens
@@ -95,7 +94,6 @@ Session cookies: `lib/appManager/session_manager.dart`. Connectivity (cached): `
 | Offline / sync (P2) | [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md) |
 | Build / API / tests (P2) | [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [API_AND_ENV.md](./API_AND_ENV.md) · [TESTING.md](./TESTING.md) |
 | User guides (P3) | [guides/README.md](./guides/README.md) |
-| Navigation matrix + wireframes ASCII | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
+| Navigation matrix + ASCII layouts | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
 | Role journeys | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) |
-| In-app wireframes | [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md) |
 | Task tracking | [../PROJECT_TODOS.md](../PROJECT_TODOS.md) |

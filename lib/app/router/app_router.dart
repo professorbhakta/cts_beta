@@ -31,8 +31,6 @@ import 'package:cts/features/batches/screens/returning_batch_screen.dart';
 import 'package:cts/features/batches/screens/running_batch_screen.dart';
 import 'package:cts/screens/error_page.dart';
 import 'package:cts/screens/no_internet_screen.dart';
-import 'package:cts/design/wireframes/wireframe_gallery_screen.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -262,21 +260,6 @@ GoRouter createAppRouter({
           return OfflineRoutePopsScreen(routeId: routeId);
         },
       ),
-      if (kDebugMode) ...[
-        GoRoute(
-          path: RouteName.designWireframeGallery,
-          builder: (context, state) => const WireframeGalleryScreen(),
-          routes: [
-            GoRoute(
-              path: ':wireframeId',
-              builder: (context, state) {
-                final id = state.pathParameters['wireframeId'] ?? '';
-                return WireframeDetailScreen(wireframeId: id);
-              },
-            ),
-          ],
-        ),
-      ],
     ],
     errorBuilder: (context, state) => const ErrorPage(),
   );

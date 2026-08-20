@@ -55,6 +55,6 @@ Open **☰** for drawer (profile and other items depending on build).
 
 ---
 
-## Preview layout (debug)
+## Related
 
-On debug builds, sign-in screen → **Preview UI wireframes** → **Commuter home** shows the layout without login. See [WIREFRAME_GALLERY.md](../WIREFRAME_GALLERY.md).
+Screen structure: [UI_ARCHITECTURE.md](../UI_ARCHITECTURE.md). Lab accounts: [LOCAL_DEV.md](../LOCAL_DEV.md).

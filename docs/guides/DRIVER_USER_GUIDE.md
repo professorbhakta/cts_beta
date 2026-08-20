@@ -76,6 +76,6 @@ Use **Profile** from the drawer to view info or **logout** at end of day.
 
 ---
 
-## Preview layout (debug)
+## Related
 
-Developers can open **Preview UI wireframes** on sign-in → **Driver home** / **D2D live** without logging in (debug builds only). See [WIREFRAME_GALLERY.md](../WIREFRAME_GALLERY.md).
+Screen structure: [UI_ARCHITECTURE.md](../UI_ARCHITECTURE.md). Lab accounts: [LOCAL_DEV.md](../LOCAL_DEV.md).

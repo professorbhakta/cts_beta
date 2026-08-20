@@ -8,7 +8,6 @@ import 'package:cts/utils/validators.dart';
 import 'package:cts/widgets/provider_listener.dart';
 import 'package:cts/widgets/common_button.dart';
 import 'package:cts/widgets/common_text_formfield.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -84,25 +83,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       _buildPasswordField(signInProvider, scheme),
                       const SizedBox(height: 32.0),
                       _buildLoginButton(signInProvider, scheme),
-                      if (kDebugMode) ...[
-                        const SizedBox(height: 16),
-                        Center(
-                          child: TextButton(
-                            onPressed: () => context.push(
-                              RouteName.designWireframeGallery,
-                            ),
-                            child: Text(
-                              'Preview UI wireframes (debug)',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),

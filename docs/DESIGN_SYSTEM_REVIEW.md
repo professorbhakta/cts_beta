@@ -61,7 +61,6 @@ When changing routes or entities, update in one PR:
 
 1. `FEATURES.md` row  
 2. `UI_ARCHITECTURE.md` navigation row  
-3. `wireframe_catalog.dart` if layout pattern changes  
 
 ---
 

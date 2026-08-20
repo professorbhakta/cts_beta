@@ -4,7 +4,7 @@
 
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 
-> Easier entry: [START_HERE.md](./START_HERE.md) · Role flows: [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · **HTML layouts:** [wireframes/index.html](./wireframes/index.html) · Flutter stubs: [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md)
+> Easier entry: [START_HERE.md](./START_HERE.md) · Role flows: [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md)
 
 Reference for the **current** Flutter codebase (Commuter Transport System / c2s).
 
@@ -151,7 +151,6 @@ classDiagram
 |  | Password            [eye]  |  |
 |  +----------------------------+  |
 |  [ ======== LOGIN ========== ]   |
-|  (debug) Preview UI wireframes   |
 +----------------------------------+
 ```
 
@@ -290,9 +289,9 @@ FAB optional; Batch screen uses AppBar [return][+] instead.
 
 ---
 
-## 4. Wireframe-as-code (Flutter layout skeletons)
+## 4. Layout skeletons (documentation patterns)
 
-Documentation templates matching existing widgets. **Live implementations:** [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md) and `lib/design/wireframes/`.
+ASCII/Dart patterns matching existing widgets. Use real screens under `lib/features/` for review.
 
 ### 4.1 Reusable list feature skeleton
 

@@ -26,7 +26,6 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `d2d` | Admin + Driver | D2dChannel, D2DLogScreen | D2dChannelProvider | — | D2dRepository (status) + WebSocket via provider |
 | `profile` | All logged-in | ProfileScreen | ProfileProvider, SignInProvider (logout) | — | Session (AppManager / SessionRole) + AuthenticationRepository |
 | `offline_temp` | Admin (prototype) | OfflineHome + tabs + drill-downs | OfflineTempProvider | — | Local offline DB |
-| `design/wireframes` | Debug | Wireframe gallery | — | — | — |
 
 ---
 
@@ -54,7 +53,6 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `/d2dLog/:id` | D2DLogScreen | d2d |
 | `/profileScreen` | ProfileScreen | profile |
 | `/offlineTempHome` + children | Offline* screens | offline_temp |
-| `/designWireframes` | Wireframe gallery | design |
 
 Nested (no GoRoute): `CommuterListScreen`, `OfflineCommuterFormScreen`.
 

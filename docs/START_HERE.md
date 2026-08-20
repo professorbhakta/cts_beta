@@ -1,10 +1,10 @@
 > **Doc:** docs/START_HERE.md
-> **Updated:** 2026-08-14 19:55 IST
-> **Session:** Auth security wave — accounts created by admin, not public sign-up
+> **Updated:** 2026-08-20 23:40 IST
+> **Session:** Wireframes removed — point to FLOWS + UI_ARCHITECTURE
 
 # Start here
 
-**Who you are** → **What to read** → **Optional: see layouts in the app**
+**Who you are** → **What to read** → **Run the app for real layouts**
 
 This guide is for anyone new to the CTS (c2s) mobile app—product, design, QA, or development.
 
@@ -12,12 +12,12 @@ This guide is for anyone new to the CTS (c2s) mobile app—product, design, QA, 
 
 ## 1. Pick your path
 
-| I am… | Read first | Then | Try layouts |
+| I am… | Read first | Then | See layouts |
 |--------|------------|------|-------------|
-| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [guides/ADMIN_USER_GUIDE.md](./guides/ADMIN_USER_GUIDE.md) | **[wireframes/index.html](./wireframes/index.html)** (browser) |
-| **Designer** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) §3 · **[wireframes/](./wireframes/)** | **[wireframes/index.html](./wireframes/index.html)** locally |
-| **New developer** | [CODE_MAP.md](./CODE_MAP.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) → [FEATURES.md](./FEATURES.md) | HTML demo first; optional Flutter `/designWireframes` |
-| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) · [wireframes/INTERACTIONS.md](./wireframes/INTERACTIONS.md) | **[wireframes/index.html](./wireframes/index.html)** + role test accounts |
+| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [guides/ADMIN_USER_GUIDE.md](./guides/ADMIN_USER_GUIDE.md) | Run app + role accounts ([LOCAL_DEV.md](./LOCAL_DEV.md)) |
+| **Designer** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Live app (debug/release) |
+| **New developer** | [CODE_MAP.md](./CODE_MAP.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) → [FEATURES.md](./FEATURES.md) | `flutter run` |
+| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Device smoke per [TESTING.md](./TESTING.md) |
 
 Full doc index: [README.md](./README.md)
 
@@ -27,7 +27,7 @@ Full doc index: [README.md](./README.md)
 |------|------|
 | **P1 Architecture** | [ARCHITECTURE.md](./ARCHITECTURE.md) · [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) · [FEATURES.md](./FEATURES.md) |
 | **P2 Operations** | [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md) · [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [TESTING.md](./TESTING.md) · [API_AND_ENV.md](./API_AND_ENV.md) |
-| **P3 Guides & visuals** | [guides/](./guides/) · **[wireframes/index.html](./wireframes/index.html)** · [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md) · [SCREENSHOTS.md](./SCREENSHOTS.md) |
+| **P3 Guides & visuals** | [guides/](./guides/) · [SCREENSHOTS.md](./SCREENSHOTS.md) · [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
 
 ---
 
@@ -60,26 +60,15 @@ flowchart LR
 | `lib/app/` | App entry, theme, router, dependency injection |
 | `lib/features/*/` | One folder per feature (screens + providers + data) |
 | `lib/widgets/` | Reusable UI (drawer, buttons, list cards) |
-| `lib/design/wireframes/` | Debug layout previews (no API) |
 | `docs/` | You are here |
 
 Details: [CODE_MAP.md](./CODE_MAP.md).
 
 ---
 
-## 4. See layouts locally (no Flutter needed)
+## 4. See layouts
 
-**Preferred for design review:** open the HTML gallery:
-
-1. Go to [wireframes/](./wireframes/)
-2. Open **`index.html`** in your browser (double-click or see [wireframes/README.md](./wireframes/README.md))
-
-**Optional — Flutter debug stubs:**
-
-1. Run the app (`flutter run`).
-2. On **Sign in**, tap **Preview UI wireframes (debug)**, or open `/designWireframes`.
-
-See [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md).
+Use the real app with lab accounts from [LOCAL_DEV.md](./LOCAL_DEV.md). Screen structure notes: [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md). Role click-paths: [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md).
 
 ---
 
@@ -88,5 +77,6 @@ See [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md).
 When you change routes, roles, or major screens, update:
 
 1. [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) navigation table  
-2. [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) if user journeys change  
-3. [wireframe_catalog.dart](../lib/design/wireframes/wireframe_catalog.dart) if layout patterns change  
+2. [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) if the click path changed  
+3. [CODE_MAP.md](./CODE_MAP.md) if files moved  
+4. Session sync set via [DOC_REGISTRY.md](../DOC_REGISTRY.md)

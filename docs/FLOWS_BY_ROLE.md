@@ -97,10 +97,9 @@ flowchart LR
 |------|--------|
 | App launch | Splash → resolves session |
 | Not logged in | Sign in (accounts are created by an admin, not public sign-up) |
-| Debug only | Sign in → **Preview UI wireframes** |
 
 ---
 
-## Wireframe previews (same flows, no data)
+## Layout notes
 
-Open [WIREFRAME_GALLERY.md](./WIREFRAME_GALLERY.md) and pick the screen that matches your role above.
+Screen structure and controls: [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md).

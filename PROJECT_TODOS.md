@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 23:35 IST
-> **Session:** docs/final-gate removed
+> **Updated:** 2026-08-20 23:40 IST
+> **Session:** Wireframes removed
 
 # Project Todo & Progress
 
@@ -21,12 +21,10 @@
 
 ### Published
 
-- P0: START_HERE, FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE, WIREFRAME_GALLERY, wireframes in `lib/design/wireframes/`
+- P0: START_HERE, FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE
 - P1: ARCHITECTURE, ROUTING_AND_AUTH, FEATURES, DESIGN_SYSTEM_REVIEW
 - P2: OFFLINE_AND_SYNC, BUILD_AND_RELEASE, TESTING, API_AND_ENV
 - P3: guides/ (Admin, Driver, Commuter), SCREENSHOTS + assets/screenshots/ category folders (PNGs pending capture)
-- **Interactive HTML wireframes:** [docs/wireframes/index.html](docs/wireframes/index.html) (+ styles.css, app.js, DESIGN_SPEC, INTERACTIONS) — preferred local demo
-- Optional Flutter stubs: `lib/design/wireframes/` + debug `/designWireframes` route
 
 ### Optional follow-up
 
@@ -83,6 +81,7 @@
 26m. [x] Unused-file cleanup — final-gate XML/PNG deleted; seed `_*.png` deleted (loader kept); `offline_module.dart` + `main_offline.dart` deleted
 26n. [x] QA dump purge — removed `qa_lab/` + `qa_screens/` from git; gitignored
 26o. [x] Removed `docs/final-gate/` historical phase checklists (gate closed)
+26p. [x] Removed HTML + Flutter wireframe galleries (`docs/wireframes/`, `lib/design/`, `WIREFRAME_GALLERY.md`)
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking

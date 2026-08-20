@@ -104,10 +104,6 @@ Prefer `flutter run` + manual login over `integration_test` for first build (Gra
 - [ ] Airplane mode → view batches (cached if previously loaded)
 - [ ] Queue mutation offline → drawer shows pending → online → Sync now
 
-### Debug wireframes
-
-- [ ] Sign in screen → Preview UI wireframes → each catalog item opens
-
 ---
 
 ## Recommended test expansion (backlog)
