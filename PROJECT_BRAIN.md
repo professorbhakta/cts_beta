@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Batch-02 / Driver 2 role UI PASS
+> **Updated:** 2026-08-20 22:47 IST
+> **Session:** Flutter git cleanup APPLIED — tag + P1–P9 delete
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,11 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Next:** A1 Track Cab commit (kept out of this smoke) + pre-push, or optional leftover P3/P5/P6. Batch-02 role smoke is **PASS** — [BATCH2_DRIVER2_SMOKE_CHECKLIST.txt](docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt).
+**Next:** Idle on Flutter branch hygiene. Pick next from backlog (26d Commuter POST intent, A6–A9, or backend `cts-docker` P7 — separate repo/session). Do **not** re-create deleted P1–P9 branches.
 
-**This session:** Cold flutter run both devices on home Wi-Fi `192.168.1.6`. Admin no-End / Driver End FAB scored. Confirm UG12 (id 32) + remove restore `isComing=True`. Hydrate order id 22→UG2, 32→UG12.
-
-A1 Track Cab lib still uncommitted — separate. RC tag only when user asks.
+**This session:** APPLIED Flutter git cleanup on `beta-ver` @ `72b6aa5`. Tagged `p1-p9-merged` (pushed). Deleted P1–P9 + `integration/p1-p7-validation` local (`-d`) and remote. Kept `beta-ver`, `main`, `origin/cursor/setup-dev-environment-96cd`. Did not touch `cts-docker`.
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -68,10 +66,11 @@ A1 Track Cab lib still uncommitted — separate. RC tag only when user asks.
 
 | State | Detail |
 |-------|--------|
-| `.env` | LAN **`192.168.1.6`** (home Wi-Fi this session; hotspot `172.20.10.2` was down) |
+| `.env` | LAN **`192.168.1.6`** (home Wi-Fi; hotspot `172.20.10.2` was down) |
 | Return Batch #5 | UG2 confirmed (`user id 22`); seats 52/53; trip active |
 | Backend | `isComing` pool live; Available(196) after UG12 remove |
 | Flutter role UI | **PASS** — Admin Confirm/view-only/no End; Driver Confirm/Remove/End FAB |
+| Git | `beta-ver` @ **`72b6aa5`**; tag **`p1-p9-merged`** on origin. Remaining remotes: `main`, `beta-ver`, `cursor/setup-dev-environment-96cd` |
 
 ---
 
@@ -116,8 +115,10 @@ A1 Track Cab lib still uncommitted — separate. RC tag only when user asks.
 - P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
 - P8 Scale/layout stability — batched status fetch (10 concurrent); return picker list on narrow/extras; no nested card scroll; 94 flutter tests
 - P9 Debt/health burndown — dio 5.11, secure_storage 11, firebase_messaging 16.5; CRUD SnackBar moved to UI; sort_utils stub removed; offline_temp isolated; compileSdk 37; 101 tests
-- A1 Track Cab vehicle — cab `trackingVehicleId` wired to Fleet Edge URL; admin cab form; fallback banner; 106 tests
+- A1 Track Cab vehicle — cab `trackingVehicleId` wired to Fleet Edge URL; admin cab form; fallback banner; 106 tests; **on `beta-ver` `72b6aa5`**
 - Return list realignment — available pool now follows current `isComing=True` commuters, confirmed hydration preserves ID order, admin return screen is add/view, driver return screen can confirm/remove/end
+- Batch-02 / Driver 2 role UI smoked and pushed (`72b6aa5`)
+- Flutter git cleanup — tag `p1-p9-merged`; P1–P9 + integration branches deleted local/remote
 
 ### Open backlog (from PROJECT_TODOS)
 
@@ -173,9 +174,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | Git cleanup APPLY | Tag `p1-p9-merged`; deleted P1–P9 + integration local/remote; kept main + cursor branch |
+| 2026-08-20 | Push `72b6aa5` | Return roles + Track Cab + Batch-02 smoke on origin |
 | 2026-08-20 | Batch-02 / Driver 2 role UI | **PASS** — Admin no-End, Driver End FAB, confirm/remove UG12 |
-| 2026-08-20 | Batch-02 smoke wrap | PARTIAL; role FAB needed cold run (closed this session) |
-| 2026-08-20 | Return list realignment | `isComing` pool + hydrate order + admin/driver return roles |
 
 ---
 

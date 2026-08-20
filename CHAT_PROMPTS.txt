@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Batch-02 role UI PASS; next A1 commit or P3/P5/P6
+> **Updated:** 2026-08-20 22:47 IST
+> **Session:** Flutter git cleanup APPLIED (26l)
 
 ================================================================================
 QUICK START (minimal)
@@ -28,34 +28,35 @@ Task pack (attach @ files from PROJECT_BRAIN §4):
   - Offline:   @docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md
 
 Context from last session:
-  Batch-02 / Driver 2 role UI PASS. Admin no-End / Driver End FAB scored.
-  Checklist: @docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt
+  beta-ver @ 72b6aa5; tag p1-p9-merged on origin.
+  P1–P9 + integration/p1-p7-validation deleted (local + remote).
+  Kept main + origin/cursor/setup-dev-environment-96cd. 26l done.
 
 Constraints (optional):
-  Do not re-run Batch-02 role smoke as primary. Keep A1 Track Cab commit separate.
-  Lab LAN this session: 192.168.1.6 (hotspot 172.20.10.2 was down).
+  Flutter only unless Backend pack. Do not re-create deleted P branches.
+  Do not force-push. Do not touch cts-docker P7 unless that session.
 
 ================================================================================
 MIDDLE CONTEXT (user fills each session — update as you go)
 ================================================================================
 
 Current files in focus:
-  - docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt (PASS)
-  - A1 Track Cab uncommitted lib (cab form + trackingVehicleId)
+  - origin/beta-ver 72b6aa5
+  - tag p1-p9-merged
 
 What we already tried:
-  - Cold flutter run both devices on 192.168.1.6
-  - Admin Confirm yes / Remove no / End FAB no
-  - Driver Confirm UG12 (id 32) / Remove restore isComing True / End FAB yes
+  - Re-verified git branch --merged beta-ver (0 unique commits)
+  - Tagged + pushed p1-p9-merged
+  - Deleted P1–P9 + integration local (-d) and remote (--delete)
+  - Kept beta-ver, main, cursor/setup-dev-environment-96cd
 
 Open questions:
-  - A1 Track Cab commit + pre-push
-  - Optional leftover P3/P5/P6
-  - A6–A9 / POST intent / RC tag
+  - Next backlog pick: 26d Commuter POST intent, A6–A9, or cts-docker P7
+  - Untracked docs/final-gate XML/PNG smoke dumps still local (not committed)
 
 Related docs read:
-  - docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt
   - PROJECT_BRAIN §5 / §9
+  - PROJECT_TODOS 26l [x]
 
 ================================================================================
 QUICK CLOSE (minimal)

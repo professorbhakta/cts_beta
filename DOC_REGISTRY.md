@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Batch-02 / Driver 2 role UI PASS
+> **Updated:** 2026-08-20 22:47 IST
+> **Session:** Flutter git cleanup APPLIED (26l)
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 22:15 IST | Batch-02 role UI PASS |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 22:15 IST | Batch-02 role UI PASS |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 22:15 IST | Next = A1 commit or P3/P5/P6 |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 22:15 IST | 26k Batch-02 smoke closed |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 22:47 IST | Cleanup APPLIED; tag p1-p9-merged; branches gone |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 22:47 IST | Cleanup APPLIED (26l) |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 22:47 IST | Post-cleanup MIDDLE CONTEXT |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 22:47 IST | 26l [x] Flutter git cleanup done |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 01:30 IST | Verified unchanged |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
