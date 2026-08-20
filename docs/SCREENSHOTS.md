@@ -53,11 +53,11 @@ Use **light and dark mode** optionally: `ThemeMode.system` — capture both if b
 
 ---
 
-## Wireframes vs screenshots
+## Screenshots vs live app
 
 | Type | Location | Use |
 |------|----------|-----|
-| Wireframes | In-app `/designWireframes` (debug) | Layout structure, no backend |
+| Live app | Lab devices / emulator | Layout + real data |
 | Screenshots | `docs/assets/screenshots/` | Real UI, marketing, QA baselines |
 
 ---

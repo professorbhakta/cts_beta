@@ -76,8 +76,6 @@ Defined in `RouteName`:
 | `driverOnlyPrefixes` | driver home, d2d log |
 | `commuterOnlyPrefixes` | commuter home |
 
-**Debug:** `RouteName.isPublicLocation()` also allows `/designWireframes` in `kDebugMode` (wireframe gallery).
-
 ---
 
 ## Navigation API
@@ -100,7 +98,6 @@ Drawer closes then **`push`** (not `go`) so back returns to previous screen.
 | `/d2dLog/:batchId` | batch id |
 | `/offlineBatchCommuters/:batchId` | int batch id |
 | `/offlineRoutePops/:routeId` | int route id |
-| `/designWireframes/:wireframeId` | debug wireframe id |
 
 Fallback builders redirect to safe screens if params missing (e.g. empty batchId → running batches or driver home).
 
@@ -147,4 +144,3 @@ Constants in `route_names.dart` only (use nested `Navigator`):
 1. Run debug app
 2. Sign in as each role; verify drawer/admin CRUD blocked for driver/commuter
 3. Deep link: `adb shell am start -a android.intent.action.VIEW -d "your-scheme://d2dLog/123"` (if intent filters configured) or use in-app START TRIP
-4. Wireframes without login: `/designWireframes` in debug

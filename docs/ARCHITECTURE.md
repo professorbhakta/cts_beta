@@ -95,7 +95,6 @@ flowchart TB
 | `lib/data/` | Shared session/auth impl + local DB (app infrastructure) |
 | `lib/domain/` | Shared auth/session contracts + use cases |
 | `lib/offline_temp/` | Prototype offline UI (pending merge or isolation) |
-| `lib/design/wireframes/` | Debug layout gallery only |
 | `lib/appManager/`, legacy `controllers/`, duplicate `screens/` | **Being removed** — re-export stubs only; do not add code here |
 
 ---

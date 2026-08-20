@@ -9,7 +9,7 @@ Cross-platform **Commuter Transport System (c2s)** — Flutter app for iOS and A
 | **Begin here** | [docs/START_HERE.md](docs/START_HERE.md) |
 | **Full index** | [docs/README.md](docs/README.md) |
 
-**Packs:** P1 architecture · P2 offline/build/test/API · P3 user guides + wireframe gallery + screenshot folders
+**Packs:** P1 architecture · P2 offline/build/test/API · P3 user guides + screenshot folders
 
 ## Getting Started
 
@@ -18,8 +18,6 @@ copy .env.example .env   # set API_BASE_URL / WEBSOCKET_URL
 flutter pub get
 flutter run
 ```
-
-Debug wireframes (no login): on Sign in tap **Preview UI wireframes**, or open `/designWireframes`.
 
 ## Flutter resources
 
