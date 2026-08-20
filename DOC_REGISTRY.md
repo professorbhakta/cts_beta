@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 23:30 IST
-> **Session:** qa_lab + qa_screens removed from repo
+> **Updated:** 2026-08-20 23:35 IST
+> **Session:** docs/final-gate removed
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 23:30 IST | qa_lab/qa_screens purged + gitignored |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 23:30 IST | qa dump purge |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 23:30 IST | Post qa purge MIDDLE CONTEXT |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 23:30 IST | 26n qa dump purge |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 23:35 IST | docs/final-gate removed |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 23:35 IST | final-gate removed from sync set |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 23:35 IST | Dropped final-gate START pointer |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 23:35 IST | 26o final-gate removed |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 23:10 IST | offline_module barrel removed note |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
@@ -43,7 +43,6 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 12:20 IST | Verified unchanged |
 | [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | Verified unchanged |
 | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-20 22:15 IST | Verified unchanged (lab used 192.168.1.6) |
-| [docs/final-gate/](docs/final-gate/) | 2026-08-20 23:10 IST | XML/PNG dumps deleted; 12 .txt checklists kept |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
 
 ---
@@ -77,3 +76,8 @@ Updated when content changes; not verified every session unless touched.
 - `project-talk-guide/` — entire folder deleted after migration
 - `docs/FOLDER_SUMMARY.md`, `docs/FOLDER_GUIDE.md`, `docs/CursorshortCut.md`
 - `docs/wireframes/DOCS_ANALYSIS.md`
+
+## Removed (2026-08-20 cleanup)
+
+- `docs/final-gate/` — P1–P9 / Batch-02 phase checklists + smoke prompts (historical; gate closed)
+- `qa_lab/`, `qa_screens/` — device UI dumps (gitignored)

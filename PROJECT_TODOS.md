@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 23:30 IST
-> **Session:** qa_lab + qa_screens purged
+> **Updated:** 2026-08-20 23:35 IST
+> **Session:** docs/final-gate removed
 
 # Project Todo & Progress
 
@@ -78,10 +78,11 @@
 26h. [x] A1 Track Cab vehicle — cab `trackingVehicleId` → commuter Fleet Edge WebView; admin cab form; backend field; 106 tests
 26i. [x] Device smoke catch-up 2026-08-20 — P1/P3/P5/P6 PASS (P1 re-smoke duplicate reject)
 26j. [x] Return list realignment — `isComing` available pool, confirmed order fix, admin add/view only, driver confirm/remove/end
-26k. [x] Batch-02 / Driver 2 production smoke — role UI PASS (Admin no-End / Driver End FAB); confirm/remove UG12 + ID/name ([BATCH2_DRIVER2_SMOKE_CHECKLIST.txt](docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt))
+26k. [x] Batch-02 / Driver 2 production smoke — role UI PASS (Admin no-End / Driver End FAB); confirm/remove UG12 + ID/name
 26l. [x] Flutter git cleanup — tagged `p1-p9-merged` @ `72b6aa5`; deleted P1–P9 + `integration/p1-p7-validation` local/remote; kept `beta-ver`/`main`/`cursor/setup-dev-environment-96cd`. Did not touch `cts-docker`.
-26m. [x] Unused-file cleanup — final-gate XML/PNG deleted (12 .txt kept); seed `_*.png` deleted (loader kept); `offline_module.dart` + `main_offline.dart` deleted
+26m. [x] Unused-file cleanup — final-gate XML/PNG deleted; seed `_*.png` deleted (loader kept); `offline_module.dart` + `main_offline.dart` deleted
 26n. [x] QA dump purge — removed `qa_lab/` + `qa_screens/` from git; gitignored
+26o. [x] Removed `docs/final-gate/` historical phase checklists (gate closed)
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking

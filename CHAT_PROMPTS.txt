@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 23:30 IST
-> **Session:** qa_lab + qa_screens purged
+> **Updated:** 2026-08-20 23:35 IST
+> **Session:** docs/final-gate removed
 
 ================================================================================
 QUICK START (minimal)
@@ -41,17 +41,18 @@ MIDDLE CONTEXT (user fills each session — update as you go)
 ================================================================================
 
 Current files in focus:
-  - origin/beta-ver (qa dump purge)
+  - origin/beta-ver (final-gate removed)
 
 What we already tried:
-  - Removed qa_lab/ (158) + qa_screens/ (52) from git
-  - Gitignored /qa_lab/ and /qa_screens/
+  - Removed docs/final-gate/ (12 historical .txt)
+  - Earlier: qa_lab/ + qa_screens/ purged + gitignored
 
 Open questions:
   - Next: 26d Commuter POST intent or A6–A9
 
 Related docs read:
   - PROJECT_BRAIN §5 / §9
+  - docs/TESTING.md for ongoing smoke (not final-gate)
 
 ================================================================================
 QUICK CLOSE (minimal)
@@ -82,7 +83,7 @@ End-of-session doc sync. Do not duplicate long specs into PROJECT_BRAIN.
 
 5. Update this file MIDDLE CONTEXT for the next chat
 
-6. Reply: short summary + pasteable next START PROMPT (or point at final-gate START file)
+6. Reply: short summary + pasteable next START PROMPT (or idle)
 
 Constraints: no new .md/.txt unless user asked; feature README only if that feature changed.
 

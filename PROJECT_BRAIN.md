@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 23:30 IST
-> **Session:** Removed qa_lab/ + qa_screens/ from repo
+> **Updated:** 2026-08-20 23:35 IST
+> **Session:** Removed docs/final-gate historical checklists
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -57,7 +57,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 **Next:** Product backlog — 26d Commuter POST intent or A6–A9. Do **not** re-create deleted P1–P9 branches.
 
-**This session:** Removed `qa_lab/` (158) + `qa_screens/` (52) from git; gitignored both so local dumps stay local. P7 already on `cts-docker` `p7-rule-integrity-r4-r9` @ `783e5ef` (no main merge).
+**This session:** Removed `docs/final-gate/` (12 historical phase/smoke `.txt` files). Earlier: `qa_lab/` + `qa_screens/` purged + gitignored. P7 already on cts-docker feature branch.
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -174,9 +174,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-20 | final-gate remove | Deleted historical phase/smoke `.txt` folder |
 | 2026-08-20 | QA dump purge | Removed `qa_lab/` + `qa_screens/` from git; gitignored |
 | 2026-08-20 | Unused-file cleanup | final-gate XML/PNG gone; seed `_*.png` gone; dead Dart stubs |
-| 2026-08-20 | Git cleanup APPLY | Tag `p1-p9-merged`; deleted P1–P9 + integration local/remote |
 
 ---
 
