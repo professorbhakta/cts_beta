@@ -1,0 +1,249 @@
+================================================================================
+COPY THIS ENTIRE BLOCK INTO A NEW CURSOR CHAT (new agent)
+================================================================================
+
+@PROJECT_BRAIN.md
+@CHAT_PROMPTS.txt
+@docs/LOCAL_DEV.md
+@docs/TESTING.md
+@docs/FLOWS_BY_ROLE.md
+@docs/OFFLINE_AND_SYNC.md
+@docs/features/RETURN_BATCH_E2E.md
+@lib/features/batches/README.md
+@docs/final-gate/PHASE_03B_SMOKE_CATCHUP_P1_P3_P5_P6.txt
+@docs/final-gate/PHASE_03_P1_P9_CHECKLIST.txt
+@docs/final-gate/PHASE_06_FINAL_GO_NOGO.txt
+@docs/SENIOR_REVIEW_2026-08-19.txt
+
+Repos:
+- Flutter: D:\cts_beta
+- Backend: D:\cts-docker
+
+Branch: beta-ver (P1–P9 already merged). Stay on beta-ver.
+
+Task: DEVICE SMOKE CATCH-UP — remaining tests only (P1, P3, P5, P6).
+Auto tests already PASS. This session does NOT re-run the full P1–P9 gate.
+Do NOT score login, splash, sign-in, dashboard landing, or role routing as tests.
+Those are assumed after the user logs in.
+
+Agent FIRST: recover emulator window + `flutter run` on BOTH devices.
+THEN wait. User logs in manually:
+  emulator Admin 7069036462 / password
+  phone   Driver 9876544111 / password
+User will say "ready" (or equivalent). Only THEN run P6 → P1 → P3 → P5.
+
+================================================================================
+HONEST CURRENT STATUS (read before acting)
+================================================================================
+FINAL GATE (docs/final-gate/) claimed GO too early:
+
+| P  | Auto | Device smoke (truth) | What is missing |
+|----|------|----------------------|-----------------|
+| P1 | PASS | PARTIAL              | Confirm rejection UI (error, no false success) |
+| P2 | PASS | PASS                 | SKIP this session |
+| P3 | PASS | SKIP                 | Background ~30s → resume both devices |
+| P4 | PASS | N/A (no LIVE D2D)    | SKIP unless a batch is LIVE |
+| P5 | PASS | SKIP                 | Airplane → banner → action blocked → restore |
+| P6 | PASS | SKIP                 | Batch A → B no stale flash; PTR keeps lists |
+| P7 | PASS | PASS                 | SKIP |
+| P8 | PASS | PASS                 | SKIP |
+| P9 | PASS | PASS                 | SKIP |
+
+Do NOT mark overall PASS until smoke rows are PASS, FAIL, or documented N/A with reason.
+
+A1 Track Cab landed in PROJECT_BRAIN later (106 tests locally). Working tree may have uncommitted A1 files. Do NOT mix A1 into this smoke. Do NOT commit A1 in the smoke-docs commit. Smoke the return/lifecycle/network flows only.
+
+HEAD note: origin/beta-ver gate docs around 90ed8ef. Confirm `git log -1` yourself.
+
+================================================================================
+LAB — READ .env FIRST (IP CHANGED)
+================================================================================
+Read D:\cts_beta\.env. Active block is "#Iphone":
+  API_BASE_URL=http://172.20.10.2/
+  WEBSOCKET_URL=ws://172.20.10.2/ws/
+Home 192.168.1.6 is commented. Do not rewrite .env unless the user says IP changed again.
+
+Prove backend:
+  GET http://172.20.10.2/d2d/return_batch/status/1
+  Expect HTTP 200 JSON with remaining_capacity / overflow_remaining.
+  Root GET / is a Django 404 — that is OK (Nginx+Django up).
+
+Docker: D:\cts-docker  (C2S-Nginx :80, C2S-Django, Postgres, Redis).
+If API fails: docker compose up -d from D:\cts-docker.
+
+Devices (PROJECT_BRAIN §5):
+  emulator-5554  Pixel_10_Pro   Admin    7069036462 / password
+  5f36af49       Xiaomi 2107113SI Driver Driver 1  9876544111 / password
+
+Dummy org 7069036462. Do not wipe Parul 9898927941. Do not re-seed dummy org.
+
+Lab leftovers (may be stale vs today):
+  Batch-01 morning ended. Return Batch-01 historically had 5 confirmed (End not required).
+  Batch-08 was LIVE then later 0 running batches — verify on admin dashboard.
+  Driver RETURN LIST previously opened Return Trip Batch #4.
+
+================================================================================
+STEP 0 — EMULATOR WINDOW (do this before flutter run)
+================================================================================
+This laptop: work area ~1536×816. Pixel 10 Pro often restores OFF-SCREEN (Y ≈ -942).
+User cannot smoke if they cannot see the AVD.
+
+1. Click Android Emulator taskbar icon, then Win+Left.
+2. Confirm window.scale = 0.25, window.x = 40, window.y = 16 in
+   %USERPROFILE%\.android\avd\Pixel_10_Pro.avd\emulator-user.ini
+3. If still missing, COLD BOOT (only one AVD):
+   & "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Pixel_10_Pro -no-snapshot-load
+4. Wait until `flutter devices` shows emulator-5554 as a device (not "offline").
+5. Ask the user: "Can you see the emulator?" Do not flutter-run Admin until YES.
+
+Xiaomi: user must tap the cts_beta icon if MIUI drops to launcher after install.
+
+================================================================================
+GOLDEN RULES
+================================================================================
+- ONLY this session owns emulator + phone smoke
+- flutter devices once (do not spam adb in parallel with flutter run)
+- One flutter run per device. If already running AND logs show
+    AppConfig: Using API Base URL: http://172.20.10.2/
+  then REUSE. Else COLD flutter run (env IP change requires cold launch).
+- Hot restart (R) only if Dart changes this session after that cold launch
+- User logs in. Agent does not type credentials or treat login as a checklist test.
+- Never: second flutter run, pidof+uiautomator+flutter devices together (adb hangs),
+  kill a healthy flutter run, force-push, change validate_add_commuter or GET view split,
+  new features, P10+ work, RC tag until smoke closed
+- gradle.properties org.gradle.jvmargs = -Xmx2G (do not raise)
+
+If adb hangs: kill only the hung adb/uiautomator client, then `adb devices -l`.
+
+================================================================================
+PHASE LAUNCH (agent) — not a test
+================================================================================
+Do this immediately after STEP 0. Do not wait to "verify login."
+
+[ ] docker / API 172.20.10.2 OK (one GET status/1)
+[ ] flutter devices → emulator-5554 + 5f36af49
+[ ] flutter run -d emulator-5554   (wait for "Flutter run key commands")
+[ ] flutter run -d 5f36af49        (one run per device; no second process)
+[ ] Confirm AppConfig logs 172.20.10.2 on BOTH (launch health only)
+
+STOP. Tell the user:
+  Emulator: log in Admin 7069036462 / password
+  Phone:    log in Driver 9876544111 / password (tap cts_beta if launcher)
+  Say ready when both homes are on screen.
+
+SKIP as tests (do not report PASS/FAIL for these):
+  splash, Sign In, no Sign Up, dashboard landing, driver home landing,
+  role routing, redirect loops.
+
+================================================================================
+AFTER USER SAYS READY — smoke only
+================================================================================
+Assume they are already Admin dashboard + Driver home.
+Note running batches (0 vs LIVE) only to decide if P3 D2D optional is N/A.
+
+Navigation (from FLOWS_BY_ROLE + batches README):
+  Admin Return Batches: Dashboard scroll Quick Actions "Return Batches"
+    OR Batches list toolbar return icon
+    → ReturningBatchScreen picker → tap card → /returnCommuterScreen/:batchId
+    Available = Home then Overflow (GET view). Confirmed = GET get_commuter.
+    Confirm = swipe POST add_commuter. Overflow Confirm disabled if overflow_remaining==0.
+  Driver return: home RETURN LIST → /driverReturnCommuter/:batchId (no End FAB).
+
+Execute P6 → P1 → P3 → P5 (airplane last). Mark each P before starting the next.
+Use PHASE_03B as the live checklist. Fill PASS/FAIL/N/A + notes.
+
+================================================================================
+P6 — STATE LIFECYCLE (Admin emulator)  do first
+================================================================================
+Goal: no stale Batch A data when opening Batch B; PTR keeps lists.
+
+[ ] Dashboard → Return Batches → wait picker cards (status fetch, max 10 concurrent)
+[ ] Open Batch A — write down batch name/id, Home/Overflow counts, confirmed count
+[ ] Back to picker → immediately open Batch B (different id)
+    EXPECT: no flash of Batch A names or A's counts before B loads
+[ ] On B: pull-to-refresh — lists stay visible (keepExistingData); not a blank flash
+[ ] Back to picker → re-enter B — clean load (dispose/clearActiveBatch)
+
+FAIL if A's commuters appear on B, or confirmed counts belong to A.
+
+================================================================================
+P1 — TRUTH CONTRACT (Admin emulator)
+================================================================================
+Goal: API failure = UI failure. HTTP 200 + status:error must NOT look like success.
+
+Available tab only lists eligible CList riders, so "confirm a random ineligible"
+may be impossible from the list. Use one of these (first that applies):
+
+  A) Overflow Confirm disabled when overflow_remaining==0
+     EXPECT: cannot confirm; no silent add; no success SnackBar
+  B) Swipe Confirm that backend rejects (capacity_full / duplicate / not_eligible)
+     EXPECT: error SnackBar with server message; Confirmed count does not increase;
+     pull-to-refresh keeps the same confirmed set
+  C) If neither possible: N/A with evidence (empty Home+Overflow, overflow_remaining>0,
+     cab not full) — do not fake PASS
+
+Do not End the day's return trip unless the user asks.
+
+================================================================================
+P3 — LIFECYCLE (both devices)
+================================================================================
+Goal: OS background ~30s then resume — no crash, data usable.
+Skip "lands on Sign In vs Dashboard" as a login test. Score crash / hang / frozen UI only.
+
+Admin:
+[ ] Leave Return Batches or a return-commuter screen with data visible
+[ ] Home / app switcher 30 seconds
+[ ] Resume cts_beta — no crash, not white hang
+[ ] Pull-to-refresh or open Return Batches — loads
+
+Driver:
+[ ] Leave RETURN LIST or driver home with data
+[ ] Same 30s background → resume
+[ ] Navigate or PTR — not frozen blank
+
+Optional D2D: only if admin Running batches shows LIVE. Connect → background 30s →
+resume → connection-lost banner may appear then recover. If 0 running: N/A.
+
+P5 airplane is separate — do not combine with P3.
+
+================================================================================
+P5 — DEGRADED NETWORK (Admin emulator; last)
+================================================================================
+Goal: minimal degraded UX. Full offline queue is OUT OF SCOPE (P5 product decision).
+
+[ ] Emulator airplane ON
+    EXPECT: NetworkDegradedBanner (app-wide). OfflineAutoRedirect must NOT dump
+    admin into offline_temp prototype.
+[ ] Try Return confirm swipe OR D2D connect
+    EXPECT: NetworkActionGuard blocks with a clear message; no fake success
+[ ] Airplane OFF — wait until online
+[ ] Retry same action — works (or eligible list empty: at least request not blocked)
+[ ] No delayed replay of the blocked action (no queue)
+
+Then restore network before any more navigation.
+
+================================================================================
+CLOSE-OUT (mandatory)
+================================================================================
+1. Fill every row in PHASE_03B (PASS / FAIL / N/A + notes)
+2. Write docs/final-gate/PHASE_03B_SMOKE_RESULT.txt (date, IP, reused vs fresh,
+   device matrix, per-P evidence)
+3. Update PHASE_03 smoke column for P1/P3/P5/P6 only
+4. Update PHASE_06: smoke column, known gaps, GO stays CONDITIONAL until all four
+   smoke PASS or explicit N/A accepted by user
+5. PROJECT_BRAIN §5 lab IP 172.20.10.2; §9 prepend smoke session (max 3 rows)
+6. DOC_REGISTRY + PROJECT_TODOS if backlog wording changes
+7. CHAT_PROMPTS middle context = smoke result + next work (A6–A9 or POST intent)
+8. Commit ONLY gate/docs files on beta-ver. Do NOT add A1/lib smoke-unrelated diffs.
+   Push only after user can see both devices smoked (TESTING.md pre-push).
+9. Do NOT tag senior-review-2026-08-complete until smoke catch-up is closed.
+
+Reply with:
+- Device matrix (role, reused/fresh, result)
+- P1/P3/P5/P6 table Auto | Smoke | Result | Notes
+- Blockers
+- Suggested next START prompt
+
+================================================================================
+END COPY BLOCK
+================================================================================

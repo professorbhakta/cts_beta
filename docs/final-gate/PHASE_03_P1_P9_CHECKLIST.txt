@@ -1,21 +1,22 @@
 ================================================================================
 FINAL GATE — PHASE 3: P1→P9 CHECKLIST (auto + smoke notes)
 ================================================================================
-Session:  2026-08-20 ~01:25 IST
-Branch:   beta-ver (post P9 merge, local SHA 4222e40)
+Session:  2026-08-20 ~11:40 IST
+Branch:   beta-ver @ 90ed8ef
 Rule:     One P at a time; auto first, smoke noted separately
+Catch-up: P3/P5/P6 device smoke PASS; P1 smoke N/A (empty Available)
 
 --------------------------------------------------------------------------------
 SUMMARY TABLE
 --------------------------------------------------------------------------------
 | P  | Auto Tests                          | Auto | Smoke | Result | Notes |
 |----|-------------------------------------|------|-------|--------|-------|
-| P1 | api_response_contract + return_repo | PASS | PARTIAL | PASS | 22/22 auto; smoke deferred (confirm rejection UI) |
+| P1 | api_response_contract + return_repo | PASS | N/A   | PASS | 22/22 auto; smoke N/A path C (empty Available, overflow open) |
 | P2 | auth_redirect + session + route     | PASS | PASS  | PASS | 13/13 auto; signUp disabled; role routing |
-| P3 | lifecycle coordinator + d2d lifecycle | PASS | SKIP  | PASS | 13/13 auto; 30s background manual deferred |
+| P3 | lifecycle coordinator + d2d lifecycle | PASS | PASS  | PASS | 13/13 auto; 32s background both devices 2026-08-20 |
 | P4 | role governance + role policy         | PASS | SKIP  | PASS | 9/9 auto; D2D live trip none (no running batches) |
-| P5 | network guard + degraded actions      | PASS | SKIP  | PASS | 7/7 auto; airplane mode manual deferred |
-| P6 | return_batch_provider_lifecycle     | PASS | SKIP  | PASS | 6/6 auto; batch A→B flash manual deferred |
+| P5 | network guard + degraded actions      | PASS | PASS  | PASS | 7/7 auto; airplane banner + End blocked + restore |
+| P6 | return_batch_provider_lifecycle     | PASS | PASS  | PASS | 6/6 auto; Batch #4→#5 no stale names; PTR kept copy |
 | P7 | return_rule_integrity + backend pool| PASS | PASS  | PASS | 4/4 Flutter; 15/15 backend targeted |
 | P8 | picker layout + status fetch + batch| PASS | PASS  | PASS | 9/9 auto; grid/list layout tests |
 | P9 | batch_repository_impl + sort_utils  | PASS | PASS  | PASS | 7/7 auto; admin dashboard loads post-login |
@@ -30,10 +31,11 @@ Total: 22/22 PASS
 
 Checklist:
   [x] 3.1.1  200+status:error → failure path (ApiResponseContract tests)
-  [~] 3.1.2  Smoke: return confirm rejection — NOT executed this session
-             (prior P1 wave device-verified; auto covers repo contract)
+  [~] 3.1.2  Smoke: return confirm rejection — N/A 2026-08-20
+             Admin Batch #5 Available(0); overflow_remaining=53; cab not full.
+             See PHASE_03B_SMOKE_RESULT.txt
 
-P1: PASS (auto complete; smoke item deferred to Phase 4 integrated smoke)
+P1: PASS (auto); smoke N/A path C — user must accept before RC tag
 
 --------------------------------------------------------------------------------
 P2 — SECURITY BOUNDARY
@@ -61,10 +63,11 @@ Auto files:
 Total: 13/13 PASS
 
 Checklist:
-  [~] 3.3.1  Background 30s → resume — SKIP (manual; apps stable, no crash observed)
-  [~] 3.3.2  Connectivity refresh on resume — SKIP (manual)
+  [x] 3.3.1  Background 32s → resume — PASS (admin return #5; driver home)
+  [x] 3.3.2  After resume PTR/RETURN LIST loaded — PASS
+             Optional D2D: N/A (admin 0 running batches)
 
-P3: PASS (auto); smoke deferred Phase 4.7
+P3: PASS (auto + smoke 2026-08-20)
 
 --------------------------------------------------------------------------------
 P4 — CHANNEL ROLE GOVERNANCE
@@ -90,11 +93,11 @@ Auto files:
 Total: 7/7 PASS
 
 Checklist:
-  [~] 3.5.1  Airplane mode banner — SKIP (manual)
-  [~] 3.5.2  Action blocked + restore — SKIP (manual)
-  [x] 3.5.3  No full offline queue (queueWhenOffline fails closed — tested)
+  [x] 3.5.1  Airplane mode banner — PASS (admin return screen; not offline_temp)
+  [x] 3.5.2  End trip blocked + restore PTR — PASS
+  [x] 3.5.3  No full offline queue (auto + no End replay)
 
-P5: PASS (auto)
+P5: PASS (auto + smoke 2026-08-20)
 
 --------------------------------------------------------------------------------
 P6 — STATE LIFECYCLE HYGIENE
@@ -107,7 +110,7 @@ Checklist:
   [x] 3.6.2  keepExistingData while reloading (test present)
   [x] 3.6.3  Dispose clears active batch (test present)
 
-P6: PASS
+P6: PASS (auto + smoke 2026-08-20; beginReturnTripLoad-during-build logged, UI OK)
 
 --------------------------------------------------------------------------------
 P7 — RULE INTEGRITY R4/R9
@@ -157,5 +160,5 @@ Checklist:
 P9: PASS
 
 --------------------------------------------------------------------------------
-PHASE 3 VERDICT: PASS — all P auto gates green; live smoke gaps documented
+PHASE 3 VERDICT: PASS auto; smoke catch-up 2026-08-20 P3/P5/P6 PASS, P1 N/A
 ================================================================================

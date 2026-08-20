@@ -1,21 +1,21 @@
 ================================================================================
 FINAL GATE — PHASE 6: FINAL GO / NO-GO
 ================================================================================
-Session:  2026-08-20 ~01:35 IST
-Branch:   beta-ver
-Decision: GO — beta-ver ready as release candidate
+Session:  2026-08-20 ~11:40 IST
+Branch:   beta-ver @ 90ed8ef
+Decision: CONDITIONAL GO — P3/P5/P6 smoke PASS; P1 smoke N/A pending user accept
 
 ================================================================================
 1) P1–P9 SUMMARY TABLE
 ================================================================================
 | P  | Auto              | Smoke        | Result | Notes |
 |----|-------------------|--------------|--------|-------|
-| P1 | PASS (22/22)      | PARTIAL      | PASS   | Contract + repo; rejection UI prior wave |
+| P1 | PASS (22/22)      | N/A          | PASS   | Auto OK; device reject UI N/A (empty Available) |
 | P2 | PASS (13/13 + BE) | PASS         | PASS   | signUp disabled; role guards |
-| P3 | PASS (13/13)      | SKIP         | PASS   | Background 30s deferred |
+| P3 | PASS (13/13)      | PASS         | PASS   | 32s background both devices |
 | P4 | PASS (9/9)        | SKIP (N/A)   | PASS   | No live D2D batch |
-| P5 | PASS (7/7)        | SKIP         | PASS   | Airplane manual deferred |
-| P6 | PASS (6/6)        | SKIP         | PASS   | Provider lifecycle complete |
+| P5 | PASS (7/7)        | PASS         | PASS   | Airplane banner + End blocked + restore |
+| P6 | PASS (6/6)        | PASS         | PASS   | Batch #4→#5 no stale names |
 | P7 | PASS (4+15 BE)    | PASS         | PASS   | Home/Overflow tabs on driver device |
 | P8 | PASS (9/9)        | PASS         | PASS   | Picker layout + concurrency |
 | P9 | PASS (7/7)        | PASS         | PASS   | Deps + admin dashboard loads |
@@ -45,8 +45,10 @@ Manual scripts (container):
 ================================================================================
 | Device        | Role   | Flows                         | Reused/Fresh | Result |
 |---------------|--------|-------------------------------|--------------|--------|
-| emulator-5554 | Admin  | Login→Dashboard; drawer       | REUSED       | PASS   |
-| 5f36af49      | Driver | Login→RETURN LIST→Batch #4    | REUSED       | PASS   |
+| emulator-5554 | Admin  | P6/P1/P3/P5 return + airplane | FRESH        | PASS*  |
+| 5f36af49      | Driver | P3 resume + RETURN LIST #4    | FRESH        | PASS   |
+
+*P1 smoke N/A (no rejectable confirm). See PHASE_03B_SMOKE_RESULT.txt
 
 ================================================================================
 5) DEBT DONE / PENDING (P9)
@@ -67,12 +69,13 @@ PENDING:
 ================================================================================
 6) KNOWN GAPS
 ================================================================================
+  - P1 device rejection UI N/A (empty Available / overflow still open) — user accept
+  - ReturnCommuterListScreen initState notifyListeners-during-build (logged)
+  - Driver Live queue vs admin dashboard 0 running (lab inconsistency)
   - UTC midnight trip_date boundary (documented P7)
   - available_count vs pool extras semantics (documented)
   - offline_temp prototype not production offline-first
   - Backend integration script 13/14 (not_eligible on cross-batch add)
-  - Admin return-picker full navigation not adb-verified this session
-  - Airplane / background-resume manual smoke deferred
 
 ================================================================================
 7) RISK + ROLLBACK
@@ -91,22 +94,20 @@ Current beta-ver HEAD (pushed):
 ================================================================================
 8) GO / NO-GO
 ================================================================================
-GO: beta-ver ready as release candidate
+CONDITIONAL GO: auto gates green; P3/P5/P6 device smoke PASS; P1 smoke N/A
 
 Rationale:
-  - All P1–P9 Flutter auto gates pass (101/101)
-  - P9 merged cleanly to beta-ver
-  - Both lab devices logged in; core flows reachable
-  - Non-negotiables preserved (validate_add_commuter, GET view split)
-  - Backend unit/rule tests pass; one integration script case is documented gap
+  - P1–P9 Flutter auto still PASS
+  - Catch-up smoke closed for P3/P5/P6 on FRESH flutter run @ 172.20.10.2
+  - P1 reject UI not exercisable (path C) — do not claim full smoke PASS
+  - Do not tag senior-review-2026-08-complete until P1 N/A accepted or re-smoked
 
-If GO actions:
-  - Final beta-ver commit SHA: 1e688ddad94c279586e8f6f9e1c71cbfd0d6fac8
-  - Suggested tag: senior-review-2026-08-complete
-  - Optional tag: senior-review-wave-rc1
+If GO after user accepts P1 N/A:
+  - Tag candidate remains senior-review-2026-08-complete
+  - HEAD note at catch-up start: 90ed8ef
 
-If NO-GO blockers (none blocking RC):
-  - (none critical) Backend script case 13 — track as follow-up, not RC blocker
+If NO-GO until then:
+  - P1 rejection UI unproven on device this session
 
 ================================================================================
 PHASE 0 INVENTORY (reference)

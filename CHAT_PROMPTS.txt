@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 01:35 IST
-> **Session:** FINAL GATE GO — next Application wave
+> **Updated:** 2026-08-20 11:45 IST
+> **Session:** Smoke catch-up closed CONDITIONAL (P1 N/A)
 
 ================================================================================
 QUICK START (minimal)
@@ -39,19 +39,22 @@ MIDDLE CONTEXT (user fills each session — update as you go)
 ================================================================================
 
 Current files in focus:
+  - docs/final-gate/PHASE_03B_SMOKE_RESULT.txt
+  - docs/final-gate/PHASE_03_P1_P9_CHECKLIST.txt
   - docs/final-gate/PHASE_06_FINAL_GO_NOGO.txt
-  - beta-ver @ 4222e40 (P1–P9 integrated)
 
 What we already tried:
-  - FINAL GATE Phases 0–6 complete 2026-08-20
-  - P9 merged to beta-ver; 101/101 flutter tests; integrated smoke PASS
+  - Device smoke catch-up: FRESH flutter run Admin+Driver @ 172.20.10.2
+  - P6 Batch #4→#5 no stale names; P3 32s both devices; P5 airplane End blocked
+  - P1 N/A (empty Available, overflow still open)
 
 Open questions:
-  - Application wave A1 (Track Cab) vs RC tag senior-review-2026-08-complete
+  - Accept P1 N/A for RC, or re-smoke P1 when admin Available is non-empty?
+  - Then A6–A9 or Commuter POST intent (A1 lib still uncommitted)
 
 Related docs read:
-  - docs/final-gate/PHASE_01–06.txt
-  - PROJECT_BRAIN §5–§9
+  - docs/final-gate/PHASE_03B_SMOKE_CATCHUP_P1_P3_P5_P6.txt
+  - PROJECT_BRAIN §9
 
 ================================================================================
 QUICK CLOSE (minimal)

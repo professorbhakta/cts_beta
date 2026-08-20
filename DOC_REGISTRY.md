@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 01:35 IST
-> **Session:** FINAL GATE complete; final-gate reports added
+> **Updated:** 2026-08-20 11:45 IST
+> **Session:** Smoke catch-up P1 N/A; P3/P5/P6 PASS
 
 # Documentation Registry
 
@@ -24,17 +24,17 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 01:35 IST | FINAL GATE GO; beta-ver P1–P9 |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 01:35 IST | final-gate phase reports |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 01:35 IST | Next: Application wave A1/A6–A9 |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 01:35 IST | P9 closed; gate complete |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 11:45 IST | Smoke catch-up CONDITIONAL GO |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 11:45 IST | Gate smoke result |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 11:45 IST | P1 N/A vs A6–A9 next |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 11:45 IST | P1 smoke N/A accept |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 01:30 IST | sort_utils re-export removed (P9) |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-20 01:30 IST | Verified unchanged |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-20 01:30 IST | Verified unchanged |
 | [docs/FEATURES.md](docs/FEATURES.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-19 23:55 IST | P4 Already IN + driver add |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-20 06:00 IST | Commuter Track Cab step (A1) |
 | [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-19 23:55 IST | WS already_in + forbidden role |
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-19 23:25 IST | Session refresh + 401/4401 |
@@ -43,7 +43,7 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 00:50 IST | P8 picker + batched status fetch |
 | [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
 | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-20 01:35 IST | Batch-08 cleared; gate smoke |
-| [docs/final-gate/](docs/final-gate/) | 2026-08-20 01:35 IST | PHASE_01–06 FINAL GATE reports |
+| [docs/final-gate/](docs/final-gate/) | 2026-08-20 11:45 IST | PHASE_03B smoke result; P3/P5/P6 PASS |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
 
 ---

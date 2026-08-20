@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 01:35 IST
-> **Session:** FINAL GATE P1–P9 complete; beta-ver RC
+> **Updated:** 2026-08-20 11:45 IST
+> **Session:** Device smoke catch-up P1/P3/P5/P6
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,13 +55,15 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**beta-ver = P1–P9 integrated (FINAL GATE GO).** Merge `4222e40` on `beta-ver`. **101 tests pass.** Senior-review wave complete through P9 debt burndown.
+**beta-ver = P1–P9 integrated.** Merge `4222e40` on `beta-ver`. Auto tests still pass. **GO is CONDITIONAL** until P1 device-reject N/A is accepted (or re-smoked).
 
-**Next:** Application wave (A1 Track Cab, A6–A9) or release-candidate handoff. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+**Next:** User accept P1 N/A **or** re-run P1 when Available is non-empty / overflow_remaining==0. Then A6–A9 or Commuter POST intent. Do **not** tag `senior-review-2026-08-complete` yet. Do **not** re-parse GET status. Do **not** re-split GET view. Do **not** change STOP or validate_add_commuter.
+
+**Smoke catch-up (2026-08-20):** FRESH `flutter run` both devices @ **`172.20.10.2`**. P6/P3/P5 PASS. P1 N/A (admin Available empty). Detail: [docs/final-gate/PHASE_03B_SMOKE_RESULT.txt](docs/final-gate/PHASE_03B_SMOKE_RESULT.txt)
 
 Plan: [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt)
 
-Gate reports: [docs/final-gate/](docs/final-gate/) (PHASE_01–06 txt). Dummy org `7069036462`; `.env` LAN `192.168.1.6`. Batch-08 no longer LIVE (0 running batches on admin dashboard 2026-08-20).
+Gate reports: [docs/final-gate/](docs/final-gate/) (PHASE_01–06 + PHASE_03B). Dummy org `7069036462`; `.env` LAN **`172.20.10.2`**. Admin running batches **0**.
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -71,13 +73,11 @@ Gate reports: [docs/final-gate/](docs/final-gate/) (PHASE_01–06 txt). Dummy or
 | State | Detail |
 |-------|--------|
 | Batch-01 morning | **Ended** |
-| Batch-01 return | **5 confirmed** (UG3, UG4, UG5, UG10, PG2); End not run |
-| Batch-08 | **Not LIVE** (admin dashboard: 0 running batches) |
-| `.env` | LAN `192.168.1.6` |
+| Return Batch #4 / #5 | Admin 0 confirmed; did not End |
+| Driver RETURN LIST | Batch #4 Home(6) after P3 |
+| `.env` | LAN **`172.20.10.2`** (hotspot) |
 
-**FINAL GATE (2026-08-20):** P9 merged → beta-ver; P1–P9 auto PASS; integrated smoke PASS (partial admin return-picker nav). Tag candidate: `senior-review-2026-08-complete`.
-
-**Lab connectivity:** Reused debug APK both devices; admin dashboard + driver return Batch #4 verified via UI dump.
+**Lab:** FRESH debug run both devices; emulator window moved on-screen (was Y=-942).
 
 ---
 
@@ -122,12 +122,12 @@ Gate reports: [docs/final-gate/](docs/final-gate/) (PHASE_01–06 txt). Dummy or
 - P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
 - P8 Scale/layout stability — batched status fetch (10 concurrent); return picker list on narrow/extras; no nested card scroll; 94 flutter tests
 - P9 Debt/health burndown — dio 5.11, secure_storage 11, firebase_messaging 16.5; CRUD SnackBar moved to UI; sort_utils stub removed; offline_temp isolated; compileSdk 37; 101 tests
+- A1 Track Cab vehicle — cab `trackingVehicleId` wired to Fleet Edge URL; admin cab form; fallback banner; 106 tests
 
 ### Open backlog (from PROJECT_TODOS)
 
 - Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
-- Batch-08 LIVE cleared (2026-08-20 gate — 0 running batches)
-- Remaining Application High: A1 Track Cab vehicle, A6–A9
+- Remaining Application High: A6–A9
 - Expand automated tests (P1 added contract + return batch repo tests)
 - Phase 9 / E: promote or isolate `offline_temp` (P9 isolated via offline_module.dart; full promote deferred)
 - Phase C–D: `appManager` → `app/services`; rename `*_controller.dart` (widgets + `lib/api/` already canonical)
@@ -178,9 +178,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | FINAL GATE P1–P9 | P9 merged beta-ver 4222e40; 101 tests; GO RC; docs/final-gate/ |
-| 2026-08-20 | P9 debt/health burndown | Deps upgraded; repo SnackBar cleanup; 101 tests |
-| 2026-08-20 | P8 → beta-ver merge-check | P1–P7 + P8 on beta-ver; 94 tests |
+| 2026-08-20 | Smoke catch-up P1/P3/P5/P6 | P6/P3/P5 PASS; P1 N/A; GO CONDITIONAL; 172.20.10.2 FRESH |
+| 2026-08-20 | A1 Track Cab vehicle | Cab trackingVehicleId → commuter WebView; 106 tests |
+| 2026-08-20 | FINAL GATE P1–P9 | P9 merged beta-ver 4222e40; 101 tests; GO RC |
 
 ---
 
