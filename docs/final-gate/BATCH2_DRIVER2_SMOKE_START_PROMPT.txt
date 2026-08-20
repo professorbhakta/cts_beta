@@ -1,0 +1,143 @@
+================================================================================
+COMPLETED 2026-08-20 ~22:15 IST — Batch-02 / Driver 2 role UI PASS
+See: docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt RESULT
+Do NOT re-run as the primary task. Next work is A1 commit or optional P3/P5/P6.
+================================================================================
+
+================================================================================
+COPY THIS ENTIRE BLOCK INTO A NEW CURSOR CHAT (new agent)
+================================================================================
+
+@PROJECT_BRAIN.md
+@CHAT_PROMPTS.txt
+@docs/LOCAL_DEV.md
+@docs/TESTING.md
+@docs/FLOWS_BY_ROLE.md
+@docs/API_CONTRACTS.md
+@docs/features/RETURN_BATCH_E2E.md
+@lib/features/batches/README.md
+@docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt
+@docs/backend/04-return-batch-lifecycle.md
+
+Repos:
+- Flutter: D:\cts_beta
+- Backend: D:\cts-docker
+
+Branch: beta-ver
+
+Task: Finish Batch-02 / Driver 2 production smoke for the updated Return_List + D2D role matrix.
+Prior session got PARTIAL PASS on backend + confirm/remove/ID-name match.
+This session must score the new Flutter role UI (needs hot restart or cold run).
+
+================================================================================
+HONEST CURRENT STATUS (read before acting)
+================================================================================
+Return flow realignment landed this week:
+
+Backend (cts-docker) — DONE and verified on Batch #5:
+  - Available pool = current isComing=True (not stopped CList)
+  - get_commuter hydrate preserves Redis ID order (id 22 → UG2 matched UI)
+  - Migration cab_services.0003_cab_trackingvehicleid APPLIED
+  - C2S-Django was restarted so return_pool.py isComing code is live
+
+Flutter role UI (cts_beta) — CODE landed, NOT smoked on device yet:
+  - Admin return: canConfirmAvailable=true, canRemoveConfirmed=false, canEndTrip=false
+  - Driver return: canConfirmAvailable=true, canRemoveConfirmed=true, canEndTrip=true
+  - Prior reused APK still showed OLD matrix (Admin End FAB yes, Driver End FAB no)
+
+Prior smoke evidence (Batch-02 / Driver 2):
+  - Confirm UG2 → confirmed_user_ids={22}, UI name UG2
+  - Remove UG2 → confirmed 0, isComing restored True
+  - After Django fix: Available(197) Home(65) Overflow open 0
+  - Checklist: docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt
+
+Do NOT re-test Batch-01 / Driver 1 as the primary matrix. Focus Batch-02 / Driver 2.
+
+================================================================================
+LAB
+================================================================================
+Read D:\cts_beta\.env first.
+Expected hotspot IP: API_BASE_URL=http://172.20.10.2/
+Prove: GET http://172.20.10.2/d2d/return_batch/status/5 → 200
+If host IP changed again, restore hotspot to 172.20.10.2 OR update .env + cold flutter run.
+
+Accounts:
+  emulator-5554  Admin     7069036462 / password
+  5f36af49       Driver 2  9876544112 / password   ← Batch-02 (batch id 5)
+
+Driver 1 9876544111 / Batch-01 is out of scope unless needed for cross-batch reject.
+
+Docker: D:\cts-docker (C2S-Nginx :80, C2S-Django, Postgres, Redis).
+If Home stays empty while isComing riders exist: check cab capacity query + Django process
+loaded current return_pool.py (restart C2S-Django if needed).
+
+================================================================================
+GOLDEN RULES
+================================================================================
+- Target Batch-02 (id 5) / Driver 2 only
+- Prefer hot restart (R) on existing flutter run to load today's Dart role changes
+- If flutter run process is dead: cold flutter run once per device (allowed for role UI)
+- User logs in. Agent does not treat login as a scored test
+- Do not End the day's return unless needed for a scored End-FAB check, and restore after
+- Do not wipe Parul org 9898927941; do not re-seed dummy org
+- Do not mix A1 Track Cab commit into this smoke
+
+================================================================================
+PHASE 0 — LOAD NEW ROLE BINARY
+================================================================================
+[ ] Confirm .env / API 172.20.10.2 OK (GET status/5)
+[ ] Hot restart BOTH devices (R) OR cold flutter run if attach/run died
+[ ] Confirm AppConfig log shows 172.20.10.2
+[ ] WAIT for user ready:
+      Admin dashboard + Driver 2 home (Batch-02)
+
+SKIP as scored tests: splash, sign-in, role routing landing.
+
+================================================================================
+PHASE 1 — ROLE UI (must pass this session)
+================================================================================
+Admin → Return Batches → Batch-02 (#5):
+[ ] Available shows Home/Overflow from isComing pool
+[ ] Admin can Confirm/add from Available
+[ ] Admin Confirmed tab is view-only (no Remove swipe)
+[ ] Admin has NO End return FAB
+
+Driver 2 → RETURN LIST → Batch #5:
+[ ] Available / Confirmed load Batch-02 data
+[ ] Driver can Confirm
+[ ] Driver can Remove
+[ ] Driver HAS End return FAB
+[ ] Optional End smoke: End → inactive; then leave trip ended or re-seed one confirm if needed
+
+================================================================================
+PHASE 2 — DATA INTEGRITY (quick re-verify)
+================================================================================
+[ ] Confirm one rider → Confirmed name matches user id (hydrate order)
+[ ] Confirmed rider leaves Available
+[ ] Remove restores Available + isComing=True (spot-check via API or UI return)
+
+================================================================================
+PHASE 3 — OPTIONAL residual (if time)
+================================================================================
+[ ] P6: Batch A → Batch B no stale flash
+[ ] P3: background ~30s resume both devices
+[ ] P5: airplane → blocked mutation → restore (admin)
+
+================================================================================
+CLOSE-OUT
+================================================================================
+1. Fill docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt (PASS/FAIL/N/A)
+2. Write short result note in same file RESULT section (or BATCH2_DRIVER2_SMOKE_RESULT.txt)
+3. Update PROJECT_BRAIN §5 lab (Driver 2 account) + §9 handoff
+4. DOC_REGISTRY + PROJECT_TODOS if needed
+5. Commit only when user asks
+
+Reply with:
+- Device matrix (reused/hot-restart/fresh)
+- Role UI table Admin vs Driver
+- Remaining gaps
+- Suggested next START prompt
+
+================================================================================
+END COPY BLOCK
+================================================================================

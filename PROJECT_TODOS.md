@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 11:55 IST
-> **Session:** P1 re-smoke; smoke closed
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Batch-02 / Driver 2 role UI PASS
 
 # Project Todo & Progress
 
@@ -77,6 +77,8 @@
 26g. [x] P9 Debt/health burndown — critical deps; repo SnackBar → UI; sort_utils stub; offline_temp isolated; compileSdk 37; 101 tests
 26h. [x] A1 Track Cab vehicle — cab `trackingVehicleId` → commuter Fleet Edge WebView; admin cab form; backend field; 106 tests
 26i. [x] Device smoke catch-up 2026-08-20 — P1/P3/P5/P6 PASS (P1 re-smoke duplicate reject)
+26j. [x] Return list realignment — `isComing` available pool, confirmed order fix, admin add/view only, driver confirm/remove/end
+26k. [x] Batch-02 / Driver 2 production smoke — role UI PASS (Admin no-End / Driver End FAB); confirm/remove UG12 + ID/name ([BATCH2_DRIVER2_SMOKE_CHECKLIST.txt](docs/final-gate/BATCH2_DRIVER2_SMOKE_CHECKLIST.txt))
 26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
 
 ### Open backlog — API / networking
@@ -94,7 +96,7 @@
 - [x] Driver: connect, pickup, STOP *(2026-08-17: reconnect live, STOP finalized, 4001)*
 - [x] Driver/admin: reconnect after STOP → ended message *(admin on-channel + driver 4001 2026-08-17)*
 - [x] Admin: return batch confirm / remove / end *(confirm/remove yes; End skipped — 5 confirmed tonight)*
-- [x] Driver: RETURN LIST confirm/remove; no End FAB *(UG3/UG5/PG2/UG10/UG4 → 5/53)*
+- [x] Driver: RETURN LIST confirm/remove/**End FAB** *(Batch-02 2026-08-20: UG12 confirm/remove; End FAB present, not tapped)*
 - [x] Commuter: isComing toggle *(UG4 PATCH + pull-to-refresh → COMING; Switch adb tap missed)*
 
 ## APK validation notes (2026-07-17)

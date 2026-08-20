@@ -17,11 +17,15 @@ class ReturnCommuterListScreen extends StatefulWidget {
     super.key,
     required this.batchId,
     this.readOnly = false,
-    this.canEndTrip = true,
+    this.canConfirmAvailable = true,
+    this.canRemoveConfirmed = false,
+    this.canEndTrip = false,
   });
 
   final String batchId;
   final bool readOnly;
+  final bool canConfirmAvailable;
+  final bool canRemoveConfirmed;
   final bool canEndTrip;
 
   @override
@@ -239,7 +243,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                         overflow: provider.overflowCommuters,
                         emptyMessage: _emptyMessage(
                           defaultMessage:
-                              'Home-batch riders who boarded this morning appear here. Overflow is later-return walk-up.',
+                              'Commuters marked Coming today appear here. Home shows this batch, Overflow shows other-batch riders.',
                           isActive: isActive,
                         ),
                         onConfirm: (commuter) =>
@@ -247,6 +251,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                         onRefresh: _refresh,
                         actionInProgress: provider.actionInProgress,
                         readOnly: widget.readOnly,
+                        canConfirm: widget.canConfirmAvailable,
                         overflowConfirmAllowed:
                             status == null ||
                             !status.hasPoolExtras ||
@@ -257,7 +262,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                         emptyTitle: 'No confirmed commuters',
                         emptyMessage: _emptyMessage(
                           defaultMessage:
-                              'Confirm riders from the Available tab.',
+                              'Confirm riders from the Available tab. The driver can then manage the confirmed list.',
                           isActive: isActive,
                         ),
                         actionLabel: 'Remove',
@@ -267,7 +272,8 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                             _removeCommuter(provider, commuter),
                         onRefresh: _refresh,
                         actionInProgress: provider.actionInProgress,
-                        readOnly: widget.readOnly,
+                        readOnly:
+                            widget.readOnly || !widget.canRemoveConfirmed,
                       ),
                     ],
                   ),
@@ -289,6 +295,7 @@ class _AvailableListTab extends StatefulWidget {
     required this.onConfirm,
     required this.onRefresh,
     required this.actionInProgress,
+    required this.canConfirm,
     required this.overflowConfirmAllowed,
     this.readOnly = false,
   });
@@ -299,6 +306,7 @@ class _AvailableListTab extends StatefulWidget {
   final ValueChanged<CommuterModel> onConfirm;
   final Future<void> Function() onRefresh;
   final bool actionInProgress;
+  final bool canConfirm;
   final bool overflowConfirmAllowed;
   final bool readOnly;
 
@@ -378,7 +386,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
                             horizontal: 16,
                             vertical: 8,
                           ),
-                          child: Text('No home-batch riders waiting.'),
+                          child: Text('No Coming-today commuters for this batch.'),
                         )
                       else
                         for (final commuter in home)
@@ -393,7 +401,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
                             horizontal: 16,
                             vertical: 8,
                           ),
-                          child: Text('No later-return walk-up riders.'),
+                          child: Text('No other-batch Coming-today commuters waiting.'),
                         )
                       else
                         for (final commuter in overflow)
@@ -439,7 +447,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
       ),
     );
 
-    if (widget.readOnly || !confirmAllowed) {
+    if (widget.readOnly || !widget.canConfirm || !confirmAllowed) {
       return tile;
     }
 

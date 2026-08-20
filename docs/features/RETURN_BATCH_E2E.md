@@ -1,6 +1,6 @@
 > **Doc:** docs/features/RETURN_BATCH_E2E.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 Available Home/Overflow; view/ split
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # Evening Return Trip (End-to-End)
 
@@ -12,9 +12,9 @@ Full-stack flow for return batch — REST + Redis, **not** WebSocket.
 
 ## Participants
 
-- **Commuter** — appears on Home if this is their batch and they are on today's CList; Overflow if their home return is later
-- **Admin** — confirms return seats (capacity-limited); ends trip
-- **Driver** — confirm/remove on `/driverReturnCommuter/:batchId` (no End)
+- **Commuter** — appears on Home if this is their batch and `isComing=True`; Overflow if they are `isComing=True` on another batch in the same org
+- **Admin** — adds commuters from Available and monitors Confirmed
+- **Driver** — confirm/remove/end on `/driverReturnCommuter/:batchId`
 - **Backend** — Redis set + REST under `/d2d/return_batch/`
 
 ---
@@ -26,13 +26,13 @@ Every evening endpoint is called from `ReturnBatchRepositoryImpl`. Contract: [..
 | Call | When |
 |------|------|
 | `GET …/status/<id>` | Batch picker cards — Available, Seats left (`remaining_capacity`), Confirmed; optional Home hold / Overflow in / Overflow open |
-| `GET …/view/<id>` | Available tab — `home[]` then `overflow[]` |
+| `GET …/view/<id>` | Available tab — `home[]` then `overflow[]` from current `isComing=True` pool |
 | `GET …/get_commuter/<id>` | Confirmed tab (default hydrate; no query param) |
 | `POST …/add_commuter` `{ batch_id, commuter_id }` | Admin or driver Confirm (`commuter_id` = user id, any batch) |
 | `POST …/remove_commuter` same body | Admin or driver Remove |
-| `POST …/end/<id>` | Admin End FAB (not GET) |
+| `POST …/end/<id>` | Driver End FAB (not GET) |
 
-Driver uses the same GET + add/remove POSTs. End stays admin-only.
+Driver uses the same GET + add/remove + end POSTs. Admin monitors and adds from Available.
 
 ---
 
@@ -52,7 +52,7 @@ Driver uses the same GET + add/remove POSTs. End stays admin-only.
 | Step | Frontend | Backend |
 |------|----------|---------|
 | Load trip | `loadReturnTrip()` → Available tab | `GET view/{id}` |
-| Display | `CommuterModel` from `commuters` array | Org commuters minus today's confirmed IDs |
+| Display | `CommuterModel` from `home[]` / `overflow[]` | Org commuters with `isComing=True`, minus today's confirmed IDs |
 
 ---
 
@@ -71,7 +71,7 @@ Driver uses the same GET + add/remove POSTs. End stays admin-only.
 | Step | Frontend | Backend |
 |------|----------|---------|
 | Confirmed tab + banner | `ReturnBatchProvider.capacity` | `GET get_commuter/{id}` (hydrated `commuters` by default) |
-| Names | Parse `commuters` | No `?hydrate=` from client; no ID join |
+| Names | Parse `commuters` | Backend preserves Redis ID order while hydrating profiles |
 
 ---
 
@@ -80,7 +80,7 @@ Driver uses the same GET + add/remove POSTs. End stays admin-only.
 | Step | Frontend | Backend |
 |------|----------|---------|
 | Swipe Remove | `removeCommuter(userId.id)` | SREM + **`isComing=True`** |
-| End return FAB | Dialog → `endReturnTrip()` | `POST end/{id}` → DEL Redis |
+| End return FAB | Driver dialog → `endReturnTrip()` | `POST end/{id}` → DEL Redis |
 | After end | `Navigator.pop` | `is_active` false on status |
 
 ---

@@ -1,6 +1,6 @@
 > **Doc:** docs/ROUTING_AND_AUTH.md
-> **Updated:** 2026-08-19 23:15 IST
-> **Session:** P2 Security Boundary — session refresh + 401/4401 redirect
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # Routing and authentication
 

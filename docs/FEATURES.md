@@ -1,5 +1,5 @@
 > **Doc:** docs/FEATURES.md
-> **Updated:** 2026-08-19 17:55 IST
+> **Updated:** 2026-08-20 22:15 IST
 > **Session:** Verified unchanged
 
 # Feature catalog

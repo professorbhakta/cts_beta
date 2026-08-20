@@ -1,6 +1,6 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-08-20 01:30 IST
-> **Session:** Lab QA cleanup steps (Batch-08)
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged (this lab run used 192.168.1.6)
 
 # Local Development Setup
 
@@ -14,7 +14,7 @@ DEFAULT_ADMIN_CODE=
 
 - Use **LAN IP** of the PC running Docker (e.g. from `ipconfig`), not `localhost`, for physical devices.
 - **No `:8000`** — Nginx exposes port **80**; Django is internal on 8000.
-- **Phone + emulator together:** keep one LAN IP in `.env` (current home lab `192.168.1.6`) so both hit Docker. Do **not** switch the emulator to `10.0.2.2` in that mixed run — `10.0.2.2` is emulator-only (host loopback).
+- **Phone + emulator together:** keep one LAN IP in `.env` (current lab **`172.20.10.2`** iPhone hotspot; home Wi‑Fi is `192.168.1.6`) so both hit Docker. Do **not** switch the emulator to `10.0.2.2` in that mixed run — `10.0.2.2` is emulator-only (host loopback).
 - Android emulator **alone** (no phone): `10.0.2.2` is fine if Django is on the same PC.
 - Android **debug/profile** allow cleartext HTTP (`usesCleartextTraffic` on those manifests only). **Release** does not — use `https://` / `wss://` in production `.env`.
 - AppConfig keeps the scheme you set (no `https→http` rewrite).

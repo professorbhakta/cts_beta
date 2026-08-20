@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 11:45 IST
-> **Session:** Smoke catch-up P1 N/A; P3/P5/P6 PASS
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Batch-02 / Driver 2 role UI PASS
 
 # Documentation Registry
 
@@ -24,26 +24,26 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 11:55 IST | P1 re-smoke; GO smoke closed |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 11:55 IST | P1 PASS update |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 11:55 IST | Next A6–A9 or POST |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 11:55 IST | Smoke catch-up done |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 22:15 IST | Batch-02 role UI PASS |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 22:15 IST | Batch-02 role UI PASS |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 22:15 IST | Next = A1 commit or P3/P5/P6 |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 22:15 IST | 26k Batch-02 smoke closed |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 01:30 IST | sort_utils re-export removed (P9) |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-20 01:30 IST | Verified unchanged |
-| [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-20 01:30 IST | Verified unchanged |
+| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 01:30 IST | Verified unchanged |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/FEATURES.md](docs/FEATURES.md) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-20 06:00 IST | Commuter Track Cab step (A1) |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-20 12:20 IST | Verified unchanged |
 | [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-19 23:55 IST | WS already_in + forbidden role |
-| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-19 23:25 IST | Session refresh + 401/4401 |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-20 00:30 IST | P4+P5 integration tests |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:55 IST | P4 role + Already IN |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 00:50 IST | P8 picker + batched status fetch |
-| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
-| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-20 01:35 IST | Batch-08 cleared; gate smoke |
-| [docs/final-gate/](docs/final-gate/) | 2026-08-20 11:55 IST | P1 re-smoke PASS; GO |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-20 12:20 IST | Verified unchanged |
+| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-19 23:25 IST | Verified unchanged |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-08-19 23:40 IST | Verified unchanged |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:55 IST | Verified unchanged |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-20 12:20 IST | Verified unchanged |
+| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | Verified unchanged |
+| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-20 22:15 IST | Verified unchanged (lab used 192.168.1.6) |
+| [docs/final-gate/](docs/final-gate/) | 2026-08-20 22:15 IST | Batch-02 checklist PASS |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
 
 ---
@@ -60,8 +60,8 @@ Updated when content changes; not verified every session unless touched.
 | [docs/CHANGELOG_SPRINTS.md](docs/CHANGELOG_SPRINTS.md) | 2026-08-14 22:00 IST | Driver return ADD sprint section |
 | [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) | 2026-08-17 22:15 IST | STOP UX 2-device verified |
 | [docs/TESTING.md](docs/TESTING.md) | 2026-08-17 22:15 IST | Wrap; 2-device leftovers passed |
-| [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) | 2026-08-19 18:25 IST | view/ Home then Overflow |
-| [docs/backend/](docs/backend/) | 2026-08-19 18:25 IST | M4 view split |
+| [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) | 2026-08-20 12:20 IST | Return list uses isComing pool |
+| [docs/backend/](docs/backend/) | 2026-08-20 12:20 IST | Return pool switched to isComing |
 | [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt) | 2026-08-19 18:25 IST | M4 done; RESUME = M7 |
 | [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-14 19:55 IST | /signUp redirect; sessionid + logout/401 |

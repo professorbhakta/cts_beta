@@ -240,6 +240,38 @@ class _CabFormState extends State<CabForm> {
                     validator: (value) => Validators.distance(value),
                   ),
                   const SizedBox(height: 16),
+                  TextFormField(
+                    controller: formProvider.trackingVehicleIdCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Fleet tracking vehicle ID (optional)',
+                      hintText: 'e.g. ref17849780231903099150',
+                      prefixIcon: const Icon(Icons.my_location_rounded),
+                      prefixIconColor: AppColors.acYellowWarm,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.acYellowWarm,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 16),
                   // Route Dropdown
                   _buildRouteDropdown(),
                   const SizedBox(height: 32),
@@ -262,6 +294,8 @@ class _CabFormState extends State<CabForm> {
                                   _isSubmitting = true;
                                 });
 
+                              final trackingId =
+                                  formProvider.trackingVehicleIdCtrl.text.trim();
                               final data = {
                                 "regNumber": formProvider.regNumberCtrl.text
                                     .toUpperCase()
@@ -269,6 +303,8 @@ class _CabFormState extends State<CabForm> {
                                 "capacity": formProvider.capacityCtrl.text.trim(),
                                 "km": formProvider.kmCtrl.text.trim(),
                                 "routeId": formProvider.selectedRouteId,
+                                if (trackingId.isNotEmpty)
+                                  "trackingVehicleId": trackingId,
                               };
 
                               bool success = false;

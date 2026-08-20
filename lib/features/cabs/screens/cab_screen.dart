@@ -130,6 +130,7 @@ class _CabScreenState extends State<CabScreen> {
     formProvider.regNumberCtrl.text = cab.regNumber ?? "";
     formProvider.capacityCtrl.text = cab.capacity.toString();
     formProvider.kmCtrl.text = cab.km.toString();
+    formProvider.trackingVehicleIdCtrl.text = cab.trackingVehicleId ?? "";
     formProvider.selectedRouteId = cab.routeId?.id;
     context.push(RouteName.cabForm);
   }

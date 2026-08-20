@@ -1,0 +1,111 @@
+================================================================================
+PRODUCTION SMOKE — BATCH-02 / DRIVER 2
+================================================================================
+Date:     2026-08-20 ~22:15 IST
+Branch:   beta-ver
+Backend:  http://192.168.1.6/  (home Wi-Fi; hotspot 172.20.10.2 was down)
+Devices:  COLD flutter run (new Dart role binary)
+
+Target accounts
+---------------
+- Admin emulator: `7069036462`
+- Driver phone: `9876544112` (`Driver 2`)
+- Focus batch: `Batch-02` (backend batch id `5`)
+
+--------------------------------------------------------------------------------
+SETUP / HEALTH (not scored)
+--------------------------------------------------------------------------------
+[x] `.env` pointed at reachable LAN (`192.168.1.6`; `172.20.10.2` timed out)
+[x] GET `http://192.168.1.6/d2d/return_batch/status/5` → 200
+[x] Docker: C2S-Nginx / C2S-Django / Postgres / Redis up
+[x] Cold `flutter run -d emulator-5554` (Pixel_10_Pro)
+[x] Cold `flutter run -d 5f36af49` (Xiaomi)
+[x] AppConfig both devices: `http://192.168.1.6/`
+[x] Admin dashboard session restored; Driver 2 home Batch-02
+[x] Login not scored (sessions reused after install)
+
+--------------------------------------------------------------------------------
+RETURN FLOW — ADMIN (Batch-02)  — NEW ROLE BINARY
+--------------------------------------------------------------------------------
+[x] Open Return Batches picker
+[x] Open `Batch-02` → title `Return Trip — Batch #5`
+[x] Available shows Coming-today pool
+    Evidence: Available (196), Home (64), Batch-02 names (UG492/UG12/…)
+[x] Confirmed ID/name match
+    Evidence: Confirmed tab UG2; API id 22 → username UG2
+[x] Admin can add from Available
+    Evidence: swipe UG12 revealed Confirm action
+[x] Admin cannot remove from Confirmed
+    Evidence: swipe UG2 on Confirmed — no Remove pane (view-only tile)
+[x] Admin has no End return FAB
+    Evidence: full UI dump of return trip — no `End return` control
+
+--------------------------------------------------------------------------------
+RETURN FLOW — DRIVER 2 (Batch-02)  — NEW ROLE BINARY
+--------------------------------------------------------------------------------
+[x] Driver home shows `Driver 2` / `Batch-02`
+[x] RETURN LIST opens `Return Trip — Batch #5`
+[x] Available / Confirmed load Batch-02 data (no Batch-01 stale title)
+[x] Driver can confirm a commuter
+    Evidence: Confirm UG12 → confirmed_count 1→2, ids={22,32}, Available 196→195
+[x] Confirmed commuter leaves Available
+    Evidence: UG12 gone from Home; Home 64→63
+[x] Driver can remove a commuter from Confirmed
+    Evidence: Remove UG12 → confirmed_count 2→1; Available 195→196
+[x] Removed restores isComing
+    Evidence: Django `UG12 32 isComing True`; search Available shows UG12 Home
+[x] Driver sees End return FAB
+    Evidence: `End return` FAB bounds present on driver return trip
+[ ] Optional End smoke — SKIPPED (do not End the day's return; FAB presence scored)
+
+--------------------------------------------------------------------------------
+P6 — STATE / SCREEN HYGIENE
+--------------------------------------------------------------------------------
+[x] Admin: open Batch-02 return trip; lists load Batch #5
+[ ] Admin: Batch A → Batch B stale-flash check — not run this pass (optional)
+
+--------------------------------------------------------------------------------
+P3 — BACKGROUND / RESUME
+--------------------------------------------------------------------------------
+[ ] Not run this pass (optional residual)
+
+--------------------------------------------------------------------------------
+P5 — DEGRADED NETWORK
+--------------------------------------------------------------------------------
+[x] Prior pass: offline banner while `172.20.10.2` was down
+[ ] Full airplane block/restore cycle — deferred (optional)
+
+--------------------------------------------------------------------------------
+BLOCKERS / NOTES
+--------------------------------------------------------------------------------
+1. Host was on home Wi-Fi `192.168.1.6`, not iPhone hotspot `172.20.10.2`.
+   Updated `.env` + cold flutter run (allowed by START prompt).
+2. Prior PARTIAL was reused APK with old Admin End / no Driver End.
+   This pass used a fresh debug APK from today's Dart role matrix.
+3. Did not tap End return (would clear today's Redis set). FAB scored visually.
+4. Left Batch #5 with UG2 (id 22) confirmed; seats 52/53; trip active.
+
+--------------------------------------------------------------------------------
+RESULT
+--------------------------------------------------------------------------------
+Overall result: PASS (role UI + confirm/remove + ID/name + isComing restore)
+
+Role UI table
+-------------
+                 Confirm Available   Remove Confirmed   End return FAB
+Admin            YES                 NO (view-only)     NO
+Driver 2         YES                 YES                YES
+
+Device matrix
+-------------
+emulator-5554  Admin     COLD flutter run   AppConfig 192.168.1.6
+5f36af49       Driver 2  COLD flutter run   AppConfig 192.168.1.6
+
+Gaps (optional, not blockers)
+- P6 Batch A→B stale flash
+- P3 ~30s background resume
+- P5 airplane mutation block
+- Optional End-FAB destructive smoke
+
+Next: A1 Track Cab commit (kept out of this smoke) or leftover P3/P5/P6.
+================================================================================

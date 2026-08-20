@@ -1,6 +1,6 @@
 > **Doc:** docs/LIB_STRUCTURE.md
-> **Updated:** 2026-08-20 01:30 IST
-> **Session:** P9 sort_utils re-export stub removed
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # Library structure (human-friendly)
 

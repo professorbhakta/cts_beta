@@ -80,6 +80,13 @@ class CommuterModel {
     return null;
   }
 
+  /// Fleet Edge tracking id from the commuter’s assigned cab (admin-configured).
+  String? get cabTrackingVehicleId {
+    final id = cabId?.trackingVehicleId?.trim();
+    if (id == null || id.isEmpty) return null;
+    return id;
+  }
+
   static List<CommuterModel> filterCommuters(
       List<CommuterModel> commuterList,
       {String? batchName,

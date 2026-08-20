@@ -5,16 +5,20 @@ import 'package:cts/features/commuters/constants/fleet_tracking_urls.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 /// In-app live cab tracking via Tata Motors Fleet Edge.
 class TrackCabScreen extends StatefulWidget {
-  const TrackCabScreen({super.key, this.vehicleId});
+  const TrackCabScreen({super.key, this.vehicleId, this.cabRegNumber});
 
-  /// Optional fleet tracking vehicle id; falls back to [FleetTrackingUrls.defaultVehicleId].
+  /// Cab-specific Fleet Edge id from profile; falls back to lab default when null.
   final String? vehicleId;
+
+  /// Assigned cab registration shown in the app bar.
+  final String? cabRegNumber;
 
   @override
   State<TrackCabScreen> createState() => _TrackCabScreenState();
@@ -32,6 +36,7 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
 
   WebViewController? _controller;
   late final String _trackingUrl;
+  late final bool _usingDefaultVehicle;
 
   var _isLoading = true;
   var _loadProgress = 0;
@@ -46,6 +51,8 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   @override
   void initState() {
     super.initState();
+    _usingDefaultVehicle =
+        FleetTrackingUrls.usesDefaultFallback(cabTrackingVehicleId: widget.vehicleId);
     _trackingUrl = FleetTrackingUrls.trackingUrl(vehicleId: widget.vehicleId);
     _initWebView();
     _browserPromptTimer = Timer(_browserPromptDelay, _showBrowserPromptIfNeeded);
@@ -237,7 +244,19 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text('Track your Cab'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Track your Cab'),
+            if (widget.cabRegNumber != null)
+              Text(
+                widget.cabRegNumber!,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: scheme.onSurface.withValues(alpha: 0.75),
+                    ),
+              ),
+          ],
+        ),
         automaticallyImplyLeading: false,
         leading: Builder(
           builder: (context) => IconButton(
@@ -263,6 +282,20 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (_usingDefaultVehicle)
+            MaterialBanner(
+              content: const Text(
+                'Your cab has no Fleet Edge tracking ID yet. Showing lab default map.',
+              ),
+              leading: const Icon(Icons.info_outline),
+              actions: [
+                TextButton(
+                  onPressed: () =>
+                      ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+                  child: const Text('Dismiss'),
+                ),
+              ],
+            ),
           if (_isLoading && _loadProgress < 100)
             LinearProgressIndicator(
               value: _loadProgress == 0 ? null : _loadProgress / 100,

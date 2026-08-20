@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-08-19 23:55 IST
-> **Session:** P4 channel role governance — Already IN + role gates
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # D2D Feature — Live WebSocket
 

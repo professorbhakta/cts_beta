@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 Available Home then Overflow
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # Flows by role
 
@@ -48,7 +48,7 @@ flowchart TD
 | Add a rider to the live D2D list | D2D Channel or driver log → **+** sheet (all commuters). They appear on the list only after the server accepts ADD (needs a POP). |
 | See who is already in the cab | **Already IN** section above Live queue on D2D Channel and driver log (from WS `already_in`) |
 | End a morning trip | Only the **driver** **STOP TRIP** button. Admin **Close channel** / back does not end the day. |
-| Manage return trip | Dashboard **Return Batches** *or* Batches toolbar return icon → pick batch (cards: Seats left = empty cab seats; Home hold / Overflow when extras present) → Available (**Home** then **Overflow**) / Confirmed (Remove) → **End return** |
+| Manage return trip | Dashboard **Return Batches** *or* Batches toolbar return icon → pick batch → Available (**Home** then **Overflow**) shows current `Coming today` commuters for this org; admin can add from Available and monitor Confirmed |
 | Work offline | Drawer → **Offline Mode** (when enabled) |
 | Log out | Drawer → Profile → **Logout** |
 
@@ -65,7 +65,7 @@ flowchart TD
 | 3 | Tap **START TRIP** → `/d2dLog/:batchId` |
 | 4 | Use commuter list — swipe green confirm pickup, red remove; **+** to add rider |
 | 5 | **STOP TRIP** (red FAB) → ends the day for this batch. Back / leaving the screen only disconnects; the trip stays active |
-| 6 | Optional: **RETURN LIST** → `/driverReturnCommuter/:batchId` (Confirm / Remove; admin **End return**) |
+| 6 | Optional: **RETURN LIST** → `/driverReturnCommuter/:batchId` (Confirm / Remove / **End return**). Admin can add commuters and monitor confirmed riders |
 
 ```mermaid
 flowchart LR
@@ -87,6 +87,7 @@ flowchart LR
 | 2 | Toggle **Coming** switch |
 | 3 | Confirm in dialog |
 | 4 | Pull to refresh to reload profile |
+| 5 | Tap **Track your Cab** — opens Fleet Edge map for your assigned cab (`trackingVehicleId` from admin cab record; lab default if unset) |
 
 ---
 

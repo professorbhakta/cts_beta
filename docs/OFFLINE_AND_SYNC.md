@@ -1,6 +1,6 @@
 > **Doc:** docs/OFFLINE_AND_SYNC.md
-> **Updated:** 2026-08-20 00:20 IST
-> **Session:** P5 degraded-network UX
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # Offline and sync
 

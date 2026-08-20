@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-08-19 23:15 IST
-> **Session:** P2 Security Boundary client notes
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # API Contracts — Backend ↔ Flutter
 
@@ -154,20 +154,20 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 
 | Backend | Purpose | Flutter `ApiUrl` / method | UI |
 |---------|---------|---------------------------|----|
-| `GET /d2d/return_batch/view/<batch_id>` | Available `home[]` then `overflow[]` (breaking) | `returnBatchView` · `getAvailableCommuters` | Available tab Home / Overflow |
+| `GET /d2d/return_batch/view/<batch_id>` | Available `home[]` then `overflow[]` from current `isComing=true` pool | `returnBatchView` · `getAvailableCommuters` | Available tab Home / Overflow |
 | `GET /d2d/return_batch/status/<batch_id>` | Counts, capacity, confirmed ids, `is_active`; optional pool extras | `returnBatchStatus` · `getReturnBatchStatus` | Batch picker cards |
 | `GET /d2d/return_batch/get_commuter/<batch_id>` | Confirmed ids + profiles (any assigned batch) | `returnBatchGetCommuter` · `getConfirmedCommuters` | Confirmed tab + capacity banner |
 | `POST /d2d/return_batch/add_commuter` | Confirm seat | `returnBatchAddCommuter` · `addCommuterToConfirmList` | Admin + driver swipe Confirm |
 | `POST /d2d/return_batch/remove_commuter` | Remove seat | `returnBatchRemoveCommuter` · `removeCommuterFromConfirmList` | Admin + driver swipe Remove |
-| `POST /d2d/return_batch/end/<batch_id>` | Clear Redis set, restore `isComing` | `returnBatchEnd` · `endReturnTrip` | Admin End FAB |
+| `POST /d2d/return_batch/end/<batch_id>` | Clear Redis set, restore `isComing` | `returnBatchEnd` · `endReturnTrip` | Driver End FAB |
 
 ### Client notes (verified in app)
 
 - **`get_commuter`:** backend default is `?hydrate=1` (profiles in `commuters`). Flutter does **not** send a hydrate query; it parses `commuters`. `?hydrate=0` (IDs only) is unused.
 - **`end`:** backend accepts GET or POST. Flutter uses **POST only** (`postApi({}, …end/$batchId)`).
 - **`commuter_id`** in add/remove = **user ID** (`CommuterModel.userId.id`), not the commuter-row PK. Lookup is by user ID (any morning batch in the same org).
-- Driver screen `/driverReturnCommuter/:batchId` reuses `loadReturnTrip` — confirm/remove enabled; End FAB stays admin-only (`canEndTrip: false`).
-- Available is `home[]` then `overflow[]` from GET view. Flutter drops anyone already on today's confirmed set. Old flat `commuters` is ignored (empty lists).
+- Admin return screen can add from Available and view Confirmed. Driver return screen can confirm/remove/end.
+- Available is `home[]` then `overflow[]` from GET view, built from current org commuters with `isComing=true` and split by home batch. Flutter drops anyone already on today's confirmed set. Old flat `commuters` is ignored.
 - **`status/` extras (M3, additive):** `home_hold`, `overflow_confirmed`, `overflow_remaining` may appear. Flutter `ReturnBatchStatusModel` parses them only when **all three** keys are present (`hasPoolExtras`). Fail closed (keys omitted) → extras stay null; picker/banner hide those rows. **Seats left** is still `remaining_capacity` (empty cab seats), never `overflow_remaining`. `available_count` is still org-pool size. `get_commuter/` does not include extras.
 - Overflow Confirm is disabled when `hasPoolExtras` and `overflow_remaining == 0`. That is not Seats left.
 
@@ -213,7 +213,7 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 }
 ```
 
-`home[]` = eligible CList riders whose home batch is this departure. `overflow[]` = eligible riders with a **strictly later** home returnTime (walk-up). No flat `commuters` key. Empty lists if nobody STOPped this morning (no CList).
+`home[]` = current `isComing=true` commuters whose home batch is this departure. `overflow[]` = current `isComing=true` commuters from other batches in the same org. No flat `commuters` key.
 
 ### `get_commuter/` response
 

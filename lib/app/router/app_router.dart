@@ -89,7 +89,17 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: RouteName.trackCabScreen,
-        builder: (context, state) => const TrackCabScreen(),
+        builder: (context, state) {
+          final vehicleId = state.uri.queryParameters['vehicleId'];
+          final cabReg = state.uri.queryParameters['cabReg'];
+          return TrackCabScreen(
+            vehicleId: vehicleId != null && vehicleId.trim().isNotEmpty
+                ? vehicleId.trim()
+                : null,
+            cabRegNumber:
+                cabReg != null && cabReg.trim().isNotEmpty ? cabReg.trim() : null,
+          );
+        },
       ),
       GoRoute(
         path: RouteName.routeScreen,
@@ -130,7 +140,12 @@ GoRouter createAppRouter({
           if (batchId == null || batchId.isEmpty) {
             return const ReturningBatchScreen();
           }
-          return ReturnCommuterListScreen(batchId: batchId);
+          return ReturnCommuterListScreen(
+            batchId: batchId,
+            canConfirmAvailable: true,
+            canRemoveConfirmed: false,
+            canEndTrip: false,
+          );
         },
       ),
       GoRoute(
@@ -142,7 +157,9 @@ GoRouter createAppRouter({
           }
           return ReturnCommuterListScreen(
             batchId: batchId,
-            canEndTrip: false,
+            canConfirmAvailable: true,
+            canRemoveConfirmed: true,
+            canEndTrip: true,
           );
         },
       ),

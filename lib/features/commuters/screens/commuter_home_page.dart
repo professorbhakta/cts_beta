@@ -1,3 +1,4 @@
+import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
@@ -44,6 +45,29 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     if (batchTime == null || batchTime.isEmpty) return 'N/A';
     if (batchTime.length >= 5) return batchTime.substring(0, 5);
     return batchTime;
+  }
+
+  void _openTrackCab(CommuterModel commuter) {
+    if (commuter.cabId == null) {
+      SnackBarService.showErrorSnackbar(
+        'No cab assigned to your profile yet. Contact admin.',
+      );
+      return;
+    }
+
+    final params = <String, String>{};
+    final trackingId = commuter.cabTrackingVehicleId;
+    if (trackingId != null) {
+      params['vehicleId'] = trackingId;
+    }
+    final reg = commuter.cabId?.regNumber?.trim();
+    if (reg != null && reg.isNotEmpty) {
+      params['cabReg'] = reg;
+    }
+
+    context.push(
+      Uri(path: RouteName.trackCabScreen, queryParameters: params).toString(),
+    );
   }
 
   @override
@@ -151,7 +175,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                       radius: 12,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       icon: const Icon(Icons.my_location_rounded),
-                      onPressed: () => context.push(RouteName.trackCabScreen),
+                      onPressed: () => _openTrackCab(commuter),
                     ),
                   ],
                 ),

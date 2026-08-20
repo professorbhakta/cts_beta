@@ -1,6 +1,6 @@
 > **Doc:** docs/backend/04-return-batch-lifecycle.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 GET view home[] / overflow[]; not org dump
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # Backend — Return Batch Lifecycle (Redis + REST)
 
@@ -16,7 +16,7 @@ Evening return trip management — **separate from live D2D WebSocket**.
 | State | Redis `d2d:live:…` + DTODLOG.CList | Redis set `{date}_{batch}` |
 | Real-time | Yes | Pull-to-refresh |
 | Capacity | Not enforced on WS | Enforced on add |
-| Driver UI | Yes | Confirm/remove (`/driverReturnCommuter/:batchId`); End is admin |
+| Driver UI | Yes | Confirm/remove/end (`/driverReturnCommuter/:batchId`) |
 | ID in Redis | N/A (DS uses user IDs in JSON) | **User ID** strings |
 
 ## Redis key
@@ -57,11 +57,11 @@ One call for admin batch cards:
 }
 ```
 
-`remaining_capacity` is still empty cab seats (`capacity - confirmed`). `available_count` is still org-pool size. Pool extras (`home_hold`, `overflow_confirmed`, `overflow_remaining`) are additive; omitted when the adapter fail-closes. Flutter picker/banner show those three only when all are present (`hasPoolExtras`). `get_commuter/` does not include extras.
+`remaining_capacity` is still empty cab seats (`capacity - confirmed`). `available_count` is the current org `isComing=True` pool minus riders already confirmed today. Pool extras (`home_hold`, `overflow_confirmed`, `overflow_remaining`) are additive; omitted when the adapter fail-closes. Flutter picker/banner show those three only when all are present (`hasPoolExtras`). `get_commuter/` does not include extras.
 
 ### GET `view/<batch_id>` — Available pool ✅
 
-**Breaking (M4):** two lists, not the old flat org dump. `home[]` = eligible CList riders whose home batch is this departure. `overflow[]` = eligible riders whose home returnTime is strictly later (walk-up, D2). No CList → both empty. Confirmed today are omitted. Flutter Available tab must ship with this.
+Two lists, not the old flat org dump. `home[]` = current `isComing=True` riders whose home batch is this departure. `overflow[]` = current `isComing=True` riders from other batches in the same org. Confirmed today are omitted.
 
 ```json
 {
@@ -74,7 +74,7 @@ One call for admin batch cards:
 }
 ```
 
-There is no `commuters` key. `available_count` stays on **status/** (org-pool size), not on view/.
+There is no `commuters` key. `available_count` stays on **status/** and now reflects the live `isComing=True` pool.
 
 ### GET `get_commuter/<batch_id>` — Confirmed + capacity ✅
 
@@ -89,7 +89,7 @@ There is no `commuters` key. `available_count` stays on **status/** (org-pool si
 }
 ```
 
-`?hydrate=1` is the **backend default** (profiles in `commuters`). Hydrate looks up by **user ID** (any morning batch). `?hydrate=0` — IDs only. Flutter does not pass a query string; it relies on the default and parses `commuters`.
+`?hydrate=1` is the **backend default** (profiles in `commuters`). Hydrate looks up by **user ID** and preserves Redis order so names match IDs. `?hydrate=0` — IDs only. Flutter does not pass a query string; it relies on the default and parses `commuters`.
 
 ### POST `add_commuter` ✅
 
@@ -112,14 +112,14 @@ Body: `{ "batch_id": "1", "commuter_id": "4" }` — **`commuter_id` = user ID** 
 ## Relationship to morning D2D
 
 - Morning STOP sets `isComing=False` for picked-up CList + queue — that does **not** empty the evening available pool
-- Return `view/` is `home[]` then `overflow[]` (CList-eligible). Not the org dump.
+- Return `view/` is `home[]` then `overflow[]` from the current `isComing=True` pool. Not the org dump.
 - Confirm still sets `isComing=False`; remove/end restore `isComing=True` (commuter home switch)
 
 ## Flutter status
 
 ✅ All six REST endpoints wired — [../API_CONTRACTS.md](../API_CONTRACTS.md) · [../../lib/features/batches/README.md](../../lib/features/batches/README.md)
 
-Admin: picker + Available/Confirmed + End FAB. Driver: same view/get_commuter/add/remove; no End.
+Admin: picker + Available/Confirmed monitor + add from Available. Driver: same view/get_commuter/add/remove/end.
 
 ## Verify
 

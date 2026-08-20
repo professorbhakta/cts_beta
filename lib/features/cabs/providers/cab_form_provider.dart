@@ -4,6 +4,7 @@ class CabFormProvider with ChangeNotifier {
   final regNumberCtrl = TextEditingController();
   final capacityCtrl = TextEditingController();
   final kmCtrl = TextEditingController();
+  final trackingVehicleIdCtrl = TextEditingController();
   int? selectedRouteId;
 
   int updateId = 0;
@@ -13,6 +14,7 @@ class CabFormProvider with ChangeNotifier {
     regNumberCtrl.clear();
     capacityCtrl.clear();
     kmCtrl.clear();
+    trackingVehicleIdCtrl.clear();
     selectedRouteId = null;
     forUpdate = false;
     updateId = 0;
@@ -24,6 +26,7 @@ class CabFormProvider with ChangeNotifier {
     regNumberCtrl.dispose();
     capacityCtrl.dispose();
     kmCtrl.dispose();
+    trackingVehicleIdCtrl.dispose();
     super.dispose();
   }
 }

@@ -1,6 +1,6 @@
 > **Doc:** docs/TESTING.md
-> **Updated:** 2026-08-19 23:40 IST
-> **Session:** Pre-push both-device smoke rule added
+> **Updated:** 2026-08-20 22:15 IST
+> **Session:** Verified unchanged
 
 # Testing
 
