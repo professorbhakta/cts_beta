@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-20 23:10 IST
-> **Session:** Unused-file cleanup (final-gate dumps + seed PNGs + dead Dart)
+> **Updated:** 2026-08-20 23:30 IST
+> **Session:** qa_lab + qa_screens removed from repo
 
 # Documentation Registry
 
@@ -24,10 +24,10 @@ Docs that get a header check every session. Attach via task packs in PROJECT_BRA
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 23:10 IST | Unused-file cleanup; dumps + dead Dart removed |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 23:10 IST | Unused-file cleanup |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 23:10 IST | Post unused-file cleanup MIDDLE CONTEXT |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 23:10 IST | Phase 9/10 notes after offline_module remove |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-20 23:30 IST | qa_lab/qa_screens purged + gitignored |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-20 23:30 IST | qa dump purge |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 23:30 IST | Post qa purge MIDDLE CONTEXT |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-20 23:30 IST | 26n qa dump purge |
 | [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 23:10 IST | offline_module barrel removed note |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |

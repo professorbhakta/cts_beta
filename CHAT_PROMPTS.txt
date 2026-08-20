@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-20 23:10 IST
-> **Session:** Unused-file cleanup
+> **Updated:** 2026-08-20 23:30 IST
+> **Session:** qa_lab + qa_screens purged
 
 ================================================================================
 QUICK START (minimal)
@@ -41,22 +41,17 @@ MIDDLE CONTEXT (user fills each session — update as you go)
 ================================================================================
 
 Current files in focus:
-  - origin/beta-ver (local dirty: cleanup deletions)
-  - docs/final-gate/*.txt only (XML/PNG removed)
+  - origin/beta-ver (qa dump purge)
 
 What we already tried:
-  - Deleted all docs/final-gate XML/PNG dumps; kept 12 .txt
-  - Deleted seed/_*.png; kept load/generate py + xlsx
-  - Deleted lib/offline_temp/offline_module.dart + lib/main_offline.dart
+  - Removed qa_lab/ (158) + qa_screens/ (52) from git
+  - Gitignored /qa_lab/ and /qa_screens/
 
 Open questions:
-  - Next backlog pick: 26d Commuter POST intent, A6–A9, or cts-docker P7
-  - Optional: delete committed qa_lab/ + qa_screens/ clutter
-  - Commit this cleanup when user asks
+  - Next: 26d Commuter POST intent or A6–A9
 
 Related docs read:
   - PROJECT_BRAIN §5 / §9
-  - Unused-file cleanup plan
 
 ================================================================================
 QUICK CLOSE (minimal)

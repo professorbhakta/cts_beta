@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 23:10 IST
-> **Session:** Unused-file cleanup — final-gate dumps + seed PNGs + dead Dart
+> **Updated:** 2026-08-20 23:30 IST
+> **Session:** Removed qa_lab/ + qa_screens/ from repo
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Next:** Pick from backlog (26d Commuter POST intent, A6–A9, or backend `cts-docker` P7 — separate repo/session). Optional follow-up: `qa_lab/` / `qa_screens/` clutter. Do **not** re-create deleted P1–P9 branches.
+**Next:** Product backlog — 26d Commuter POST intent or A6–A9. Do **not** re-create deleted P1–P9 branches.
 
-**This session:** Unused-file cleanup on `beta-ver`. Deleted all `docs/final-gate/` XML/PNG dumps (kept 12 `.txt`); deleted `seed/_*.png` (kept loader py + xlsx); deleted unused `lib/offline_temp/offline_module.dart` + `lib/main_offline.dart`. Living docs / `offline_temp` product code untouched. No commit unless asked.
+**This session:** Removed `qa_lab/` (158) + `qa_screens/` (52) from git; gitignored both so local dumps stay local. P7 already on `cts-docker` `p7-rule-integrity-r4-r9` @ `783e5ef` (no main merge).
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -174,9 +174,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-20 | Unused-file cleanup | final-gate XML/PNG gone; seed `_*.png` gone; `offline_module` + `main_offline` deleted |
+| 2026-08-20 | QA dump purge | Removed `qa_lab/` + `qa_screens/` from git; gitignored |
+| 2026-08-20 | Unused-file cleanup | final-gate XML/PNG gone; seed `_*.png` gone; dead Dart stubs |
 | 2026-08-20 | Git cleanup APPLY | Tag `p1-p9-merged`; deleted P1–P9 + integration local/remote |
-| 2026-08-20 | Push `72b6aa5` | Return roles + Track Cab + Batch-02 smoke on origin |
 
 ---
 
