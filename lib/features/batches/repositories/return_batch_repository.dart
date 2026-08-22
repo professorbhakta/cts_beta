@@ -1,6 +1,7 @@
 import 'package:cts/api/api_result.dart';
 import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
+import 'package:cts/features/batches/models/return_intent_model.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 
 abstract class ReturnBatchRepository {
@@ -23,6 +24,12 @@ abstract class ReturnBatchRepository {
   );
 
   Future<ApiResult<void>> endReturnTrip(String batchId);
+
+  Future<ApiResult<ReturnIntentModel>> getReturnIntent();
+
+  Future<ApiResult<ReturnIntentModel>> setReturnIntent(ReturnIntentModel intent);
+
+  Future<ApiResult<List<ReturnIntentOptionModel>>> getReturnIntentOptions();
 }
 
 class ReturnBatchConfirmedResult {

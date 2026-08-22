@@ -205,8 +205,10 @@ class AppProviders {
             DriverHomeProvider(context.read<DriverRepository>()),
       ),
       ChangeNotifierProvider(
-        create: (context) =>
-            CommuterHomeProvider(context.read<CommuterRepository>()),
+        create: (context) => CommuterHomeProvider(
+          context.read<CommuterRepository>(),
+          context.read<ReturnBatchRepository>(),
+        ),
       ),
       ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ChangeNotifierProvider(create: (_) => OfflineTempProvider()),

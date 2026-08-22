@@ -5,6 +5,7 @@ import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
+import 'package:cts/features/batches/models/return_intent_model.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 
@@ -140,6 +141,107 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
         response,
         failureMessage: 'Could not end return trip',
       );
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<ReturnIntentModel>> getReturnIntent() async {
+    try {
+      final response = await _apiService.getApi(ApiUrl.returnBatchIntent);
+      if (response is! Map) {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle('Invalid return intent response'),
+        );
+      }
+      final map = Map<String, dynamic>.from(response);
+      final contract = ApiResponseContract.parse(
+        map,
+        failureMessage: 'Could not load return intent',
+      );
+      if (contract.isFailure) {
+        return ApiResult.failure(
+          ApiFailure(
+            type: ApiFailureType.invalidRequest,
+            message: contract.message,
+          ),
+        );
+      }
+      return ApiResult.success(ReturnIntentModel.fromJson(map));
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<ReturnIntentModel>> setReturnIntent(
+    ReturnIntentModel intent,
+  ) async {
+    try {
+      final response = await _apiService.postApi(
+        intent.toPostBody(),
+        ApiUrl.returnBatchIntent,
+      );
+      if (response is! Map) {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle('Invalid return intent save response'),
+        );
+      }
+      final map = Map<String, dynamic>.from(response);
+      final contract = ApiResponseContract.parse(
+        map,
+        failureMessage: 'Could not save return intent',
+      );
+      if (contract.isFailure) {
+        return ApiResult.failure(
+          ApiFailure(
+            type: ApiFailureType.invalidRequest,
+            message: contract.message,
+          ),
+        );
+      }
+      return ApiResult.success(ReturnIntentModel.fromJson(map));
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<ReturnIntentOptionModel>>>
+      getReturnIntentOptions() async {
+    try {
+      final response =
+          await _apiService.getApi(ApiUrl.returnBatchIntentOptions);
+      if (response is! Map) {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle('Invalid return intent options response'),
+        );
+      }
+      final map = Map<String, dynamic>.from(response);
+      final status = map['status']?.toString().toLowerCase();
+      if (status == 'error' || status == 'fail' || status == 'failed') {
+        return ApiResult.failure(
+          ApiFailure(
+            type: ApiFailureType.invalidRequest,
+            message: map['message']?.toString() ??
+                'Could not load earlier return options',
+          ),
+        );
+      }
+      final raw = map['options'];
+      if (raw is! List) {
+        return ApiResult.success(const []);
+      }
+      final options = <ReturnIntentOptionModel>[];
+      for (final item in raw) {
+        if (item is! Map) continue;
+        final option = ReturnIntentOptionModel.fromJson(
+          Map<String, dynamic>.from(item),
+        );
+        if (option.id.isNotEmpty) options.add(option);
+      }
+      return ApiResult.success(options);
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }

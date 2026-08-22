@@ -1,23 +1,17 @@
 CTS — Dynamic Return-Trip Allocation Roadmap
-Updated: 2026-08-19 18:25 IST
-Status: M7 DONE. POST add_commuter enforces R2–R5 (not eligible, already allocated, later return, overflow full).
+Updated: 2026-08-22
+Status: 26d intent DONE (skip|home|earlier). Cutoff / no-show release still next.
 
 RESUME (next session)
   Repo     D:\cts-docker AND D:\cts_beta
-  Do       Commuter POST intent (skip/home/earlier). Cutoff / no-show release.
-  Do not   Re-parse GET status extras. Do not re-split GET view.
-           Do not change STOP. Do not change validate_add_commuter.
-  Verify   Hot-restart / new APK required — old APK cannot parse split view/.
-  Tests    python d2d_log/test_return_allocator.py
-           python manage.py test d2d_log.tests.ReturnAllocatorTests \
-             d2d_log.tests.ReturnAttendanceTests \
-             d2d_log.tests.ReturnPoolAdapterTests \
-             d2d_log.tests.ReturnBatchStatusMergeTests \
-             d2d_log.tests.ReturnBatchViewSplitTests
-           flutter test test/features/batches/return_batch_status_model_test.dart \
-             test/features/batches/return_available_model_test.dart
-  Call     from d2d_log.return_pool import status_pool_extras, view_pool_lists
-           Views must not import return_attendance / return_allocator.
+  Do       Cutoff / no-show seat release (R7 / D3).
+  Do not   Reuse isComing as return intent (R10). Do not change STOP.
+  Verify   Commuter skip → home_hold drops; earlier → overflow on target when eligible.
+  Tests    python manage.py test d2d_log.tests.ReturnIntentPoolTests \
+             d2d_log.tests.ReturnIntentApiTests
+           flutter test test/features/batches/return_intent_model_test.dart \
+             test/features/batches/return_intent_repository_test.dart \
+             test/features/commuters/commuter_home_provider_intent_test.dart
 
 App: D:\cts_beta (Flutter)
 Backend: D:\cts-docker (Django + Redis + Postgres)
@@ -38,7 +32,7 @@ Implementation progress
             Error messages flow through ApiExceptionHandler → SnackBar.
   JSON      view: home, overflow, home_count, overflow_count (no commuters key)
   Test      test_return_allocator.py 15/15; Django TestCase includes ReturnBatchViewSplitTests
-  Next      Commuter POST intent (skip/home/earlier) + cutoff. Manual QA with dummy org.
+  Next      Cutoff / no-show release (R7). Intent slice (26d) shipped.
 
 This file is the plan for n-batch return allocation.
 Do not treat the 2-batch 5:00 / 7:00 story as hardcoded product logic.
@@ -219,7 +213,7 @@ Phase 3  APIs — extend /d2d/return_batch/, do not add a second service
                        NEW rejects: not on CList; already allocated;
                        overflow while remaining==0; later-return (R4).
   POST remove / end    Unchanged idea; pool recomputes.
-  POST intent          Later slice: skip | home | earlier(target_id).
+  POST intent          DONE (26d): skip | home | earlier(target_id) + intent_options.
                        Until this exists, driver/admin walk-up into
                        remaining is the overflow path.
 
@@ -250,7 +244,8 @@ Phase 6  Prove
 1. Freeze CList into attendance; allocator unit tests; no UI.
 2. Tighten add_commuter (R2–R5) + split view/status.
    Admin/driver can already place overflow into remaining.
-3. Commuter POST intent + home-screen skip / earlier.
+3. DONE (26d) Commuter POST intent + home-screen skip / earlier.
+4. Cutoff / no-show release (R7).
 4. Cutoff / no-show release (only needed when demand > remaining).
 5. Flutter split lists + remaining on picker cards.
 

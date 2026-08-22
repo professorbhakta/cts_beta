@@ -25,7 +25,7 @@ Feature owner for batch management, running batches, and evening return trips (R
 | Batch form provider | `providers/batch_form_provider.dart` |
 | Batch controller | `providers/batch_controller.dart` |
 | Repositories | `repositories/batch_repository*.dart`, `running_batch_repository*.dart`, `return_batch_repository*.dart`, `offline_first_batch_repository.dart` |
-| Models | `models/batch_model.dart`, `models/return_batch_status_model.dart`, `models/return_available_model.dart` |
+| Models | `models/batch_model.dart`, `models/return_batch_status_model.dart`, `models/return_available_model.dart`, `models/return_intent_model.dart` |
 | Batch form | `forms/batch_form.dart` |
 
 ---
@@ -78,7 +78,11 @@ returnBatchGetCommuter = "d2d/return_batch/get_commuter/";
 returnBatchAddCommuter = "d2d/return_batch/add_commuter";
 returnBatchRemoveCommuter = "d2d/return_batch/remove_commuter";
 returnBatchEnd = "d2d/return_batch/end/";
+returnBatchIntent = "d2d/return_batch/intent";
+returnBatchIntentOptions = "d2d/return_batch/intent_options";
 ```
+
+Commuter home (`CommuterHomeProvider`) uses GET/POST intent + GET intent_options for **Return today** (Home / Skip / Earlier…). Intent is preference only; confirm stays admin/driver.
 
 ---
 

@@ -2,6 +2,7 @@ import 'package:cts/api/api_result.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
+import 'package:cts/features/batches/models/return_intent_model.dart';
 import 'package:cts/features/batches/providers/return_batch_provider.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
@@ -88,6 +89,20 @@ class _FakeReturnBatchRepository implements ReturnBatchRepository {
 
   @override
   Future<ApiResult<void>> endReturnTrip(String batchId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ApiResult<ReturnIntentModel>> getReturnIntent() =>
+      throw UnimplementedError();
+
+  @override
+  Future<ApiResult<ReturnIntentModel>> setReturnIntent(
+    ReturnIntentModel intent,
+  ) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ApiResult<List<ReturnIntentOptionModel>>> getReturnIntentOptions() =>
       throw UnimplementedError();
 }
 

@@ -1,12 +1,18 @@
 import 'package:cts/appManager/view_state.dart';
-import 'package:cts/features/commuters/repositories/commuter_repository.dart';
+import 'package:cts/features/batches/models/return_intent_model.dart';
+import 'package:cts/features/batches/repositories/return_batch_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
+import 'package:cts/features/commuters/repositories/commuter_repository.dart';
 import 'package:flutter/material.dart';
 
 class CommuterHomeProvider with ChangeNotifier {
-  final CommuterRepository _commuterRepository;
+  CommuterHomeProvider(
+    this._commuterRepository,
+    this._returnBatchRepository,
+  );
 
-  CommuterHomeProvider(this._commuterRepository);
+  final CommuterRepository _commuterRepository;
+  final ReturnBatchRepository _returnBatchRepository;
 
   ViewState _state = ViewState.idle;
   ViewState get state => _state;
@@ -20,6 +26,29 @@ class CommuterHomeProvider with ChangeNotifier {
   bool _isUpdating = false;
   bool get isUpdating => _isUpdating;
 
+  ReturnIntentModel _returnIntent = const ReturnIntentModel(
+    intent: ReturnIntentKind.home,
+  );
+  ReturnIntentModel get returnIntent => _returnIntent;
+
+  List<ReturnIntentOptionModel> _earlierOptions = const [];
+  List<ReturnIntentOptionModel> get earlierOptions => _earlierOptions;
+
+  bool _isUpdatingIntent = false;
+  bool get isUpdatingIntent => _isUpdatingIntent;
+
+  String? _intentErrorMessage;
+  String? get intentErrorMessage => _intentErrorMessage;
+
+  String? get earlierOptionLabel {
+    final target = _returnIntent.targetBatchId;
+    if (target == null || target.isEmpty) return null;
+    for (final option in _earlierOptions) {
+      if (option.id == target) return option.label;
+    }
+    return 'Batch $target';
+  }
+
   Future<void> fetchCommuterProfile() async {
     _state = ViewState.loading;
     _errorMessage = null;
@@ -30,11 +59,28 @@ class CommuterHomeProvider with ChangeNotifier {
     if (result.isSuccess) {
       _commuterProfile = result.data;
       _state = ViewState.success;
+      await _loadReturnIntentState();
     } else {
       _errorMessage = result.failure?.message;
       _state = ViewState.error;
     }
     notifyListeners();
+  }
+
+  Future<void> _loadReturnIntentState() async {
+    final intentResult = await _returnBatchRepository.getReturnIntent();
+    if (intentResult.isSuccess && intentResult.data != null) {
+      _returnIntent = intentResult.data!;
+      _intentErrorMessage = null;
+    } else {
+      _intentErrorMessage = intentResult.failure?.message;
+    }
+
+    final optionsResult =
+        await _returnBatchRepository.getReturnIntentOptions();
+    if (optionsResult.isSuccess && optionsResult.data != null) {
+      _earlierOptions = optionsResult.data!;
+    }
   }
 
   Future<bool> updateIsComing(bool isComing) async {
@@ -55,5 +101,44 @@ class CommuterHomeProvider with ChangeNotifier {
     _isUpdating = false;
     notifyListeners();
     return result.isSuccess;
+  }
+
+  Future<bool> setReturnIntent(ReturnIntentModel intent) async {
+    _isUpdatingIntent = true;
+    _intentErrorMessage = null;
+    notifyListeners();
+
+    final result = await _returnBatchRepository.setReturnIntent(intent);
+
+    if (result.isSuccess && result.data != null) {
+      _returnIntent = result.data!;
+    } else {
+      _intentErrorMessage = result.failure?.message;
+    }
+
+    _isUpdatingIntent = false;
+    notifyListeners();
+    return result.isSuccess;
+  }
+
+  Future<bool> selectHomeIntent() {
+    return setReturnIntent(
+      const ReturnIntentModel(intent: ReturnIntentKind.home),
+    );
+  }
+
+  Future<bool> selectSkipIntent() {
+    return setReturnIntent(
+      const ReturnIntentModel(intent: ReturnIntentKind.skip),
+    );
+  }
+
+  Future<bool> selectEarlierIntent(String targetBatchId) {
+    return setReturnIntent(
+      ReturnIntentModel(
+        intent: ReturnIntentKind.earlier,
+        targetBatchId: targetBatchId,
+      ),
+    );
   }
 }

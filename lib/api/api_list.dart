@@ -31,5 +31,8 @@ class ApiUrl {
   static const String returnBatchRemoveCommuter =
       "d2d/return_batch/remove_commuter";
   static const String returnBatchEnd = "d2d/return_batch/end/";
+  static const String returnBatchIntent = "d2d/return_batch/intent";
+  static const String returnBatchIntentOptions =
+      "d2d/return_batch/intent_options";
 
 }

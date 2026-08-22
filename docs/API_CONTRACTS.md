@@ -148,7 +148,7 @@ Response shape (`get_d2d_log_status`):
 
 ## Return batch — REST
 
-Evening trip — **REST only** (no WebSocket). All six endpoints below are used by the Flutter app through `ReturnBatchRepositoryImpl` → `ReturnBatchProvider`.
+Evening trip — **REST only** (no WebSocket). Endpoints below are used by the Flutter app through `ReturnBatchRepositoryImpl` → `ReturnBatchProvider` (admin/driver) and `CommuterHomeProvider` (intent).
 
 Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.md](../lib/features/batches/README.md).
 
@@ -160,6 +160,16 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 | `POST /d2d/return_batch/add_commuter` | Confirm seat | `returnBatchAddCommuter` · `addCommuterToConfirmList` | Admin + driver swipe Confirm |
 | `POST /d2d/return_batch/remove_commuter` | Remove seat | `returnBatchRemoveCommuter` · `removeCommuterFromConfirmList` | Admin + driver swipe Remove |
 | `POST /d2d/return_batch/end/<batch_id>` | Clear Redis set, restore `isComing` | `returnBatchEnd` · `endReturnTrip` | Driver End FAB |
+| `GET /d2d/return_batch/intent` | Current user’s return intent for today | `returnBatchIntent` · `getReturnIntent` | Commuter home — Return today |
+| `POST /d2d/return_batch/intent` | Set intent `skip` \| `home` \| `earlier` (+ `target_batch_id`) | `returnBatchIntent` · `setReturnIntent` | Commuter home chips |
+| `GET /d2d/return_batch/intent_options` | Org batches with strictly earlier `end_time` than home | `returnBatchIntentOptions` · `getReturnIntentOptions` | Earlier… picker |
+
+### Return intent (26d)
+
+- **COMMUTER only**; self user id from session. Requires morning `isComing=true`. Preference only — seat confirm stays admin/driver `add_commuter`.
+- Redis HASH `d2d:return_intent:{dd-mm-yyyy}` field=`user_id`, value=`home` \| `skip` \| `earlier:{batch_id}`. Missing → **home**.
+- `earlier` requires `target_batch_id` with strictly earlier return time than home. Rejects if already confirmed on a return today.
+- Pool: **skip** drops home hold; **earlier(D)** is overflow candidate for D. Cutoff / no-show release is **not** in this slice.
 
 ### Client notes (verified in app)
 

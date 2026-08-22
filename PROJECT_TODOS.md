@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-20 23:50 IST
-> **Session:** Safe DROP docs prune; next 26d
+> **Updated:** 2026-08-22
+> **Session:** 26d intent done; next cutoff/no-show
 
 # Project Todo & Progress
 
@@ -81,7 +81,8 @@
 26o. [x] Removed `docs/final-gate/` historical phase checklists (gate closed)
 26p. [x] Removed HTML + Flutter wireframe galleries (`docs/wireframes/`, `lib/design/`, `WIREFRAME_GALLERY.md`)
 26q. [x] Safe DROP docs prune — CHANGELOG_SPRINTS, SENIOR_REVIEW, DESIGN_SYSTEM_REVIEW, SCREENSHOTS+assets, backend 05/06
-26d. [ ] Commuter POST intent (skip/home/earlier) + cutoff/no-show release
+26d. [x] Commuter POST intent (skip/home/earlier) — cutoff/no-show still open
+26d-cutoff. [ ] Cutoff / no-show seat release (R7)
 
 ### Open backlog — API / networking
 

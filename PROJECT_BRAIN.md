@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-20 23:50 IST
-> **Session:** Safe DROP docs prune; next = 26d
+> **Updated:** 2026-08-22
+> **Session:** 26d return intent shipped; next = cutoff/no-show
 
 # PROJECT BRAIN — CTS Flutter
 
@@ -55,9 +55,9 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Next:** **26d** Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
+**Next:** Cutoff / no-show seat release (R7 / D3).
 
-**This session:** Safe DROP prune — removed CHANGELOG_SPRINTS, SENIOR_REVIEW, DESIGN_SYSTEM_REVIEW, SCREENSHOTS + empty assets, backend 05/06. Living docs kept.
+**This session:** **26d** Commuter return intent — backend Redis + POST/GET intent (+ intent_options); Flutter home chips Home/Skip/Earlier; pool skip/earlier wired. Device smoke skipped (adb unavailable).
 
 | Device | Last role | Login |
 |--------|-----------|--------|
@@ -174,9 +174,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-22 | 26d return intent | Backend `26d-return-intent` + Flutter `beta-ver` intent UI; cutoff deferred |
 | 2026-08-20 | Docs DROP prune | Changelog/senior/screenshots/design-review/backend 05–06 gone |
 | 2026-08-20 | Wireframes remove | HTML + Flutter debug galleries + route/button gone |
-| 2026-08-20 | final-gate remove | Deleted historical phase/smoke `.txt` folder |
 
 ---
 

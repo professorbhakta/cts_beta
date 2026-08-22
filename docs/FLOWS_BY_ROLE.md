@@ -79,15 +79,16 @@ flowchart LR
 
 ## Commuter
 
-**Home:** `/commuterHomeScreen` — Greeting + **Coming today** switch.
+**Home:** `/commuterHomeScreen` — Greeting + **Coming today** switch + **Return today** intent (Home / Skip / Earlier…).
 
 | Step | Action |
 |------|--------|
 | 1 | Open app → sign in as commuter |
 | 2 | Toggle **Coming** switch |
 | 3 | Confirm in dialog |
-| 4 | Pull to refresh to reload profile |
-| 5 | Tap **Track your Cab** — opens Fleet Edge map for your assigned cab (`trackingVehicleId` from admin cab record; lab default if unset) |
+| 4 | Set **Return today**: Home (default), Skip, or Earlier… (pick a batch with earlier return time) |
+| 5 | Pull to refresh to reload profile + intent |
+| 6 | Tap **Track your Cab** — opens Fleet Edge map for your assigned cab (`trackingVehicleId` from admin cab record; lab default if unset) |
 
 ---
 

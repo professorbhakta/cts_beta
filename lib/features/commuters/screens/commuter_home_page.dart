@@ -3,6 +3,7 @@ import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/batches/models/return_intent_model.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/providers/commuter_home_provider.dart';
 import 'package:cts/widgets/app_drawer.dart';
@@ -158,6 +159,15 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                         ),
                       ),
                     ],
+                    const SizedBox(height: 28),
+                    _buildSectionHeader(
+                      context,
+                      title: 'Return today',
+                      subtitle:
+                          'Tell the pool if you need home, skip, or an earlier cab',
+                    ),
+                    const SizedBox(height: 12),
+                    _buildReturnIntentSection(context, provider),
                     const SizedBox(height: 28),
                     _buildSectionHeader(
                       context,
@@ -470,6 +480,192 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReturnIntentSection(
+    BuildContext context,
+    CommuterHomeProvider provider,
+  ) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isLight = theme.brightness == Brightness.light;
+    final selected = provider.returnIntent.intent;
+    final busy = provider.isUpdatingIntent;
+    final earlierLabel = provider.earlierOptionLabel;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isLight ? scheme.surface : scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: scheme.outline.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _intentChip(
+                context,
+                label: 'Home',
+                selected: selected == ReturnIntentKind.home,
+                enabled: !busy,
+                onSelected: () => _saveIntent(
+                  context,
+                  provider,
+                  () => provider.selectHomeIntent(),
+                  successMessage: 'Return intent set to Home',
+                ),
+              ),
+              _intentChip(
+                context,
+                label: 'Skip',
+                selected: selected == ReturnIntentKind.skip,
+                enabled: !busy,
+                onSelected: () => _saveIntent(
+                  context,
+                  provider,
+                  () => provider.selectSkipIntent(),
+                  successMessage: 'Return trip skipped for today',
+                ),
+              ),
+              _intentChip(
+                context,
+                label: earlierLabel == null ? 'Earlier…' : 'Earlier',
+                selected: selected == ReturnIntentKind.earlier,
+                enabled: !busy,
+                onSelected: () => _pickEarlierBatch(context, provider),
+              ),
+            ],
+          ),
+          if (selected == ReturnIntentKind.earlier && earlierLabel != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Target: $earlierLabel',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+          if (provider.intentErrorMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              provider.intentErrorMessage!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.error,
+              ),
+            ),
+          ],
+          if (busy) ...[
+            const SizedBox(height: 12),
+            const Center(
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _intentChip(
+    BuildContext context, {
+    required String label,
+    required bool selected,
+    required bool enabled,
+    required VoidCallback onSelected,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return FilterChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: enabled ? (_) => onSelected() : null,
+      selectedColor: AppColors.acYellowWarm.withValues(alpha: 0.55),
+      checkmarkColor: AppColors.acBlack,
+      labelStyle: TextStyle(
+        color: selected ? AppColors.acBlack : scheme.onSurface,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+      ),
+    );
+  }
+
+  Future<void> _saveIntent(
+    BuildContext context,
+    CommuterHomeProvider provider,
+    Future<bool> Function() action, {
+    required String successMessage,
+  }) async {
+    final ok = await action();
+    if (!context.mounted) return;
+    if (ok) {
+      SnackBarService.showsSuccessSnackbar(successMessage, '');
+    } else {
+      SnackBarService.showErrorSnackbar(
+        provider.intentErrorMessage ?? 'Could not save return intent',
+      );
+    }
+  }
+
+  Future<void> _pickEarlierBatch(
+    BuildContext context,
+    CommuterHomeProvider provider,
+  ) async {
+    final options = provider.earlierOptions;
+    if (options.isEmpty) {
+      SnackBarService.showErrorSnackbar(
+        'No earlier return batches are available for your org.',
+      );
+      return;
+    }
+
+    final selectedId = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: Text(
+                  'Choose an earlier return',
+                  style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ),
+              for (final option in options)
+                ListTile(
+                  title: Text(option.batchName),
+                  subtitle: option.endTime == null
+                      ? null
+                      : Text('Return ${option.endTime}'),
+                  trailing: provider.returnIntent.targetBatchId == option.id
+                      ? const Icon(Icons.check_rounded)
+                      : null,
+                  onTap: () => Navigator.of(sheetContext).pop(option.id),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selectedId == null || !context.mounted) return;
+    await _saveIntent(
+      context,
+      provider,
+      () => provider.selectEarlierIntent(selectedId),
+      successMessage: 'Earlier return preference saved',
     );
   }
 
