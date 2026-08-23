@@ -219,6 +219,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                         homeHold: status?.homeHold,
                         overflowConfirmed: status?.overflowConfirmed,
                         overflowRemaining: status?.overflowRemaining,
+                        cutoffApplied: status?.cutoffApplied ?? false,
                       ),
                     ],
                   ),
@@ -479,6 +480,7 @@ class _CapacityBanner extends StatelessWidget {
     this.homeHold,
     this.overflowConfirmed,
     this.overflowRemaining,
+    this.cutoffApplied = false,
   });
 
   final int remaining;
@@ -488,6 +490,7 @@ class _CapacityBanner extends StatelessWidget {
   final int? homeHold;
   final int? overflowConfirmed;
   final int? overflowRemaining;
+  final bool cutoffApplied;
 
   bool get _hasPoolExtras =>
       homeHold != null &&
@@ -527,7 +530,8 @@ class _CapacityBanner extends StatelessWidget {
                 ),
                 if (_hasPoolExtras)
                   Text(
-                    'Home hold $homeHold • Overflow in $overflowConfirmed • Overflow open $overflowRemaining',
+                    'Home hold $homeHold • Overflow in $overflowConfirmed • Overflow open $overflowRemaining'
+                    '${cutoffApplied ? ' • Holds released (T−15)' : ''}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),

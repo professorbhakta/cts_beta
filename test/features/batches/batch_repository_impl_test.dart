@@ -19,6 +19,10 @@ class _FakeApiService implements BaseApiServices {
       responses['patch'] ?? responses['patch:$id'];
 
   @override
+  Future<dynamic> patchUrl(String url, dynamic data) async =>
+      responses['patchUrl'] ?? responses['patchUrl:$url'];
+
+  @override
   Future<dynamic> postApi(dynamic data, String url) async => responses['post'];
 }
 

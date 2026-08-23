@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-23 23:20 IST
+> **Session:** R7 + C1 Asia/Kolkata; Mark all coming
 
 # API Contracts — Backend ↔ Flutter
 
@@ -55,6 +55,7 @@ Admin create/update goes through `CommuterForm` → `CommuterController` → `Co
 | `PATCH /user/<pk>` | `updateCommuter` user map | Username, mobile, email, address, `userType` |
 | `PATCH /user/commuter/<pk>` | `updateCommuter` commuter map | college, pop, batch, cab, adminCode |
 | `PATCH /user/commuter/<pk>` | `updateCommuterIsComing` | Body `{isComing}`. **pk = user ID**. Success `{status: ok, isComing}`. Admin Coming switch on `CommuterScreen` and nested `CommuterListScreen` |
+| `PATCH /user/admin/commuter/<adminCode>/isComing` | `markAllComing` | Body must be `{isComing: true}`. **ADMIN** only; path `adminCode` must match session admin. Sets all org commuters `isComing=true`. Success `{status: ok, isComing: true, updated: N}`. AppBar “Mark all coming” on `CommuterScreen` |
 
 **Email / address (Flutter, 2026-08-14):**
 
@@ -179,6 +180,7 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 - Admin return screen can add from Available and view Confirmed. Driver return screen can confirm/remove/end.
 - Available is `home[]` then `overflow[]` from GET view, built from current org commuters with `isComing=true` and split by home batch. Flutter drops anyone already on today's confirmed set. Old flat `commuters` is ignored.
 - **`status/` extras (M3, additive):** `home_hold`, `overflow_confirmed`, `overflow_remaining` may appear. Flutter `ReturnBatchStatusModel` parses them only when **all three** keys are present (`hasPoolExtras`). Fail closed (keys omitted) → extras stay null; picker/banner hide those rows. **Seats left** is still `remaining_capacity` (empty cab seats), never `overflow_remaining`. `available_count` is still org-pool size. `get_commuter/` does not include extras.
+- **R7 cutoff (T−15):** when **college-local** now ≥ `Batch.end_time − 15m` (Django `TIME_ZONE`, default **Asia/Kolkata**), unconfirmed home holds stop counting toward `home_hold`. Status may also include `cutoff_applied: true` (optional; Flutter shows “Holds released”). Soft leftover seats (R5) were already open before cutoff. After a departure’s T−15 it stays cut off until `trip_date` rolls.
 - Overflow Confirm is disabled when `hasPoolExtras` and `overflow_remaining == 0`. That is not Seats left.
 
 ### POST body (add / remove)
@@ -204,11 +206,12 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
   "remaining_capacity": 37,
   "home_hold": 25,
   "overflow_confirmed": 0,
-  "overflow_remaining": 28
+  "overflow_remaining": 28,
+  "cutoff_applied": true
 }
 ```
 
-`home_hold` / `overflow_confirmed` / `overflow_remaining` are optional. Omitted when the adapter fail-closes (`extras == {}`). `get_commuter/` does **not** include these keys.
+`home_hold` / `overflow_confirmed` / `overflow_remaining` are optional. Omitted when the adapter fail-closes (`extras == {}`). `cutoff_applied` is optional (R7; only when that departure is past T−15). `get_commuter/` does **not** include these keys.
 
 ### `view/` response
 

@@ -160,6 +160,14 @@ class NetworkApiServices extends BaseApiServices {
   }
 
   @override
+  Future<dynamic> patchUrl(String url, dynamic data) async {
+    log('ApiUrl: $url', name: 'API_CALL');
+    log('ApiData: ${jsonEncode(data)}', name: 'API_CALL');
+    final response = await _dio.patch(url, data: data);
+    return returnResponse(response);
+  }
+
+  @override
   Future<dynamic> deleteApi(int id, String url) async {
     final fullUrl = '$url/$id';
     log('ApiUrl: $fullUrl', name: 'API_CALL');

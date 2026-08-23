@@ -144,6 +144,44 @@ class CommuterRepositoryImpl implements CommuterRepository {
   }
 
   @override
+  Future<ApiResult<int>> markAllComing() async {
+    try {
+      final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
+      if (adminCode.isEmpty || adminCode == '0') {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle('Missing admin code.'),
+        );
+      }
+
+      final response = await _apiService.patchUrl(
+        ApiUrl.adminCommuterIsComingUrl(adminCode),
+        {'isComing': true},
+      );
+
+      final contract = ApiResponseContract.parse(
+        response,
+        failureMessage: 'Could not mark all commuters coming',
+      );
+
+      if (contract.isFailure) {
+        return ApiResult.failure(
+          ApiFailure(
+            type: ApiFailureType.invalidRequest,
+            message: contract.message,
+          ),
+        );
+      }
+
+      final updated = response is Map
+          ? int.tryParse(response['updated']?.toString() ?? '') ?? 0
+          : 0;
+      return ApiResult.success(updated);
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  @override
   Future<ApiResult<void>> createCommuter(Map<String, dynamic> data) async {
     try {
       final response = await _apiService.postApi(data, ApiUrl.cndUserUrl);

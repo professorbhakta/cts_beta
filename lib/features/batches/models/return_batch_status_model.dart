@@ -22,6 +22,7 @@ class ReturnBatchStatusModel {
     this.homeHold,
     this.overflowConfirmed,
     this.overflowRemaining,
+    this.cutoffApplied = false,
   });
 
   final String batchId;
@@ -36,6 +37,9 @@ class ReturnBatchStatusModel {
   final int? homeHold;
   final int? overflowConfirmed;
   final int? overflowRemaining;
+
+  /// R7: true when GET status includes `cutoff_applied` (T−15 released holds).
+  final bool cutoffApplied;
 
   bool get hasPoolExtras =>
       homeHold != null &&
@@ -68,6 +72,7 @@ class ReturnBatchStatusModel {
       homeHold: extrasComplete ? homeHold : null,
       overflowConfirmed: extrasComplete ? overflowConfirmed : null,
       overflowRemaining: extrasComplete ? overflowRemaining : null,
+      cutoffApplied: json['cutoff_applied'] == true,
     );
   }
 }

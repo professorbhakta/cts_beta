@@ -1,8 +1,8 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-22
-> **Session:** 26d return intent shipped; next = cutoff/no-show
+> **Updated:** 2026-08-23 23:10 IST
+> **Session:** R7 T−15 cutoff shipped; 26d-discuss next
 
-# PROJECT BRAIN — CTS Flutter
+# PROJECT_BRAIN — CTS Flutter
 
 Single entry file for every AI + human chat. Keep under ~250 lines; pointers only — no long specs.
 
@@ -28,6 +28,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - **Quality:** `flutter analyze`, `flutter pub get`, `flutter test` after code changes
 - **Pre-push device smoke (required):** both lab devices — emulator admin + phone driver — manual login via `flutter run`; see [docs/TESTING.md](docs/TESTING.md) § Pre-push gate. Unit tests alone are not enough before `git push`.
 - **End-of-session doc sync** via [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) + [DOC_REGISTRY.md](DOC_REGISTRY.md)
+- **Git:** feature / `beta-ver` only — **do not merge or push to `main`**
 
 ---
 
@@ -35,6 +36,15 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ```
 @PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+```
+
+[PROMPT_SCOPE.md](PROMPT_SCOPE.md) — prompt gate, ordered queue, future scope, change log (update **async** during the chat).
+
+For return work also attach:
+```
+@docs/next-plan/return-trip-allocation-roadmap.txt
+@docs/API_CONTRACTS.md
 ```
 
 ---
@@ -55,22 +65,37 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Next:** Cutoff / no-show seat release (R7 / D3).
+**This session (2026-08-23 ~23:10 IST):** **R7 cutoff** shipped — D3 = **T−15** lazy on pool compute; Flutter shows “Holds released”.
 
-**This session:** **26d** Commuter return intent — backend Redis + POST/GET intent (+ intent_options); Flutter home chips Home/Skip/Earlier; pool skip/earlier wired. Device smoke skipped (adb unavailable).
+| Piece | Detail |
+|-------|--------|
+| Backend | `is_past_return_cutoff` + `cutoff_batch_ids` in allocator; `return_pool` applies live clock |
+| Status | Optional `cutoff_applied: true` with pool extras |
+| Tests | `test_return_allocator.py` **19/19** (cases 17–19 R7) |
+
+**Also this session:** Admin Mark all coming (org); PROMPT_SCOPE created.
+
+**Next session:** Confirm “API every time” (**26d-discuss**) or batch-wise Mark all. Do not redo 26d intent product.
+
+| Repo | Branch | Tip |
+|------|--------|-----|
+| `D:\cts_beta` | `beta-ver` | (uncommitted mark-all coming) |
+| `D:\cts-docker` | (local) | `AdminCommuterIsComing` view + tests |
+
+**26d facts (do not redo):**
+- Intent ≠ confirm. Admin/driver still `POST add_commuter`. Do **not** reuse `isComing` as return intent (R10).
+- Redis: `d2d:return_intent:{dd-mm-yyyy}` → `home` \| `skip` \| `earlier:{batch_id}`
+- API: `GET/POST /d2d/return_batch/intent`, `GET /d2d/return_batch/intent_options`
 
 | Device | Last role | Login |
 |--------|-----------|--------|
-| `emulator-5554` | Admin | `7069036462` / `password` |
-| Phone `5f36af49` | Driver 2 | **`9876544112`** (Batch-02 / id **5**) |
+| `emulator-5554` | **Admin (logged in)** | `7069036462` / `password` |
+| Phone `5f36af49` | **Driver 1 (logged in)** | **`9876544111`** (Driver 2 is `9876544112` / Batch-02) |
 
 | State | Detail |
 |-------|--------|
-| `.env` | LAN **`192.168.1.6`** (home Wi-Fi; hotspot `172.20.10.2` was down) |
-| Return Batch #5 | UG2 confirmed (`user id 22`); seats 52/53; trip active |
-| Backend | `isComing` pool live; Available(196) after UG12 remove |
-| Flutter role UI | **PASS** — Admin Confirm/view-only/no End; Driver Confirm/Remove/End FAB |
-| Git | `beta-ver` @ **`849115f`** (+ local unused-file cleanup dirty); tag **`p1-p9-merged`** on origin |
+| `.env` | LAN **`192.168.1.15`** (check `docs/LOCAL_DEV.md` if Wi‑Fi changed) |
+| Backend containers | Up: `C2S-Nginx` / `C2S-Django` / `C2S-redis` / `C2S-PostgresDB` |
 
 ---
 
@@ -78,60 +103,19 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ### Done (Aug 2026)
 
+- Admin one-click Mark all coming — `PATCH …/admin/commuter/<adminCode>/isComing` + `CommuterScreen` AppBar
+- **R7** return cutoff T−15 — unconfirmed home holds release; `cutoff_applied` on status
 - Morning D2D Fix 1 — ended-trip guard (WS close 4001) + Flutter `isTripEnded`
-- Morning D2D Fix 2 — Redis live DS `d2d:live:…`
-- Morning D2D Fix 4 — unique DTODLOG/day + status API
-- Flutter WS action error handling — SnackBar on admin + driver
-- Return batch backend R1–R6 + Flutter (tabs, confirm/remove/end)
-- Driver return screen — confirm/remove/end on `/driverReturnCommuter/:batchId` (admin add/view; End driver)
-- Backend hardening — `test_d2d_fixes.py` (**11/11**, includes anonymous WS 4401 + STOP close 4001), `test_return_batch_fixes.py` (10/10)
-- Flutter UX polish — driver log badge, swipe labels, return cards
-- Phase 7 batches migration; go_router; Provider retained; `flutter analyze` clean
-- Phase 8 polish — admin home partial-load UX, D2D status via `D2dRepository`, ProfileProvider + logout confirm
-- P1 docs freeze — feature folders are `screens/` / `providers/` / `models/` / `repositories/`
-- Return-batch REST — all six `/d2d/return_batch/` endpoints wired (view, status, get_commuter, add, remove, POST end)
-- Auth security wave — public sign-up disabled; TLS schemes kept; logout/401 clear cookies; D2D WS session + Django 4401/4403
-- Application wave Slice 1 (A2) — batch commuter swipe-edit and route edit/delete pass the model, not the sorted index
-- Application wave Slice 2 (A3) — commuter Email/Address restored; empty create address → email; update uses last saved
-- Application wave Slice 3 (A4) — dashboard Add Batch/Commuter/Driver/Cab/Route/POP call matching `clearAll()`
-- Same-class wave — A5 pop-reload by list scope; A10 commuter not wrapped in OfflineAutoRedirect; R6 unknown sync types fail once, connectivity disposed on app teardown
-- Admin nested `CommuterListScreen` Coming-today switch — was `onChanged: null`; now uses `updateCommuterIsComing` like `CommuterScreen`
-- Admin Coming switch actually persists — switch outside InkWell/Slidable; PATCH `{isComing}` by user ID; Django returns `{status, isComing}`
-- Admin D2D ADD — lookup by user ID (not batch-only); Http404 no longer drops the socket; success toast after live list updates
-- Driver return ADD — confirm/remove via REST; available = org commuters not confirmed today; End FAB is driver-only (admin add/view)
-- 2-device QA lab online (phone `5f36af49` + Pixel_10_Pro); off-screen window + 0.25 scale for 1536×816 laptop documented in LOCAL_DEV
-- Dummy org bulk-loaded (admin `7069036462`; dump org untouched)
-- Admin on-channel STOP (2026-08-17 code): `isActive: false` → `isTripEnded`; running batches refresh; STOP FAB hidden; Django group close **4001**
-- Return allocation adapter — `return_pool.py`; STOP-gated CList; extras `home_hold` / `overflow_confirmed` / `overflow_remaining`; fail closed omits extras
-- Return allocation M3 — GET status merges those extras; `remaining_capacity` / `available_count` unchanged; `get_commuter` unchanged
-- Flutter M3 — picker + return banner show Home hold / Overflow in / Overflow open when extras present; Seats left still empty-cab seats
-- Return allocation M4 — GET view `home[]` / `overflow[]`; Flutter Available Home then Overflow. Empty if no CList. Not M7.
-- Return allocation M7 — `validate_add_commuter()` enforces R2–R5 on POST add_commuter. Flutter error surfacing + overflow disable.
-- P1 Truth Contract — `ApiResponseContract`; C1 fixed (200+status:error → failure); 33 flutter tests
-- P2 Security Boundary — backend POST/PATCH userType gates; Flutter session role refresh + fail-secure 401/4401 redirect; 46 flutter tests
-- P3 Lifecycle resilience — AppLifecycleCoordinator; D2D WS reconnect on resume; connection-lost banner; return batch resume guard; 59 flutter tests
-- P4 Channel role governance — `D2dChannelRolePolicy`; provider + UI gating; WS `already_in` Already IN section; driver add FAB; backend action role gates; 68 flutter tests
-- P5 Degraded network UX — `NetworkActionGuard`; app offline banner; D2D + return batch pre-checks; offline_temp auto-redirect deferred; 66 flutter tests
-- P6 State lifecycle hygiene — batch switch clear, load generation, dispose/reset; no stale flash; 72 flutter tests
-- P8 Scale/layout stability — batched status fetch (10 concurrent); return picker list on narrow/extras; no nested card scroll; 94 flutter tests
-- P9 Debt/health burndown — dio 5.11, secure_storage 11, firebase_messaging 16.5; CRUD SnackBar moved to UI; sort_utils stub removed; offline_temp isolated; compileSdk 37; 101 tests
-- A1 Track Cab vehicle — cab `trackingVehicleId` wired to Fleet Edge URL; admin cab form; fallback banner; 106 tests; **on `beta-ver` `72b6aa5`**
-- Return list realignment — available pool now follows current `isComing=True` commuters, confirmed hydration preserves ID order, admin return screen is add/view, driver return screen can confirm/remove/end
-- Batch-02 / Driver 2 role UI smoked and pushed (`72b6aa5`)
-- Flutter git cleanup — tag `p1-p9-merged`; P1–P9 + integration branches deleted local/remote
+- Return batch backend R1–R6 + Flutter; **26d** return intent
+- P1–P9 waves, A1 Track Cab, return list realignment, auth security wave
+- Full-cycle smoke PASS (2026-08-23) Batch-01 D2D + return end
 
 ### Open backlog (from PROJECT_TODOS)
 
-- Commuter POST intent (skip/home/earlier) + cutoff/no-show release.
+- **Decide next:** Confirm “API every time” (26d-discuss) — R7 done
+- Batch-wise Mark all coming (`CommuterListScreen`)
+- Optional: Commuter 26d **Return today** chip smoke
 - Remaining Application High: A6–A9
-- Expand automated tests (P1 added contract + return batch repo tests)
-- Phase 9 / E: promote or isolate `offline_temp` (drawer-scoped; full promote deferred)
-- Phase C–D: `appManager` → `app/services`; rename `*_controller.dart` (widgets + `lib/api/` already canonical)
-- Admin CRUD placeholder screens / TODOs
-- Expand automated tests
-- REST d2d view permissions still open in dev
-- Screenshot PNGs; semantic color tokens pilot
-- `channels_redis` for WS broadcast (backend backlog)
 
 ---
 
@@ -174,9 +158,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-22 | 26d return intent | Backend `26d-return-intent` + Flutter `beta-ver` intent UI; cutoff deferred |
-| 2026-08-20 | Docs DROP prune | Changelog/senior/screenshots/design-review/backend 05–06 gone |
-| 2026-08-20 | Wireframes remove | HTML + Flutter debug galleries + route/button gone |
+| 2026-08-23 | R7 T−15 cutoff | Allocator + pool lazy release; Flutter cutoff badge; 19/19 allocator tests |
+| 2026-08-23 | PROMPT_SCOPE | Created attachable prompt gate + ordered queue |
+| 2026-08-23 | Mark all coming | Backend PATCH + Flutter AppBar; Django 6/6 tests |
 
 ---
 

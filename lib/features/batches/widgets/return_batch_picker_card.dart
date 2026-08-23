@@ -72,6 +72,12 @@ class ReturnBatchPickerCard extends StatelessWidget {
                   label: 'Overflow open',
                   value: '${status!.overflowRemaining}',
                 ),
+                if (status!.cutoffApplied)
+                  const InfoRow(
+                    icon: Icons.timer_off_outlined,
+                    label: 'Cutoff',
+                    value: 'Holds released (T−15)',
+                  ),
               ],
             ],
           ),

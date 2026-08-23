@@ -1,6 +1,6 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged (this lab run used 192.168.1.6)
+> **Updated:** 2026-08-23 23:20 IST
+> **Session:** Django TIME_ZONE Asia/Kolkata (R7 T−15)
 
 # Local Development Setup
 
@@ -124,6 +124,8 @@ docker exec C2S-redis redis-cli SMEMBERS "05-08-2026_1"
 ## Backend env (`D:\cts-docker\.env`)
 
 Copy from `.env.example`. Key vars: `SECRET_KEY`, `DB_HOST=postgres`, `DB_NAME`, `POSTGRES_*`.
+
+**Timezone (R7 T−15):** Django default `TIME_ZONE=Asia/Kolkata` so `Batch.end_time` matches college wall-clock. Optional override: `DJANGO_TIME_ZONE` in `.env` (see `.env.example`). After changing TZ, restart `C2S-Django`. Verify: `docker exec C2S-Django python manage.py shell -c "from django.conf import settings; print(settings.TIME_ZONE)"`.
 
 ## Seed data (dev DB)
 

@@ -1,17 +1,15 @@
 CTS — Dynamic Return-Trip Allocation Roadmap
-Updated: 2026-08-22
-Status: 26d intent DONE (skip|home|earlier). Cutoff / no-show release still next.
+Updated: 2026-08-23
+Status: 26d intent DONE. R7 + D3 T−15 DONE. C1 TIME_ZONE Asia/Kolkata DONE.
+        Next product: Confirm discuss (26d-discuss).
 
 RESUME (next session)
-  Repo     D:\cts-docker AND D:\cts_beta
-  Do       Cutoff / no-show seat release (R7 / D3).
-  Do not   Reuse isComing as return intent (R10). Do not change STOP.
-  Verify   Commuter skip → home_hold drops; earlier → overflow on target when eligible.
-  Tests    python manage.py test d2d_log.tests.ReturnIntentPoolTests \
-             d2d_log.tests.ReturnIntentApiTests
-           flutter test test/features/batches/return_intent_model_test.dart \
-             test/features/batches/return_intent_repository_test.dart \
-             test/features/commuters/commuter_home_provider_intent_test.dart
+  Repo     D:\cts_beta (and cts-docker if Confirm touches API)
+  Do       26d-discuss: Confirm “API every time” → fix or skip.
+  Do not   Redo 26d intent, R7, or C1 TZ. Reuse isComing as return intent (R10).
+  Later    Batch Mark all; R7 Django/Flutter integration tests; CList pool (R9).
+  Verify   After Confirm change: one clear add_commuter path; SnackBar OK.
+  Tests    Existing return + intent suites; add Confirm-specific if you change code.
 
 App: D:\cts_beta (Flutter)
 Backend: D:\cts-docker (Django + Redis + Postgres)
@@ -32,7 +30,7 @@ Implementation progress
             Error messages flow through ApiExceptionHandler → SnackBar.
   JSON      view: home, overflow, home_count, overflow_count (no commuters key)
   Test      test_return_allocator.py 15/15; Django TestCase includes ReturnBatchViewSplitTests
-  Next      Cutoff / no-show release (R7). Intent slice (26d) shipped.
+  Next      Confirm discuss (26d) / batch Mark all. R7 shipped (T−15).
 
 This file is the plan for n-batch return allocation.
 Do not treat the 2-batch 5:00 / 7:00 story as hardcoded product logic.
@@ -118,6 +116,10 @@ R6  Skip releases that home seat immediately (remaining goes up now).
 R7  Cutoff / no-show only releases UNCONFIRMED home holds.
     Needed when home_hold + overflow_demand > capacity.
     Not required for the 25+25 vs 53 example (see section 5).
+    **DONE (2026-08-23):** D3 = T−15. Lazy on GET status / view / add pool
+    compute. `home_hold` = confirmed home only after cutoff; extras may include
+    `cutoff_applied: true`. Unconfirmed home stay on Available home list.
+    **C1:** Django `TIME_ZONE` default Asia/Kolkata so end_time is college wall-clock.
 
 R8  Sort departures by returnTime, then batch id. Never hardcode A/B.
     Two batches with the same returnTime are two cabs, not one pool.
@@ -257,9 +259,8 @@ Cabs stay un-overbookable after step 2, even before student self-serve.
 D1  Missed home cab: RESOLVED YES. Commuters may take any return (R4 relaxed 2026-08-19).
 D2  Walk-up: may driver confirm overflow with no app request if remaining>0
     and student is eligible? Default: YES (matches today’s swipe UX).
-D3  Cutoff clock: T−15 minutes, or only at first boarding scan?
-    Default: first unconfirmed home seats release when driver starts boarding
-    or at T−15, whichever you pick and then keep consistent.
+D3  Cutoff clock: **LOCKED T−15** (returnTime − 15 minutes), lazy apply.
+    (Boarding-scan early release is future — not v1.)
 
 Approve R1–R10 and D1–D3 before writing the detailed design.
 

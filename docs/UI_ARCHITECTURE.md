@@ -1,6 +1,6 @@
 > **Doc:** docs/UI_ARCHITECTURE.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-23 22:30 IST
+> **Session:** CommuterScreen Mark all coming action
 
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 
@@ -102,7 +102,7 @@ Shared UI state: `ViewState` — `idle | loading | success | error` (`lib/appMan
 | Cabs | CabScreen, CabForm | CabProvider, CabFormProvider | CabRepository | CRUD |
 | Drivers (admin) | DriverScreen, DriverForm | DriverProvider, DriverFormProvider | DriverRepository | CRUD |
 | Driver home | DriverHomePage | DriverHomeProvider | DriverRepository | `fetchDriverProfile`; START TRIP; RETURN LIST |
-| Commuters (admin) | CommuterScreen, CommuterForm, CommuterListScreen | CommuterController, CommuterFormProvider | CommuterRepository | CRUD; form pop/`create`/`update` call `refreshCurrentList` (by-batch vs all); swipe-edit passes `CommuterModel`; Coming switch → `updateCommuterIsComing` |
+| Commuters (admin) | CommuterScreen, CommuterForm, CommuterListScreen | CommuterController, CommuterFormProvider | CommuterRepository | CRUD; form pop/`create`/`update` call `refreshCurrentList` (by-batch vs all); swipe-edit passes `CommuterModel`; Coming switch → `updateCommuterIsComing`; AppBar Mark all coming → `markAllComing` |
 | Commuter home | CommuterHomePage | CommuterHomeProvider | CommuterRepository | `fetchCommuterProfile`; Switch → `updateIsComing` + dialog |
 | D2D admin | D2dChannel | D2dChannelProvider | WebSocket + D2dRepository | `connect(batchId)`, slidable actions, call tel, add sheet (`ADD` by user ID), FAB close = disconnect not STOP |
 | D2D driver | D2DLogScreen | D2dChannelProvider (shared) | Same | `fetchTripStatus`, `connect`, **STOP TRIP** FAB (`{ACTION: STOP}`), dispose disconnect |

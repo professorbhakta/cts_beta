@@ -11,6 +11,9 @@ class ApiUrl {
   static String commuterUrl = "user/commuter";
   static String commuterDriverUrl = "user/driver/batch/";
   static String adminCommuterUrl = "user/admin/commuter/";
+  /// `PATCH …/isComing` — admin mark-all coming for org [adminCode].
+  static String adminCommuterIsComingUrl(String adminCode) =>
+      "user/admin/commuter/$adminCode/isComing";
 
   static String batchUrl = "cab/batch";
   static String adminBatchUrl = "cab/admin/batch/";

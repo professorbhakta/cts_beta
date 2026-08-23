@@ -196,6 +196,39 @@ class _CommuterScreenState extends State<CommuterScreen> {
       }
     });
   }
+
+  Future<void> _onMarkAllComing() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return ConfirmationDialog(
+          title: 'Mark all coming?',
+          message:
+              'Set Coming today to ON for every commuter in your organization.',
+          confirmLabel: 'Mark all',
+          cancelLabel: 'Cancel',
+          icon: Icons.done_all,
+          iconColor: theme.colorScheme.primary,
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+
+    final controller = context.read<CommuterController>();
+    final updated = await controller.markAllComing();
+    if (!mounted) return;
+    if (updated == null) {
+      SnackBarService.showErrorSnackbar(
+        controller.errorMessage ?? 'Failed to mark all coming.',
+      );
+    } else {
+      SnackBarService.showsSuccessSnackbar(
+        'Marked $updated commuter${updated == 1 ? '' : 's'} coming.',
+        '',
+      );
+    }
+  }
   // END MODIFICATION
 
   @override
@@ -203,6 +236,22 @@ class _CommuterScreenState extends State<CommuterScreen> {
     return DashboardShell(
       title: 'Commuters',
       actions: [
+        Consumer<CommuterController>(
+          builder: (context, cc, _) {
+            final busy = cc.isMarkAllComingInFlight;
+            return TextButton.icon(
+              onPressed: busy ? null : _onMarkAllComing,
+              icon: busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.done_all),
+              label: const Text('Mark all'),
+            );
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.add),
           tooltip: 'Add Commuter',

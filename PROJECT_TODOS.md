@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-22
-> **Session:** 26d intent done; next cutoff/no-show
+> **Updated:** 2026-08-23 23:20 IST
+> **Session:** Wrap-up — next 26d-discuss
 
 # Project Todo & Progress
 
@@ -61,6 +61,7 @@
 19. [x] Slice 3 (R6): SyncManager.dispose() disposes ConnectivityService; unknown entity types do not retry forever
 20. [x] Admin nested batch commuter list Coming-today switch (`CommuterListScreen`)
 21. [x] Admin Coming switch persists (`ComingTodaySwitch` + PATCH `{status, isComing}`)
+21b. [x] Admin one-click Mark all coming — `PATCH /user/admin/commuter/<adminCode>/isComing` + `CommuterScreen` AppBar
 22. [x] Admin D2D ADD: user-ID lookup + no optimistic toast / no WS crash
 23. [x] Driver return ADD: confirm/remove; org-wide available pool; hide confirmed
 24. [x] Return allocation M1+M2 (`cts-docker`): CList attendance read + pure allocator; views not wired
@@ -82,7 +83,14 @@
 26p. [x] Removed HTML + Flutter wireframe galleries (`docs/wireframes/`, `lib/design/`, `WIREFRAME_GALLERY.md`)
 26q. [x] Safe DROP docs prune — CHANGELOG_SPRINTS, SENIOR_REVIEW, DESIGN_SYSTEM_REVIEW, SCREENSHOTS+assets, backend 05/06
 26d. [x] Commuter POST intent (skip/home/earlier) — cutoff/no-show still open
-26d-cutoff. [ ] Cutoff / no-show seat release (R7)
+26r. [x] Rebuilt-lab dummy org from seed XLSX — 80 PoPs (8/route), 10 drivers, 1500 commuters; API login 200
+26s. [x] Two-device smoke from live sessions — emulator Admin Dashboard + phone Driver home **PASS** (2026-08-23)
+26t. [x] Full-cycle smoke Batch-01 — driver live pickup×2 + STOP + return confirm×2 + End return **PASS** (2026-08-23); morning ended for today; 26d chips still skipped
+26d-cutoff. [x] Cutoff / no-show seat release (R7) — D3 = T−15 lazy; `cutoff_applied` on status
+26d-cutoff-tz. [x] C1 Django `TIME_ZONE=Asia/Kolkata` (env `DJANGO_TIME_ZONE`) for wall-clock T−15
+26d-discuss. [ ] Clarify admin return Confirm “API every time” (normal one POST vs heavy reload/double call) — then fix or skip
+21c. [ ] Admin Mark all coming **per batch** (nested `CommuterListScreen`)
+26d-r7-tests. [ ] Optional: Django live lazy cutoff TestCase + Flutter `cutoff_applied` parse test
 
 ### Open backlog — API / networking
 
