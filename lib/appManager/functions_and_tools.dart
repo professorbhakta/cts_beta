@@ -1,10 +1,16 @@
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/snackbar_service.dart';
+import 'package:cts/theme/app_theme.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+ThemeData _snackTheme() {
+  final ctx = SnackBarService.scaffoldMessengerKey.currentContext;
+  return ctx != null ? Theme.of(ctx) : AppTheme.light();
+}
 
 SizedBox sizeBox(double w, double h) {
   return SizedBox(
@@ -95,19 +101,20 @@ Future<Future> confirmBox(
   return showDialog(
       context: context,
       builder: (BuildContext context) {
+        final scheme = context.scheme;
         return AlertDialog(
           backgroundColor: Colors.black45,
           title: Text(
             title,
             style: TextStyle(
-              color: AppColors.acRed,
+              color: scheme.error,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             message,
             style: TextStyle(
-              color: AppColors.acWhite,
+              color: scheme.surface,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -116,7 +123,7 @@ Future<Future> confirmBox(
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: AppColors.acWhite,
+                    color: scheme.surface,
                     width: 2.0,
                   ),
                   borderRadius: BorderRadius.circular(10.0),
@@ -125,7 +132,7 @@ Future<Future> confirmBox(
                   padding: const EdgeInsets.all(13.0),
                   child: Text(
                     positiveButtonText,
-                    style: TextStyle(color: AppColors.acWhite),
+                    style: TextStyle(color: scheme.surface),
                   ),
                 ),
               ),
@@ -149,17 +156,21 @@ Future<Future> confirmBox(
 }
 
 void alertBox(String title, String message, bool goodORbad) {
+  final theme = _snackTheme();
+  final cts = theme.extension<CtsColors>() ?? CtsColors.light();
+  final scheme = theme.colorScheme;
+  final onBanner = scheme.onError;
   final SnackBar snackBar = SnackBar(
     content: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(color: Colors.white)),
+        Text(title, style: TextStyle(color: onBanner)),
         goodORbad
-            ? const Icon(Icons.done_outline, color: Colors.white)
-            : const Icon(Icons.error_outline, color: Colors.white),
+            ? Icon(Icons.done_outline, color: onBanner)
+            : Icon(Icons.error_outline, color: onBanner),
       ],
     ),
-    backgroundColor: goodORbad ? Colors.green.shade500 : AppColors.acRed,
+    backgroundColor: goodORbad ? cts.success : scheme.error,
   );
   SnackBarService.scaffoldMessengerKey.currentState?.showSnackBar(snackBar);
 }
@@ -187,8 +198,8 @@ class Utils {
   // static void utilsToastMessage(String message) {
   //   Fluttertoast.showToast(
   //     msg: message,
-  //     backgroundColor: AppColors.acRed,
-  //     textColor: AppColors.acBlack,
+  //     backgroundColor: /* scheme.error */,
+  //     textColor: /* scheme.onSurface */,
   //     fontSize: 21,
   //     timeInSecForIosWeb: 2,
   //   );
@@ -199,8 +210,8 @@ class Utils {
   //     msg: message,
   //     gravity: ToastGravity.TOP,
   //
-  //     backgroundColor: AppColors.acGreen,
-  //     textColor: AppColors.acBlack,
+  //     backgroundColor: /* cts.success */,
+  //     textColor: /* scheme.onSurface */,
   //     fontSize: 21,
   //     timeInSecForIosWeb: 2,
   //   );
@@ -208,6 +219,7 @@ class Utils {
 
   static void utilsSnackBarTopFloat(
       String title, String message, Color color, Icon icon) {
+    final scheme = _snackTheme().colorScheme;
     final SnackBar snackBar = SnackBar(
       content: Row(
         children: [
@@ -219,14 +231,14 @@ class Utils {
               Text(
                 title,
                 style: TextStyle(
-                    color: AppColors.acBlack,
+                    color: scheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 17),
               ),
               Text(
                 message,
                 style: TextStyle(
-                    color: AppColors.acBlack,
+                    color: scheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 15),
               ),

@@ -1,6 +1,6 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'dart:async';
 
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/offline_temp/models/offline_commuter_filter.dart';
 import 'package:cts/offline_temp/models/offline_pop.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
@@ -64,11 +64,12 @@ class _OfflineCommuterFilterBarState extends State<OfflineCommuterFilterBar> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    final cts = context.cts;
+
     final scheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: AppColors.acYellowSoft.withValues(alpha: 0.35),
+      color: cts.yellowSoft.withValues(alpha: 0.35),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         child: Column(
@@ -78,11 +79,11 @@ class _OfflineCommuterFilterBarState extends State<OfflineCommuterFilterBar> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search name, local ID, mobile...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         tooltip: 'Clear search',
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {});

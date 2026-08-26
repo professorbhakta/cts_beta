@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/offline_temp/models/offline_route.dart';
 import 'package:cts/offline_temp/utils/offline_validators.dart';
@@ -19,6 +19,8 @@ class OfflineRoutesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<OfflineTempProvider>(
       builder: (context, provider, _) {
+        final cts = context.cts;
+
         if (provider.errorMessage != null && !provider.isLoading) {
           return StatusMessage.error(
             title: 'Failed to load routes',
@@ -52,7 +54,7 @@ class OfflineRoutesTab extends StatelessWidget {
                 title: route.name,
                 subtitle: '${route.popCount} POP(s)',
                 icon: Icons.route_rounded,
-                iconColor: AppColors.acYellowBright,
+                iconColor: cts.yellowBright,
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) async {
                     if (value == 'edit') {
@@ -130,15 +132,16 @@ class OfflineRoutesTab extends StatelessWidget {
       return;
     }
 
+    final scheme = context.scheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => ConfirmationDialog(
         title: 'Delete route?',
         message: 'Delete route "${route.name}"?',
         confirmLabel: 'Delete',
-        confirmColor: AppColors.acRed,
+        confirmColor: scheme.error,
         icon: Icons.delete_outline,
-        iconColor: AppColors.acRed,
+        iconColor: scheme.error,
       ),
     );
 

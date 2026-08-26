@@ -1,5 +1,5 @@
 import 'package:cts/app/router/session_auth_notifier.dart';
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/splash/providers/splash_provider.dart';
 import 'package:cts/widgets/provider_listener.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,9 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<SessionAuthNotifier>().refresh(validateWithServer: true);
+      if (!mounted) return;
+      // Runtime permissions (incl. camera for odometer + QR) — not shown at install.
+      await AppManager.instance.getPermissions();
       if (!mounted) return;
       await context.read<SplashProvider>().determineInitialRoute();
     });
@@ -45,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
           statusBarColor: Colors.transparent,
         ),
         child: Scaffold(
-          backgroundColor: AppColors.acBlack,
+          backgroundColor: scheme.onSurface,
           body: SafeArea(
             child: Center(
               child: Column(

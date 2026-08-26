@@ -151,6 +151,23 @@ class NetworkApiServices extends BaseApiServices {
   }
 
   @override
+  Future<dynamic> postMultipart(dynamic data, String url) async {
+    log('ApiUrl: $url', name: 'API_CALL');
+    log('ApiData: multipart', name: 'API_CALL');
+    final response = await _dio.post(
+      url,
+      data: data,
+      options: Options(
+        contentType: 'multipart/form-data',
+        // Longer send window for camera photos on slow mobile networks.
+        sendTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
+    return returnResponse(response);
+  }
+
+  @override
   Future<dynamic> patchApi(int id, dynamic data, String url) async {
     final fullUrl = '$url/$id';
     log('ApiUrl: $fullUrl', name: 'API_CALL');

@@ -1,3 +1,4 @@
+import 'package:cts/appManager/colors.dart';
 import 'package:flutter/material.dart';
 
 /// Primary overview stat card for dashboard (Batches, Commuters, etc.)
@@ -86,7 +87,7 @@ class DashboardStatCard extends StatelessWidget {
                           ),
                           child: Icon(
                             icon,
-                            color: isLight ? Colors.white : scheme.onPrimary,
+                            color: AppColors.onColor(effectiveColor),
                             size: 24,
                           ),
                         ),
@@ -214,7 +215,7 @@ class CompactStatCard extends StatelessWidget {
                 ),
                 child: Icon(
                   icon,
-                  color: isLight ? Colors.white : scheme.onPrimary,
+                  color: AppColors.onColor(effectiveColor),
                   size: 22,
                 ),
               ),

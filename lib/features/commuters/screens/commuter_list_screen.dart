@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -76,10 +76,14 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Batch: ${widget.batchName}',
       child: Consumer<CommuterController>(
         builder: (context, provider, child) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
           if (provider.state == ViewState.loading &&
               provider.commuters.isEmpty) {
             return const LoadingIndicator();
@@ -126,14 +130,14 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
                     children: [
                       SlidableAction(
                         onPressed: (_) => _showEditDialog(commuter),
-                        backgroundColor: AppColors.acYellow,
+                        backgroundColor: cts.yellow,
                         icon: Icons.edit,
                         label: "EDIT",
                       ),
                       SlidableAction(
                         onPressed: (context) =>
                             _makePhoneCall(commuter.userId?.mobileNumber),
-                        backgroundColor: AppColors.acGreen,
+                        backgroundColor: cts.success,
                         icon: Icons.call,
                         label: "CALL",
                       ),
@@ -143,10 +147,10 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.acBlackLight,
+                        backgroundColor: scheme.inverseSurface,
                         child: Text(
                           initial,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),

@@ -30,12 +30,21 @@ ADMIN_MOBILE = "7069036462"
 DRIVER_COUNT = 10
 COMMUTER_COUNT = 1500
 UG_COUNT = 750
-POPS_PER_ROUTE = 3
+POPS_PER_ROUTE = 8
 CAB_CAPACITY = 53
 COMING_PER_BATCH = 15
 DRIVER_BASE = 9876544111
 COMMUTER_BASE = 9876556701
-STOP_NAMES = ["Stop A", "Stop B", "Stop C"]
+STOP_NAMES = [
+    "Campus Gate",
+    "Railway Station",
+    "City Bus Stand",
+    "Market Circle",
+    "Civil Hospital",
+    "Housing Colony",
+    "Highway Crossing",
+    "College Main Gate",
+]
 
 
 def split_name(username: str) -> tuple[str, str]:

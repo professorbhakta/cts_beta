@@ -1,4 +1,3 @@
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/features/routes/providers/route_controller.dart';
 import 'package:cts/features/routes/providers/route_form_provider.dart';
@@ -68,40 +67,40 @@ class _RouteFormState extends State<RouteForm> {
                     decoration: InputDecoration(
                       labelText: 'Route Name',
                       hintText: 'Enter route name (e.g., Route A, Main Street)',
-                      prefixIcon: const Icon(Icons.route_rounded),
-                      prefixIconColor: AppColors.acYellowWarm,
+                      prefixIcon: Icon(Icons.route_rounded),
+                      prefixIconColor: scheme.primary,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm,
+                          color: scheme.primary,
                           width: 2,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 1.5,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 2,
                         ),
                       ),
@@ -124,7 +123,7 @@ class _RouteFormState extends State<RouteForm> {
                         : 'Create Route',
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     borderRadius: BorderRadius.circular(12),
-                    borderColor: AppColors.acYellowWarm,
+                    borderColor: scheme.primary,
                     fontSize: 16,
                     isLoading: _isSubmitting,
                     onPressed: _isSubmitting
@@ -173,8 +172,8 @@ class _RouteFormState extends State<RouteForm> {
                               }
                             }
                           },
-                    backgroundColor: AppColors.acYellowWarm,
-                    textColor: AppColors.acBlack,
+                    backgroundColor: scheme.primary,
+                    textColor: scheme.onSurface,
                   ),
                 ],
               ),

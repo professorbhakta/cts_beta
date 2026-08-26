@@ -1,12 +1,25 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-25 21:36 IST
+> **Session:** Merged backend/04 return lifecycle notes; thin ownership
 
 # Batches Feature — CRUD, Running, Return REST
 
 Feature owner for batch management, running batches, and evening return trips (REST only — no WebSocket).
 
-**Full API spec:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **E2E flow:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
+**Wire contracts:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **Lab/Docker:** [docs/LOCAL_DEV.md](../../../docs/LOCAL_DEV.md) · **E2E:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
+
+**Backend path:** `cts-docker/django/d2d_log/return_batch_views.py` + `return_batch_utils.py`.
+
+### Morning D2D vs evening return
+
+| | Live D2D | Return batch |
+|--|----------|--------------|
+| Transport | WebSocket | REST |
+| Redis | `d2d:live:{date}:{batch}` | `{dd-mm-yyyy}_{batch_id}` (e.g. `05-08-2026_1`) |
+| UI refresh | Push broadcast | Pull-to-refresh / resume |
+| IDs | User IDs in DS / CList | User ID strings in Redis set |
+
+Morning STOP does **not** empty the evening Available pool. Return `view/` = `home[]` + `overflow[]` from current `isComing=True`; confirm sets `isComing=False`; remove/end restore `isComing=True`.
 
 ---
 

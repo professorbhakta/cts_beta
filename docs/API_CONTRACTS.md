@@ -1,12 +1,12 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-08-23 23:20 IST
-> **Session:** R7 + C1 Asia/Kolkata; Mark all coming
+> **Updated:** 2026-08-25 21:50 IST
+> **Session:** Client pack UI shipped note; BE urls verified vs ApiUrl
 
 # API Contracts — Backend ↔ Flutter
 
 Single reference for aligning `D:\cts-docker` endpoints with `D:\cts_beta` client code.
 
-**Base URL:** `API_BASE_URL` in Flutter = `http://<host>/` via Nginx port 80.
+**Base URL:** `API_BASE_URL` in Flutter = `http://<host>/` via Nginx port 80. Stack/LAN: [LOCAL_DEV.md](./LOCAL_DEV.md).
 
 **Feature owners:** [lib/features/d2d/README.md](../lib/features/d2d/README.md) · [lib/features/batches/README.md](../lib/features/batches/README.md)
 
@@ -122,7 +122,31 @@ When an action fails, server sends JSON (not `result`):
 | `unknown_action` | Unsupported ACTION value |
 | `forbidden` | Authenticated user not allowed to mutate this trip (wrong role for ACTION) |
 
-Flutter should check for `error` key before reading `result`.
+Flutter should check for `error` key before reading `result`. `invalid_commuter` / `capacity_full` do **not** close the socket.
+
+### Reconnect / restart
+
+| Scenario | Behavior |
+|----------|----------|
+| Django restart mid-trip | Redis DS restored on reconnect |
+| Reconnect after STOP same day | Close **4001** |
+| Admin joins mid-trip | Same Redis DS |
+| Leave screen / dispose | Disconnect only — trip stays active until STOP |
+
+---
+
+## Redis — two key namespaces (one Redis)
+
+Same `C2S-redis` container; keys do not overwrite each other.
+
+| | Morning live D2D | Evening return |
+|--|------------------|----------------|
+| Key | `d2d:live:{YYYY-MM-DD}:{batch_id}` | `{dd-mm-yyyy}_{batch_id}` |
+| Value | JSON DS blob | Set of user ID strings |
+| Cleared by | WS `STOP` | `POST/GET end/{batch_id}` |
+| Module | `d2d_log/live_state.py` | `d2d_log/return_batch_utils.py` |
+
+Morning STOP does not empty the evening confirmed set; ending return does not touch morning live DS.
 
 ---
 
@@ -144,6 +168,42 @@ Response shape (`get_d2d_log_status`):
   "status": "ended"
 }
 ```
+
+---
+
+## Client pack — odometer + QR boarding (2026-08-24)
+
+Backend: `cts-docker/django/d2d_log/` (`odometer_views.py`, `boarding_views.py`, `board_commuter` shared with WS REMOVE).  
+Flutter: `D2dRepository` + `ApiUrl` + UI (`odometer_km_sheet`, `boarding_qr_panel`, `boarding_scan_screen`) — **STEPS 1–7 shipped**; STEP 8 smoke pending.  
+Schema: nullable KM/photo columns on **`DTODLOG`**. Media on disk; photo URLs = auth download.
+
+| Backend | Auth | Flutter |
+|---------|------|---------|
+| `POST /d2d/odometer/start/` | DRIVER / ADMIN | `submitOdometerStart` — multipart `batch_id`, `leg`, `km`, optional `photo` |
+| `POST /d2d/odometer/end/` | DRIVER / ADMIN | `submitOdometerEnd` |
+| `GET /d2d/odometer/<batch_id>/?date=` | DRIVER / ADMIN | `getOdometer` |
+| `GET /d2d/odometer/org/<admin_code>/?date=` | ADMIN | `getOdometerOrg` |
+| `GET /d2d/odometer/photo/…` | DRIVER / ADMIN | URL on snapshot (session cookie) |
+| `GET /d2d/boarding_qr/<batch_id>/` | DRIVER / ADMIN | `getBoardingQr` |
+| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` |
+| `POST /d2d/boarding_unboard/` | DRIVER / ADMIN | `boardingUnboard` |
+
+Error body: `{ "status": "error", "code": "<code>", "message": "…" }`.  
+Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure.code` for branching (`shouldRefreshQr`, `needsActiveTrip`, `isAuthFailure`).
+
+| Code | Typical cause |
+|------|----------------|
+| `unauthorized` / `forbidden` | Session / role |
+| `km_required` / `invalid_km` | Missing or bad KM |
+| `already_started` / `already_ended` | Duplicate submit |
+| `start_required` / `km_below_start` / `km_below_morning_end` | Leg order / validation |
+| `expired_token` / `invalid_token` | Refresh QR |
+| `trip_not_active` / `no_live_state` | Need live WS trip |
+| `not_coming` / `not_in_queue` / `wrong_batch` | Commuter eligibility |
+| `capacity_full` | Cab full |
+| `not_boarded` | Unboard target not in CList |
+
+Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
 
 ---
 
@@ -254,5 +314,6 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 ## Related
 
 - [API_AND_ENV.md](./API_AND_ENV.md) — env vars, dio setup
-- [backend/02-data-model.md](./backend/02-data-model.md)
+- [LOCAL_DEV.md](./LOCAL_DEV.md) — Docker / Nginx / LAN
+- [GLOSSARY.md](./GLOSSARY.md) — Redis keys, channel group names
 - `lib/api/api_list.dart`

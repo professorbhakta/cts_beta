@@ -1,5 +1,5 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/providers/batch_controller.dart';
@@ -41,6 +41,7 @@ class _DriverFormState extends State<DriverForm> {
 
   @override
   Widget build(BuildContext context) {
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (bool didPop, bool? result) {
@@ -50,6 +51,8 @@ class _DriverFormState extends State<DriverForm> {
       },
       child: Consumer<DriverFormProvider>(
         builder: (context, formProvider, child) {
+    final scheme = context.scheme;
+
           return DashboardShell(
             title: formProvider.forUpdate ? 'Edit Driver' : 'Create Driver',
             child: Align(
@@ -122,7 +125,7 @@ class _DriverFormState extends State<DriverForm> {
                             : "Create Driver",
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         borderRadius: BorderRadius.circular(12),
-                        borderColor: AppColors.acYellowWarm,
+                        borderColor: scheme.primary,
                         fontSize: 16,
                         isLoading: _isSubmitting,
                         onPressed: _isSubmitting
@@ -210,8 +213,8 @@ class _DriverFormState extends State<DriverForm> {
                                   }
                                 }
                               },
-                        backgroundColor: AppColors.acYellowWarm,
-                        textColor: AppColors.acBlack,
+                        backgroundColor: scheme.primary,
+                        textColor: scheme.onSurface,
                       ),
                     ],
                   ),
@@ -241,39 +244,39 @@ class _DriverFormState extends State<DriverForm> {
         labelText: label,
         hintText: 'Enter $label',
         prefixIcon: Icon(icon ?? Icons.edit_outlined),
-        prefixIconColor: AppColors.acYellowWarm,
+        prefixIconColor: scheme.primary,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acYellowWarm,
+            color: scheme.primary,
             width: 2,
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acRed,
+            color: scheme.error,
             width: 1.5,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acRed,
+            color: scheme.error,
             width: 2,
           ),
         ),
@@ -295,12 +298,14 @@ class _DriverFormState extends State<DriverForm> {
   Widget _buildBatchDropdown(DriverFormProvider formProvider) {
     return Consumer<BatchProvider>(
       builder: (context, batchProvider, child) {
+    final scheme = context.scheme;
+
         if (batchProvider.state == ViewState.loading) {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -315,7 +320,7 @@ class _DriverFormState extends State<DriverForm> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acRed,
+                color: scheme.error,
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -323,7 +328,7 @@ class _DriverFormState extends State<DriverForm> {
             ),
             child: Text(
               'Error loading batches: ${batchProvider.errorMessage}',
-              style: TextStyle(color: AppColors.acRed),
+              style: TextStyle(color: scheme.error),
             ),
           );
         }
@@ -368,12 +373,14 @@ class _DriverFormState extends State<DriverForm> {
   Widget _buildCabDropdown(DriverFormProvider formProvider) {
     return Consumer<CabProvider>(
       builder: (context, cabProvider, child) {
+    final scheme = context.scheme;
+
         if (cabProvider.state == ViewState.loading) {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -388,7 +395,7 @@ class _DriverFormState extends State<DriverForm> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acRed,
+                color: scheme.error,
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -396,7 +403,7 @@ class _DriverFormState extends State<DriverForm> {
             ),
             child: Text(
               'Error loading cabs: ${cabProvider.errorMessage}',
-              style: TextStyle(color: AppColors.acRed),
+              style: TextStyle(color: scheme.error),
             ),
           );
         }

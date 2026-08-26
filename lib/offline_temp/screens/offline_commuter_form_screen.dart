@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/models/offline_commuter.dart';
 import 'package:cts/offline_temp/models/offline_pop.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
@@ -73,17 +73,20 @@ class _OfflineCommuterFormScreenState extends State<OfflineCommuterFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+
 
     return Consumer<OfflineTempProvider>(
       builder: (context, provider, _) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
         final routePops = _selectedRouteId == null
             ? <OfflinePop>[]
             : provider.popsForRoute(_selectedRouteId!);
 
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: AppColors.acBlack,
+            backgroundColor: scheme.onSurface,
             title: Text(widget.isEditing ? 'Edit Commuter' : 'Add Commuter'),
             actions: [
               if (widget.isEditing)
@@ -116,7 +119,7 @@ class _OfflineCommuterFormScreenState extends State<OfflineCommuterFormScreen> {
                 const SizedBox(height: 16),
                 if (provider.routes.isEmpty)
                   Card(
-                    color: AppColors.acOrangeSoft,
+                    color: cts.orangeSoft,
                     child: const Padding(
                       padding: EdgeInsets.all(12),
                       child: Text(
@@ -264,15 +267,16 @@ class _OfflineCommuterFormScreenState extends State<OfflineCommuterFormScreen> {
     final id = widget.commuter?.id;
     if (id == null) return;
 
+    final scheme = context.scheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => ConfirmationDialog(
         title: 'Delete commuter?',
         message: 'Remove ${widget.commuter!.name} (#$id)?',
         confirmLabel: 'Delete',
-        confirmColor: AppColors.acRed,
+        confirmColor: scheme.error,
         icon: Icons.delete_outline,
-        iconColor: AppColors.acRed,
+        iconColor: scheme.error,
       ),
     );
 

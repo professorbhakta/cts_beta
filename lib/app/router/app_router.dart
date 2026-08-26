@@ -3,6 +3,7 @@ import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/appManager/d2d_route_args.dart';
 import 'package:cts/features/auth/screens/sign_in.dart';
+import 'package:cts/features/d2d/screens/boarding_scan_screen.dart';
 import 'package:cts/features/d2d/screens/d2d_channel.dart';
 import 'package:cts/features/d2d/screens/d2d_log_screen.dart';
 import 'package:cts/features/profile/screens/profile_screen.dart';
@@ -98,6 +99,10 @@ GoRouter createAppRouter({
                 cabReg != null && cabReg.trim().isNotEmpty ? cabReg.trim() : null,
           );
         },
+      ),
+      GoRoute(
+        path: RouteName.boardingScan,
+        builder: (context, state) => const BoardingScanScreen(),
       ),
       GoRoute(
         path: RouteName.routeScreen,

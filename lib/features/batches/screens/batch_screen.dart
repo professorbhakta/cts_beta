@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -116,18 +116,19 @@ class BatchScreenState extends State<BatchScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Batches',
       actions: [
         IconButton(
-          icon: const Icon(Icons.assignment_returned_outlined),
+          icon: Icon(Icons.assignment_returned_outlined),
           tooltip: 'Return Batches',
           onPressed: () {
             context.push(RouteName.returnBatchScreen);
           },
         ),
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           tooltip: 'Add Batch',
           onPressed: () {
             context.read<BatchFormProvider>().clearAll();
@@ -137,6 +138,7 @@ class BatchScreenState extends State<BatchScreen> {
       ],
       child: Consumer<BatchProvider>(
         builder: (context, bc, child) {
+
           if (bc.state == ViewState.loading && bc.batches.isEmpty) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -265,6 +267,8 @@ class _BatchList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverList.separated(
@@ -281,8 +285,8 @@ class _BatchList extends StatelessWidget {
               children: [
                 SlidableAction(
                   onPressed: (_) => onDelete(batch),
-                  backgroundColor: AppColors.acRed,
-                  foregroundColor: AppColors.acWhite,
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
                   icon: Icons.delete_rounded,
                   label: 'Delete',
                   borderRadius: const BorderRadius.only(
@@ -299,8 +303,8 @@ class _BatchList extends StatelessWidget {
               children: [
                 SlidableAction(
                   onPressed: (_) => onEdit(batch),
-                  backgroundColor: AppColors.acYellowWarm,
-                  foregroundColor: AppColors.acWhite,
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.surface,
                   icon: Icons.edit_rounded,
                   label: 'Edit',
                   borderRadius: const BorderRadius.only(
@@ -314,7 +318,7 @@ class _BatchList extends StatelessWidget {
             child: ModernListCard(
               title: batch.batchName ?? 'Untitled Batch',
               icon: Icons.event_rounded,
-              iconColor: AppColors.acYellowWarm,
+              iconColor: scheme.primary,
               onTap: () {
                 Navigator.push(
                   context,
@@ -336,13 +340,13 @@ class _BatchList extends StatelessWidget {
                   icon: Icons.access_time_rounded,
                   label: 'Start Time:',
                   value: batch.batchTime?.substring(0, 5) ?? 'N/A',
-                  iconColor: AppColors.acYellowWarm,
+                  iconColor: scheme.primary,
                 ),
                 InfoRow(
                   icon: Icons.access_time_rounded,
                   label: 'Return Time:',
                   value: batch.returnTime?.substring(0, 5) ?? 'N/A',
-                  iconColor: AppColors.acYellowWarm,
+                  iconColor: scheme.primary,
                 ),
               ],
             ),

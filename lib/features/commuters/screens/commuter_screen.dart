@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -201,6 +201,7 @@ class _CommuterScreenState extends State<CommuterScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
+
         final theme = Theme.of(dialogContext);
         return ConfirmationDialog(
           title: 'Mark all coming?',
@@ -233,11 +234,13 @@ class _CommuterScreenState extends State<CommuterScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Commuters',
       actions: [
         Consumer<CommuterController>(
           builder: (context, cc, _) {
+
             final busy = cc.isMarkAllComingInFlight;
             return TextButton.icon(
               onPressed: busy ? null : _onMarkAllComing,
@@ -247,13 +250,13 @@ class _CommuterScreenState extends State<CommuterScreen> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.done_all),
+                  : Icon(Icons.done_all),
               label: const Text('Mark all'),
             );
           },
         ),
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           tooltip: 'Add Commuter',
           iconSize: 36,
           onPressed: () {
@@ -265,6 +268,7 @@ class _CommuterScreenState extends State<CommuterScreen> {
       ],
       child: Consumer<CommuterController>(
         builder: (context, cc, child) {
+
           // Show skeleton loader on initial load
           if (cc.state == ViewState.loading && cc.commuters.isEmpty) {
             return ListView(
@@ -438,6 +442,9 @@ class _CommuterList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverList.separated(
@@ -454,8 +461,8 @@ class _CommuterList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onDelete(commuter),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.surface,
                 icon: Icons.delete_rounded,
                 label: 'Delete',
                 borderRadius: const BorderRadius.only(
@@ -472,8 +479,8 @@ class _CommuterList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onEdit(commuter),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.surface,
                 icon: Icons.edit_rounded,
                 label: 'Edit',
                 borderRadius: const BorderRadius.only(
@@ -489,7 +496,7 @@ class _CommuterList extends StatelessWidget {
                 '${commuter.userId?.id ?? ''} ${commuter.userId?.username ?? 'Untitled commuter'}'
                     .trim(),
             icon: Icons.person_rounded,
-            iconColor: AppColors.acYellowWarm,
+            iconColor: scheme.primary,
             onLongPress: () => ListItemActionsSheet.show(
               context,
               onEdit: () => onEdit(commuter),
@@ -509,7 +516,7 @@ class _CommuterList extends StatelessWidget {
                       Icons.route_rounded,
                       'Route:',
                       commuter.popId?.routeId?.routeName ?? 'N/A',
-                      AppColors.acBlue,
+                      cts.info,
                     ),
                   ),
                   Expanded(
@@ -518,7 +525,7 @@ class _CommuterList extends StatelessWidget {
                       Icons.event_rounded,
                       'Batch:',
                       commuter.batchId?.batchName ?? 'N/A',
-                      AppColors.acYellowDark,
+                      cts.yellowDark,
                     ),
                   ),
                 ],
@@ -531,7 +538,7 @@ class _CommuterList extends StatelessWidget {
                       Icons.location_on_rounded,
                       'POP:',
                       commuter.popId?.pickUpPointName ?? 'N/A',
-                      AppColors.acYellowWarm,
+                      scheme.primary,
                     ),
                   ),
                   Expanded(
@@ -540,7 +547,7 @@ class _CommuterList extends StatelessWidget {
                       Icons.directions_car_rounded,
                       'Cab:',
                       commuter.cabId?.regNumber ?? 'N/A',
-                      AppColors.acBlue,
+                      cts.info,
                     ),
                   ),
                 ],

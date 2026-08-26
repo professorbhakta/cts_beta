@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -89,11 +89,12 @@ class _RouteScreenState extends State<RouteScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Routes',
       actions: [
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           tooltip: 'Add Route',
           iconSize: 36,
           onPressed: () {
@@ -106,6 +107,7 @@ class _RouteScreenState extends State<RouteScreen> {
       child: Consumer<RouteController>(
         // END: Reverted RouteProvider to RouteController
         builder: (context, rc, _) {
+
           // Show skeleton loader on initial load
           if (rc.state == ViewState.loading && rc.routes.isEmpty) {
             return ListView(
@@ -236,6 +238,8 @@ class _RouteList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverList.separated(
@@ -254,8 +258,8 @@ class _RouteList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onDelete(route),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.surface,
                 icon: Icons.delete_rounded,
                 label: 'Delete',
                 borderRadius: const BorderRadius.only(
@@ -272,8 +276,8 @@ class _RouteList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onEdit(route),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.surface,
                 icon: Icons.edit_rounded,
                 label: 'Edit',
                 borderRadius: const BorderRadius.only(
@@ -287,7 +291,7 @@ class _RouteList extends StatelessWidget {
           child: ModernListCard(
             title: route.routeName ?? 'Untitled route',
             icon: Icons.route_rounded,
-            iconColor: AppColors.acYellowWarm,
+            iconColor: scheme.primary,
             onLongPress: () => ListItemActionsSheet.show(
               context,
               onEdit: () => onEdit(route),

@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/offline_temp/models/offline_batch.dart';
 import 'package:cts/offline_temp/utils/offline_validators.dart';
@@ -17,8 +17,11 @@ class OfflineBatchesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Consumer<OfflineTempProvider>(
       builder: (context, provider, _) {
+    final scheme = context.scheme;
+
         if (provider.errorMessage != null && !provider.isLoading) {
           return StatusMessage.error(
             title: 'Failed to load batches',
@@ -51,7 +54,7 @@ class OfflineBatchesTab extends StatelessWidget {
                 title: batch.name,
                 subtitle: '${batch.commuterCount} commuter(s)',
                 icon: Icons.directions_bus_rounded,
-                iconColor: AppColors.acYellowWarm,
+                iconColor: scheme.primary,
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) async {
                     if (value == 'edit') {
@@ -109,6 +112,8 @@ class OfflineBatchesTab extends StatelessWidget {
     OfflineTempProvider provider,
     OfflineBatch batch,
   ) async {
+    final scheme = context.scheme;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => ConfirmationDialog(
@@ -116,9 +121,9 @@ class OfflineBatchesTab extends StatelessWidget {
         message:
             'Delete "${batch.name}" and all ${batch.commuterCount} commuter(s)?',
         confirmLabel: 'Delete',
-        confirmColor: AppColors.acRed,
+        confirmColor: scheme.error,
         icon: Icons.delete_outline,
-        iconColor: AppColors.acRed,
+        iconColor: scheme.error,
       ),
     );
 

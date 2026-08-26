@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -150,11 +150,12 @@ class _PopScreenState extends State<PopScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Pick-Up Points',
       actions: [
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           tooltip: 'Add POP',
           iconSize: 36,
           onPressed: () {
@@ -165,6 +166,7 @@ class _PopScreenState extends State<PopScreen> {
       ],
       child: Consumer<PopProvider>(
         builder: (context, popCtrl, child) {
+
           // Show skeleton loader on initial load
           if (popCtrl.state == ViewState.loading && popCtrl.pops.isEmpty) {
             return ListView(
@@ -314,6 +316,8 @@ class _PopList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverList.separated(
@@ -330,8 +334,8 @@ class _PopList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onDelete(pop),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.surface,
                 icon: Icons.delete_rounded,
                 label: 'Delete',
                 borderRadius: const BorderRadius.only(
@@ -348,8 +352,8 @@ class _PopList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onEdit(pop),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.surface,
                 icon: Icons.edit_rounded,
                 label: 'Edit',
                 borderRadius: const BorderRadius.only(
@@ -363,7 +367,7 @@ class _PopList extends StatelessWidget {
           child: ModernListCard(
             title: pop.pickUpPointName ?? 'Unnamed Pick-Up Point',
             icon: Icons.location_on_rounded,
-            iconColor: AppColors.acYellowWarm,
+            iconColor: scheme.primary,
             onLongPress: () => ListItemActionsSheet.show(
               context,
               onEdit: () => onEdit(pop),
@@ -374,13 +378,13 @@ class _PopList extends StatelessWidget {
                 icon: Icons.route_rounded,
                 label: 'Route:',
                 value: pop.routeId?.routeName ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
+                iconColor: scheme.primary,
               ),
               InfoRow(
                 icon: Icons.numbers_rounded,
                 label: 'Stop Number:',
                 value: pop.inLine?.toString() ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
+                iconColor: scheme.primary,
               ),
             ],
           ),

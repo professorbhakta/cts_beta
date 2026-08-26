@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -159,11 +159,12 @@ class _CabScreenState extends State<CabScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Cabs',
       actions: [
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           tooltip: 'Add Cab',
           iconSize: 36,
           onPressed: () {
@@ -174,6 +175,7 @@ class _CabScreenState extends State<CabScreen> {
       ],
       child: Consumer<CabProvider>(
         builder: (context, cc, child) {
+
           // Show skeleton loader on initial load
           if (cc.state == ViewState.loading && cc.cabs.isEmpty) {
             return ListView(
@@ -322,6 +324,8 @@ class _CabList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverList.separated(
@@ -338,8 +342,8 @@ class _CabList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onDelete(cab),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.surface,
                 icon: Icons.delete_rounded,
                 label: 'Delete',
                 borderRadius: const BorderRadius.only(
@@ -356,8 +360,8 @@ class _CabList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onEdit(cab),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.surface,
                 icon: Icons.edit_rounded,
                 label: 'Edit',
                 borderRadius: const BorderRadius.only(
@@ -371,7 +375,7 @@ class _CabList extends StatelessWidget {
           child: ModernListCard(
             title: cab.regNumber ?? 'N/A',
             icon: Icons.directions_car_rounded,
-            iconColor: AppColors.acYellowWarm,
+            iconColor: scheme.primary,
             onLongPress: () => ListItemActionsSheet.show(
               context,
               onEdit: () => onEdit(cab),
@@ -382,20 +386,20 @@ class _CabList extends StatelessWidget {
                 icon: Icons.route_rounded,
                 label: 'Route:',
                 value: cab.routeId?.routeName ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
+                iconColor: scheme.primary,
               ),
               InfoRow(
                 icon: Icons.people_rounded,
                 label: 'Capacity:',
                 value: '${cab.capacity} Seats',
-                iconColor: AppColors.acYellowWarm,
+                iconColor: scheme.primary,
               ),
               if (cab.km != null && cab.km! > 0)
                 InfoRow(
                   icon: Icons.speed_rounded,
                   label: 'Distance:',
                   value: '${cab.km} km',
-                  iconColor: AppColors.acYellowWarm,
+                  iconColor: scheme.primary,
                 ),
             ],
           ),

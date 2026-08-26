@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import 'package:cts/appManager/colors.dart';
+﻿import 'package:cts/theme/cts_colors.dart';
+import 'package:flutter/material.dart';
 
 class Headline extends StatelessWidget {
   const Headline({super.key, this.headline, this.fontSize, this.textColor});
@@ -10,14 +10,15 @@ class Headline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double w = MediaQuery.of(context).size.width;
+    final scheme = context.scheme;
+    final w = MediaQuery.of(context).size.width;
     return Container(
       height: 46,
       width: w,
       margin: const EdgeInsets.only(top: 0, bottom: 05),
       decoration: BoxDecoration(
-        color: AppColors.acWhite,
-        border: Border.all(color: AppColors.acYellowWarm),
+        color: scheme.surface,
+        border: Border.all(color: scheme.primary),
         borderRadius: BorderRadius.circular(5),
       ),
       child: Center(
@@ -35,4 +36,3 @@ class Headline extends StatelessWidget {
     );
   }
 }
-

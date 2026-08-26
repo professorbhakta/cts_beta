@@ -1,4 +1,4 @@
-﻿import 'package:cts/appManager/colors.dart';
+﻿import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -76,6 +76,8 @@ class CommonTextFormField extends StatefulWidget {
 class CommonTextFormFieldState extends State<CommonTextFormField> {
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return Container(
       padding: widget.padding,
       margin: widget.margin,
@@ -83,7 +85,7 @@ class CommonTextFormFieldState extends State<CommonTextFormField> {
           borderRadius: BorderRadius.circular(7),
           color: Colors.grey.shade50,
           border:
-              widget.border ?? Border.all(color: AppColors.acBlack, width: 2)),
+              widget.border ?? Border.all(color: scheme.onSurface, width: 2)),
       child: Padding(
         padding: const EdgeInsets.only(top: 0, right: 10, bottom: 0, left: 10),
         child: TextFormField(
@@ -108,7 +110,7 @@ class CommonTextFormFieldState extends State<CommonTextFormField> {
                   fontFamily: 'DMSans_Medium',
                   fontSize: 14,
                   letterSpacing: 0.5,
-                  color: AppColors.acBlack),
+                  color: scheme.onSurface),
           decoration: InputDecoration(
               border: InputBorder.none,
               focusedBorder: InputBorder.none,
@@ -128,4 +130,3 @@ class CommonTextFormFieldState extends State<CommonTextFormField> {
     );
   }
 }
-

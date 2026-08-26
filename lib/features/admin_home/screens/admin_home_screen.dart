@@ -1,5 +1,5 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/offline_auto_redirect.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/admin_home/providers/admin_provider.dart';
@@ -40,11 +40,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return OfflineAutoRedirect(
       child: DashboardShell(
         title: 'Dashboard',
         child: Consumer<AdminProvider>(
         builder: (context, provider, child) {
+
           switch (provider.state) {
             case ViewState.loading:
               return _buildDashboardSkeleton(context);
@@ -84,6 +86,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             // Main Statistics Cards
             LayoutBuilder(
               builder: (context, constraints) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
                 final isCompact = constraints.maxWidth < 600;
                 final batchCard = DashboardStatCard(
                   title: 'Batches',
@@ -91,7 +96,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                   icon: Icons.directions_bus,
                   subtitle: '${provider.runningBatchCount} active',
                   onTap: () => context.push(RouteName.batchScreen),
-                  color: AppColors.acYellowWarm,
+                  color: scheme.primary,
                 );
                 final commuterCard = DashboardStatCard(
                   title: 'Commuters',
@@ -99,7 +104,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                   icon: Icons.people_alt,
                   subtitle: '${provider.isComingCount} coming today',
                   onTap: () => context.push(RouteName.commuterScreen),
-                  color: AppColors.acOrangeWarm,
+                  color: cts.orangeWarm,
                 );
 
                 if (isCompact) {
@@ -126,6 +131,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             // Secondary Statistics — 2×2 on phone, single row on tablet+
             LayoutBuilder(
               builder: (context, constraints) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
                 final cards = [
                   CompactStatCard(
                     title: 'Routes',
@@ -134,7 +142,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     icon: Icons.route_outlined,
                     onTap: () =>
                         context.push(RouteName.routeScreen),
-                    color: AppColors.acYellowWarm,
+                    color: scheme.primary,
                   ),
                   CompactStatCard(
                     title: 'Pick-up Points',
@@ -143,7 +151,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     icon: Icons.location_on_outlined,
                     onTap: () =>
                         context.push(RouteName.popScreen),
-                    color: AppColors.acOrangeWarm,
+                    color: cts.orangeWarm,
                   ),
                   CompactStatCard(
                     title: 'Cabs',
@@ -152,7 +160,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     icon: Icons.directions_car_outlined,
                     onTap: () =>
                         context.push(RouteName.cabScreen),
-                    color: AppColors.acYellowBright,
+                    color: cts.yellowBright,
                   ),
                   CompactStatCard(
                     title: 'Drivers',
@@ -161,7 +169,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     icon: Icons.person_outline,
                     onTap: () =>
                         context.push(RouteName.driverScreen),
-                    color: AppColors.acOrangeBright,
+                    color: cts.orangeBright,
                   ),
                 ];
                 if (constraints.maxWidth < 600) {
@@ -211,6 +219,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   Widget _buildWelcomeSection(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = context.scheme;
+    final cts = context.cts;
     final now = DateTime.now();
     final hour = now.hour;
     String greeting;
@@ -228,12 +238,12 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.acYellowDark, AppColors.acYellowWarm],
+          colors: [cts.yellowDark, scheme.primary],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.acYellowDark.withValues(alpha: 0.3),
+            color: cts.yellowDark.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -248,7 +258,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 Text(
                   greeting,
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    color: AppColors.acWhite,
+                    color: scheme.onInverseSurface,
                     fontWeight: FontWeight.w300,
                   ),
                 ),
@@ -256,7 +266,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 Text(
                   'Welcome Back!',
                   style: theme.textTheme.headlineMedium?.copyWith(
-                    color: AppColors.acWhite,
+                    color: scheme.onInverseSurface,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -264,7 +274,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 Text(
                   'Manage your transportation system efficiently',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.acWhite.withValues(alpha: 0.95),
+                    color: scheme.onInverseSurface.withValues(alpha: 0.95),
                   ),
                 ),
               ],
@@ -273,7 +283,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.acWhite.withValues(alpha: 0.25),
+              color: scheme.onInverseSurface.withValues(alpha: 0.25),
               shape: BoxShape.circle,
             ),
             child: Image.asset(
@@ -389,6 +399,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     BuildContext context,
     AdminProvider provider,
   ) {
+
     final scheme = Theme.of(context).colorScheme;
     return Material(
       color: scheme.errorContainer,
@@ -436,6 +447,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
             final width = constraints.maxWidth;
             final crossAxisCount = width >= 900 ? 4 : (width >= 600 ? 3 : 2);
             final aspectRatio = crossAxisCount == 2 ? 2.6 : 2.35;
@@ -455,7 +469,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 context.read<BatchFormProvider>().clearAll();
                 context.push(RouteName.batchForm);
               },
-              color: AppColors.acYellowWarm,
+              color: scheme.primary,
             ),
             QuickActionButton(
               icon: Icons.person_add_outlined,
@@ -464,7 +478,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 context.read<CommuterFormProvider>().clearAll();
                 context.push(RouteName.commuterForm);
               },
-              color: AppColors.acOrangeWarm,
+              color: cts.orangeWarm,
             ),
             QuickActionButton(
               icon: Icons.drive_eta_outlined,
@@ -473,7 +487,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 context.read<DriverFormProvider>().clearAll();
                 context.push(RouteName.driverForm);
               },
-              color: AppColors.acYellowBright,
+              color: cts.yellowBright,
             ),
             QuickActionButton(
               icon: Icons.directions_car_outlined,
@@ -482,7 +496,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 context.read<CabFormProvider>().clearAll();
                 context.push(RouteName.cabForm);
               },
-              color: AppColors.acOrangeBright,
+              color: cts.orangeBright,
             ),
             QuickActionButton(
               icon: Icons.route_outlined,
@@ -491,7 +505,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 context.read<RouteFormProvider>().clearAll();
                 context.push(RouteName.routeForm);
               },
-              color: AppColors.acYellowWarm,
+              color: scheme.primary,
             ),
             QuickActionButton(
               icon: Icons.location_on_outlined,
@@ -500,7 +514,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 context.read<PopFormProvider>().clearAll();
                 context.push(RouteName.popForm);
               },
-              color: AppColors.acOrangeWarm,
+              color: cts.orangeWarm,
             ),
             QuickActionButton(
               icon: Icons.play_circle_outline,
@@ -508,7 +522,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               onTap: () {
                 context.push(RouteName.runningBatchScreen);
               },
-              color: AppColors.acYellowBright,
+              color: cts.yellowBright,
             ),
             QuickActionButton(
               icon: Icons.assignment_returned_outlined,
@@ -516,7 +530,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               onTap: () {
                 context.push(RouteName.returnBatchScreen);
               },
-              color: AppColors.acOrangeBright,
+              color: cts.orangeBright,
             ),
               ],
             );
@@ -527,6 +541,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   }
 
   Widget _buildDashboardSkeleton(BuildContext context) {
+
     final scheme = Theme.of(context).colorScheme;
     return Shimmer.fromColors(
       baseColor: scheme.surfaceContainerHighest,
@@ -649,10 +664,11 @@ class _RunningBatchDashboardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final isLight = theme.brightness == Brightness.light;
-    const liveColor = AppColors.acGreen;
+    final liveColor = cts.success;
 
     return Material(
       color: Colors.transparent,
@@ -705,7 +721,7 @@ class _RunningBatchDashboardTile extends StatelessWidget {
                             color: liveColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.sensors_rounded,
                             color: liveColor,
                             size: 22,

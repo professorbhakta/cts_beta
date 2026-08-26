@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-23 23:20 IST
-> **Session:** Wrap-up — next START = 26d-discuss
+> **Updated:** 2026-08-25 22:15 IST
+> **Session:** Rest — next START = STEP 8 on go
 
 ================================================================================
 QUICK START (minimal)
@@ -8,81 +8,72 @@ QUICK START (minimal)
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
-Task: 26d-discuss — Confirm “API every time” (one add_commuter POST vs double POST / heavy reload). Then fix or skip. Do not redo 26d intent.
-Task pack: Return + Backend
-Context: Mark all org coming + R7 T−15 + C1 Asia/Kolkata shipped (uncommitted). Emu Admin; phone Driver 1.
-Note: Fill PROMPT_SCOPE §1; queue #1 is Q-26d.
+@docs/client_req/DISCUSSION_LOG.md
+@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@docs/FLOWS_BY_ROLE.md
+Task: Client pack STEP 8 device smoke — only after user says go.
+Note: Attach order LOCKED in PROJECT_BRAIN §3. Journeys: FLOWS § Morning QR+KM.
 
 ================================================================================
-START PROMPT (full shell — copy and fill)
+START PROMPT (full shell)
 ================================================================================
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
+@docs/client_req/DISCUSSION_LOG.md
+@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@docs/FLOWS_BY_ROLE.md
+@lib/features/d2d/README.md
+@docs/API_CONTRACTS.md
+@docs/TESTING.md
+@docs/LOCAL_DEV.md
 
-Task: Clarify admin return Confirm “API every time” (normal one POST vs heavy reload/double call). Then either a small Confirm fix OR document skip. Do not redo 26d intent product. Do not redo R7/C1.
+Task: Run client pack STEP 8 device smoke (ONLY if user said go).
+Follow FLOWS_BY_ROLE § Morning QR+KM (same as 07 copy block).
+Emulator admin 7069036462; phone driver 9876544111. LAN from PROJECT_BRAIN §5.
+Story/locks: docs/client_req/05-open-decisions.md. Pointer: DISCUSSION_LOG only.
 
-Task pack (attach @ files from PROJECT_BRAIN §4):
-  - Return:    @lib/features/batches/README.md @docs/API_CONTRACTS.md @docs/FLOWS_BY_ROLE.md
-  - Backend:   @docs/API_CONTRACTS.md @docs/LOCAL_DEV.md @docs/backend/README.md
-  - Optional:  @docs/next-plan/return-trip-allocation-roadmap.txt
-
-Context from last session:
-  2026-08-23 shipped: org Mark all coming; R7 T−15 cutoff + cutoff_applied UI; Django TIME_ZONE=Asia/Kolkata (C1).
-  Prior: full-cycle smoke PASS Batch-01; 26d intent already done.
-  Compose LAN 192.168.1.15. Uncommitted on beta-ver + cts-docker.
-
-Constraints (optional):
-  Prefer keep live Admin/Driver sessions. Do not type passwords unless a session died.
-  Git: feature / beta-ver only. Pre-push gate if shipping code.
-
-================================================================================
-MIDDLE CONTEXT (user fills each session — update as you go)
-================================================================================
-
-Current files in focus:
-  - 26d-discuss: Confirm API chatter
-  - Later: batch Mark all; R7 integration tests; CList pool (R9)
-
-What we already tried / shipped:
-  - Admin Mark all coming (PATCH + CommuterScreen) — Django 6/6
-  - R7 T−15 + cutoff_applied — allocator 20/20; TZ tests 2/2
-  - C1 TIME_ZONE Asia/Kolkata (default; DJANGO_TIME_ZONE in .env.example)
-  - PROMPT_SCOPE attach every chat
-  - 26d return intent (do not redo)
-  - 2026-08-23 full-cycle smoke PASS on Batch-01
-
-Open questions:
-  - Confirm “API every time” = one add_commuter POST vs double POST / heavy reload?
-  - Then: small Confirm fix OR skip
-  - Commit/push Mark all + R7 + C1 when user asks
-
-Related docs:
-  - PROJECT_BRAIN.md §5 / §9
-  - PROMPT_SCOPE.md §2–§3
-  - docs/API_CONTRACTS.md (R7 + Mark all)
-  - docs/LOCAL_DEV.md (TIME_ZONE)
+Constraints:
+  Do not start smoke without explicit go.
+  Prefer keep sessions. Git: beta-ver only. No commit/push unless asked.
+  Do not change attach order or recreate retired docs.
 
 ================================================================================
-QUICK CLOSE (minimal)
+MIDDLE CONTEXT
 ================================================================================
 
-End-of-session doc sync: update PROJECT_BRAIN §5–§6–§9, PROMPT_SCOPE §2–§4,
-session sync set headers, DOC_REGISTRY.md rows, PROJECT_TODOS if needed.
-Reply with summary + next START PROMPT.
+Current focus:
+  - RESTING — docs/structure complete
+  - Next: STEP 8 smoke only after user go
+  - Later: 26d-discuss; new d2d tests; commit when asked; parked return KM / org odo / unboard
+
+Story split (stable):
+  - 05 = product story/locks · FLOWS = QR/KM journeys · 07 = smoke · DISCUSSION_LOG = pointer
+
+Open:
+  - User go for STEP 8?
+  - Commit when user asks
 
 ================================================================================
-END PROMPT (full shell — doc sync at session close)
+QUICK CLOSE
 ================================================================================
 
-End-of-session doc sync. Do not duplicate long specs into PROJECT_BRAIN.
+End-of-session doc sync. Reply: summary + next START PROMPT.
 
-1. Update PROJECT_BRAIN.md (§5 focus, §6 status, §9 handoff, header)
-2. Update PROMPT_SCOPE.md (§2 queue, §4 log, header)
-3. Update Session sync set docs (content or “Verified unchanged”)
-4. Update DOC_REGISTRY.md table + header
-5. Update PROJECT_TODOS.md if backlog moved
-6. Update this file MIDDLE CONTEXT for the next chat
-7. Reply: short summary + pasteable next START PROMPT (or idle)
+================================================================================
+END PROMPT
+================================================================================
 
-Do NOT create new .md/.txt files unless the user explicitly asks.
+1. PROJECT_BRAIN.md (§5, §6, §9, header; §10 if ownership moved)
+2. PROMPT_SCOPE.md (§2, §4, header)
+3. DOC_REGISTRY.md fast sync rows
+4. PROJECT_TODOS.md if backlog moved
+5. ALWAYS update docs/client_req/DISCUSSION_LOG.md pointer when Q-client-qr-odo
+   is still queue #1 (or pack was touched) — LAST_SUMMARY + NEXT_SUGGEST required.
+   Do not put product rules in the log — those belong in 05 / FLOWS / API_CONTRACTS.
+6. This file MIDDLE CONTEXT
+7. Reply: short summary + pasteable next START
+
+Do NOT create new .md/.txt unless user asks.
+Do NOT recreate docs/backend/01–04 or docs/guides/.
+Do NOT invent a new attach order.

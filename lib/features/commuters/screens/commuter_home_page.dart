@@ -1,6 +1,6 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/app/router/route_names.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/models/return_intent_model.dart';
@@ -73,6 +73,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: const BrandAppBar(),
       drawer: const AppDrawer(),
@@ -83,6 +84,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               context.read<CommuterHomeProvider>().fetchCommuterProfile(),
           child: Consumer<CommuterHomeProvider>(
             builder: (context, provider, child) {
+
               return switch (provider.state) {
                 ViewState.loading => _buildSkeleton(context),
                 ViewState.error => ListView(
@@ -120,6 +122,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+
         final horizontalPadding = constraints.maxWidth >= 600 ? 20.0 : 16.0;
 
         return ListView(
@@ -149,6 +152,8 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                     _buildDateStrip(context, commuter.isComing ?? false),
                     const SizedBox(height: 10),
                     _buildStatusToggle(context, provider, commuter),
+                    const SizedBox(height: 12),
+                    _buildScanBoardingButton(context, commuter),
                     if (provider.isUpdating) ...[
                       const SizedBox(height: 12),
                       const Center(
@@ -184,7 +189,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                       label: 'Track your Cab',
                       radius: 12,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      icon: const Icon(Icons.my_location_rounded),
+                      icon: Icon(Icons.my_location_rounded),
                       onPressed: () => _openTrackCab(commuter),
                     ),
                   ],
@@ -198,20 +203,23 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
   }
 
   Widget _buildWelcomeSection(BuildContext context, String name) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
     final theme = Theme.of(context);
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.acYellowDark, AppColors.acYellowWarm],
+          colors: [cts.yellowDark, scheme.primary],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.acYellowDark.withValues(alpha: 0.22),
+            color: cts.yellowDark.withValues(alpha: 0.22),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -226,7 +234,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                 Text(
                   _greeting(),
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: AppColors.acBlack.withValues(alpha: 0.7),
+                    color: scheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -234,7 +242,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                 Text(
                   name,
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    color: AppColors.acBlack,
+                    color: scheme.onSurface,
                     fontWeight: FontWeight.bold,
                     height: 1.15,
                   ),
@@ -245,7 +253,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                 Text(
                   'Update your status and review today\'s trip.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.acBlack.withValues(alpha: 0.75),
+                    color: scheme.onSurface.withValues(alpha: 0.75),
                   ),
                 ),
               ],
@@ -255,7 +263,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.acWhite.withValues(alpha: 0.85),
+              color: scheme.surface.withValues(alpha: 0.85),
               shape: BoxShape.circle,
             ),
             child: Image.asset(
@@ -275,6 +283,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     required String title,
     String? subtitle,
   }) {
+
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
@@ -302,10 +311,12 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
   }
 
   Widget _buildDateStrip(BuildContext context, bool isComing) {
+    final cts = context.cts;
+
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final isLight = theme.brightness == Brightness.light;
-    final statusColor = isComing ? AppColors.acGreen : AppColors.acRed;
+    final statusColor = isComing ? cts.success : scheme.error;
     final statusLabel = isComing ? 'COMING' : 'NOT COMING';
 
     return Container(
@@ -334,10 +345,10 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppColors.acYellowWarm,
+              color: scheme.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.calendar_today_rounded,
               color: Colors.white,
               size: 18,
@@ -374,16 +385,42 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     );
   }
 
+  Widget _buildScanBoardingButton(BuildContext context, CommuterModel commuter) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+    final isComing = commuter.isComing ?? false;
+    return FilledButton.icon(
+      onPressed: () {
+        if (!isComing) {
+          SnackBarService.showErrorSnackbar(
+            'Mark Coming first, then scan the boarding QR.',
+          );
+          return;
+        }
+        context.push(RouteName.boardingScan);
+      },
+      icon: Icon(Icons.qr_code_scanner),
+      label: const Text('Scan boarding QR'),
+      style: FilledButton.styleFrom(
+        backgroundColor: cts.yellowDark,
+        foregroundColor: scheme.onPrimary,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+      ),
+    );
+  }
+
   Widget _buildStatusToggle(
     BuildContext context,
     CommuterHomeProvider provider,
     CommuterModel commuter,
   ) {
+    final cts = context.cts;
+
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final isLight = theme.brightness == Brightness.light;
     final isComing = commuter.isComing ?? false;
-    final accent = isComing ? AppColors.acGreen : AppColors.acRed;
+    final accent = isComing ? cts.success : scheme.error;
 
     return Container(
       decoration: BoxDecoration(
@@ -583,15 +620,16 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     required bool enabled,
     required VoidCallback onSelected,
   }) {
+
     final scheme = Theme.of(context).colorScheme;
     return FilterChip(
       label: Text(label),
       selected: selected,
       onSelected: enabled ? (_) => onSelected() : null,
-      selectedColor: AppColors.acYellowWarm.withValues(alpha: 0.55),
-      checkmarkColor: AppColors.acBlack,
+      selectedColor: scheme.primary.withValues(alpha: 0.55),
+      checkmarkColor: scheme.onSurface,
       labelStyle: TextStyle(
-        color: selected ? AppColors.acBlack : scheme.onSurface,
+        color: selected ? scheme.onSurface : scheme.onSurface,
         fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
       ),
     );
@@ -630,6 +668,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
       context: context,
       showDragHandle: true,
       builder: (sheetContext) {
+
         return SafeArea(
           child: ListView(
             shrinkWrap: true,
@@ -650,7 +689,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                       ? null
                       : Text('Return ${option.endTime}'),
                   trailing: provider.returnIntent.targetBatchId == option.id
-                      ? const Icon(Icons.check_rounded)
+                      ? Icon(Icons.check_rounded)
                       : null,
                   onTap: () => Navigator.of(sheetContext).pop(option.id),
                 ),
@@ -672,6 +711,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
   Widget _buildTripSummaryCard(BuildContext context, CommuterModel commuter) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final cts = context.cts;
     final isLight = theme.brightness == Brightness.light;
     final batchName = commuter.batchId?.batchName ?? 'No batch assigned';
     final collegeName = commuter.collegeName;
@@ -680,12 +720,12 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isLight ? scheme.surface : AppColors.acYellowWarm.withValues(alpha: 0.08),
+        color: isLight ? scheme.surface : scheme.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isLight
               ? scheme.outline.withValues(alpha: 0.35)
-              : AppColors.acYellowWarm.withValues(alpha: 0.3),
+              : scheme.primary.withValues(alpha: 0.3),
         ),
         boxShadow: isLight
             ? [
@@ -703,10 +743,10 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.acYellowWarm,
+              color: scheme.primary,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.directions_bus_filled_rounded,
               color: Colors.white,
               size: 24,
@@ -745,10 +785,10 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               tooltip: 'Call admin',
               onPressed: () => calling(adminMobile),
               style: IconButton.styleFrom(
-                backgroundColor: AppColors.acGreen.withValues(alpha: 0.12),
-                foregroundColor: AppColors.acGreen,
+                backgroundColor: cts.success.withValues(alpha: 0.12),
+                foregroundColor: cts.success,
               ),
-              icon: const Icon(Icons.call_rounded, size: 20),
+              icon: Icon(Icons.call_rounded, size: 20),
             ),
         ],
       ),
@@ -756,6 +796,8 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
   }
 
   Widget _buildTripInfoGrid(BuildContext context, CommuterModel commuter) {
+    final scheme = context.scheme;
+    final cts = context.cts;
     final batchName = commuter.batchId?.batchName ?? 'N/A';
     final startTime = _formatBatchTime(commuter.batchId?.batchTime);
     final popName = commuter.popId?.pickUpPointName ?? 'N/A';
@@ -767,25 +809,25 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
         icon: Icons.access_time_rounded,
         label: 'Start',
         value: startTime,
-        color: AppColors.acYellowWarm,
+        color: scheme.primary,
       ),
       _TripInfoTile(
         icon: Icons.location_on_rounded,
         label: 'Pick-up Point',
         value: popName,
-        color: AppColors.acOrangeWarm,
+        color: cts.orangeWarm,
       ),
       _TripInfoTile(
         icon: Icons.route_rounded,
         label: 'Route',
         value: routeName,
-        color: AppColors.acYellowBright,
+        color: cts.yellowBright,
       ),
       _TripInfoTile(
         icon: Icons.directions_car_rounded,
         label: 'Cab',
         value: cabNumber,
-        color: AppColors.acOrangeBright,
+        color: cts.orangeBright,
       ),
     ];
 
@@ -814,7 +856,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                 icon: Icons.event_rounded,
                 label: 'Batch',
                 value: batchName,
-                color: AppColors.acYellowDark,
+                color: cts.yellowDark,
                 fullWidth: true,
               ),
             ],
@@ -836,7 +878,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               icon: Icons.event_rounded,
               label: 'Batch',
               value: batchName,
-              color: AppColors.acYellowDark,
+              color: cts.yellowDark,
               fullWidth: true,
             ),
           ],
@@ -846,6 +888,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
   }
 
   Widget _buildSkeleton(BuildContext context) {
+
     final scheme = Theme.of(context).colorScheme;
     final placeholder = scheme.surfaceContainerHighest;
 
@@ -1002,6 +1045,7 @@ class _TripInfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final isLight = theme.brightness == Brightness.light;

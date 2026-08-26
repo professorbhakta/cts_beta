@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/features/batches/providers/batch_controller.dart';
@@ -77,6 +77,7 @@ class _BatchFormState extends State<BatchForm> {
 
   @override
   Widget build(BuildContext context) {
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -86,6 +87,8 @@ class _BatchFormState extends State<BatchForm> {
       },
       child: Consumer<BatchFormProvider>(
         builder: (context, formProvider, child) {
+    final scheme = context.scheme;
+
           return DashboardShell(
             title: formProvider.forUpdate ? 'Edit Batch' : 'Create Batch',
             child: Align(
@@ -142,7 +145,7 @@ class _BatchFormState extends State<BatchForm> {
                             : "Create Batch",
                         borderRadius: BorderRadius.circular(12),
                         fontSize: 16,
-                        borderColor: AppColors.acYellowWarm,
+                        borderColor: scheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         isLoading: _isSubmitting,
                         onPressed: _isSubmitting
@@ -229,8 +232,8 @@ class _BatchFormState extends State<BatchForm> {
                                   );
                                 }
                               },
-                        backgroundColor: AppColors.acYellowWarm,
-                        textColor: AppColors.acBlack,
+                        backgroundColor: scheme.primary,
+                        textColor: scheme.onSurface,
                       ),
                     ],
                   ),
@@ -251,33 +254,33 @@ class _BatchFormState extends State<BatchForm> {
       decoration: InputDecoration(
         labelText: label,
         hintText: 'Enter $label',
-        prefixIcon: const Icon(Icons.text_fields_rounded),
-        prefixIconColor: AppColors.acYellowWarm,
+        prefixIcon: Icon(Icons.text_fields_rounded),
+        prefixIconColor: scheme.primary,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acYellowWarm, width: 2),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acRed, width: 1.5),
+          borderSide: BorderSide(color: scheme.error, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acRed, width: 2),
+          borderSide: BorderSide(color: scheme.error, width: 2),
         ),
         filled: true,
         fillColor: scheme.surface,
@@ -306,7 +309,7 @@ class _BatchFormState extends State<BatchForm> {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -321,7 +324,7 @@ class _BatchFormState extends State<BatchForm> {
                   title.contains('Time')
                       ? Icons.access_time_rounded
                       : Icons.calendar_today_rounded,
-                  color: AppColors.acYellowWarm,
+                  color: scheme.primary,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -344,7 +347,7 @@ class _BatchFormState extends State<BatchForm> {
                   title.contains('Time')
                       ? Icons.access_time_rounded
                       : Icons.calendar_today_rounded,
-                  color: AppColors.acYellowWarm,
+                  color: scheme.primary,
                   size: 20,
                 ),
               ],

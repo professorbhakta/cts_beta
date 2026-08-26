@@ -1,12 +1,10 @@
 > **Doc:** docs/START_HERE.md
-> **Updated:** 2026-08-20 23:40 IST
-> **Session:** Wireframes removed — point to FLOWS + UI_ARCHITECTURE
+> **Updated:** 2026-08-25 22:05 IST
+> **Session:** FLOWS owns QR/KM journeys
 
 # Start here
 
 **Who you are** → **What to read** → **Run the app for real layouts**
-
-This guide is for anyone new to the CTS (c2s) mobile app—product, design, QA, or development.
 
 ---
 
@@ -14,20 +12,23 @@ This guide is for anyone new to the CTS (c2s) mobile app—product, design, QA, 
 
 | I am… | Read first | Then | See layouts |
 |--------|------------|------|-------------|
-| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [guides/ADMIN_USER_GUIDE.md](./guides/ADMIN_USER_GUIDE.md) | Run app + role accounts ([LOCAL_DEV.md](./LOCAL_DEV.md)) |
-| **Designer** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Live app (debug/release) |
+| **Agent / continuing chat** | [PROJECT_BRAIN.md](../PROJECT_BRAIN.md) → [PROMPT_SCOPE.md](../PROMPT_SCOPE.md) | [client_req/DISCUSSION_LOG](./client_req/DISCUSSION_LOG.md) · [FLOWS_BY_ROLE](./FLOWS_BY_ROLE.md) | [TESTING.md](./TESTING.md) + [LOCAL_DEV.md](./LOCAL_DEV.md) |
+| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) (QR/KM morning) | [client_req/05](./client_req/05-open-decisions.md) · [FEATURES.md](./FEATURES.md) | Lab accounts in LOCAL_DEV |
+| **Designer** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Live app |
 | **New developer** | [CODE_MAP.md](./CODE_MAP.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) → [FEATURES.md](./FEATURES.md) | `flutter run` |
-| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Device smoke per [TESTING.md](./TESTING.md) |
+| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Device smoke |
 
-Full doc index: [README.md](./README.md)
+Full index: [README.md](./README.md)
 
-### Documentation packs (all published)
+### Documentation packs
 
 | Pack | Docs |
 |------|------|
-| **P1 Architecture** | [ARCHITECTURE.md](./ARCHITECTURE.md) · [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) · [FEATURES.md](./FEATURES.md) |
-| **P2 Operations** | [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md) · [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [TESTING.md](./TESTING.md) · [API_AND_ENV.md](./API_AND_ENV.md) |
-| **P3 Guides** | [guides/](./guides/) · [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
+| **P1 Architecture** | ARCHITECTURE · ROUTING_AND_AUTH · FEATURES |
+| **P2 Operations** | OFFLINE_AND_SYNC · BUILD_AND_RELEASE · TESTING · API_AND_ENV · LOCAL_DEV · API_CONTRACTS |
+| **P3 Journeys** | FLOWS_BY_ROLE (incl. QR/KM) · UI_ARCHITECTURE |
+
+**Owners:** LOCAL_DEV = Docker/LAN · API_CONTRACTS = wire · d2d/batches READMEs = feature behavior · FLOWS = operator paths · 05 = product story/locks · DISCUSSION_LOG = handoff pointer · 07 = smoke script. Do not recreate `backend/01–04` or `guides/`.
 
 ---
 

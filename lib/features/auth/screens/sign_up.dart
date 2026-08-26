@@ -7,6 +7,7 @@ import 'package:cts/utils/validators.dart';
 import 'package:cts/widgets/provider_listener.dart';
 import 'package:cts/widgets/common_button.dart';
 import 'package:cts/widgets/common_text_formfield.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -106,10 +107,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     return Column(
       children: [
-        Image.asset(
-          'assets/images/c2s.png',
-          height: 100,
-        ),
+        const CtsBrandLogo(),
         const SizedBox(height: 24.0),
         Text(
           'Create Account',

@@ -1,5 +1,5 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/features/d2d/models/d2d_channel_role_policy.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/models/d2d_commuter_model.dart';
@@ -21,6 +21,7 @@ class D2dConnectionLostBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     if (!provider.connectionLost || provider.isTripEnded) {
       return const SizedBox.shrink();
     }
@@ -77,6 +78,8 @@ class D2dTripHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     final theme = Theme.of(context);
 
     return Column(
@@ -94,14 +97,14 @@ class D2dTripHeader extends StatelessWidget {
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.2),
+                color: scheme.primary.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.event_rounded,
-                  color: AppColors.acYellowWarm,
+                  color: scheme.primary,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -130,7 +133,10 @@ class _LiveStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isLive ? AppColors.acGreen : AppColors.acRed;
+    final scheme = context.scheme;
+    final cts = context.cts;
+
+    final color = isLive ? cts.success : scheme.error;
     final label = isLive ? 'LIVE' : 'WAITING';
 
     return Semantics(
@@ -172,6 +178,8 @@ class D2dLiveControlsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+
     final scheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -185,7 +193,7 @@ class D2dLiveControlsBar extends StatelessWidget {
           Expanded(
             child: OutlinedButton.icon(
               onPressed: onCall,
-              icon: const Icon(Icons.call_rounded, size: 18),
+              icon: Icon(Icons.call_rounded, size: 18),
               label: Text(callLabel),
             ),
           ),
@@ -195,13 +203,13 @@ class D2dLiveControlsBar extends StatelessWidget {
             child: Icon(
               Icons.circle,
               size: 12,
-              color: isLive ? AppColors.acGreen : AppColors.acRed,
+              color: isLive ? cts.success : scheme.error,
             ),
           ),
           const SizedBox(width: 12),
           OutlinedButton.icon(
             onPressed: onToggleSort,
-            icon: const Icon(Icons.sort_rounded, size: 18),
+            icon: Icon(Icons.sort_rounded, size: 18),
             label: Text(isAscending ? 'Asc' : 'Desc'),
           ),
         ],
@@ -222,6 +230,8 @@ class D2dAlreadyInSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+
     if (commuters.isEmpty) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
@@ -234,14 +244,14 @@ class D2dAlreadyInSection extends StatelessWidget {
             Icon(
               Icons.check_circle_rounded,
               size: 20,
-              color: AppColors.acGreen,
+              color: cts.success,
             ),
             const SizedBox(width: 8),
             Text(
               'Already IN (${commuters.length})',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.acGreen,
+                color: cts.success,
               ),
             ),
           ],
@@ -280,11 +290,13 @@ class D2dAlreadyInTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+
     return ModernListCard(
       title: commuter.username,
       subtitle: 'Picked up · Stop #${commuter.inLine ?? '?'}',
       icon: Icons.check_circle_outline_rounded,
-      iconColor: AppColors.acGreen,
+      iconColor: cts.success,
       trailing: onCall == null
           ? null
           : IconButton(
@@ -300,14 +312,14 @@ class D2dAlreadyInTile extends StatelessWidget {
           icon: Icons.location_on_rounded,
           label: 'POP:',
           value: commuter.popId?.pickUpPointName ?? 'N/A',
-          iconColor: AppColors.acBlue,
+          iconColor: cts.info,
         ),
         if (commuter.mobileNumber?.isNotEmpty ?? false)
           InfoRow(
             icon: Icons.phone_android_rounded,
             label: 'Mobile:',
             value: commuter.mobileNumber,
-            iconColor: AppColors.acYellowDark,
+            iconColor: cts.yellowDark,
           ),
       ],
     );
@@ -328,6 +340,9 @@ class D2dDriverCommuterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
     final commuterId = commuter.id?.toString();
     final role = SessionRole.userType;
     final canConfirm =
@@ -348,8 +363,8 @@ class D2dDriverCommuterTile extends StatelessWidget {
                       provider.denyCommuter(commuterId);
                     }
                   },
-                  backgroundColor: AppColors.acRed,
-                  foregroundColor: AppColors.acWhite,
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
                   icon: Icons.delete_rounded,
                   label: 'Delete',
                   borderRadius: const BorderRadius.only(
@@ -372,8 +387,8 @@ class D2dDriverCommuterTile extends StatelessWidget {
                       provider.confirmCommuter(commuterId);
                     }
                   },
-                  backgroundColor: AppColors.acGreen,
-                  foregroundColor: AppColors.acWhite,
+                  backgroundColor: cts.success,
+                  foregroundColor: scheme.surface,
                   icon: Icons.check_circle_rounded,
                   label: 'Picked up',
                   borderRadius: const BorderRadius.only(
@@ -389,7 +404,7 @@ class D2dDriverCommuterTile extends StatelessWidget {
         title: commuter.username,
         subtitle: 'Stop #${commuter.inLine ?? '?'}',
         icon: Icons.person_rounded,
-        iconColor: AppColors.acYellowWarm,
+        iconColor: scheme.primary,
         trailing: IconButton(
           tooltip: 'Call commuter',
           onPressed: onCall,
@@ -403,14 +418,14 @@ class D2dDriverCommuterTile extends StatelessWidget {
             icon: Icons.location_on_rounded,
             label: 'POP:',
             value: commuter.popId?.pickUpPointName ?? 'N/A',
-            iconColor: AppColors.acBlue,
+            iconColor: cts.info,
           ),
           if (commuter.mobileNumber?.isNotEmpty ?? false)
             InfoRow(
               icon: Icons.phone_android_rounded,
               label: 'Mobile:',
               value: commuter.mobileNumber,
-              iconColor: AppColors.acYellowDark,
+              iconColor: cts.yellowDark,
             ),
         ],
       ),
@@ -432,6 +447,9 @@ class D2dAdminCommuterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
     final commuterId = commuter.id?.toString();
     final canRemove =
         D2dChannelRolePolicy.can(SessionRole.userType, D2dChannelAction.removeFromQueue);
@@ -440,7 +458,7 @@ class D2dAdminCommuterTile extends StatelessWidget {
       title: commuter.username,
       subtitle: 'ID ${commuter.id ?? '?'}',
       icon: Icons.person_rounded,
-      iconColor: AppColors.acYellowWarm,
+      iconColor: scheme.primary,
       trailing: IconButton(
         tooltip: 'Call commuter',
         onPressed: onCall,
@@ -454,13 +472,13 @@ class D2dAdminCommuterTile extends StatelessWidget {
           icon: Icons.location_on_rounded,
           label: 'POP:',
           value: commuter.popId?.pickUpPointName ?? 'N/A',
-          iconColor: AppColors.acBlue,
+          iconColor: cts.info,
         ),
         InfoRow(
           icon: Icons.format_list_numbered_rounded,
           label: 'Stop #:',
           value: commuter.inLine?.toString() ?? 'N/A',
-          iconColor: AppColors.acYellowDark,
+          iconColor: cts.yellowDark,
         ),
       ],
     );
@@ -481,8 +499,8 @@ class D2dAdminCommuterTile extends StatelessWidget {
                 provider.removeCommuter(commuterId);
               }
             },
-            backgroundColor: AppColors.acRed,
-            foregroundColor: AppColors.acWhite,
+            backgroundColor: scheme.error,
+            foregroundColor: scheme.surface,
             icon: Icons.delete_rounded,
             label: 'Delete',
             borderRadius: const BorderRadius.only(

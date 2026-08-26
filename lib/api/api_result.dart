@@ -10,15 +10,23 @@ enum ApiFailureType {
 }
 
 class ApiFailure {
-  const ApiFailure({required this.type, this.message, this.statusCode});
+  const ApiFailure({
+    required this.type,
+    this.message,
+    this.statusCode,
+    this.code,
+  });
 
   final ApiFailureType type;
   final String? message;
   final int? statusCode;
 
+  /// Backend business code when present (e.g. `km_required`, `expired_token`).
+  final String? code;
+
   @override
   String toString() =>
-      'ApiFailure(type: $type, statusCode: $statusCode, message: $message)';
+      'ApiFailure(type: $type, statusCode: $statusCode, code: $code, message: $message)';
 }
 
 class ApiResult<T> {

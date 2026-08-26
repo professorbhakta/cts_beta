@@ -1,5 +1,4 @@
 import 'package:cts/api/api_list.dart';
-import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/features/batches/models/return_intent_model.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository_impl.dart';
@@ -35,6 +34,10 @@ class _FakeApiService implements BaseApiServices {
     lastPostUrl = url;
     return postResponse;
   }
+
+  @override
+  Future<dynamic> postMultipart(dynamic data, String url) =>
+      throw UnimplementedError();
 }
 
 void main() {

@@ -16,6 +16,7 @@ class RouteName {
   static const String driverHomeScreen = '/driverHomeScreen';
   static const String commuterHomeScreen = '/commuterHomeScreen';
   static const String trackCabScreen = '/trackCabScreen';
+  static const String boardingScan = '/boardingScan';
 
   // Admin CRUD
   static const String routeForm = '/routeForm';
@@ -89,10 +90,11 @@ class RouteName {
     driverReturnCommuter,
   };
 
-  /// Commuter role home + cab tracking.
+  /// Commuter role home + cab tracking + boarding scan.
   static const Set<String> commuterOnlyPrefixes = {
     commuterHomeScreen,
     trackCabScreen,
+    boardingScan,
   };
 
   static String homeForRole(String? userType) {

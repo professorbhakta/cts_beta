@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/models/offline_pop.dart';
 import 'package:cts/offline_temp/utils/offline_validators.dart';
 import 'package:cts/offline_temp/utils/show_offline_text_dialog.dart';
@@ -42,15 +42,17 @@ class _OfflineRoutePopsScreenState extends State<OfflineRoutePopsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    final scheme = context.scheme;
+    final cts = context.cts;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.acBlack,
+        backgroundColor: scheme.onSurface,
         title: Text('POPs — $_routeName'),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddPopDialog(context),
-        icon: const Icon(Icons.add_location_alt),
+        icon: Icon(Icons.add_location_alt),
         label: const Text('POP'),
       ),
       body: _loading
@@ -77,7 +79,7 @@ class _OfflineRoutePopsScreenState extends State<OfflineRoutePopsScreen> {
                     title: pop.name,
                     subtitle: '${pop.commuterCount} commuter(s) assigned',
                     icon: Icons.location_on_rounded,
-                    iconColor: AppColors.acYellowDark,
+                    iconColor: cts.yellowDark,
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) async {
                         if (value == 'edit') {
@@ -157,6 +159,7 @@ class _OfflineRoutePopsScreenState extends State<OfflineRoutePopsScreen> {
 
   Future<void> _deletePop(BuildContext context, OfflinePop pop) async {
     final provider = context.read<OfflineTempProvider>();
+    final scheme = context.scheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => ConfirmationDialog(
@@ -165,9 +168,9 @@ class _OfflineRoutePopsScreenState extends State<OfflineRoutePopsScreen> {
             ? '"${pop.name}" has ${pop.commuterCount} commuter(s). Their POP will be cleared.'
             : 'Delete "${pop.name}"?',
         confirmLabel: 'Delete',
-        confirmColor: AppColors.acRed,
+        confirmColor: scheme.error,
         icon: Icons.delete_outline,
-        iconColor: AppColors.acRed,
+        iconColor: scheme.error,
       ),
     );
 

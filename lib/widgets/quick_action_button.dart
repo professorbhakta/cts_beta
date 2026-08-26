@@ -1,3 +1,4 @@
+import 'package:cts/appManager/colors.dart';
 import 'package:flutter/material.dart';
 
 /// Quick action tile for dashboard — horizontal layout, theme-aware.
@@ -63,7 +64,7 @@ class QuickActionButton extends StatelessWidget {
                     ),
                     child: Icon(
                       icon,
-                      color: isLight ? Colors.white : scheme.onPrimary,
+                      color: AppColors.onColor(effectiveColor),
                       size: 17,
                     ),
                   ),

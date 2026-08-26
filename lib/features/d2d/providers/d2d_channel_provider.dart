@@ -136,6 +136,8 @@ class D2dChannelProvider with ChangeNotifier {
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   int _connectGeneration = 0;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 8;
   DriverModel? _driver;
   List<D2dCommuterModel> _commuters = [];
   List<D2dCommuterModel> _alreadyInCommuters = [];
@@ -225,6 +227,7 @@ class D2dChannelProvider with ChangeNotifier {
 
     _connectedBatchId = batchId;
     _connectionLost = false;
+    _reconnectAttempts = 0;
     _state = ViewState.loading;
     _errorMessage = null;
     _actionErrorMessage = null;
@@ -281,19 +284,7 @@ class D2dChannelProvider with ChangeNotifier {
           );
         },
         onDone: () {
-          if (!_isConnected || _isDisposed) return;
-          if (_tripEnded || _isEndedTripClose(null)) {
-            _markTripEnded();
-            return;
-          }
-          if (_isAuthClose(null)) {
-            _handleAuthClose();
-            return;
-          }
-          if (kDebugMode) {
-            debugPrint('D2D: WebSocket connection closed');
-          }
-          _handleUnexpectedDisconnect();
+          unawaited(_handleSocketDone());
         },
       );
 
@@ -308,6 +299,29 @@ class D2dChannelProvider with ChangeNotifier {
       _errorMessage = "Failed to connect to the live channel. ${e.toString()}";
       _safeNotifyListeners();
     }
+  }
+
+  Future<void> _handleSocketDone() async {
+    if (!_isConnected || _isDisposed) return;
+
+    // closeCode may not be populated synchronously on some platforms.
+    await Future<void>.delayed(Duration.zero);
+    final closeCode = _channel?.closeCode;
+    if (kDebugMode) {
+      debugPrint(
+        'D2D: WebSocket closed (code: $closeCode, reason: ${_channel?.closeReason})',
+      );
+    }
+
+    if (_tripEnded || _isEndedTripClose(null)) {
+      _markTripEnded();
+      return;
+    }
+    if (_isAuthClose(null)) {
+      _handleAuthClose();
+      return;
+    }
+    _handleUnexpectedDisconnect();
   }
 
   bool _isEndedTripClose(Object? error) {
@@ -359,7 +373,11 @@ class D2dChannelProvider with ChangeNotifier {
     _channel = null;
     _connectionLost = true;
 
-    if (_commuters.isNotEmpty) {
+    final keepUiUsable = _commuters.isNotEmpty ||
+        _tripStatus == D2dTripStatus.active ||
+        (_connectedBatchId != null && !_tripEnded);
+
+    if (keepUiUsable) {
       _state = ViewState.success;
       _errorMessage = message ?? _connectionLostMessage;
     } else {
@@ -406,6 +424,27 @@ class D2dChannelProvider with ChangeNotifier {
   Future<void> _reconnectAfterDrop(String batchId) async {
     if (_isDisposed || _tripEnded) return;
     if (_isConnected && _channel != null) return;
+
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+      if (kDebugMode) {
+        debugPrint(
+          'D2D: Reconnect stopped after $_reconnectAttempts attempts',
+        );
+      }
+      _connectionLost = true;
+      if (_connectedBatchId != null && !_tripEnded) {
+        _state = ViewState.success;
+        _errorMessage =
+            'Live connection unavailable. KM and QR still work — tap Retry on the banner.';
+      }
+      _safeNotifyListeners();
+      return;
+    }
+
+    _reconnectAttempts++;
+    final backoffMs = 400 * _reconnectAttempts.clamp(1, 6);
+    await Future<void>.delayed(Duration(milliseconds: backoffMs));
+    if (_isDisposed || _tripEnded) return;
 
     _connectionLost = false;
     _errorMessage = null;
@@ -485,6 +524,7 @@ class D2dChannelProvider with ChangeNotifier {
 
       _connectionLost = false;
       _errorMessage = null;
+      _reconnectAttempts = 0;
 
       if (resultMap['driver'] is Map) {
         try {
@@ -682,6 +722,7 @@ class D2dChannelProvider with ChangeNotifier {
     _actionErrorMessage = null;
     _connectionLost = false;
     _connectedBatchId = null;
+    _reconnectAttempts = 0;
     _state = ViewState.idle;
 
     if (notify) {

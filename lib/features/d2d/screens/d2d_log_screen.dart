@@ -1,15 +1,19 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/d2d/helpers/client_pack_feedback.dart';
 import 'package:cts/features/d2d/models/d2d_channel_role_policy.dart';
+import 'package:cts/features/d2d/models/odometer_models.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
+import 'package:cts/features/d2d/widgets/boarding_qr_panel.dart';
 import 'package:cts/features/d2d/widgets/d2d_action_error_listener.dart';
 import 'package:cts/features/d2d/widgets/d2d_add_commuter_sheet.dart';
 import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
+import 'package:cts/features/d2d/widgets/odometer_km_sheet.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/widgets/admin_form_header.dart';
 import 'package:cts/widgets/app_drawer.dart';
@@ -30,6 +34,9 @@ class D2DLogScreen extends StatefulWidget {
 
 class _D2DLogScreenState extends State<D2DLogScreen> {
   D2dChannelProvider? _d2dProvider;
+  bool _startKmPrompted = false;
+  bool _startKmSheetOpen = false;
+  bool _stopping = false;
 
   @override
   void didChangeDependencies() {
@@ -46,6 +53,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   void _onD2dProviderChanged() {
     if (!mounted) return;
     handleD2dActionError(context, _d2dProvider);
+    _maybePromptStartKm();
   }
 
   @override
@@ -122,23 +130,136 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     );
   }
 
-  void _stopTrip() {
-    _d2dProvider?.stopTrip();
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go(RouteName.driverHomeScreen);
+  /// After live channel opens (or REST confirms active trip): prompt start KM once.
+  void _maybePromptStartKm() {
+    final provider = _d2dProvider;
+    if (provider == null ||
+        _startKmPrompted ||
+        _startKmSheetOpen ||
+        provider.isTripEnded) {
+      return;
+    }
+    final canDrive = D2dChannelRolePolicy.can(
+      SessionRole.userType,
+      D2dChannelAction.stopTrip,
+    );
+    if (!canDrive) return;
+
+    // Do not wait for a WS frame — KM is REST; WS drop must not block the sheet.
+    final tripReady = provider.state == ViewState.success ||
+        provider.tripStatus == D2dTripStatus.active ||
+        (provider.connectedBatchId != null && !provider.isTripEnded);
+    if (!tripReady) return;
+
+    _startKmPrompted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _showStartKmSheet();
+    });
+  }
+
+  Future<void> _showStartKmSheet() async {
+    if (_startKmSheetOpen || !mounted) return;
+    _startKmSheetOpen = true;
+    try {
+      final repo = context.read<D2dRepository>();
+      final existing = await repo.getOdometer(widget.batchId);
+      if (!mounted) return;
+      if (existing.isSuccess &&
+          existing.data?.morning.startKm != null) {
+        return;
+      }
+
+      // Prompt once: Close/Skip → continue trip without KM; Confirm → recorded.
+      final provider = _d2dProvider;
+      if (provider == null || provider.isTripEnded) {
+        return;
+      }
+      await OdometerKmSheet.show(
+        context,
+        batchId: widget.batchId,
+        mode: OdometerSheetMode.start,
+        leg: OdometerLeg.morning,
+      );
+    } finally {
+      _startKmSheetOpen = false;
+    }
+  }
+
+  Future<void> _stopTrip() async {
+    if (_stopping) return;
+    _stopping = true;
+    try {
+      final repo = context.read<D2dRepository>();
+      final existing = await repo.getOdometer(widget.batchId);
+      if (!mounted) return;
+
+      // Skip noisy end sheet when end KM already recorded.
+      var recorded = existing.isSuccess &&
+          existing.data?.morning.endKm != null;
+
+      if (!recorded) {
+        // Prefer end-KM sheet; soft STOP if driver dismisses without submit.
+        recorded = await OdometerKmSheet.show(
+              context,
+              batchId: widget.batchId,
+              mode: OdometerSheetMode.end,
+              leg: OdometerLeg.morning,
+            ) ==
+            true;
+      }
+
+      if (!mounted) return;
+      if (!recorded) {
+        final force = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('End KM not recorded'),
+            content: const Text(
+              'Stop the trip anyway? You can still stop without end KM '
+              '(soft stop).',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Stop anyway'),
+              ),
+            ],
+          ),
+        );
+        if (force != true || !mounted) return;
+        ClientPackFeedback.showError(
+          'Trip stopped without end KM. Record later if needed.',
+        );
+      }
+
+      _d2dProvider?.stopTrip();
+      if (!mounted) return;
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(RouteName.driverHomeScreen);
+      }
+    } finally {
+      _stopping = false;
     }
   }
 
   Widget _buildPreConnectBadge(BuildContext context, D2dTripStatus tripStatus) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+
     if (tripStatus == D2dTripStatus.unknown ||
         tripStatus == D2dTripStatus.none) {
       return const SizedBox.shrink();
     }
 
     final isEnded = tripStatus == D2dTripStatus.ended;
-    final color = isEnded ? AppColors.acRed : AppColors.acGreen;
+    final color = isEnded ? scheme.error : cts.success;
     final label = isEnded ? 'TRIP ENDED TODAY' : 'TRIP ACTIVE';
 
     return Padding(
@@ -170,6 +291,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     D2dChannelProvider provider,
     double fabPadding,
   ) {
+    final scheme = context.scheme;
     final isLive = provider.commuters.isNotEmpty;
     final liveCommuterIds = provider.commuters
         .map((c) => c.id)
@@ -207,6 +329,11 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           onToggleSort: provider.toggleSortOrder,
         ),
         const SizedBox(height: 16),
+        BoardingQrPanel(
+          batchId: widget.batchId,
+          enabled: !provider.isTripEnded &&
+              provider.tripStatus != D2dTripStatus.ended,
+        ),
         if (provider.alreadyInCommuters.isNotEmpty) ...[
           D2dAlreadyInSection(
             commuters: provider.alreadyInCommuters,
@@ -253,8 +380,8 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
             child: FloatingActionButton(
               heroTag: 'd2dDriverAddCommuter',
               tooltip: 'Add commuter',
-              backgroundColor: AppColors.acYellowWarm,
-              foregroundColor: AppColors.acBlack,
+              backgroundColor: scheme.primary,
+              foregroundColor: scheme.onPrimary,
               onPressed: () => D2dAddCommuterSheet.show(
                 context,
                 batchId: widget.batchId,
@@ -262,7 +389,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                 liveCommuterIds: liveCommuterIds,
                 alreadyInCommuterIds: alreadyInIds,
               ),
-              child: const Icon(Icons.person_add_rounded),
+              child: Icon(Icons.person_add_rounded),
             ),
           ),
       ],
@@ -271,6 +398,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     final fabPadding = d2dFabScrollPadding(context);
 
     return Scaffold(
@@ -280,7 +408,32 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         top: false,
         child: Consumer<D2dChannelProvider>(
           builder: (context, provider, child) {
-            if (provider.state == ViewState.loading) {
+            if (provider.isTripEnded) {
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  D2dTripHeader(
+                    title: 'Live Commuter Log',
+                    subtitle: 'Batch #${widget.batchId}',
+                    isLive: false,
+                  ),
+                  _buildPreConnectBadge(context, provider.tripStatus),
+                  const SizedBox(height: 24),
+                  StatusMessage.error(
+                    title: provider.errorMessage ?? 'This trip has ended.',
+                    onRetry: null,
+                  ),
+                ],
+              );
+            }
+
+            final showInitialLoading = provider.state == ViewState.loading &&
+                !provider.connectionLost &&
+                provider.commuters.isEmpty &&
+                provider.alreadyInCommuters.isEmpty &&
+                provider.tripStatus == D2dTripStatus.unknown;
+
+            if (showInitialLoading) {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -295,26 +448,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                 ],
               );
             }
-            if (provider.state == ViewState.error) {
-              return ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  D2dTripHeader(
-                    title: 'Live Commuter Log',
-                    subtitle: 'Batch #${widget.batchId}',
-                    isLive: false,
-                  ),
-                  _buildPreConnectBadge(context, provider.tripStatus),
-                  const SizedBox(height: 24),
-                  StatusMessage.error(
-                    title: provider.errorMessage ?? 'Connection failed',
-                    onRetry: provider.isTripEnded
-                        ? null
-                        : () => provider.connect(widget.batchId),
-                  ),
-                ],
-              );
-            }
 
             return _buildTripContent(context, provider, fabPadding);
           },
@@ -322,6 +455,8 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       ),
       floatingActionButton: Consumer<D2dChannelProvider>(
         builder: (context, provider, _) {
+    final scheme = context.scheme;
+
           final canStop = D2dChannelRolePolicy.can(
             SessionRole.userType,
             D2dChannelAction.stopTrip,
@@ -334,9 +469,9 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           return FloatingActionButton.extended(
             onPressed: _stopTrip,
             label: const Text('STOP TRIP'),
-            icon: const Icon(Icons.stop_circle_outlined),
-            backgroundColor: AppColors.acRed,
-            foregroundColor: AppColors.acWhite,
+            icon: Icon(Icons.stop_circle_outlined),
+            backgroundColor: scheme.error,
+            foregroundColor: scheme.surface,
           );
         },
       ),

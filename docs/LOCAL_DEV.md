@@ -1,6 +1,6 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-08-23 23:20 IST
-> **Session:** Django TIME_ZONE Asia/Kolkata (R7 T−15)
+> **Updated:** 2026-08-25 21:36 IST
+> **Session:** Canonical Docker/stack doc (merged former backend/01)
 
 # Local Development Setup
 
@@ -66,7 +66,7 @@ org.gradle.jvmargs is now **-Xmx2G** in `android/gradle.properties`. The previou
 
 See [TESTING.md](./TESTING.md) for the checklist.
 
-## Docker stack (`D:\cts-docker`)
+## Docker stack (`D:\cts-docker`) — canonical
 
 Start from Docker Desktop:
 
@@ -75,27 +75,75 @@ cd D:\cts-docker
 docker compose up -d
 ```
 
+Network: `backend` bridge. Django bind-mount `./django:/app/django`. Volumes: `postgres_data`, `c2s_media` (odometer photos → `/app/media`).
+
 ### Running containers
 
 | Container | Image | Ports | Role |
 |-----------|-------|-------|------|
 | C2S-Nginx | cts-docker-nginx | **80** → host | Reverse proxy + WS upgrade |
-| C2D-Django | cts-docker-c2s | internal 8000 | Uvicorn ASGI |
+| C2S-Django | cts-docker-c2s | internal 8000 | Uvicorn ASGI |
 | C2S-PostgresDB | cts-docker-postgres | internal 5432 | DB `c2s_dev_test` |
+| C2S-PostgresBackup | cts-docker-db-backup | — | Daily `pg_dump` → `postgres/backups/` |
 | C2S-redis | redis:latest | 6379 | Morning `d2d:live:…` + evening `{date}_{batch}` |
 
-### After backend code edits
+### Django startup (`django/entrypoint.sh`)
 
-Volume mount `./django:/app/django` — Python changes apply without rebuild:
+1. `python manage.py makemigrations`
+2. `python manage.py migrate`
+3. `python -m uvicorn c2s.asgi:application --host 0.0.0.0 --port 8000`
+
+### Settings highlights (`c2s/settings.py`)
+
+| Setting | Value | Note |
+|---------|-------|------|
+| `AUTH_USER_MODEL` | `user_servcies.User` | Login: mobileNumber |
+| `ASGI_APPLICATION` | `c2s.asgi.application` | HTTP + WebSocket |
+| `CHANNEL_LAYERS` | `RedisChannelLayer` | `redis://redis:6379/0` |
+| `CACHES` | django-redis → `redis://redis` | Django cache |
+| `MEDIA_ROOT` / `MEDIA_URL` | `/app/media` / `/media/` | Prefer auth photo download (D6) |
+| `FILE_UPLOAD_MAX_MEMORY_SIZE` | 5 MB | Odometer multipart |
+| `DEBUG` / `ALLOWED_HOSTS` | True / `["*"]` | Dev only |
+| `TIME_ZONE` | `Asia/Kolkata` (default) | Override `DJANGO_TIME_ZONE` |
+
+### Nginx
+
+- Upstream `c2s:8000`; WS upgrade headers; `proxy_read_timeout 86400`
+- **`client_max_body_size 8m`** (Django upload caps ~5–6 MB)
+
+### Root URL routing
+
+```
+/void/  → Django admin
+/user/  → user_servcies
+/cab/   → cab_services
+/d2d/   → d2d_log REST (odometer + boarding_* + return_batch)
+/ws/... → ASGI WebSocket (routing.py)
+```
+
+### Postgres backups
+
+Dumps land on the host at `D:\cts-docker\postgres\backups\backup_*.sql.gz` (gitignored).
+
+- **Automatic:** `C2S-PostgresBackup` on start, then every `BACKUP_INTERVAL_SEC` (default 86400). Retention: `BACKUP_RETENTION_DAYS` (default 7).
+- **Manual:**
+
+```powershell
+cd D:\cts-docker
+powershell -File .\scripts\pg_backup.ps1
+# or: docker exec C2S-PostgresDB /c2s/db_backup.sh
+```
+
+Do **not** set Postgres `entrypoint` to the backup script.
+
+### After backend / nginx / backup changes
 
 ```powershell
 docker restart C2S-Django
-```
-
-After `nginx.conf` changes:
-
-```powershell
-docker restart C2S-Nginx
+docker restart C2S-Nginx   # if nginx.conf changed
+cd D:\cts-docker; docker compose up -d db-backup   # if backup image/script changed
+docker exec C2S-Nginx sh -c "nginx -T 2>&1 | grep client_max_body_size"
+# expect: client_max_body_size 8m;
 ```
 
 ### Verify
@@ -105,13 +153,14 @@ docker ps
 docker logs C2S-Django --tail 30
 ```
 
-Postman WebSocket test: `ws://<LAN-IP>/ws/1/` with `Cookie: sessionid=<login session>` (anonymous connect is closed **4401**).
+Postman WebSocket: `ws://<LAN-IP>/ws/1/` with `Cookie: sessionid=<login session>` (anonymous → **4401**).
 
 ### Backend verification scripts
 
 ```powershell
 docker exec -w /app/django C2S-Django python d2d_log/test_d2d_fixes.py
 docker exec -w /app/django C2S-Django python d2d_log/test_return_batch_fixes.py
+docker exec -w /app/django -e DJANGO_SETTINGS_MODULE=c2s.settings C2S-Django python manage.py test d2d_log.test_odometer d2d_log.test_boarding_scan
 ```
 
 ### Redis spot-check
@@ -123,18 +172,16 @@ docker exec C2S-redis redis-cli SMEMBERS "05-08-2026_1"
 
 ## Backend env (`D:\cts-docker\.env`)
 
-Copy from `.env.example`. Key vars: `SECRET_KEY`, `DB_HOST=postgres`, `DB_NAME`, `POSTGRES_*`.
+Copy from `.env.example`. Key vars: `SECRET_KEY`, `DB_HOST=postgres`, `DB_NAME`, `POSTGRES_*`, optional `BACKUP_INTERVAL_SEC` / `BACKUP_RETENTION_DAYS`.
 
-**Timezone (R7 T−15):** Django default `TIME_ZONE=Asia/Kolkata` so `Batch.end_time` matches college wall-clock. Optional override: `DJANGO_TIME_ZONE` in `.env` (see `.env.example`). After changing TZ, restart `C2S-Django`. Verify: `docker exec C2S-Django python manage.py shell -c "from django.conf import settings; print(settings.TIME_ZONE)"`.
+**Timezone (R7 T−15):** default `TIME_ZONE=Asia/Kolkata`. Optional `DJANGO_TIME_ZONE` in `.env`. After change: `docker restart C2S-Django`. Verify: `docker exec C2S-Django python manage.py shell -c "from django.conf import settings; print(settings.TIME_ZONE)"`.
 
 ## Seed data (dev DB)
 
-Two orgs (do **not** wipe either without asking):
-
 | Org | Admin mobile | Notes |
 |-----|--------------|--------|
-| Dump (Parul) | `9898927941` | Original `postgres/dumps20.sql` (~3 batches, 5 commuters) |
-| Dummy QA | `7069036462` / `password` | `seed/load_cts_dummy.py` — 10 batches, 1500 commuters, 15 `isComing`/batch, cab capacity **53** |
+| Dump (Parul) | `9898927941` | Original `postgres/dumps20.sql` |
+| Dummy QA | `7069036462` / `password` | `seed/load_cts_dummy.py` |
 
 QA logins (password `password`): Driver 1 `9876544111`, UG1 `9876556701`. Phone cold-start of a stale APK can crash; reinstall with `flutter run -d 5f36af49`.
 
@@ -143,18 +190,18 @@ QA logins (password `password`): Driver 1 `9876544111`, UG1 `9876556701`. Phone 
 | Symptom | Check |
 |---------|-------|
 | Connection refused from phone | Same Wi‑Fi, firewall, correct LAN IP in `.env` |
-| WebSocket fails | Nginx upgrade headers; session cookie on handshake; see `D:\cts-docker\WEBSOCKET_FIXES.md` |
-| REST 404 | Path must include `d2d/` prefix for return batch — see [API_CONTRACTS.md](./API_CONTRACTS.md) |
-| Return batch empty | Batch needs driver+cab for capacity; confirmed riders are hidden from Available |
+| WebSocket fails | Nginx upgrade headers; session cookie; see `D:\cts-docker\WEBSOCKET_FIXES.md` |
+| REST 404 | Path must include `d2d/` prefix — [API_CONTRACTS.md](./API_CONTRACTS.md) |
+| Return batch empty | Batch needs driver+cab; confirmed riders hidden from Available |
 | Empty running batches | Driver must connect WS first to create active DTODLOG |
-| Gradle daemon disappeared / hs_err OOM | Lower `org.gradle.jvmargs` to `-Xmx2G` while the emulator is up |
-| Xiaomi: app install OK but launcher stays | Tap `cts_beta`; enable USB debugging (Security settings) for `adb input` |
-| Pixel “Try out your stylus” overlay | Dismiss Gboard handwriting sheet; it steals LOGIN / + taps |
-| Emulator taskbar icon, no window | Window at `Y ≈ -942`. Win+Left, or `SetWindowPos` qemu to `(40, 16)` |
-| Emulator taller than the laptop | `window.scale=0.25` in `Pixel_10_Pro.avd\emulator-user.ini` (work area 1536×816) |
+| Gradle daemon / hs_err OOM | `org.gradle.jvmargs=-Xmx2G` while emulator is up |
+| Xiaomi launcher stays | Tap `cts_beta`; enable USB debugging (Security) |
+| Emulator off-screen / too tall | Win+Left; `window.scale=0.25` in AVD `emulator-user.ini` |
 
 ## Related
 
-- [API_CONTRACTS.md](./API_CONTRACTS.md)
-- [backend/01-docker-stack.md](./backend/01-docker-stack.md)
+- [API_CONTRACTS.md](./API_CONTRACTS.md) — REST + WS wire contracts
 - [API_AND_ENV.md](./API_AND_ENV.md)
+- [lib/features/d2d/README.md](../lib/features/d2d/README.md)
+- [lib/features/batches/README.md](../lib/features/batches/README.md)
+- [backend/README.md](./backend/README.md) — thin pointer only

@@ -1,5 +1,5 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/admin_home/providers/admin_provider.dart';
@@ -98,20 +98,22 @@ class _D2dChannelState extends State<D2dChannel> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    final scheme = context.scheme;
+
     final fabPadding = d2dFabScrollPadding(context);
 
     return DashboardShell(
       title: 'D2D Channel',
       fab: FloatingActionButton.extended(
         onPressed: _leaveChannel,
-        backgroundColor: AppColors.acRed,
-        foregroundColor: AppColors.acWhite,
-        icon: const Icon(Icons.close_rounded),
+        backgroundColor: scheme.error,
+        foregroundColor: scheme.surface,
+        icon: Icon(Icons.close_rounded),
         label: const Text('Close channel'),
       ),
       child: Consumer<D2dChannelProvider>(
-        builder: (context, provider, child) {
+        builder: (context, provider, child) {    final scheme = context.scheme;
+
           if (provider.state == ViewState.loading) {
             return const LoadingIndicator(height: 280);
           }
@@ -235,8 +237,8 @@ class _D2dChannelState extends State<D2dChannel> {
                   child: FloatingActionButton(
                     heroTag: 'd2dAddCommuter',
                     tooltip: 'Add commuter',
-                    backgroundColor: AppColors.acYellowWarm,
-                    foregroundColor: AppColors.acBlack,
+                    backgroundColor: scheme.primary,
+                    foregroundColor: scheme.onSurface,
                     onPressed: () => D2dAddCommuterSheet.show(
                       context,
                       batchId: widget.batchId,
@@ -244,7 +246,7 @@ class _D2dChannelState extends State<D2dChannel> {
                       liveCommuterIds: liveCommuterIds,
                       alreadyInCommuterIds: alreadyInIds,
                     ),
-                    child: const Icon(Icons.person_add_rounded),
+                    child: Icon(Icons.person_add_rounded),
                   ),
                 ),
             ],

@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/pops/providers/pop_controller.dart';
@@ -74,40 +74,40 @@ class _PopFormState extends State<PopForm> {
                     decoration: InputDecoration(
                       labelText: 'Pick-Up Point Name',
                       hintText: 'Enter pick-up point name',
-                      prefixIcon: const Icon(Icons.location_on_rounded),
-                      prefixIconColor: AppColors.acYellowWarm,
+                      prefixIcon: Icon(Icons.location_on_rounded),
+                      prefixIconColor: scheme.primary,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm,
+                          color: scheme.primary,
                           width: 2,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 1.5,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 2,
                         ),
                       ),
@@ -130,40 +130,40 @@ class _PopFormState extends State<PopForm> {
                     decoration: InputDecoration(
                       labelText: 'Stop Number (in line)',
                       hintText: 'Enter stop number',
-                      prefixIcon: const Icon(Icons.numbers_rounded),
-                      prefixIconColor: AppColors.acYellowWarm,
+                      prefixIcon: Icon(Icons.numbers_rounded),
+                      prefixIconColor: scheme.primary,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm,
+                          color: scheme.primary,
                           width: 2,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 1.5,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 2,
                         ),
                       ),
@@ -194,7 +194,7 @@ class _PopFormState extends State<PopForm> {
                         : 'Create Pick-Up Point',
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     borderRadius: BorderRadius.circular(12),
-                    borderColor: AppColors.acYellowWarm,
+                    borderColor: scheme.primary,
                     fontSize: 16,
                     isLoading: _isSubmitting,
                     onPressed: _isSubmitting
@@ -247,8 +247,8 @@ class _PopFormState extends State<PopForm> {
                               }
                             }
                           },
-                    backgroundColor: AppColors.acYellowWarm,
-                    textColor: AppColors.acBlack,
+                    backgroundColor: scheme.primary,
+                    textColor: scheme.onSurface,
                   ),
                 ],
               ),
@@ -261,7 +261,8 @@ class _PopFormState extends State<PopForm> {
 
   Widget _buildRouteDropdown() {
     return Consumer<RouteController>(
-      builder: (context, routeProvider, child) {
+      builder: (context, routeProvider, child) {    final scheme = context.scheme;
+
         final formProvider = context.read<PopFormProvider>();
 
         if (routeProvider.state == ViewState.loading) {
@@ -269,7 +270,7 @@ class _PopFormState extends State<PopForm> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -284,7 +285,7 @@ class _PopFormState extends State<PopForm> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acRed,
+                color: scheme.error,
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -292,7 +293,7 @@ class _PopFormState extends State<PopForm> {
             ),
             child: Text(
               'Error loading routes: ${routeProvider.errorMessage}',
-              style: TextStyle(color: AppColors.acRed),
+              style: TextStyle(color: scheme.error),
             ),
           );
         }

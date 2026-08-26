@@ -122,6 +122,7 @@ class ApiResponseContract {
         ApiFailure(
           type: ApiFailureType.invalidRequest,
           message: contract.message,
+          code: contract.code,
         ),
       );
     }
@@ -144,6 +145,7 @@ class ApiResponseContract {
         ApiFailure(
           type: ApiFailureType.invalidRequest,
           message: contract.message,
+          code: contract.code,
         ),
       );
     }

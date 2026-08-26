@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/cabs/providers/cab_controller.dart';
@@ -73,40 +73,40 @@ class _CabFormState extends State<CabForm> {
                     decoration: InputDecoration(
                       labelText: 'Registration Number',
                       hintText: 'Enter registration (e.g., GJ00XX0000)',
-                      prefixIcon: const Icon(Icons.confirmation_number_rounded),
-                      prefixIconColor: AppColors.acYellowWarm,
+                      prefixIcon: Icon(Icons.confirmation_number_rounded),
+                      prefixIconColor: scheme.primary,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm,
+                          color: scheme.primary,
                           width: 2,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 1.5,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 2,
                         ),
                       ),
@@ -128,40 +128,40 @@ class _CabFormState extends State<CabForm> {
                     decoration: InputDecoration(
                       labelText: 'Capacity',
                       hintText: 'Enter seating capacity',
-                      prefixIcon: const Icon(Icons.people_rounded),
-                      prefixIconColor: AppColors.acYellowWarm,
+                      prefixIcon: Icon(Icons.people_rounded),
+                      prefixIconColor: scheme.primary,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm,
+                          color: scheme.primary,
                           width: 2,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 1.5,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 2,
                         ),
                       ),
@@ -186,40 +186,40 @@ class _CabFormState extends State<CabForm> {
                     decoration: InputDecoration(
                       labelText: 'Distance (KM)',
                       hintText: 'Enter distance in kilometers',
-                      prefixIcon: const Icon(Icons.straighten_rounded),
-                      prefixIconColor: AppColors.acYellowWarm,
+                      prefixIcon: Icon(Icons.straighten_rounded),
+                      prefixIconColor: scheme.primary,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm,
+                          color: scheme.primary,
                           width: 2,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 1.5,
                         ),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acRed,
+                          color: scheme.error,
                           width: 2,
                         ),
                       ),
@@ -245,26 +245,26 @@ class _CabFormState extends State<CabForm> {
                     decoration: InputDecoration(
                       labelText: 'Fleet tracking vehicle ID (optional)',
                       hintText: 'e.g. ref17849780231903099150',
-                      prefixIcon: const Icon(Icons.my_location_rounded),
-                      prefixIconColor: AppColors.acYellowWarm,
+                      prefixIcon: Icon(Icons.my_location_rounded),
+                      prefixIconColor: scheme.primary,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                          color: scheme.primary.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: AppColors.acYellowWarm,
+                          color: scheme.primary,
                           width: 2,
                         ),
                       ),
@@ -282,7 +282,7 @@ class _CabFormState extends State<CabForm> {
                         : 'Create Cab',
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     borderRadius: BorderRadius.circular(12),
-                    borderColor: AppColors.acYellowWarm,
+                    borderColor: scheme.primary,
                     fontSize: 16,
                     isLoading: _isSubmitting,
                     onPressed: _isSubmitting
@@ -339,8 +339,8 @@ class _CabFormState extends State<CabForm> {
                               }
                             }
                           },
-                    backgroundColor: AppColors.acYellowWarm,
-                    textColor: AppColors.acBlack,
+                    backgroundColor: scheme.primary,
+                    textColor: scheme.onSurface,
                   ),
                 ],
               ),
@@ -353,7 +353,8 @@ class _CabFormState extends State<CabForm> {
 
   Widget _buildRouteDropdown() {
     return Consumer<RouteController>(
-      builder: (context, routeProvider, child) {
+      builder: (context, routeProvider, child) {    final scheme = context.scheme;
+
         final formProvider = context.read<CabFormProvider>();
 
         if (routeProvider.state == ViewState.loading) {
@@ -361,7 +362,7 @@ class _CabFormState extends State<CabForm> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -376,7 +377,7 @@ class _CabFormState extends State<CabForm> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acRed,
+                color: scheme.error,
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -384,7 +385,7 @@ class _CabFormState extends State<CabForm> {
             ),
             child: Text(
               'Error loading routes: ${routeProvider.errorMessage}',
-              style: TextStyle(color: AppColors.acRed),
+              style: TextStyle(color: scheme.error),
             ),
           );
         }

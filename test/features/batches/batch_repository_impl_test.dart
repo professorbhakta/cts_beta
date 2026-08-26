@@ -24,6 +24,10 @@ class _FakeApiService implements BaseApiServices {
 
   @override
   Future<dynamic> postApi(dynamic data, String url) async => responses['post'];
+
+  @override
+  Future<dynamic> postMultipart(dynamic data, String url) async =>
+      responses['postMultipart'] ?? responses['post'];
 }
 
 void main() {

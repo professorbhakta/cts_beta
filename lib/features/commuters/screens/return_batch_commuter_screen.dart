@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/providers/return_batch_provider.dart';
@@ -102,21 +102,22 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   }
 
   Future<void> _endReturnTrip(ReturnBatchProvider provider) async {
+    final scheme = context.scheme;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('End return trip?'),
         content: const Text(
           'This clears today\'s confirmed return list. Commuters can be confirmed again after refresh.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.acRed),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: FilledButton.styleFrom(backgroundColor: scheme.error),
             child: const Text('End trip'),
           ),
         ],
@@ -155,12 +156,15 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: const BrandAppBar(),
       floatingActionButton: (!widget.canEndTrip || widget.readOnly)
           ? null
           : Consumer<ReturnBatchProvider>(
               builder: (context, provider, _) {
+    final scheme = context.scheme;
+
                 if (provider.state != ViewState.success) {
                   return const SizedBox.shrink();
                 }
@@ -169,9 +173,9 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                   onPressed: provider.actionInProgress
                       ? null
                       : () => _endReturnTrip(provider),
-                  backgroundColor: AppColors.acRed,
-                  foregroundColor: AppColors.acWhite,
-                  icon: const Icon(Icons.flag_rounded),
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
+                  icon: Icon(Icons.flag_rounded),
                   label: const Text('End return'),
                 );
               },
@@ -179,6 +183,8 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
       body: SafeArea(
         child: Consumer<ReturnBatchProvider>(
           builder: (context, provider, _) {
+    final scheme = context.scheme;
+
             if (!provider.isDisplayingBatch(widget.batchId)) {
               return const LoadingIndicator();
             }
@@ -267,7 +273,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                           isActive: isActive,
                         ),
                         actionLabel: 'Remove',
-                        actionColor: AppColors.acRed,
+                        actionColor: scheme.error,
                         actionIcon: Icons.remove_circle_outline,
                         onAction: (commuter) =>
                             _removeCommuter(provider, commuter),
@@ -334,6 +340,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
 
   @override
   Widget build(BuildContext context) {
+
     final home = _filter(widget.home);
     final overflow = _filter(widget.overflow);
     final isEmpty = widget.home.isEmpty && widget.overflow.isEmpty;
@@ -434,6 +441,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
     CommuterModel commuter, {
     required bool confirmAllowed,
   }) {
+    final cts = context.cts;
     final mobile = commuter.userId?.mobileNumber ?? '';
     final pop = commuter.popId?.pickUpPointName ?? 'N/A';
     final batch = commuter.batchId?.batchName;
@@ -443,7 +451,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
       subtitle: Text(subtitle),
       trailing: IconButton(
         tooltip: 'Call commuter',
-        icon: const Icon(Icons.call),
+        icon: Icon(Icons.call),
         onPressed: mobile.isEmpty ? null : () => calling(mobile),
       ),
     );
@@ -460,7 +468,8 @@ class _AvailableListTabState extends State<_AvailableListTab> {
             onPressed: widget.actionInProgress
                 ? null
                 : (_) => widget.onConfirm(commuter),
-            backgroundColor: AppColors.acGreen,
+            backgroundColor: cts.success,
+            foregroundColor: context.scheme.onInverseSurface,
             icon: Icons.check_circle_outline,
             label: 'Confirm',
           ),
@@ -499,6 +508,8 @@ class _CapacityBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     final theme = Theme.of(context);
 
     return Container(
@@ -507,12 +518,12 @@ class _CapacityBanner extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.acYellowWarm.withValues(alpha: 0.25),
+          color: scheme.primary.withValues(alpha: 0.25),
         ),
       ),
       child: Row(
         children: [
-          Icon(Icons.event_seat, color: AppColors.acYellowWarm),
+          Icon(Icons.event_seat, color: scheme.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -595,6 +606,7 @@ class _CommuterListTabState extends State<_CommuterListTab> {
 
   @override
   Widget build(BuildContext context) {
+
     if (widget.commuters.isEmpty) {
       return RefreshIndicator(
         onRefresh: widget.onRefresh,
@@ -652,7 +664,7 @@ class _CommuterListTabState extends State<_CommuterListTab> {
                         subtitle: Text(subtitle),
                         trailing: IconButton(
                           tooltip: 'Call commuter',
-                          icon: const Icon(Icons.call),
+                          icon: Icon(Icons.call),
                           onPressed: mobile.isEmpty
                               ? null
                               : () => calling(mobile),

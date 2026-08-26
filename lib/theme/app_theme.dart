@@ -1,4 +1,5 @@
 import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,25 +13,28 @@ class AppTheme {
       onPrimary: AppColors.acBlack,
       primaryContainer: AppColors.acYellowSoft,
       onPrimaryContainer: AppColors.acBlack,
-      secondary: AppColors.acYellowDark,
+      secondary: AppColors.acNavy,
       onSecondary: AppColors.acWhite,
-      secondaryContainer: AppColors.acYellowLight,
-      onSecondaryContainer: AppColors.acBlack,
+      secondaryContainer: AppColors.acNavySoft,
+      onSecondaryContainer: AppColors.acNavy,
       tertiary: AppColors.acYellowBright,
       onTertiary: AppColors.acBlack,
       error: AppColors.acRed,
       onError: AppColors.acWhite,
       surface: AppColors.acWhite,
       onSurface: AppColors.acBlack,
-      surfaceContainerHighest: AppColors.acWhiteOff,
+      surfaceContainerHighest: AppColors.acCream,
       onSurfaceVariant: AppColors.acBlackLight,
       outline: AppColors.acBlackLighter.withValues(alpha: 0.2),
       outlineVariant: AppColors.acYellowSoft,
+      inverseSurface: AppColors.acBlack,
+      onInverseSurface: AppColors.acWhite,
     );
 
     return _buildTheme(
       colorScheme: colorScheme,
-      scaffoldBackground: AppColors.acBackGround,
+      ctsColors: CtsColors.light(),
+      scaffoldBackground: AppColors.acCream,
       appBarBackground: AppColors.acBlack,
       appBarForeground: AppColors.acWhite,
       cardColor: AppColors.acWhite,
@@ -46,13 +50,13 @@ class AppTheme {
       primary: AppColors.acYellowWarm,
       onPrimary: AppColors.acBlack,
       primaryContainer: AppColors.acYellowDark,
-      onPrimaryContainer: AppColors.acWhite,
-      secondary: AppColors.acYellowBright,
-      onSecondary: AppColors.acBlack,
-      secondaryContainer: AppColors.acBlackLighter,
-      onSecondaryContainer: AppColors.acYellowSoft,
-      tertiary: AppColors.acOrangeBright,
-      onTertiary: AppColors.acBlack,
+      onPrimaryContainer: AppColors.acBlack,
+      secondary: AppColors.acNavyLight,
+      onSecondary: AppColors.acWhite,
+      secondaryContainer: AppColors.acNavy,
+      onSecondaryContainer: AppColors.acWhite,
+      tertiary: AppColors.acNavyMuted,
+      onTertiary: AppColors.acWhite,
       error: AppColors.acRed,
       onError: AppColors.acWhite,
       surface: AppColors.acBlackLight,
@@ -61,10 +65,13 @@ class AppTheme {
       onSurfaceVariant: AppColors.acWhiteOff,
       outline: AppColors.acWhite.withValues(alpha: 0.24),
       outlineVariant: AppColors.acBlackLighter,
+      inverseSurface: AppColors.acCream,
+      onInverseSurface: AppColors.acBlack,
     );
 
     return _buildTheme(
       colorScheme: colorScheme,
+      ctsColors: CtsColors.dark(),
       scaffoldBackground: AppColors.acBlack,
       appBarBackground: AppColors.acBlack,
       appBarForeground: AppColors.acWhite,
@@ -78,6 +85,7 @@ class AppTheme {
 
   static ThemeData _buildTheme({
     required ColorScheme colorScheme,
+    required CtsColors ctsColors,
     required Color scaffoldBackground,
     required Color appBarBackground,
     required Color appBarForeground,
@@ -92,6 +100,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       visualDensity: VisualDensity.standard,
+      extensions: [ctsColors],
     );
 
     final textTheme = GoogleFonts.interTextTheme(base.textTheme).apply(
@@ -154,8 +163,15 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: textOnSurface,
         ),
+        // Selected chips use yellow → black label (on-yellow rule)
+        secondaryLabelStyle: GoogleFonts.inter(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.acBlack,
+        ),
         backgroundColor: chipBackground,
         selectedColor: chipSelected,
+        checkmarkColor: AppColors.acBlack,
         side: BorderSide.none,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -169,11 +185,11 @@ class AppTheme {
         border: inputBorder,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acYellowWarm, width: 1.5),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acYellowWarm, width: 2),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -207,7 +223,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.secondary,
           minimumSize: const Size(48, 40),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -216,9 +232,9 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: colorScheme.onSurface,
+          foregroundColor: colorScheme.secondary,
           minimumSize: const Size(48, 48),
-          side: BorderSide(color: colorScheme.outline),
+          side: BorderSide(color: colorScheme.secondary),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -286,23 +302,38 @@ class AppTheme {
       ),
       navigationDrawerTheme: NavigationDrawerThemeData(
         backgroundColor: colorScheme.surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.25),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.acBlack;
+            }
+            return colorScheme.onSurface;
+          }),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return colorScheme.primary;
+            }
+            return colorScheme.surface;
+          }),
+        ),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppColors.acGreen;
+            return ctsColors.success;
           }
-          return AppColors.acRed;
+          return colorScheme.error;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppColors.acGreen.withValues(alpha: 0.4);
+            return ctsColors.success.withValues(alpha: 0.4);
           }
-          return AppColors.acRed.withValues(alpha: 0.3);
+          return colorScheme.error.withValues(alpha: 0.3);
         }),
       ),
     );
   }
 }
-

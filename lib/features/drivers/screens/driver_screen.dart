@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -164,11 +164,12 @@ class _DriverScreenState extends State<DriverScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Drivers',
       actions: [
         IconButton(
-          icon: const Icon(Icons.add),
+          icon: Icon(Icons.add),
           tooltip: 'Add Driver',
           iconSize: 36,
           onPressed: () {
@@ -179,6 +180,7 @@ class _DriverScreenState extends State<DriverScreen> {
       ],
       child: Consumer<DriverProvider>(
         builder: (context, dc, child) {
+
           // Show skeleton loader on initial load
           if (dc.state == ViewState.loading && dc.drivers.isEmpty) {
             return ListView(
@@ -311,6 +313,8 @@ class _DriverList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       sliver: SliverList.separated(
@@ -327,8 +331,8 @@ class _DriverList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onDelete(driver),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.surface,
                 icon: Icons.delete_rounded,
                 label: 'Delete',
                 borderRadius: const BorderRadius.only(
@@ -345,8 +349,8 @@ class _DriverList extends StatelessWidget {
             children: [
               SlidableAction(
                 onPressed: (_) => onEdit(driver),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.surface,
                 icon: Icons.edit_rounded,
                 label: 'Edit',
                 borderRadius: const BorderRadius.only(
@@ -360,7 +364,7 @@ class _DriverList extends StatelessWidget {
           child: ModernListCard(
             title: driver.userId?.username ?? 'Untitled driver',
             icon: Icons.person_outline_rounded,
-            iconColor: AppColors.acYellowWarm,
+            iconColor: scheme.primary,
             onLongPress: () => ListItemActionsSheet.show(
               context,
               onEdit: () => onEdit(driver),
@@ -371,13 +375,13 @@ class _DriverList extends StatelessWidget {
                 icon: Icons.directions_car_rounded,
                 label: 'Cab:',
                 value: driver.cabId?.regNumber ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
+                iconColor: scheme.primary,
               ),
               InfoRow(
                 icon: Icons.directions_bus_rounded,
                 label: 'Batch:',
                 value: driver.batchId?.batchName ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
+                iconColor: scheme.primary,
               ),
               if (driver.userId?.mobileNumber != null &&
                   driver.userId!.mobileNumber!.isNotEmpty)
@@ -385,7 +389,7 @@ class _DriverList extends StatelessWidget {
                   icon: Icons.phone_rounded,
                   label: 'Mobile:',
                   value: driver.userId!.mobileNumber!,
-                  iconColor: AppColors.acYellowWarm,
+                  iconColor: scheme.primary,
                 ),
             ],
           ),

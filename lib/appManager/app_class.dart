@@ -161,6 +161,9 @@ class AppManager {
       debugPrint(
         "await Permission.location.isGranted ${await Permission.location.isGranted}",
       );
+      debugPrint(
+        "await Permission.camera.isGranted ${await Permission.camera.isGranted}",
+      );
     }
 
     if (!await Permission.phone.isGranted) {
@@ -172,6 +175,11 @@ class AppManager {
 
     if (!await Permission.location.isGranted) {
       await Permission.location.request();
+    }
+
+    // Client pack: odometer photo + boarding QR scan (camera only).
+    if (!await Permission.camera.isGranted) {
+      await Permission.camera.request();
     }
   }
 

@@ -1,11 +1,11 @@
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/controller_reset_util.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:cts/core/sync/sync_manager.dart';
 import 'package:cts/offline_temp/screens/offline_home_screen.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -27,18 +27,30 @@ class AdminNavList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+    final theme = context.theme;
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
     final isAdmin = SessionRole.isAdmin;
     final homeRoute = SessionRole.homeRoute;
 
     final topInset = MediaQuery.paddingOf(context).top;
+    final drawerBg =
+        theme.appBarTheme.backgroundColor ?? scheme.inverseSurface;
+    final onDrawer = scheme.onInverseSurface;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.acBlack, AppColors.acBlackLight],
+          colors: [
+            drawerBg,
+            Color.alphaBlend(
+              onDrawer.withValues(alpha: 0.08),
+              drawerBg,
+            ),
+          ],
         ),
       ),
       child: ListView(
@@ -48,14 +60,14 @@ class AdminNavList extends StatelessWidget {
           Container(
             padding: EdgeInsets.fromLTRB(20, topInset + 16, 20, 20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.acYellowWarm, AppColors.acYellowBright],
+                colors: [scheme.primary, cts.yellowBright],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                  color: scheme.primary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -68,12 +80,12 @@ class AdminNavList extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppColors.acWhite.withValues(alpha: 0.3),
+                      color: scheme.onPrimary.withValues(alpha: 0.3),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.acBlack.withValues(alpha: 0.2),
+                        color: scheme.onSurface.withValues(alpha: 0.2),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -87,8 +99,8 @@ class AdminNavList extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   _getDisplayName(),
-                  style: const TextStyle(
-                    color: AppColors.acWhite,
+                  style: TextStyle(
+                    color: scheme.onPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
@@ -98,7 +110,7 @@ class AdminNavList extends StatelessWidget {
                 Text(
                   _getDisplayMobile(),
                   style: TextStyle(
-                    color: AppColors.acWhite.withValues(alpha: 0.9),
+                    color: scheme.onPrimary.withValues(alpha: 0.9),
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                   ),
@@ -117,7 +129,7 @@ class AdminNavList extends StatelessWidget {
                 : Icons.home_rounded,
             title: isAdmin ? 'Dashboard' : 'Home',
             route: homeRoute,
-            color: AppColors.acYellowWarm,
+            color: scheme.primary,
             isSelected: currentRoute == homeRoute,
           ),
           _navTile(
@@ -125,7 +137,7 @@ class AdminNavList extends StatelessWidget {
             icon: Icons.person_rounded,
             title: 'Profile',
             route: RouteName.profileScreen,
-            color: AppColors.acYellowBright,
+            color: cts.yellowBright,
             isSelected: currentRoute == RouteName.profileScreen,
           ),
 
@@ -139,7 +151,7 @@ class AdminNavList extends StatelessWidget {
               child: Text(
                 'MANAGEMENT',
                 style: TextStyle(
-                  color: AppColors.acYellowBright.withValues(alpha: 0.6),
+                  color: cts.yellowBright.withValues(alpha: 0.6),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
@@ -152,7 +164,7 @@ class AdminNavList extends StatelessWidget {
               icon: Icons.people_alt_rounded,
               title: 'Commuters',
               route: RouteName.commuterScreen,
-              color: AppColors.acYellowWarm,
+              color: scheme.primary,
               isSelected: currentRoute == RouteName.commuterScreen,
             ),
             _navTile(
@@ -160,7 +172,7 @@ class AdminNavList extends StatelessWidget {
               icon: Icons.location_on_rounded,
               title: 'Pick-up Points',
               route: RouteName.popScreen,
-              color: AppColors.acYellowDark,
+              color: cts.yellowDark,
               isSelected: currentRoute == RouteName.popScreen,
             ),
             _navTile(
@@ -168,7 +180,7 @@ class AdminNavList extends StatelessWidget {
               icon: Icons.directions_bus_rounded,
               title: 'Batches',
               route: RouteName.batchScreen,
-              color: AppColors.acYellowBright,
+              color: cts.yellowBright,
               isSelected: currentRoute == RouteName.batchScreen,
             ),
             _navTile(
@@ -176,7 +188,7 @@ class AdminNavList extends StatelessWidget {
               icon: Icons.directions_car_rounded,
               title: 'Cabs',
               route: RouteName.cabScreen,
-              color: AppColors.acYellowWarm,
+              color: scheme.primary,
               isSelected: currentRoute == RouteName.cabScreen,
             ),
             _navTile(
@@ -184,7 +196,7 @@ class AdminNavList extends StatelessWidget {
               icon: Icons.person_outline_rounded,
               title: 'Drivers',
               route: RouteName.driverScreen,
-              color: AppColors.acYellowDark,
+              color: cts.yellowDark,
               isSelected: currentRoute == RouteName.driverScreen,
             ),
             _navTile(
@@ -192,7 +204,7 @@ class AdminNavList extends StatelessWidget {
               icon: Icons.route_rounded,
               title: 'Routes',
               route: RouteName.routeScreen,
-              color: AppColors.acYellowBright,
+              color: cts.yellowBright,
               isSelected: currentRoute == RouteName.routeScreen,
             ),
 
@@ -203,7 +215,7 @@ class AdminNavList extends StatelessWidget {
                 child: Text(
                   'OFFLINE',
                   style: TextStyle(
-                    color: AppColors.acYellowBright.withValues(alpha: 0.6),
+                    color: cts.yellowBright.withValues(alpha: 0.6),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
@@ -224,8 +236,8 @@ class AdminNavList extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Divider
-          const Divider(
-            color: AppColors.acBlackLighter,
+          Divider(
+            color: scheme.surfaceContainerHighest,
             height: 1,
             thickness: 1,
             indent: 20,
@@ -267,6 +279,8 @@ class AdminNavList extends StatelessWidget {
   }
 
   Widget _syncStatusBanner(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
     return Consumer<SyncManager>(
       builder: (context, sync, _) {
         if (!sync.hasPendingWork && sync.failedCount == 0) {
@@ -274,7 +288,7 @@ class AdminNavList extends StatelessWidget {
         }
 
         final hasFailures = sync.failedCount > 0;
-        final accent = hasFailures ? AppColors.acRed : AppColors.acYellowBright;
+        final accent = hasFailures ? scheme.error : cts.yellowBright;
         final label = hasFailures
             ? '${sync.pendingCount} pending · ${sync.failedCount} failed'
             : '${sync.pendingCount} change${sync.pendingCount == 1 ? '' : 's'} waiting to sync';
@@ -290,7 +304,9 @@ class AdminNavList extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                hasFailures ? Icons.sync_problem_rounded : Icons.cloud_upload_rounded,
+                hasFailures
+                    ? Icons.sync_problem_rounded
+                    : Icons.cloud_upload_rounded,
                 color: accent,
                 size: 20,
               ),
@@ -299,7 +315,7 @@ class AdminNavList extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: AppColors.acWhite.withValues(alpha: 0.9),
+                    color: scheme.onInverseSurface.withValues(alpha: 0.9),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -340,6 +356,7 @@ class AdminNavList extends StatelessWidget {
     required Color color,
     required bool isSelected,
   }) {
+    final onDrawer = context.scheme.onInverseSurface;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       decoration: BoxDecoration(
@@ -387,12 +404,11 @@ class AdminNavList extends StatelessWidget {
                     title,
                     style: TextStyle(
                       color: isSelected
-                          ? AppColors.acWhite
-                          : AppColors.acWhite.withValues(alpha: 0.85),
+                          ? onDrawer
+                          : onDrawer.withValues(alpha: 0.85),
                       fontSize: 15,
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w500,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
                       letterSpacing: 0.2,
                     ),
                   ),
@@ -408,12 +424,14 @@ class AdminNavList extends StatelessWidget {
   }
 
   Widget _logoutTile(BuildContext context) {
+    final scheme = context.scheme;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.acRed.withValues(alpha: 0.1),
+        color: scheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.acRed.withValues(alpha: 0.3), width: 1),
+        border:
+            Border.all(color: scheme.error.withValues(alpha: 0.3), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -450,12 +468,12 @@ class AdminNavList extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.acRed.withValues(alpha: 0.2),
+                    color: scheme.error.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     Icons.logout_rounded,
-                    color: AppColors.acRed,
+                    color: scheme.error,
                     size: 22,
                   ),
                 ),
@@ -464,7 +482,7 @@ class AdminNavList extends StatelessWidget {
                   child: Text(
                     'Logout',
                     style: TextStyle(
-                      color: AppColors.acRed,
+                      color: scheme.error,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.2,
@@ -479,4 +497,3 @@ class AdminNavList extends StatelessWidget {
     );
   }
 }
-

@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 
-/// Role-home app bar with the C2S logo.
+/// Role-home app bar with the c2s brand mark.
 ///
 /// iOS/macOS: centered title (platform convention).
 /// Android/other: start-aligned (Material 3 / theme default).
@@ -30,10 +31,7 @@ class BrandAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       centerTitle: platformCentersTitle,
       automaticallyImplyLeading: automaticallyImplyLeading,
-      title: Image.asset(
-        'assets/images/c2s-01-logo.png',
-        height: 40,
-      ),
+      title: const CtsBrandLogo(height: 40),
       actions: actions,
     );
   }

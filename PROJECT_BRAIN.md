@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-23 23:10 IST
-> **Session:** R7 T−15 cutoff shipped; 26d-discuss next
+> **Updated:** 2026-08-25 22:15 IST
+> **Session:** Rest — docs complete; STEP 8 still on go
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -34,53 +34,68 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 3. Attach on every chat
 
+**Locked order — do not reshuffle.** Same list in PROMPT_SCOPE, client_req README, 07, CHAT_PROMPTS.
+
+**Always:**
 ```
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
 ```
 
-[PROMPT_SCOPE.md](PROMPT_SCOPE.md) — prompt gate, ordered queue, future scope, change log (update **async** during the chat).
+**Client pack / STEP 8 (append in this order):**
+```
+@docs/client_req/DISCUSSION_LOG.md
+@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@lib/features/d2d/README.md
+@docs/API_CONTRACTS.md
+@docs/TESTING.md
+@docs/LOCAL_DEV.md
+```
 
-For return work also attach:
+Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_req/DESIGN_SNAPSHOT.md` (schema/APIs) · `@docs/client_req/README.md` (index)
+
+**Return work:**
 ```
 @docs/next-plan/return-trip-allocation-roadmap.txt
 @docs/API_CONTRACTS.md
+@lib/features/batches/README.md
 ```
+
+**Gate:** pack opened with `let's start client feature`. Device smoke = STEP 8 only after user **go**.
 
 ---
 
 ## 4. Task packs (@ paths)
 
-| Task | Attach |
-|------|--------|
+| Task | Attach (in order) |
+|------|-------------------|
 | **App-wide** | @docs/LIB_STRUCTURE.md @docs/ARCHITECTURE.md @docs/CODE_MAP.md |
-| **D2D** | @lib/features/d2d/README.md @docs/API_CONTRACTS.md @docs/UI_ARCHITECTURE.md |
+| **D2D** | @lib/features/d2d/README.md @docs/API_CONTRACTS.md @docs/TESTING.md |
 | **Return batch** | @lib/features/batches/README.md @docs/API_CONTRACTS.md @docs/FLOWS_BY_ROLE.md |
-| **New UI** | @docs/FLOWS_BY_ROLE.md @docs/UI_ARCHITECTURE.md @docs/FEATURES.md @docs/LIB_STRUCTURE.md |
-| **Backend** | @docs/API_CONTRACTS.md @docs/LOCAL_DEV.md @docs/backend/README.md |
+| **New UI** | @docs/FLOWS_BY_ROLE.md @docs/UI_ARCHITECTURE.md @docs/FEATURES.md |
+| **Backend / lab** | @docs/LOCAL_DEV.md @docs/API_CONTRACTS.md @docs/backend/README.md |
 | **Offline** | @docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md |
-| **Return allocation** | @docs/next-plan/return-trip-allocation-roadmap.txt @docs/backend/README.md @docs/API_CONTRACTS.md |
+| **Client req** | Same as §3 client-pack list; add @docs/FLOWS_BY_ROLE.md for QA/smoke journeys; optional @docs/client_req/05-open-decisions.md |
 
 ---
 
 ## 5. Current focus
 
-**This session (2026-08-23 ~23:10 IST):** **R7 cutoff** shipped — D3 = **T−15** lazy on pool compute; Flutter shows “Holds released”.
+**Session wrap (2026-08-25):** Docs/structure complete (ownership + story split + FLOWS QR/KM). **Resting.** Next product move: STEP 8 smoke on user **go**.
 
 | Piece | Detail |
 |-------|--------|
-| Backend | `is_past_return_cutoff` + `cutoff_batch_ids` in allocator; `return_pool` applies live clock |
-| Status | Optional `cutoff_applied: true` with pool extras |
-| Tests | `test_return_allocator.py` **19/19** (cases 17–19 R7) |
+| Specs | API_CONTRACTS + d2d README + 05 story/locks |
+| Journeys | FLOWS_BY_ROLE — morning QR+KM |
+| Stack | LOCAL_DEV (nginx 8m + Postgres backup) |
+| Next | **go** → STEP 8 · then Q-26d / d2d tests / commit when asked |
 
-**Also this session:** Admin Mark all coming (org); PROMPT_SCOPE created.
-
-**Next session:** Confirm “API every time” (**26d-discuss**) or batch-wise Mark all. Do not redo 26d intent product.
+**Also open:** Confirm “API every time” (**26d-discuss**) or batch-wise Mark all — do not redo 26d intent product.
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | `beta-ver` | (uncommitted mark-all coming) |
-| `D:\cts-docker` | (local) | `AdminCommuterIsComing` view + tests |
+| `D:\cts_beta` | `beta-ver` | Uncommitted client-pack UI + docs consolidation |
+| `D:\cts-docker` | (local) | nginx body + backup compose; uncommitted |
 
 **26d facts (do not redo):**
 - Intent ≠ confirm. Admin/driver still `POST add_commuter`. Do **not** reuse `isComing` as return intent (R10).
@@ -95,7 +110,7 @@ For return work also attach:
 | State | Detail |
 |-------|--------|
 | `.env` | LAN **`192.168.1.15`** (check `docs/LOCAL_DEV.md` if Wi‑Fi changed) |
-| Backend containers | Up: `C2S-Nginx` / `C2S-Django` / `C2S-redis` / `C2S-PostgresDB` |
+| Backend containers | Up: Nginx / Django / redis / Postgres / **PostgresBackup** |
 
 ---
 
@@ -103,18 +118,22 @@ For return work also attach:
 
 ### Done (Aug 2026)
 
-- Admin one-click Mark all coming — `PATCH …/admin/commuter/<adminCode>/isComing` + `CommuterScreen` AppBar
-- **R7** return cutoff T−15 — unconfirmed home holds release; `cutoff_applied` on status
+- Client pack BE (MEDIA, DTODLOG odo cols, 7 REST, board_commuter) + Flutter BUILD UI STEPS 1–7
+- Admin one-click Mark all coming — `PATCH …/admin/commuter/<adminCode>/isComing`
+- **R7** return cutoff T−15 — `cutoff_applied` on status
 - Morning D2D Fix 1 — ended-trip guard (WS close 4001) + Flutter `isTripEnded`
 - Return batch backend R1–R6 + Flutter; **26d** return intent
-- P1–P9 waves, A1 Track Cab, return list realignment, auth security wave
+- Ops: nginx `client_max_body_size 8m`; Postgres backup sidecar
+- Docs consolidation — no `backend/01–04`, no `guides/`; FLOWS owns journeys
+- Agent fast-path attach + DOC_REGISTRY fast/on-change split; `widget_test` removed
 - Full-cycle smoke PASS (2026-08-23) Batch-01 D2D + return end
 
 ### Open backlog (from PROJECT_TODOS)
 
-- **Decide next:** Confirm “API every time” (26d-discuss) — R7 done
+- **Client pack STEP 8** device smoke (user go)
+- Parked UI: return-leg KM, admin org odometer list, unboard UI
+- **Decide next:** Confirm “API every time” (26d-discuss)
 - Batch-wise Mark all coming (`CommuterListScreen`)
-- Optional: Commuter 26d **Return today** chip smoke
 - Remaining Application High: A6–A9
 
 ---
@@ -129,14 +148,11 @@ Screens → Provider → Repository → API (REST / WebSocket)
 |------|------|
 | App shell | `lib/app/cts_app.dart`, `lib/app/app_providers.dart`, `lib/app/app_lifecycle_host.dart` |
 | Lifecycle | `lib/core/lifecycle/` — foreground/background/resume coordinator |
-| Network guard | `lib/core/network/network_action_guard.dart` — pre-check before live/return mutations |
-| Concurrency | `lib/core/concurrency/batched_runner.dart` — capped parallel task runner (P8 status fetch) |
+| Network guard | `lib/core/network/network_action_guard.dart` |
+| Concurrency | `lib/core/concurrency/batched_runner.dart` |
 | Router | `lib/app/router/app_router.dart` |
-| Network | `lib/api/` (canonical Dio client; not `core/network/`) |
-| API constants | `lib/api/api_list.dart` |
-| Response contract | `lib/api/api_response_contract.dart` — status/message/code truth layer |
-| Config | `AppConfig` in `lib/appManager/app_class.dart` |
-| D2D live | `lib/features/d2d/` |
+| Network | `lib/api/` |
+| D2D live + client pack | `lib/features/d2d/` |
 | Batches + return | `lib/features/batches/` |
 | Shared widgets | `lib/widgets/` |
 
@@ -149,7 +165,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | **D2D** | Door-to-door morning live trip — WebSocket-driven commuter queue |
 | **POP** | Point of pickup — commuter boarding location |
 | **Batch** | Scheduled route run (morning or evening) with assigned driver/cab |
-| **isComing** | Commuter flagged as en route / picked up in live D2D queue |
+| **isComing** | Commuter flagged as riding today (queue eligibility; not return intent) |
 | **Return batch** | Evening REST-only trip — confirm/remove commuters, end trip |
 
 ---
@@ -158,26 +174,42 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-23 | R7 T−15 cutoff | Allocator + pool lazy release; Flutter cutoff badge; 19/19 allocator tests |
-| 2026-08-23 | PROMPT_SCOPE | Created attachable prompt gate + ordered queue |
-| 2026-08-23 | Mark all coming | Backend PATCH + Flutter AppBar; Django 6/6 tests |
+| 2026-08-25 | Rest / wrap | Docs complete; STEP 8 still blocked on **go** |
+| 2026-08-25 | Story split + FLOWS QR/KM | 05 / FLOWS / 07 / DISCUSSION_LOG roles locked |
+| 2026-08-25 | Consol + client pack UI | 01–04/guides retired; BUILD UI 1–7; nginx/backup |
 
 ---
 
-## 10. Deep docs (pointers only)
+## 10. Deep docs + stable BE↔FE map
 
 | Area | Entry |
 |------|-------|
 | Flutter docs hub | [docs/README.md](docs/README.md) · [docs/START_HERE.md](docs/START_HERE.md) |
 | Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/CODE_MAP.md](docs/CODE_MAP.md) |
-| API | [docs/API_AND_ENV.md](docs/API_AND_ENV.md) · [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) |
-| UI / flows | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) · [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) |
-| Guides | [docs/guides/](docs/guides/) |
-| Wireframes | — (removed; use live app + [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md)) |
-| Backend detail | [docs/backend/README.md](docs/backend/README.md) · [docs/INTEGRATION.md](docs/INTEGRATION.md) |
-| Local dev | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) · [docs/GLOSSARY.md](docs/GLOSSARY.md) |
-| E2E flows | [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) · [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) |
-| Sprint history | — (removed; use [PROJECT_TODOS.md](PROJECT_TODOS.md) / brain §9) |
-| Doc registry | [DOC_REGISTRY.md](DOC_REGISTRY.md) |
-| Chat templates | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) |
-| Live backlog | [PROJECT_TODOS.md](PROJECT_TODOS.md) |
+| API wire | [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) |
+| Lab / Docker | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) · [docs/backend/README.md](docs/backend/README.md) |
+| **UI / flows** | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) (QR/KM + smoke) · [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) |
+| Feature owners | [lib/features/d2d/README.md](lib/features/d2d/README.md) · [lib/features/batches/README.md](lib/features/batches/README.md) |
+| Client pack | [DISCUSSION_LOG](docs/client_req/DISCUSSION_LOG.md) (pointer) · [05 story/locks](docs/client_req/05-open-decisions.md) · [DESIGN_SNAPSHOT](docs/client_req/DESIGN_SNAPSHOT.md) · [07 smoke](docs/client_req/07-NEXT-AGENT-PROMPT.md) |
+| Testing | [docs/TESTING.md](docs/TESTING.md) |
+| Registry / prompts | [DOC_REGISTRY.md](DOC_REGISTRY.md) · [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) |
+| Backlog | [PROJECT_TODOS.md](PROJECT_TODOS.md) |
+
+### Client pack — every dot (BE + FE)
+
+| Dot | Backend (`cts-docker`) | Frontend (`cts_beta`) | Doc owner |
+|-----|------------------------|----------------------|-----------|
+| Stack / LAN / nginx 8m / backup | compose, `nginx.conf`, `C2S-PostgresBackup` | `.env` LAN | LOCAL_DEV |
+| DTODLOG odo cols | `d2d_log/models.py` | `odometer_models.dart` | API_CONTRACTS |
+| Odometer REST | `odometer_views.py` + `urls.py` | `ApiUrl` + `submitOdometer*` / `getOdometer*` | API_CONTRACTS |
+| QR + scan REST | `boarding_views.py` + tokens | `getBoardingQr` / `boardingScan` / unboard | API_CONTRACTS |
+| Scan = boarded | `board_commuter` + WS REMOVE | swipe REMOVE + scan success → Already IN | API_CONTRACTS + d2d README |
+| Morning WS | `consumers.py` + `live_state.py` | `D2dChannelProvider` | d2d README + API_CONTRACTS |
+| Driver UI | — | `d2d_log_screen` + odo sheet + QR panel | d2d README |
+| Commuter UI | — | `/boardingScan` + Mark Coming | d2d README · FEATURES |
+| Return evening | `return_batch_*` | batches feature | batches README + API_CONTRACTS |
+| Product locks | — | — | client_req/05 |
+| Schema / API inventory | — | — | client_req/DESIGN_SNAPSHOT |
+| Smoke / tests | `test_odometer.py`, `test_boarding_scan.py` | `test/features/d2d/` | TESTING · 07 |
+
+**Retired (do not recreate):** `docs/backend/01–04`, `docs/guides/`, client_req `00–04`+`06`, `test/widget_test.dart`.

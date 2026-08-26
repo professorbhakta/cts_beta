@@ -1,10 +1,10 @@
 > **Doc:** docs/UI_ARCHITECTURE.md
-> **Updated:** 2026-08-23 22:30 IST
-> **Session:** CommuterScreen Mark all coming action
+> **Updated:** 2026-08-25 22:05 IST
+> **Session:** + /boardingScan; D2DLog QR+KM note
 
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 
-> Easier entry: [START_HERE.md](./START_HERE.md) · Role flows: [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md)
+> Easier entry: [START_HERE.md](./START_HERE.md) · Role flows (QR/KM): [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md)
 
 Reference for the **current** Flutter codebase (Commuter Transport System / c2s).
 
@@ -39,8 +39,9 @@ Every **registered** GoRouter destination plus **nested** `Navigator.push` scree
 | 17 | CabScreen / CabForm | `/cabScreen`, `/cabForm` | ADMIN | Drawer, dashboard, list actions |
 | 18 | DriverScreen / DriverForm | `/driverScreen`, `/driverForm` | ADMIN | Drawer, dashboard, list actions |
 | 19 | CommuterScreen / CommuterForm | `/commuterScreen`, `/commuterForm` | ADMIN | Drawer, dashboard, list actions |
-| 20 | D2dChannel | `/d2dChannel/:batchId` | ADMIN | Running batch card tap |
-| 21 | D2DLogScreen | `/d2dLog/:batchId` | DRIVER | Driver home START TRIP |
+| 20 | D2dChannel | `/d2dChannel/:batchId` | ADMIN | Running batch card tap — **no** boarding QR |
+| 21 | D2DLogScreen | `/d2dLog/:batchId` | DRIVER | Driver home START TRIP — start/end KM sheets + boarding QR + CList |
+| 21b | BoardingScanScreen | `/boardingScan` | COMMUTER | Commuter home **Scan** — camera → `boardingScan` API |
 | 22 | ReturnCommuterListScreen | `/returnCommuterScreen/:batchId` | ADMIN | Return batch picker row |
 | 23 | ReturnCommuterListScreen (confirm/remove) | `/driverReturnCommuter/:batchId` | DRIVER | Driver home RETURN LIST |
 | 24 | OfflineHomeScreen | `/offlineTempHome` | ADMIN (drawer when enabled) | Drawer Offline Mode |

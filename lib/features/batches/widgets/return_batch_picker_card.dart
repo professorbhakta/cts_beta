@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/features/batches/models/batch_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
 import 'package:cts/widgets/modern_list_card.dart';
@@ -21,6 +21,7 @@ class ReturnBatchPickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Card(
       margin: compact ? EdgeInsets.zero : null,
       child: InkWell(
@@ -95,6 +96,8 @@ class _BatchHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -131,8 +134,8 @@ class _BatchHeader extends StatelessWidget {
           Container(
             width: 10,
             height: 10,
-            decoration: const BoxDecoration(
-              color: AppColors.acGreen,
+            decoration: BoxDecoration(
+              color: cts.success,
               shape: BoxShape.circle,
             ),
           )

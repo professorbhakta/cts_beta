@@ -1,6 +1,6 @@
 > **Doc:** docs/features/D2D_E2E.md
-> **Updated:** 2026-08-17 22:15 IST
-> **Session:** Wrap — 2-device STOP UX verified
+> **Updated:** 2026-08-25 21:40 IST
+> **Session:** Related → API_CONTRACTS + d2d README (backend/03 deleted)
 
 # Morning D2D Trip (End-to-End)
 
@@ -137,6 +137,6 @@ sequenceDiagram
 
 ## Related
 
-- [../backend/03-d2d-websocket-lifecycle.md](../backend/03-d2d-websocket-lifecycle.md)
+- [../API_CONTRACTS.md](../API_CONTRACTS.md)
 - [../../lib/features/d2d/README.md](../../lib/features/d2d/README.md)
 - [RETURN_BATCH_E2E.md](./RETURN_BATCH_E2E.md) — separate evening flow

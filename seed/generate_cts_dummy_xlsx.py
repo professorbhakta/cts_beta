@@ -24,7 +24,17 @@ DRIVER_COUNT = 10
 COMMUTER_COUNT = 1500
 UG_COUNT = 750
 PG_COUNT = 750
-POPS_PER_ROUTE = 3
+STOP_NAMES = [
+    "Campus Gate",
+    "Railway Station",
+    "City Bus Stand",
+    "Market Circle",
+    "Civil Hospital",
+    "Housing Colony",
+    "Highway Crossing",
+    "College Main Gate",
+]
+POPS_PER_ROUTE = len(STOP_NAMES)  # was 3; richer dummy coverage per route
 CAB_CAPACITY = 53  # live trip seats; roster is larger because not everyone comes
 ROSTER_PER_BATCH = COMMUTER_COUNT // DRIVER_COUNT  # 150 assigned
 COMING_PER_BATCH = 15  # isComing=true; must be <= CAB_CAPACITY
@@ -81,7 +91,7 @@ def overview_sheet(wb: Workbook) -> None:
         ["Drivers", DRIVER_COUNT, f"First phone {DRIVER_BASE}, then +1"],
         ["Cabs", DRIVER_COUNT, f"Capacity {CAB_CAPACITY} seats (not the full roster)"],
         ["Routes", DRIVER_COUNT, "R01 … R10"],
-        ["POPs", DRIVER_COUNT * POPS_PER_ROUTE, "3 stops per route, inLine 1–3"],
+        ["POPs", DRIVER_COUNT * POPS_PER_ROUTE, f"{POPS_PER_ROUTE} stops per route, inLine 1–{POPS_PER_ROUTE}"],
         ["Batches", DRIVER_COUNT, "One morning+return slot per driver/cab/route"],
         ["Commuters", COMMUTER_COUNT, f"{UG_COUNT} UG + {PG_COUNT} PG"],
         ["Roster per batch", ROSTER_PER_BATCH, "Assigned riders; most stay home (isComing false)"],
@@ -90,7 +100,7 @@ def overview_sheet(wb: Workbook) -> None:
         ["Assignment rule", "Detail"],
         ["Commuter → batch", f"index % 10 → Batch-01 … Batch-10 ({ROSTER_PER_BATCH} roster each)"],
         ["Commuter → cab/driver/route", "Same index as batch (Driver 1 ↔ Cab GJ-06-D-1001 ↔ R01 ↔ Batch-01)"],
-        ["Commuter → POP", "Rotate 3 POPs on that route: Stop A/B/C"],
+        ["Commuter → POP", f"Rotate {POPS_PER_ROUTE} POPs on that route: " + " / ".join(STOP_NAMES)],
         ["College / name", "UG1…UG750 then PG1…PG750 as username + collegeName UG or PG"],
         ["Commuter mobiles", f"{COMMUTER_BASE} … {COMMUTER_BASE + COMMUTER_COUNT - 1}"],
         ["Driver mobiles", f"{DRIVER_BASE} … {DRIVER_BASE + DRIVER_COUNT - 1}"],
@@ -101,7 +111,7 @@ def overview_sheet(wb: Workbook) -> None:
         ["Load order (backend bulk, NOT Flutter forms)", ""],
         ["1", "Login as admin in the app only to verify — do not hand-create 1500 rows"],
         ["2", "Create Routes R01–R10"],
-        ["3", "Create 3 POPs per route"],
+        ["3", f"Create {POPS_PER_ROUTE} POPs per route"],
         ["4", f"Create Cabs (capacity {CAB_CAPACITY} — trip seats, not roster size)"],
         ["5", "Create Drivers and attach cab"],
         ["6", "Create Batches (attach driver)"],
@@ -193,9 +203,18 @@ def build() -> None:
             ]
         )
         for p in range(POPS_PER_ROUTE):
-            stop = ["Stop A", "Stop B", "Stop C"][p]
+            stop = STOP_NAMES[p]
             pop_name = f"{route}-{stop}"
-            pop_rows.append([len(pop_rows) + 1, pop_name, route, p + 1])
+            pop_rows.append(
+                [
+                    len(pop_rows) + 1,
+                    pop_name,
+                    route,
+                    p + 1,
+                    round(22.30 + n * 0.012 + p * 0.002, 6),
+                    round(73.19 + n * 0.008 + p * 0.003, 6),
+                ]
+            )
         assignment_rows.append(
             [
                 batch,
@@ -204,7 +223,7 @@ def build() -> None:
                 cab,
                 route,
                 ROSTER_PER_BATCH,
-                f"{route}-Stop A / B / C",
+                " / ".join(f"{route}-{s}" for s in STOP_NAMES),
                 COMING_PER_BATCH,
             ]
         )
@@ -239,7 +258,7 @@ def build() -> None:
     )
     write_rows(
         wb.create_sheet("POPs"),
-        ["row_id", "pickUpPointName", "route_name", "inLine"],
+        ["row_id", "pickUpPointName", "route_name", "inLine", "lat", "longitude"],
         pop_rows,
     )
     write_rows(
@@ -275,7 +294,7 @@ def build() -> None:
     )
 
     commuter_rows = []
-    stop_names = ["Stop A", "Stop B", "Stop C"]
+    stop_names = STOP_NAMES
     for i in range(COMMUTER_COUNT):
         if i < UG_COUNT:
             label = f"UG{i + 1}"

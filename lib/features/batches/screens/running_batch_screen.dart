@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/models/batch_model.dart';
@@ -33,10 +33,12 @@ class _RunningBatchScreenState extends State<RunningBatchScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DashboardShell(
       title: 'Running Batches',
       child: Consumer<RunningBatchProvider>(
         builder: (context, provider, _) {
+
           return _RunningBatchBody(provider: provider);
         },
       ),
@@ -51,6 +53,7 @@ class _RunningBatchBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final theme = Theme.of(context);
     final batches = provider.runningBatches;
 
@@ -89,6 +92,7 @@ class _RunningBatchBody extends StatelessWidget {
       onRefresh: provider.fetchOnce,
       child: LayoutBuilder(
         builder: (context, constraints) {
+
           final crossAxisCount = _crossAxisCount(constraints.maxWidth);
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -148,6 +152,8 @@ class _RunningBatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+
     final theme = Theme.of(context);
     return Card(
       child: InkWell(
@@ -166,7 +172,7 @@ class _RunningBatchCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.acGreen.withValues(alpha: 0.2),
+                    color: cts.success.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(99),
                   ),
                   child: Text(
@@ -174,7 +180,7 @@ class _RunningBatchCard extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.acGreen,
+                      color: cts.success,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -193,7 +199,7 @@ class _RunningBatchCard extends StatelessWidget {
                 alignment: Alignment.bottomRight,
                 child: TextButton.icon(
                   onPressed: onTap,
-                  icon: const Icon(Icons.arrow_outward_rounded, size: 18),
+                  icon: Icon(Icons.arrow_outward_rounded, size: 18),
                   label: const Text('Open channel'),
                 ),
               ),

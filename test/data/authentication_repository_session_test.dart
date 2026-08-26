@@ -27,6 +27,10 @@ class _FakeApiService implements BaseApiServices {
 
   @override
   Future<dynamic> postApi(dynamic data, String url) => throw UnimplementedError();
+
+  @override
+  Future<dynamic> postMultipart(dynamic data, String url) =>
+      throw UnimplementedError();
 }
 
 Future<void> _seedLoggedInDriverSession() async {

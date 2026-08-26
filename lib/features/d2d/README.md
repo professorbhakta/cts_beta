@@ -1,12 +1,14 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-25 21:50 IST
+> **Session:** Stability — owner of morning UI; BE↔FE map in brain §10
 
 # D2D Feature — Live WebSocket
 
-Feature owner for morning door-to-door live trips. Single provider powers admin monitor and driver log screens.
+Feature owner for morning door-to-door live trips (Flutter UI + consumer notes). Single provider powers admin monitor and driver log screens.
 
-**Full API spec:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **E2E flow:** [docs/features/D2D_E2E.md](../../../docs/features/D2D_E2E.md)
+**Wire:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **Lab:** [docs/LOCAL_DEV.md](../../../docs/LOCAL_DEV.md) · **E2E:** [docs/features/D2D_E2E.md](../../../docs/features/D2D_E2E.md) · **BE↔FE dots:** [PROJECT_BRAIN §10](../../../PROJECT_BRAIN.md#10-deep-docs--stable-befe-map)
+
+**Backend path:** `cts-docker/django/d2d_log/` — `consumers.py`, `live_state.py`, `odometer_views.py`, `boarding_views.py`, `board_commuter`. Channel group: `{YYYY-MM-DD}batch{batch_id}`.
 
 ---
 
@@ -16,12 +18,35 @@ Feature owner for morning door-to-door live trips. Single provider powers admin 
 |------|------|
 | Role policy | `models/d2d_channel_role_policy.dart` |
 | Provider | `providers/d2d_channel_provider.dart` |
-| Status API | `repositories/d2d_repository.dart` (+ impl) |
-| Admin screen | `screens/d2d_channel.dart` |
-| Driver screen | `screens/d2d_log_screen.dart` |
+| Status + client pack API | `repositories/d2d_repository.dart` (+ impl) |
+| Odometer / boarding models | `models/odometer_models.dart`, `models/boarding_models.dart` |
+| Error copy | `lib/api/client_pack_error_messages.dart` |
+| Camera + feedback helpers | `helpers/odometer_camera_helper.dart`, `helpers/client_pack_feedback.dart` |
+| Odometer sheet | `widgets/odometer_km_sheet.dart` — start/end KM + camera photo |
+| Driver boarding QR | `widgets/boarding_qr_panel.dart` — wakelock + auto-refresh |
+| Commuter scan | `screens/boarding_scan_screen.dart` — route `RouteName.boardingScan` |
+| Admin screen | `screens/d2d_channel.dart` (**no** QR) |
+| Driver screen | `screens/d2d_log_screen.dart` — start KM → QR+CList → end KM → STOP |
 | Live widgets | `widgets/d2d_live_widgets.dart` — includes `D2dAlreadyInSection` |
 | Action error SnackBar | `widgets/d2d_action_error_listener.dart` |
 | Add commuter sheet | `widgets/d2d_add_commuter_sheet.dart` — search by name, mobile, batch, POP |
+
+### Client pack UI (Phase 7)
+
+| Flow | Behavior |
+|------|----------|
+| Driver start | After WS connect → start-KM sheet (**hard lock** until recorded; skip if already set) |
+| Driver live | Boarding QR + swipe REMOVE fallback |
+| Driver STOP | End-KM sheet first (**skip if endKm already set**); soft “Stop anyway” if dismissed |
+| Commuter | Mark Coming → Scan boarding QR → `boardingScan` |
+
+Camera: **ImageSource.camera only** when used. Odometer: **KM required**, **photo optional**. Sheet: **Close** (top) / **Skip** (bottom) — no swipe-dismiss; Confirm submits without photo OK. Soft STOP (BE does not block).
+
+Parked: return-leg KM UI, admin org odometer list, unboard UI.
+
+Repo methods (unchanged): `submitOdometerStart`/`End`, `getOdometer`, `getBoardingQr`, `boardingScan`, `boardingUnboard`.
+
+Failures return `ApiResult.failure` with `ApiFailure.code` + `ClientPackErrorMessages` / `ClientPackFeedback`.
 
 ---
 
@@ -35,13 +60,15 @@ _channel = IOWebSocketChannel.connect(uri, headers: {HttpHeaders.cookieHeader: c
 
 Both screens call `provider.connect(batchId)` in `initState` and `disconnect()` on dispose.
 
+**Backend connect (once):** AuthMiddlewareStack → anonymous **4401** / wrong role **4403** → `accept` → group_add → `get_or_create` DTODLOG → if already ended **4001** → load Redis DS (`d2d:live:…`) or rebuild from `isComing` minus CList → send `{result: DS}`.
+
 **Lifecycle (P3):** `AppLifecycleHost` observes OS foreground/background. On resume after background: session reconcile, running batches refresh, D2D reconnect if socket dropped (keeps stale list + `D2dConnectionLostBanner` until fresh WS frame). Android may kill the process; iOS may suspend with a dead socket — both recover on resume. Explicit leave/back still only `disconnect()` (not STOP).
 
-**Disconnect ≠ STOP.** Leaving the screen (back, Close channel, `dispose`) only closes the WebSocket. The `DTODLOG` row stays `isActive=true` until the driver **STOP TRIP** FAB sends `{ACTION: STOP}`.
+**Disconnect ≠ STOP.** Leaving the screen (back, Close channel, `dispose`) only closes the WebSocket (`group_discard`). Redis DS remains for other clients. The `DTODLOG` row stays `isActive=true` until the driver **STOP TRIP** FAB sends `{ACTION: STOP}`.
 
-The DB row is created on **connect** (`get_or_create(batchId, tripDate)`), not on STOP. Reconnect the same day after a real STOP is closed **4001**.
+The DB row is created on **connect** (`get_or_create(batchId, tripDate)`), not on STOP. Reconnect the same day after a real STOP is closed **4001**. Django restart mid-trip: Redis DS restored on reconnect.
 
-Driver log also calls `provider.fetchTripStatus(batchId)` — REST `GET d2d/get_d2d_log_status/:batchId` via `D2dRepository` (not from the screen). Result is `D2dTripStatus` (`unknown` / `none` / `active` / `ended`).
+Driver log also calls `provider.fetchTripStatus(batchId)` — REST `GET d2d/get_d2d_log_status/:batchId` via `D2dRepository`. Result is `D2dTripStatus` (`unknown` / `none` / `active` / `ended`). Admin discovery: `GET /d2d/running_batches/<admin_code>`.
 
 Also loads driver via REST: `_driverRepository.getDriverByBatch(batchId)`.
 
@@ -55,14 +82,14 @@ Also loads driver via REST: `_driverRepository.getDriverByBatch(batchId)`.
 
 ## WS actions (client → server)
 
-| UI action | Who | Provider method | WS payload |
-|-----------|-----|-----------------|------------|
-| Driver swipe green | Driver | `confirmCommuter(id)` | `{ACTION: REMOVE, CLIST: [id]}` |
-| Driver swipe red | Admin/Driver | `denyCommuter(id)` / `removeCommuter(id)` | `{ACTION: DELETE, CLIST: [id]}` |
-| Add sheet **+** | Admin/Driver | `addCommuter(id)` | `{ACTION: ADD, CLIST: id}` |
-| Driver STOP FAB | Driver only | `stopTrip()` | `{ACTION: STOP}` |
+| UI action | Who | Provider method | WS payload | Backend effect |
+|-----------|-----|-----------------|------------|----------------|
+| Driver swipe green | Driver | `confirmCommuter(id)` | `{ACTION: REMOVE, CLIST: [id]}` | CList += id; drop from live DS; `board_commuter` path |
+| Driver swipe red | Admin/Driver | `denyCommuter` / `removeCommuter` | `{ACTION: DELETE, CLIST: [id]}` | Remove from DS only (not CList) |
+| Add sheet **+** | Admin/Driver | `addCommuter(id)` | `{ACTION: ADD, CLIST: id}` | Lookup by **user ID** (this batch then any); needs POP; `capacity_full` / `invalid_commuter` |
+| Driver STOP FAB | Driver only | `stopTrip()` | `{ACTION: STOP}` | `isActive=false`, endTime, clear isComing for CList+queue, `delete_live_state`, broadcast ended |
 
-Role gating is enforced in Flutter (`D2dChannelRolePolicy`) and on the backend consumer. Unauthorized attempts set `actionErrorMessage` (SnackBar) without disconnecting.
+Role gating: Flutter `D2dChannelRolePolicy` + BE connect auth. Unauthorized mutation → `{error:"forbidden"}` without disconnect.
 
 Always use **user ID** in CLIST.
 
@@ -132,11 +159,12 @@ Parsed by `_decodePayload`, `_parseCommutersFromData`, `parseAlreadyInFromResult
 ## Manual test checklist
 
 1. Start morning D2D — driver connects, admin opens channel.
-2. **Capacity:** Fill cab; admin ADD via sheet → SnackBar with server message.
-3. **Happy path:** Valid ADD (any commuter with a POP) → list updates, then success SnackBar. Missing POP → `invalid_commuter`, socket stays up.
-4. **Ended trip:** Driver STOP; admin watching shows ended UI (not WAITING); dashboard LIVE tile clears without pull-to-refresh. ADD is unavailable.
-5. Repeat on **driver log** (swipe green/red). STOP FAB hidden after ended / 4001.
-6. Reconnect after STOP → ended-trip message (4001), not action error.
-7. Leave Channel / back **without** STOP → trip stays active; reconnect joins the same live queue.
-8. **Already IN:** Driver confirms pickup → rider moves from Live queue to **Already IN** on both admin channel and driver log.
-9. **Role guard:** Admin cannot STOP or confirm pickup; SnackBar shows driver-only message if attempted via provider.
+2. **Start KM:** sheet after connect; camera photo + KM required.
+3. **QR:** driver sees boarding QR; swipe REMOVE still works; admin has no QR.
+4. **Scan:** commuter Mark Coming → Scan boarding QR → Already IN grows.
+5. **End KM → STOP:** end sheet before STOP; soft “Stop anyway” if skipped.
+6. **Capacity:** Fill cab; admin ADD via sheet → SnackBar with server message.
+7. **Happy path:** Valid ADD → list updates. Missing POP → `invalid_commuter`.
+8. **Ended trip:** Driver STOP; admin ended UI; dashboard LIVE tile clears.
+9. Leave without STOP → trip stays active; reconnect joins same queue.
+10. Device smoke (STEP 8) only after user says go.

@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
 import 'package:cts/offline_temp/screens/offline_commuter_form_screen.dart';
 import 'package:cts/offline_temp/widgets/offline_commuter_filter_bar.dart';
@@ -13,8 +13,11 @@ class OfflineCommutersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Consumer<OfflineTempProvider>(
       builder: (context, provider, _) {
+    final cts = context.cts;
+
         if (provider.errorMessage != null && !provider.isLoading) {
           return StatusMessage.error(
             title: 'Failed to load commuters',
@@ -53,8 +56,8 @@ class OfflineCommutersTab extends StatelessWidget {
                                 '#${commuter.displayId} • ${commuter.batchName ?? 'Batch'}',
                             icon: Icons.person_rounded,
                             iconColor: commuter.isComing
-                                ? AppColors.acGreen
-                                : AppColors.acOrange,
+                                ? cts.success
+                                : cts.orange,
                             trailing: Switch(
                               value: commuter.isComing,
                               onChanged: (value) async {
@@ -100,7 +103,7 @@ class OfflineCommutersTab extends StatelessWidget {
       padding: const EdgeInsets.only(top: 4),
       child: Text(
         '$label: ${value.isEmpty ? '-' : value}',
-        style: const TextStyle(fontSize: 12),
+        style: TextStyle(fontSize: 12),
       ),
     );
   }

@@ -1,6 +1,6 @@
 > **Doc:** docs/GLOSSARY.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-25 21:40 IST
+> **Session:** Schema sheet retired — Redis pointers to API_CONTRACTS
 
 # Glossary
 
@@ -48,7 +48,7 @@ Morning and evening **do not share keys** — ending one trip does not clear the
 | `d2d:live:{YYYY-MM-DD}:{batch_id}` | Morning live DS JSON ✅ |
 | `{dd-mm-yyyy}_{batch_id}` | Evening return confirmed user IDs (Redis set) ✅ |
 
-See [backend/02-data-model.md](./backend/02-data-model.md).
+See [API_CONTRACTS.md](./API_CONTRACTS.md) (Redis namespaces) · [lib/features/d2d/README.md](../lib/features/d2d/README.md) · [lib/features/batches/README.md](../lib/features/batches/README.md).
 
 ## Channel group name (WebSocket)
 
