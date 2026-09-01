@@ -138,19 +138,17 @@ class D2dLiveStatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cts = context.cts;
-    final label = isLive ? 'LIVE' : 'OFFLINE';
-    final color = isLive
-        ? cts.navy
-        : cts.navy.withValues(alpha: 0.45);
+    final label = isLive ? 'LIVE' : 'WAITING';
+    final color = isLive ? cts.success : cts.navy.withValues(alpha: 0.45);
 
     return Semantics(
-      label: isLive ? 'Trip live' : 'Connection offline',
+      label: isLive ? 'Trip live' : 'Connection waiting',
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontSize: prominent ? 12 : 11,
+              fontWeight: FontWeight.w700,
               letterSpacing: 1.2,
             ),
       ),
@@ -630,7 +628,7 @@ class D2dAlreadyInTile extends StatelessWidget {
   }
 }
 
-/// Remaining rider row: name + call, swipe Picked up / Delete (beta behavior).
+/// Remaining rider row: call + Board + swipe Picked up / Delete.
 class D2dDriverCommuterTile extends StatelessWidget {
   const D2dDriverCommuterTile({
     super.key,
@@ -701,7 +699,7 @@ class D2dDriverCommuterTile extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
                 Expanded(
@@ -717,18 +715,20 @@ class D2dDriverCommuterTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        [
-                          if (commuter.inLine != null) 'Stop #${commuter.inLine}',
-                          if (pop != null && pop.isNotEmpty) pop,
-                        ].join(' · '),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cts.navy.withValues(alpha: 0.55),
+                      if ((pop != null && pop.isNotEmpty) ||
+                          commuter.inLine != null)
+                        Text(
+                          [
+                            if (commuter.inLine != null)
+                              'Stop #${commuter.inLine}',
+                            if (pop != null && pop.isNotEmpty) pop,
+                          ].join(' · '),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cts.navy.withValues(alpha: 0.55),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ],
                   ),
                 ),
@@ -736,6 +736,32 @@ class D2dDriverCommuterTile extends StatelessWidget {
                   tooltip: 'Call commuter',
                   onPressed: onCall,
                   icon: Icon(Icons.call_outlined, color: cts.navy, size: 20),
+                ),
+                const SizedBox(width: 4),
+                SizedBox(
+                  height: 36,
+                  child: OutlinedButton(
+                    onPressed: !canConfirm || commuterId == null
+                        ? null
+                        : () => provider.confirmCommuter(commuterId),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: cts.navy,
+                      side: BorderSide(
+                        color: cts.navy.withValues(alpha: 0.55),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    child: Text(
+                      'Board',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: cts.navy,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

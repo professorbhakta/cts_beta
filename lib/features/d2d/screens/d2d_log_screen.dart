@@ -18,11 +18,19 @@ import 'package:cts/features/d2d/widgets/odometer_km_sheet.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// Driver D2D live trip — all beta controls kept; cream stacked visual system.
+///
+/// Checklist (do not omit): BrandAppBar+drawer, Live Commuter Log, Batch #,
+/// LIVE=`isChannelLive`, TRIP ACTIVE/ENDED, Call Admin, Sort Asc/Desc,
+/// connection-lost+Retry, BoardingQrPanel+Refresh, Start KM sheet (modal only),
+/// Remaining list+count, rider call/Board/swipe, Waiting line, Already IN,
+/// Add commuter, STOP TRIP bar, End KM sheet on stop.
 class D2DLogScreen extends StatefulWidget {
   const D2DLogScreen({super.key, required this.batchId});
 
@@ -37,6 +45,8 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   bool _startKmPrompted = false;
   bool _startKmSheetOpen = false;
   bool _stopping = false;
+  final GlobalKey<BoardingQrPanelState> _qrKey =
+      GlobalKey<BoardingQrPanelState>();
 
   @override
   void didChangeDependencies() {
@@ -153,7 +163,12 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     );
   }
 
+  void _refreshQr() {
+    _qrKey.currentState?.refresh();
+  }
+
   /// After live channel opens (or REST confirms active trip): prompt start KM once.
+  /// Modal only — never rendered as a live-canvas KM label.
   void _maybePromptStartKm() {
     final provider = _d2dProvider;
     if (provider == null ||
@@ -168,7 +183,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     );
     if (!canDrive) return;
 
-    // Do not wait for a WS frame — KM is REST; WS drop must not block the sheet.
     final tripReady = provider.state == ViewState.success ||
         provider.tripStatus == D2dTripStatus.active ||
         (provider.connectedBatchId != null && !provider.isTripEnded);
@@ -268,186 +282,183 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     }
   }
 
-  /// Quiet trip-status badge (not a candy pill). No starting KM.
-  Widget _buildTripActiveBadge(BuildContext context, D2dTripStatus tripStatus) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-
-    if (tripStatus == D2dTripStatus.unknown ||
-        tripStatus == D2dTripStatus.none) {
-      return const SizedBox.shrink();
+  String _tripStatusLabel(D2dTripStatus tripStatus) {
+    switch (tripStatus) {
+      case D2dTripStatus.active:
+        return 'TRIP ACTIVE';
+      case D2dTripStatus.ended:
+        return 'TRIP ENDED';
+      case D2dTripStatus.none:
+      case D2dTripStatus.unknown:
+        return '';
     }
-
-    final isEnded = tripStatus == D2dTripStatus.ended;
-    final color = isEnded ? scheme.error : cts.navy;
-    final label = isEnded ? 'TRIP ENDED TODAY' : 'TRIP ACTIVE';
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color.withValues(alpha: isEnded ? 1 : 0.65),
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.0,
-            ),
-      ),
-    );
   }
 
-  Widget _buildTopBar(
-    BuildContext context, {
-    required bool isLive,
-    required bool canAdd,
-    required D2dChannelProvider provider,
-  }) {
+  List<Widget> _buildAppBarActions(
+    BuildContext context,
+    D2dChannelProvider provider,
+  ) {
     final cts = context.cts;
     final theme = Theme.of(context);
+    final isLive = provider.isChannelLive;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Live Commuter Log',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: cts.navy,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _batchLabel(context),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: cts.navy.withValues(alpha: 0.65),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  D2dLiveStatusChip(isLive: isLive, prominent: true),
-                  const SizedBox(height: 4),
-                  TextButton.icon(
-                    onPressed: _callAdmin,
-                    icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
-                    label: Text(
-                      'Call Admin',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: cts.navy,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      visualDensity: VisualDensity.compact,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              TextButton.icon(
-                onPressed: provider.toggleSortOrder,
-                icon: Icon(Icons.sort, color: cts.navy, size: 18),
-                label: Text(
-                  provider.isAscending ? 'Asc' : 'Desc',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: cts.navy,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-              const Spacer(),
-              if (canAdd)
-                TextButton.icon(
-                  onPressed: () => _openAddCommuter(provider),
-                  icon: Icon(Icons.person_add_outlined, color: cts.navy, size: 18),
-                  label: Text(
-                    'Add',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: cts.navy,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-            ],
-          ),
-        ],
+    return [
+      Padding(
+        padding: const EdgeInsets.only(right: 4),
+        child: Center(
+          child: D2dLiveStatusChip(isLive: isLive, prominent: true),
+        ),
       ),
-    );
+      TextButton(
+        onPressed: _callAdmin,
+        style: TextButton.styleFrom(
+          foregroundColor: cts.navy,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          'CALL',
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: cts.navy,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.6,
+          ),
+        ),
+      ),
+      TextButton(
+        onPressed: provider.toggleSortOrder,
+        style: TextButton.styleFrom(
+          foregroundColor: cts.navy,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          provider.isAscending ? 'SORT ASC' : 'SORT DESC',
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: cts.navy,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+          ),
+        ),
+      ),
+      const SizedBox(width: 4),
+    ];
   }
 
   Widget _buildTripContent(BuildContext context, D2dChannelProvider provider) {
     final cts = context.cts;
     final theme = Theme.of(context);
-    // LIVE = WebSocket / trip connected — never remaining-queue occupancy.
-    final isLive = provider.isChannelLive;
+    final tripLabel = _tripStatusLabel(provider.tripStatus);
     final canAdd = D2dChannelRolePolicy.can(
       SessionRole.userType,
       D2dChannelAction.addCommuter,
     );
+    final qrEnabled = !provider.isTripEnded &&
+        provider.tripStatus != D2dTripStatus.ended;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
       children: [
+        // 08 Connection lost + Retry
         D2dConnectionLostBanner(
           provider: provider,
           batchId: widget.batchId,
         ),
-        _buildTopBar(
-          context,
-          isLive: isLive,
-          canAdd: canAdd,
-          provider: provider,
+        // 02 + 05 Live Commuter Log · TRIP ACTIVE
+        Text(
+          tripLabel.isEmpty
+              ? 'LIVE COMMUTER LOG'
+              : 'LIVE COMMUTER LOG · $tripLabel',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: cts.navy.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.0,
+          ),
         ),
-        _buildTripActiveBadge(context, provider.tripStatus),
+        const SizedBox(height: 6),
+        // 03 Batch # + 09 QR refresh
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                _batchLabel(context),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w700,
+                  height: 1.15,
+                ),
+              ),
+            ),
+            if (qrEnabled)
+              TextButton(
+                onPressed: _refreshQr,
+                style: TextButton.styleFrom(
+                  foregroundColor: cts.navy,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'QR refresh',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: cts.navy,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        // Visible Call Admin (also in app bar as CALL)
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: _callAdmin,
+            icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
+            label: Text(
+              'Call Admin',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: cts.navy,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        // 09 Boarding QR panel (+ Refresh inside panel / QR refresh above)
         BoardingQrPanel(
+          key: _qrKey,
           batchId: widget.batchId,
           compact: true,
-          enabled: !provider.isTripEnded &&
-              provider.tripStatus != D2dTripStatus.ended,
+          enabled: qrEnabled,
         ),
         const SizedBox(height: 12),
+        // 11 Remaining / On board counts
         D2dTripCountsRow(
           waitingCount: provider.commuters.length,
           onBoardCount: provider.alreadyInCommuters.length,
         ),
         const SizedBox(height: 16),
         Text(
-          'Remaining',
+          'Remaining · ${provider.commuters.length}',
           style: theme.textTheme.titleSmall?.copyWith(
             color: cts.navy,
             fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 4),
-        Divider(height: 1, thickness: 1, color: cts.navy.withValues(alpha: 0.12)),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: cts.navy.withValues(alpha: 0.12),
+        ),
+        // 11 empty state + 12 rider rows (call, Board, swipe Picked up/Delete)
         if (provider.commuters.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 24),
@@ -465,18 +476,56 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               onCall: () => _callCommuter(provider.commuters[i].mobileNumber),
               showDivider: i < provider.commuters.length - 1,
             ),
-        if (provider.waitingCommuters.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          D2dWaitingSection(
-            commuters: provider.waitingCommuters,
-            onCall: (commuter) => _callCommuter(commuter.mobileNumber),
+        // 13 Waiting line (always listed; section hides itself if empty)
+        const SizedBox(height: 20),
+        D2dWaitingSection(
+          commuters: provider.waitingCommuters,
+          onCall: (commuter) => _callCommuter(commuter.mobileNumber),
+        ),
+        if (provider.waitingCommuters.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              'WAITING LINE · 0',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: cts.navy.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
+            ),
           ),
-        ],
-        if (provider.alreadyInCommuters.isNotEmpty) ...[
-          const SizedBox(height: 20),
+        // 14 Already IN collapsed
+        const SizedBox(height: 12),
+        if (provider.alreadyInCommuters.isEmpty)
+          Text(
+            'ALREADY IN · 0',
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: cts.navy.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
+          )
+        else
           D2dAlreadyInSection(
             commuters: provider.alreadyInCommuters,
             onCall: (commuter) => _callCommuter(commuter.mobileNumber),
+          ),
+        // 15 Add also available as text when FAB hidden by role
+        if (canAdd) ...[
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => _openAddCommuter(provider),
+              icon: Icon(Icons.person_add_outlined, color: cts.navy, size: 18),
+              label: Text(
+                'Add commuter',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
         ],
       ],
@@ -532,11 +581,32 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.scheme;
+    final cts = context.cts;
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
-      appBar: const BrandAppBar(),
+      // 01 App bar + drawer (hamburger → openDrawer). BrandAppBar pattern
+      // (logo + platform title alignment) with LIVE / CALL / SORT actions.
       drawer: const AppDrawer(),
+      appBar: PreferredSize(
+        preferredSize: const BrandAppBar().preferredSize,
+        child: Consumer<D2dChannelProvider>(
+          builder: (context, provider, _) {
+            return AppBar(
+              centerTitle: BrandAppBar.platformCentersTitle,
+              leading: Builder(
+                builder: (btnContext) => IconButton(
+                  tooltip: 'Menu',
+                  icon: Icon(Icons.menu, color: cts.navy),
+                  onPressed: () => Scaffold.of(btnContext).openDrawer(),
+                ),
+              ),
+              title: const CtsBrandLogo(height: 40),
+              actions: _buildAppBarActions(context, provider),
+            );
+          },
+        ),
+      ),
       body: SafeArea(
         top: false,
         bottom: false,
@@ -546,14 +616,28 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _buildTopBar(
-                    context,
-                    isLive: provider.isChannelLive,
-                    canAdd: false,
-                    provider: provider,
+                  Text(
+                    'LIVE COMMUTER LOG · TRIP ENDED',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: scheme.error,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.0,
+                        ),
                   ),
-                  _buildTripActiveBadge(context, provider.tripStatus),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
+                  Text(
+                    _batchLabel(context),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _callAdmin,
+                    icon: Icon(Icons.call_outlined, color: cts.navy),
+                    label: const Text('Call Admin'),
+                  ),
+                  const SizedBox(height: 16),
                   StatusMessage.error(
                     title: provider.errorMessage ?? 'This trip has ended.',
                     onRetry: null,
@@ -572,13 +656,14 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _buildTopBar(
-                    context,
-                    isLive: provider.isChannelLive,
-                    canAdd: false,
-                    provider: provider,
+                  Text(
+                    'LIVE COMMUTER LOG',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: cts.navy.withValues(alpha: 0.7),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.0,
+                        ),
                   ),
-                  _buildTripActiveBadge(context, provider.tripStatus),
                   const SizedBox(height: 24),
                   const LoadingIndicator(),
                 ],
@@ -589,6 +674,35 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           },
         ),
       ),
+      // 15 Add commuter FAB
+      floatingActionButton: Consumer<D2dChannelProvider>(
+        builder: (context, provider, _) {
+          final canAdd = D2dChannelRolePolicy.can(
+            SessionRole.userType,
+            D2dChannelAction.addCommuter,
+          );
+          if (!canAdd ||
+              provider.isTripEnded ||
+              provider.tripStatus == D2dTripStatus.ended) {
+            return const SizedBox.shrink();
+          }
+          return FloatingActionButton(
+            heroTag: 'd2dDriverAddCommuter',
+            tooltip: 'Add commuter',
+            backgroundColor: scheme.surface,
+            foregroundColor: cts.navy,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+              side: BorderSide(color: cts.navy.withValues(alpha: 0.45)),
+            ),
+            onPressed: () => _openAddCommuter(provider),
+            child: const Icon(Icons.person_add),
+          );
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // 16 STOP TRIP (+ 17 End KM sheet inside _stopTrip)
       bottomNavigationBar: Consumer<D2dChannelProvider>(
         builder: (context, provider, _) =>
             _buildStopTripBar(context, provider),

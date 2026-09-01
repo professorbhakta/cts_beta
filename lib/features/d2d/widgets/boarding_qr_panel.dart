@@ -29,14 +29,17 @@ class BoardingQrPanel extends StatefulWidget {
   final bool compact;
 
   @override
-  State<BoardingQrPanel> createState() => _BoardingQrPanelState();
+  State<BoardingQrPanel> createState() => BoardingQrPanelState();
 }
 
-class _BoardingQrPanelState extends State<BoardingQrPanel> {
+class BoardingQrPanelState extends State<BoardingQrPanel> {
   BoardingQrPayload? _payload;
   String? _error;
   bool _loading = false;
   Timer? _refreshTimer;
+
+  /// External refresh (e.g. "QR refresh" header control).
+  Future<void> refresh() => _loadQr();
 
   @override
   void initState() {
