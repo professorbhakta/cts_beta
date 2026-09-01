@@ -109,76 +109,136 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.scheme;
-    final cts = context.cts;
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
       drawer: const AppDrawer(),
       body: SafeArea(
         bottom: false,
-        child: RefreshIndicator(
-          onRefresh: () =>
-              context.read<CommuterHomeProvider>().fetchCommuterProfile(),
-          child: Consumer<CommuterHomeProvider>(
-            builder: (context, provider, child) {
-              return switch (provider.state) {
-                ViewState.loading => _buildSkeleton(context),
-                ViewState.error => ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      StatusMessage.error(
-                        title: provider.errorMessage ?? 'An error occurred',
-                        onRetry: () => provider.fetchCommuterProfile(),
+        child: Consumer<CommuterHomeProvider>(
+          builder: (context, provider, child) {
+            return switch (provider.state) {
+              ViewState.loading => _buildSkeleton(context),
+              ViewState.error => ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    StatusMessage.error(
+                      title: provider.errorMessage ?? 'An error occurred',
+                      onRetry: () => provider.fetchCommuterProfile(),
+                    ),
+                  ],
+                ),
+              _ when provider.commuterProfile == null => ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    StatusMessage(
+                      icon: Icons.person_outline,
+                      title: 'Could not load your profile.',
+                      message: 'Pull to refresh.',
+                    ),
+                  ],
+                ),
+              _ => Column(
+                  children: [
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: () => provider.fetchCommuterProfile(),
+                        child: _buildBoard(context, provider),
                       ),
-                    ],
-                  ),
-                _ when provider.commuterProfile == null => ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: const [
-                      StatusMessage(
-                        icon: Icons.person_outline,
-                        title: 'Could not load your profile.',
-                        message: 'Pull to refresh.',
-                      ),
-                    ],
-                  ),
-                _ => _buildContent(context, provider),
-              };
-            },
-          ),
+                    ),
+                    _buildStickyActions(context, provider),
+                  ],
+                ),
+            };
+          },
         ),
       ),
-      bottomNavigationBar: Consumer<CommuterHomeProvider>(
-        builder: (context, provider, _) {
-          return NavigationBar(
-            backgroundColor: scheme.surfaceContainerHighest,
-            indicatorColor: Colors.transparent,
-            elevation: 0,
-            height: 64,
-            selectedIndex: _navIndex,
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            onDestinationSelected: (i) => _onBottomNavTap(i, provider),
-            destinations: [
-              NavigationDestination(
-                icon: Icon(Icons.home_outlined, color: cts.navy, size: 22),
-                selectedIcon: Icon(Icons.home, color: cts.navy, size: 22),
-                label: 'Home',
+    );
+  }
+
+  Widget _buildStickyActions(
+    BuildContext context,
+    CommuterHomeProvider provider,
+  ) {
+    final cts = context.cts;
+    final scheme = context.scheme;
+    final theme = Theme.of(context);
+    final mode = _heroMode(provider);
+    final profile = provider.commuterProfile;
+
+    final ctaLabel = mode == _HeroMode.boarded
+        ? 'TRACK YOUR CAB'
+        : 'SCAN BOARDING QR';
+
+    return Material(
+      color: scheme.surfaceContainerHighest,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: Material(
+                color: cts.yellow,
+                child: InkWell(
+                  onTap: profile == null
+                      ? null
+                      : () {
+                          if (mode == _HeroMode.boarded) {
+                            _openTrackCab(profile);
+                          } else {
+                            _openBoardingScan(provider);
+                          }
+                        },
+                  child: Center(
+                    child: Text(
+                      ctaLabel,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: scheme.onPrimary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              NavigationDestination(
-                icon: Icon(Icons.qr_code_scanner, color: cts.navy, size: 22),
-                selectedIcon:
-                    Icon(Icons.qr_code_scanner, color: cts.navy, size: 22),
-                label: 'Scan',
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+              child: Row(
+                children: [
+                  for (final entry in [
+                    (0, 'Home'),
+                    (1, 'Scan'),
+                    (2, 'Track'),
+                  ])
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _onBottomNavTap(entry.$1, provider),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            entry.$2,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: cts.navy.withValues(
+                                alpha: _navIndex == entry.$1 ? 1 : 0.55,
+                              ),
+                              fontWeight: _navIndex == entry.$1
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-              NavigationDestination(
-                icon: Icon(Icons.my_location_outlined, color: cts.navy, size: 22),
-                selectedIcon:
-                    Icon(Icons.my_location, color: cts.navy, size: 22),
-                label: 'Track',
-              ),
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -188,7 +248,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 4, 4, 8),
+      padding: const EdgeInsets.fromLTRB(0, 0, 4, 8),
       child: Row(
         children: [
           IconButton(
@@ -216,19 +276,25 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     );
   }
 
-  Widget _buildContent(BuildContext context, CommuterHomeProvider provider) {
+  Widget _buildBoard(BuildContext context, CommuterHomeProvider provider) {
     final commuter = provider.commuterProfile!;
-    final mode = _heroMode(provider);
+    final cts = context.cts;
+    final theme = Theme.of(context);
+    final time = _formatBatchTime(commuter.batchId?.batchTime);
+    final pickup = commuter.popId?.pickUpPointName ?? 'Pickup TBD';
+    final batchName = commuter.batchId?.batchName ?? 'No batch';
+    final cab = commuter.cabId?.regNumber ?? 'Cab TBD';
+    final adminMobile = commuter.adminCode?.userId?.mobileNumber;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontalPadding = constraints.maxWidth >= 600 ? 20.0 : 16.0;
+        final horizontalPadding = constraints.maxWidth >= 600 ? 24.0 : 20.0;
 
         return ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             horizontalPadding,
-            8,
+            4,
             horizontalPadding,
             24,
           ),
@@ -241,21 +307,75 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildHeader(context),
-                    const SizedBox(height: 8),
-                    _buildHeroCard(context, provider, commuter, mode),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 20),
+                    Text(
+                      'TODAY',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: cts.navy.withValues(alpha: 0.55),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      time,
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        color: cts.navy,
+                        fontSize: 72,
+                        fontWeight: FontWeight.w500,
+                        height: 0.95,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                        letterSpacing: -1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      pickup,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: cts.navy,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '$batchName · $cab',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: cts.navy.withValues(alpha: 0.65),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                        if (adminMobile != null && adminMobile.isNotEmpty)
+                          IconButton(
+                            tooltip: 'Call admin',
+                            visualDensity: VisualDensity.compact,
+                            onPressed: () => calling(adminMobile),
+                            icon: Icon(Icons.call, color: cts.navy, size: 18),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 28),
+                    Divider(height: 1, thickness: 1, color: cts.navy.withValues(alpha: 0.12)),
                     _buildQuietComingToggle(context, provider, commuter),
-                    if (provider.isUpdating) ...[
-                      const SizedBox(height: 10),
-                      const Center(
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                    if (provider.isUpdating)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: Center(
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
                       ),
-                    ],
-                    const SizedBox(height: 28),
+                    Divider(height: 1, thickness: 1, color: cts.navy.withValues(alpha: 0.12)),
+                    const SizedBox(height: 16),
                     _buildQuietReturnSection(context, provider),
                   ],
                 ),
@@ -264,129 +384,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildHeroCard(
-    BuildContext context,
-    CommuterHomeProvider provider,
-    CommuterModel commuter,
-    _HeroMode mode,
-  ) {
-    final cts = context.cts;
-    final theme = Theme.of(context);
-    final scheme = context.scheme;
-    final batchName = commuter.batchId?.batchName ?? 'No batch';
-    final gate = commuter.popId?.pickUpPointName ?? 'Pickup TBD';
-    final cab = commuter.cabId?.regNumber ?? 'Cab TBD';
-    final time = _formatBatchTime(commuter.batchId?.batchTime);
-    final meta = '$batchName · $gate · $cab';
-    final adminMobile = commuter.adminCode?.userId?.mobileNumber;
-
-    late final String headline;
-    late final String ctaLabel;
-    late final VoidCallback? onCta;
-
-    switch (mode) {
-      case _HeroMode.notComing:
-        headline = 'Scan to board';
-        ctaLabel = 'Scan boarding QR';
-        onCta = () => _openBoardingScan(provider);
-      case _HeroMode.scan:
-        headline = 'Scan to board';
-        ctaLabel = 'Scan boarding QR';
-        onCta = () => _openBoardingScan(provider);
-      case _HeroMode.boarded:
-        headline = "You're on board";
-        ctaLabel = 'Track your cab';
-        onCta = () => _openTrackCab(commuter);
-    }
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-      decoration: BoxDecoration(
-        color: cts.navy,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Text(
-                'TODAY · $time',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.onSecondary.withValues(alpha: 0.7),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.1,
-                ),
-              ),
-              const Spacer(),
-              if (adminMobile != null && adminMobile.isNotEmpty)
-                IconButton(
-                  tooltip: 'Call admin',
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
-                  onPressed: () => calling(adminMobile),
-                  icon: Icon(
-                    Icons.call,
-                    color: scheme.onSecondary.withValues(alpha: 0.75),
-                    size: 18,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            headline,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: scheme.onSecondary,
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            meta,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: scheme.onSecondary.withValues(alpha: 0.8),
-              fontWeight: FontWeight.w400,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: FilledButton(
-              onPressed: onCta,
-              style: FilledButton.styleFrom(
-                backgroundColor: cts.yellow,
-                foregroundColor: scheme.onPrimary,
-                disabledBackgroundColor: cts.yellow.withValues(alpha: 0.5),
-                padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              child: Text(
-                ctaLabel,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: scheme.onPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -400,33 +397,36 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     final scheme = context.scheme;
     final isComing = commuter.isComing ?? false;
 
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            'Coming today',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: cts.navy,
-              fontWeight: FontWeight.w500,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Coming today',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: cts.navy,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-        Switch(
-          value: isComing,
-          activeThumbColor: scheme.surface,
-          activeTrackColor: cts.navy,
-          inactiveThumbColor: scheme.surface,
-          inactiveTrackColor: cts.navy.withValues(alpha: 0.25),
-          trackOutlineColor: WidgetStatePropertyAll(
-            cts.navy.withValues(alpha: 0.35),
+          Switch(
+            value: isComing,
+            activeThumbColor: scheme.surface,
+            activeTrackColor: cts.navy,
+            inactiveThumbColor: scheme.surface,
+            inactiveTrackColor: cts.navy.withValues(alpha: 0.25),
+            trackOutlineColor: WidgetStatePropertyAll(
+              cts.navy.withValues(alpha: 0.35),
+            ),
+            onChanged: provider.isUpdating
+                ? null
+                : (newValue) {
+                    _showConfirmationDialog(context, provider, newValue);
+                  },
           ),
-          onChanged: provider.isUpdating
-              ? null
-              : (newValue) {
-                  _showConfirmationDialog(context, provider, newValue);
-                },
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -455,7 +455,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
         const SizedBox(height: 12),
         DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
             border: Border.all(color: cts.navy.withValues(alpha: 0.28)),
           ),
           child: Row(
@@ -466,7 +465,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                   label: 'Home',
                   selected: selected == ReturnIntentKind.home,
                   enabled: !busy,
-                  isFirst: true,
                   onSelected: () => _saveIntent(
                     context,
                     provider,
@@ -475,7 +473,11 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                   ),
                 ),
               ),
-              Container(width: 1, height: 40, color: cts.navy.withValues(alpha: 0.28)),
+              Container(
+                width: 1,
+                height: 40,
+                color: cts.navy.withValues(alpha: 0.28),
+              ),
               Expanded(
                 child: _returnSegment(
                   context,
@@ -490,14 +492,17 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                   ),
                 ),
               ),
-              Container(width: 1, height: 40, color: cts.navy.withValues(alpha: 0.28)),
+              Container(
+                width: 1,
+                height: 40,
+                color: cts.navy.withValues(alpha: 0.28),
+              ),
               Expanded(
                 child: _returnSegment(
                   context,
                   label: 'Earlier',
                   selected: selected == ReturnIntentKind.earlier,
                   enabled: !busy,
-                  isLast: true,
                   onSelected: () => _pickEarlierBatch(context, provider),
                 ),
               ),
@@ -524,8 +529,8 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           const SizedBox(height: 10),
           const Center(
             child: SizedBox(
-              width: 20,
-              height: 20,
+              width: 18,
+              height: 18,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ),
@@ -568,18 +573,12 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     required bool selected,
     required bool enabled,
     required VoidCallback onSelected,
-    bool isFirst = false,
-    bool isLast = false,
   }) {
     final cts = context.cts;
     final theme = Theme.of(context);
 
     return Material(
       color: selected ? cts.navy.withValues(alpha: 0.08) : Colors.transparent,
-      borderRadius: BorderRadius.horizontal(
-        left: isFirst ? const Radius.circular(3) : Radius.zero,
-        right: isLast ? const Radius.circular(3) : Radius.zero,
-      ),
       child: InkWell(
         onTap: enabled ? onSelected : null,
         child: SizedBox(
@@ -686,7 +685,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                       ? null
                       : Text('Return ${option.endTime}'),
                   trailing: provider.returnIntent.targetBatchId == option.id
-                      ? const Icon(Icons.check_rounded)
+                      ? const Icon(Icons.check)
                       : null,
                   onTap: () => Navigator.of(sheetContext).pop(option.id),
                 ),
@@ -707,49 +706,21 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
 
   Widget _buildSkeleton(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final placeholder = scheme.surfaceContainerHighest;
+    final placeholder = scheme.outline.withValues(alpha: 0.15);
 
     return Shimmer.fromColors(
       baseColor: scheme.outline.withValues(alpha: 0.2),
       highlightColor: scheme.surface,
       child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: _maxContentWidth),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 28,
-                    width: 64,
-                    decoration: BoxDecoration(
-                      color: placeholder,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    height: 220,
-                    decoration: BoxDecoration(
-                      color: placeholder,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: placeholder,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          Container(height: 24, width: 64, color: placeholder),
+          const SizedBox(height: 24),
+          Container(height: 72, width: 180, color: placeholder),
+          const SizedBox(height: 16),
+          Container(height: 22, width: 220, color: placeholder),
+          const SizedBox(height: 8),
+          Container(height: 16, width: 160, color: placeholder),
         ],
       ),
     );

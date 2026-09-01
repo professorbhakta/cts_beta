@@ -3,7 +3,6 @@ import 'package:cts/app/router/route_names.dart';
 import 'package:cts/offline_temp/offline_auto_redirect.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
-import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/loading_indicator.dart';
@@ -39,7 +38,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
   }
 
   String _formatBatchTime(String? batchTime) {
-    if (batchTime == null || batchTime.isEmpty) return 'N/A';
+    if (batchTime == null || batchTime.isEmpty) return '—';
     if (batchTime.length >= 5) return batchTime.substring(0, 5);
     return batchTime;
   }
@@ -53,99 +52,115 @@ class _DriverHomePageState extends State<DriverHomePage> {
         backgroundColor: scheme.surfaceContainerHighest,
         drawer: const AppDrawer(),
         body: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () =>
-                context.read<DriverHomeProvider>().fetchDriverProfile(),
-            child: Consumer<DriverHomeProvider>(
-              builder: (context, provider, child) {
-                return switch (provider.state) {
-                  ViewState.loading => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 200, child: LoadingIndicator()),
-                      ],
-                    ),
-                  ViewState.error => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        StatusMessage.error(
-                          title: provider.errorMessage ?? 'An error occurred',
-                          onRetry: () => provider.fetchDriverProfile(),
+          bottom: false,
+          child: Consumer<DriverHomeProvider>(
+            builder: (context, provider, child) {
+              return switch (provider.state) {
+                ViewState.loading => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 200, child: LoadingIndicator()),
+                    ],
+                  ),
+                ViewState.error => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      StatusMessage.error(
+                        title: provider.errorMessage ?? 'An error occurred',
+                        onRetry: () => provider.fetchDriverProfile(),
+                      ),
+                    ],
+                  ),
+                _ when provider.driverProfile == null => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      StatusMessage(
+                        icon: Icons.assignment_outlined,
+                        title: 'No assignment details found.',
+                        message: 'Pull to refresh.',
+                      ),
+                    ],
+                  ),
+                _ => Column(
+                    children: [
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: () => provider.fetchDriverProfile(),
+                          child: _buildBoard(context, provider),
                         ),
-                      ],
-                    ),
-                  _ when provider.driverProfile == null => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        StatusMessage(
-                          icon: Icons.assignment_outlined,
-                          title: 'No assignment details found.',
-                          message: 'Pull to refresh.',
-                        ),
-                      ],
-                    ),
-                  _ => _buildContent(context, provider),
-                };
-              },
-            ),
+                      ),
+                      _buildStickyActions(context, provider),
+                    ],
+                  ),
+              };
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, DriverHomeProvider provider) {
-    final driverProfile = provider.driverProfile!;
-    final adminMobile = driverProfile.adminCode?.userId?.mobileNumber;
-    final batchId = driverProfile.batchId?.id;
-    final driverName = driverProfile.userId?.username ?? 'Driver';
+  Widget _buildStickyActions(
+    BuildContext context,
+    DriverHomeProvider provider,
+  ) {
+    final cts = context.cts;
+    final scheme = context.scheme;
+    final theme = Theme.of(context);
+    final batchId = provider.driverProfile?.batchId?.id?.toString();
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final horizontalPadding = constraints.maxWidth >= 600 ? 20.0 : 16.0;
-
-        return ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(
-            horizontalPadding,
-            8,
-            horizontalPadding,
-            24,
-          ),
+    return Material(
+      color: scheme.surfaceContainerHighest,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: _maxContentWidth),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildHeader(context, driverName),
-                    const SizedBox(height: 16),
-                    _buildAssignmentCard(context, driverProfile, adminMobile),
-                    const SizedBox(height: 20),
-                    _buildStartTripButton(context, batchId?.toString()),
-                    if (batchId != null) ...[
-                      const SizedBox(height: 12),
-                      _buildReturnListButton(context, batchId.toString()),
-                    ],
-                    if (batchId == null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'No batch assigned yet. Contact admin if this looks wrong.',
-                        textAlign: TextAlign.center,
-                        style: context.texts.bodySmall?.copyWith(
-                          color: context.scheme.onSurface.withValues(alpha: 0.6),
-                        ),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: Material(
+                color: cts.yellow,
+                child: InkWell(
+                  onTap: batchId == null
+                      ? null
+                      : () => context.push('${RouteName.d2dLog}/$batchId'),
+                  child: Center(
+                    child: Text(
+                      'START TRIP',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: scheme.onPrimary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
                       ),
-                    ],
-                  ],
+                    ),
+                  ),
                 ),
               ),
             ),
+            if (batchId != null)
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: InkWell(
+                  onTap: () => context.push(
+                    '${RouteName.driverReturnCommuter}/$batchId',
+                  ),
+                  child: Center(
+                    child: Text(
+                      'RETURN LIST',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: cts.navy,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -180,154 +195,13 @@ class _DriverHomePageState extends State<DriverHomePage> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _greeting(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cts.navy.withValues(alpha: 0.7),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                name,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: cts.navy,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  height: 1.15,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAssignmentCard(
-    BuildContext context,
-    DriverModel driverProfile,
-    String? adminMobile,
-  ) {
-    final cts = context.cts;
-    final scheme = context.scheme;
-    final theme = context.theme;
-    final batchName = driverProfile.batchId?.batchName ?? 'No batch assigned';
-    final startTime = _formatBatchTime(driverProfile.batchId?.batchTime);
-    final cabNumber = driverProfile.cabId?.regNumber ?? 'N/A';
-    final dateLabel = DateFormat.yMMMEd().format(DateTime.now());
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-      decoration: BoxDecoration(
-        color: cts.navy,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Text(
-                'READY',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.onSecondary.withValues(alpha: 0.7),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.1,
-                ),
-              ),
-              const Spacer(),
-              if (adminMobile != null && adminMobile.isNotEmpty)
-                IconButton(
-                  tooltip: 'Call admin',
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
-                  onPressed: () => calling(adminMobile),
-                  icon: Icon(
-                    Icons.call,
-                    color: scheme.onSecondary.withValues(alpha: 0.75),
-                    size: 18,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            batchName,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: scheme.onSecondary,
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              height: 1.2,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            dateLabel,
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+          child: Text(
+            '${_greeting()}, $name',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: scheme.onSecondary.withValues(alpha: 0.78),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          const SizedBox(height: 14),
-          _assignmentMetaRow(
-            context,
-            label: 'START',
-            value: startTime,
-          ),
-          const SizedBox(height: 8),
-          _assignmentMetaRow(
-            context,
-            label: 'CAB',
-            value: cabNumber,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _assignmentMetaRow(
-    BuildContext context, {
-    required String label,
-    required String value,
-  }) {
-    final scheme = context.scheme;
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        SizedBox(
-          width: 56,
-          child: Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: scheme.onSecondary.withValues(alpha: 0.65),
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.0,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: scheme.onSecondary,
-              fontWeight: FontWeight.w600,
+              color: cts.navy.withValues(alpha: 0.65),
+              fontWeight: FontWeight.w500,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -337,67 +211,121 @@ class _DriverHomePageState extends State<DriverHomePage> {
     );
   }
 
-  Widget _buildStartTripButton(BuildContext context, String? batchId) {
+  Widget _buildBoard(BuildContext context, DriverHomeProvider provider) {
+    final driverProfile = provider.driverProfile!;
     final cts = context.cts;
-    final scheme = context.scheme;
-    final theme = Theme.of(context);
+    final theme = context.theme;
+    final adminMobile = driverProfile.adminCode?.userId?.mobileNumber;
+    final batchId = driverProfile.batchId?.id;
+    final driverName = driverProfile.userId?.username ?? 'Driver';
+    final time = _formatBatchTime(driverProfile.batchId?.batchTime);
+    final batchName = driverProfile.batchId?.batchName ?? 'No batch assigned';
+    final cabNumber = driverProfile.cabId?.regNumber ?? 'N/A';
+    final dateLabel = DateFormat.yMMMEd().format(DateTime.now());
 
-    return SizedBox(
-      width: double.infinity,
-      height: 44,
-      child: FilledButton(
-        onPressed: batchId == null
-            ? null
-            : () => context.push('${RouteName.d2dLog}/$batchId'),
-        style: FilledButton.styleFrom(
-          backgroundColor: cts.yellow,
-          foregroundColor: scheme.onPrimary,
-          disabledBackgroundColor: cts.yellow.withValues(alpha: 0.45),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        child: Text(
-          'START TRIP',
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: scheme.onPrimary,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.6,
-          ),
-        ),
-      ),
-    );
-  }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontalPadding = constraints.maxWidth >= 600 ? 24.0 : 20.0;
 
-  Widget _buildReturnListButton(BuildContext context, String batchId) {
-    final cts = context.cts;
-    final theme = Theme.of(context);
-
-    return SizedBox(
-      width: double.infinity,
-      height: 44,
-      child: OutlinedButton(
-        onPressed: () => context.push(
-          '${RouteName.driverReturnCommuter}/$batchId',
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: cts.navy,
-          side: BorderSide(color: cts.navy.withValues(alpha: 0.4)),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
+        return ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            horizontalPadding,
+            4,
+            horizontalPadding,
+            24,
           ),
-        ),
-        child: Text(
-          'RETURN LIST',
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: cts.navy,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.6,
-          ),
-        ),
-      ),
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildHeader(context, driverName),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Text(
+                          'READY',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: cts.navy.withValues(alpha: 0.55),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          dateLabel,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cts.navy.withValues(alpha: 0.55),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      time,
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        color: cts.navy,
+                        fontSize: 72,
+                        fontWeight: FontWeight.w500,
+                        height: 0.95,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                        letterSpacing: -1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      batchName,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: cts.navy,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Cab $cabNumber',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: cts.navy.withValues(alpha: 0.65),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                        if (adminMobile != null && adminMobile.isNotEmpty)
+                          IconButton(
+                            tooltip: 'Call admin',
+                            visualDensity: VisualDensity.compact,
+                            onPressed: () => calling(adminMobile),
+                            icon: Icon(Icons.call, color: cts.navy, size: 18),
+                          ),
+                      ],
+                    ),
+                    if (batchId == null) ...[
+                      const SizedBox(height: 24),
+                      Text(
+                        'No batch assigned yet. Contact admin if this looks wrong.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cts.navy.withValues(alpha: 0.55),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
