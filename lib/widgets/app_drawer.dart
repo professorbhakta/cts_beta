@@ -17,9 +17,114 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: Colors.transparent,
-      child: SessionRole.isCommuter
-          ? const CommuterNavList()
-          : const AdminNavList(),
+      child: switch (SessionRole.userType) {
+        'COMMUTER' => const CommuterNavList(),
+        'DRIVER' => const DriverNavList(),
+        _ => const AdminNavList(),
+      },
+    );
+  }
+}
+
+/// Driver-only drawer: Home, Profile, Logout.
+/// No admin management routes.
+class DriverNavList extends StatelessWidget {
+  const DriverNavList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+    final theme = context.theme;
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
+    final homeRoute = RouteName.driverHomeScreen;
+
+    final topInset = MediaQuery.paddingOf(context).top;
+    final drawerBg =
+        theme.appBarTheme.backgroundColor ?? scheme.inverseSurface;
+    final onDrawer = scheme.onInverseSurface;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            drawerBg,
+            Color.alphaBlend(
+              onDrawer.withValues(alpha: 0.08),
+              drawerBg,
+            ),
+          ],
+        ),
+      ),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.fromLTRB(20, topInset + 16, 20, 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [scheme.primary, cts.yellowBright],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  radius: 32,
+                  backgroundImage: AssetImage('assets/images/driver.png'),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _drawerDisplayName(),
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _drawerDisplayMobile(),
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.9),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          _DrawerNavTile(
+            icon: Icons.home_rounded,
+            title: 'Home',
+            route: homeRoute,
+            color: scheme.primary,
+            isSelected: currentRoute == homeRoute,
+          ),
+          _DrawerNavTile(
+            icon: Icons.person_rounded,
+            title: 'Profile',
+            route: RouteName.profileScreen,
+            color: cts.yellowBright,
+            isSelected: currentRoute == RouteName.profileScreen,
+          ),
+          const SizedBox(height: 16),
+          Divider(
+            color: scheme.surfaceContainerHighest,
+            height: 1,
+            thickness: 1,
+            indent: 20,
+            endIndent: 20,
+          ),
+          const SizedBox(height: 8),
+          const _DrawerLogoutTile(),
+        ],
+      ),
     );
   }
 }
