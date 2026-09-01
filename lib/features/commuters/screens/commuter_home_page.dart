@@ -242,8 +242,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                     const SizedBox(height: 8),
                     _buildHeroCard(context, provider, commuter, mode),
                     const SizedBox(height: 14),
-                    _buildCompactTripStrip(context, commuter),
-                    const SizedBox(height: 10),
                     _buildQuietComingToggle(context, provider, commuter),
                     if (provider.isUpdating) ...[
                       const SizedBox(height: 10),
@@ -257,21 +255,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                     ],
                     const SizedBox(height: 28),
                     _buildQuietReturnSection(context, provider),
-                    const SizedBox(height: 20),
-                    TextButton.icon(
-                      onPressed: () => _openTrackCab(commuter),
-                      icon: Icon(
-                        Icons.my_location_rounded,
-                        color: context.cts.navy,
-                      ),
-                      label: Text(
-                        'Track your cab',
-                        style: TextStyle(
-                          color: context.cts.navy,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -290,12 +273,15 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
   ) {
     final cts = context.cts;
     final theme = Theme.of(context);
+    final scheme = context.scheme;
     final batchName = commuter.batchId?.batchName ?? 'No batch';
     final gate = commuter.popId?.pickUpPointName ?? 'Pickup TBD';
     final cab = commuter.cabId?.regNumber ?? 'Cab TBD';
     final time = _formatBatchTime(commuter.batchId?.batchTime);
     final meta = '$batchName · $gate · $cab';
+    final adminMobile = commuter.adminCode?.userId?.mobileNumber;
 
+    // Hero CTA is Scan or Track only — Coming is controlled solely by the Switch.
     late final String headline;
     late final String ctaLabel;
     late final String statusLine;
@@ -304,11 +290,9 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     switch (mode) {
       case _HeroMode.notComing:
         headline = 'Mark coming to ride';
-        ctaLabel = "I'm coming today";
+        ctaLabel = 'Scan boarding QR';
         statusLine = "You're not marked coming";
-        onCta = provider.isUpdating
-            ? null
-            : () => _showConfirmationDialog(context, provider, true);
+        onCta = () => _openBoardingScan(provider);
       case _HeroMode.scan:
         headline = 'Scan to board';
         ctaLabel = 'Scan boarding QR';
@@ -330,29 +314,48 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: cts.yellow,
-                borderRadius: BorderRadius.circular(99),
-              ),
-              child: Text(
-                'TODAY · $time',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: context.scheme.onPrimary,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.2,
+          Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: cts.yellow,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  'TODAY · $time',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.onPrimary,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.2,
+                  ),
                 ),
               ),
-            ),
+              const Spacer(),
+              if (adminMobile != null && adminMobile.isNotEmpty)
+                IconButton(
+                  tooltip: 'Call admin',
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                  onPressed: () => calling(adminMobile),
+                  icon: Icon(
+                    Icons.call_rounded,
+                    color: scheme.onSecondary,
+                    size: 20,
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 16),
           Text(
             headline,
             style: theme.textTheme.headlineMedium?.copyWith(
-              color: context.scheme.onSecondary,
+              color: scheme.onSecondary,
               fontWeight: FontWeight.w800,
               height: 1.15,
             ),
@@ -361,7 +364,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           Text(
             meta,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: context.scheme.onSecondary.withValues(alpha: 0.88),
+              color: scheme.onSecondary.withValues(alpha: 0.88),
               fontWeight: FontWeight.w500,
             ),
             maxLines: 2,
@@ -374,7 +377,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               onPressed: onCta,
               style: FilledButton.styleFrom(
                 backgroundColor: cts.yellow,
-                foregroundColor: context.scheme.onPrimary,
+                foregroundColor: scheme.onPrimary,
                 disabledBackgroundColor: cts.yellow.withValues(alpha: 0.5),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -384,7 +387,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               child: Text(
                 ctaLabel,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  color: context.scheme.onPrimary,
+                  color: scheme.onPrimary,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -395,52 +398,10 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             statusLine,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: context.scheme.onSecondary.withValues(alpha: 0.9),
+              color: scheme.onSecondary.withValues(alpha: 0.9),
               fontWeight: FontWeight.w500,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompactTripStrip(BuildContext context, CommuterModel commuter) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-    final theme = Theme.of(context);
-    final batch = commuter.batchId?.batchName ?? '—';
-    final time = _formatBatchTime(commuter.batchId?.batchTime);
-    final pop = commuter.popId?.pickUpPointName ?? '—';
-    final cab = commuter.cabId?.regNumber ?? '—';
-    final adminMobile = commuter.adminCode?.userId?.mobileNumber;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cts.navy.withValues(alpha: 0.12)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '$batch · $time · $pop · $cab',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: cts.navy,
-                fontWeight: FontWeight.w600,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (adminMobile != null && adminMobile.isNotEmpty)
-            IconButton(
-              tooltip: 'Call admin',
-              visualDensity: VisualDensity.compact,
-              onPressed: () => calling(adminMobile),
-              icon: Icon(Icons.call_rounded, color: cts.navy, size: 20),
-            ),
         ],
       ),
     );
