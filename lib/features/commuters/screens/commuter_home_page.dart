@@ -40,23 +40,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     return batchTime;
   }
 
-  /// Quiet human time for the hero, e.g. "7:40 this morning".
-  String _humanTripTime(String? batchTime) {
-    final raw = _formatBatchTime(batchTime);
-    if (raw == '—') return 'Time TBD';
-    final parts = raw.split(':');
-    if (parts.length < 2) return raw;
-    final hour = int.tryParse(parts[0]);
-    final minute = parts[1];
-    if (hour == null) return raw;
-    final period = hour < 12
-        ? 'this morning'
-        : hour < 17
-            ? 'this afternoon'
-            : 'this evening';
-    return '$hour:$minute $period';
-  }
-
   _HeroMode _heroMode(CommuterHomeProvider provider) {
     final coming = provider.commuterProfile?.isComing ?? false;
     if (!coming) return _HeroMode.notComing;
@@ -291,34 +274,39 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     final cts = context.cts;
     final theme = Theme.of(context);
     final scheme = context.scheme;
+    final batchName = commuter.batchId?.batchName ?? 'No batch';
     final gate = commuter.popId?.pickUpPointName ?? 'Pickup TBD';
     final cab = commuter.cabId?.regNumber ?? 'Cab TBD';
-    final timeLabel = _humanTripTime(commuter.batchId?.batchTime);
-    final meta = '$gate · $cab';
+    final time = _formatBatchTime(commuter.batchId?.batchTime);
+    final meta = '$batchName · $gate · $cab';
     final adminMobile = commuter.adminCode?.userId?.mobileNumber;
 
     // Hero CTA is Scan or Track only — Coming is controlled solely by the Switch.
     late final String headline;
     late final String ctaLabel;
+    late final String statusLine;
     late final VoidCallback? onCta;
 
     switch (mode) {
       case _HeroMode.notComing:
-        headline = 'Heading in today?';
-        ctaLabel = 'Scan QR';
+        headline = 'Scan to board';
+        ctaLabel = 'Scan boarding QR';
+        statusLine = 'Mark coming to scan';
         onCta = () => _openBoardingScan(provider);
       case _HeroMode.scan:
-        headline = 'Ready to board';
-        ctaLabel = 'Scan QR';
+        headline = 'Scan to board';
+        ctaLabel = 'Scan boarding QR';
+        statusLine = "You're marked as coming";
         onCta = () => _openBoardingScan(provider);
       case _HeroMode.boarded:
-        headline = 'You’re on the cab';
-        ctaLabel = 'Track cab';
+        headline = "You're on board";
+        ctaLabel = 'Track your cab';
+        statusLine = "You're marked as coming";
         onCta = () => _openTrackCab(commuter);
     }
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 16, 18),
+      padding: const EdgeInsets.fromLTRB(20, 18, 16, 18),
       decoration: BoxDecoration(
         color: cts.navy,
         borderRadius: BorderRadius.circular(22),
@@ -327,17 +315,24 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: cts.yellow,
+                  borderRadius: BorderRadius.circular(99),
+                ),
                 child: Text(
-                  timeLabel,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: scheme.onSecondary.withValues(alpha: 0.72),
-                    fontWeight: FontWeight.w500,
+                  'TODAY · $time',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.onPrimary,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.2,
                   ),
                 ),
               ),
+              const Spacer(),
               if (adminMobile != null && adminMobile.isNotEmpty)
                 IconButton(
                   tooltip: 'Call admin',
@@ -350,13 +345,13 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                   onPressed: () => calling(adminMobile),
                   icon: Icon(
                     Icons.call_rounded,
-                    color: scheme.onSecondary.withValues(alpha: 0.75),
+                    color: scheme.onSecondary.withValues(alpha: 0.85),
                     size: 18,
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           Text(
             headline,
             style: theme.textTheme.headlineMedium?.copyWith(
@@ -369,7 +364,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           Text(
             meta,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: scheme.onSecondary.withValues(alpha: 0.82),
+              color: scheme.onSecondary.withValues(alpha: 0.88),
               fontWeight: FontWeight.w500,
             ),
             maxLines: 2,
@@ -398,6 +393,15 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               ),
             ),
           ),
+          const SizedBox(height: 14),
+          Text(
+            statusLine,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: scheme.onSecondary.withValues(alpha: 0.9),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -416,7 +420,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
       children: [
         Expanded(
           child: Text(
-            'Riding today',
+            'Coming today',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: cts.navy,
               fontWeight: FontWeight.w600,
@@ -450,7 +454,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Need a ride home?',
+          'Return today',
           style: theme.textTheme.titleMedium?.copyWith(
             color: cts.navy,
             fontWeight: FontWeight.w700,
@@ -462,7 +466,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             Expanded(
               child: _returnChoice(
                 context,
-                label: 'Yes',
+                label: 'Home',
                 selected: selected == ReturnIntentKind.home,
                 enabled: !busy,
                 onSelected: () => _saveIntent(
@@ -477,7 +481,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             Expanded(
               child: _returnChoice(
                 context,
-                label: 'Not today',
+                label: 'Skip',
                 selected: selected == ReturnIntentKind.skip,
                 enabled: !busy,
                 onSelected: () => _saveIntent(
@@ -537,7 +541,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
-                'Cab full? Get in line',
+                'Join return waiting line',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: cts.navy.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w600,
