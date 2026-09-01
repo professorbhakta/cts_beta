@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-01 10:20 IST
-> **Session:** Doc header sync; UI updates next
+> **Updated:** 2026-09-01 11:35 IST
+> **Session:** Commuter/driver UI redesign shipped on PR #3
 
 # PROMPT SCOPE — CTS
 
@@ -56,6 +56,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
+| 0 | Q-ui-commuter-driver | Commuter + driver UI redesign | **PR open** [#3](https://github.com/professorbhakta/cts_beta/pull/3) vs `client=beta` — device smoke pending | branch `cursor/commuter-driver-ui-redesign-1fbd` |
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
@@ -82,6 +83,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-01 11:35 | Commuter/driver UI redesign — navy heroes, bottom nav, large QR, STOP bar; PR #3 | `cts_beta` |
 | 2026-09-01 10:20 | Doc header sync — API_CONTRACTS view/ waiting[] example; feature READMEs; FLOWS; PROJECT_TODOS 128 tests | `cts_beta` |
 | 2026-08-31 13:45 | D2D Phase 3 shipped — return waiting Redis + join_waiting + FCFS + FE waiting UI | both |
 | 2026-08-31 13:20 | D2D Phase 1+2 shipped (morning); Phase 3 handoff prompt + brain/scope/registry sync | both |
