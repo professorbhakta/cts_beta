@@ -735,7 +735,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                     height: 220,
                     decoration: BoxDecoration(
                       color: placeholder,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -743,7 +743,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                     height: 48,
                     decoration: BoxDecoration(
                       color: placeholder,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ],
