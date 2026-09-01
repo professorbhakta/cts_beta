@@ -327,6 +327,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   Widget _buildHeader(
     BuildContext context, {
     required bool canAdd,
+    required bool isLive,
   }) {
     final cts = context.cts;
     final theme = Theme.of(context);
@@ -367,6 +368,8 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          D2dLiveStatusChip(isLive: isLive, prominent: true),
+          const SizedBox(width: 4),
           if (canAdd)
             IconButton(
               tooltip: 'Add commuter',
@@ -380,7 +383,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               icon: Icon(Icons.person_add_rounded, color: cts.navy),
             )
           else
-            const SizedBox(width: 48),
+            const SizedBox(width: 8),
         ],
       ),
     );
@@ -394,31 +397,32 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     final isLive = provider.isChannelLive;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildHeader(context, canAdd: canAdd),
+          _buildHeader(context, canAdd: canAdd, isLive: isLive),
           D2dConnectionLostBanner(
             provider: provider,
             batchId: widget.batchId,
           ),
-          // Sticky QR + LIVE: connection liveness, not remaining-queue count.
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              BoardingQrPanel(
-                batchId: widget.batchId,
-                compact: true,
-                enabled: !provider.isTripEnded &&
-                    provider.tripStatus != D2dTripStatus.ended,
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: D2dLiveStatusChip(isLive: isLive),
-              ),
-            ],
+          BoardingQrPanel(
+            batchId: widget.batchId,
+            compact: true,
+            enabled: !provider.isTripEnded &&
+                provider.tripStatus != D2dTripStatus.ended,
+          ),
+          const SizedBox(height: 10),
+          // High-contrast Live status ABOVE the queue — never behind the QR.
+          D2dLiveStatusStrip(
+            isLive: isLive,
+            remainingCount: provider.commuters.length,
+            boardedCount: provider.alreadyInCommuters.length,
+          ),
+          const SizedBox(height: 10),
+          D2dTripCountsRow(
+            waitingCount: provider.commuters.length,
+            onBoardCount: provider.alreadyInCommuters.length,
           ),
         ],
       ),
@@ -432,15 +436,10 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         _buildStickyLiveTop(context, provider),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             children: [
               _buildKmChip(context),
-              const SizedBox(height: 12),
-              D2dTripCountsRow(
-                waitingCount: provider.commuters.length,
-                onBoardCount: provider.alreadyInCommuters.length,
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               if (provider.commuters.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
@@ -540,7 +539,11 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _buildHeader(context, canAdd: false),
+                  _buildHeader(
+                    context,
+                    canAdd: false,
+                    isLive: provider.isChannelLive,
+                  ),
                   const SizedBox(height: 24),
                   StatusMessage.error(
                     title: provider.errorMessage ?? 'This trip has ended.',
@@ -560,7 +563,11 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _buildHeader(context, canAdd: false),
+                  _buildHeader(
+                    context,
+                    canAdd: false,
+                    isLive: provider.isChannelLive,
+                  ),
                   const SizedBox(height: 24),
                   const LoadingIndicator(),
                 ],

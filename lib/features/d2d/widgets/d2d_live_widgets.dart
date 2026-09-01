@@ -128,33 +128,133 @@ class D2dTripHeader extends StatelessWidget {
 
 /// Connection / trip LIVE chip — not a remaining-queue occupancy indicator.
 class D2dLiveStatusChip extends StatelessWidget {
-  const D2dLiveStatusChip({super.key, required this.isLive});
+  const D2dLiveStatusChip({
+    super.key,
+    required this.isLive,
+    this.prominent = false,
+  });
 
   final bool isLive;
+
+  /// Solid high-contrast fill for driver live trip (not a faint tint).
+  final bool prominent;
 
   @override
   Widget build(BuildContext context) {
     final scheme = context.scheme;
     final cts = context.cts;
 
-    final color = isLive ? cts.success : scheme.error;
+    final Color bg;
+    final Color fg;
+    if (prominent) {
+      bg = isLive ? cts.yellow : scheme.inverseSurface;
+      fg = isLive ? scheme.onPrimary : scheme.onInverseSurface;
+    } else {
+      bg = (isLive ? cts.success : scheme.error).withValues(alpha: 0.15);
+      fg = isLive ? cts.success : scheme.error;
+    }
     final label = isLive ? 'LIVE' : 'WAITING';
 
     return Semantics(
       label: isLive ? 'Trip live' : 'Connection waiting',
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        padding: EdgeInsets.symmetric(
+          horizontal: prominent ? 12 : 10,
+          vertical: prominent ? 6 : 4,
+        ),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
+          color: bg,
           borderRadius: BorderRadius.circular(99),
+          border: prominent
+              ? Border.all(
+                  color: isLive ? cts.navy : scheme.onInverseSurface,
+                  width: 1.5,
+                )
+              : null,
         ),
         child: Text(
           label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.4,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: fg,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.6,
               ),
+        ),
+      ),
+    );
+  }
+}
+
+/// High-contrast live status strip: connection LIVE + remaining / boarded counts.
+/// Sits above the queue — never behind the QR.
+class D2dLiveStatusStrip extends StatelessWidget {
+  const D2dLiveStatusStrip({
+    super.key,
+    required this.isLive,
+    required this.remainingCount,
+    required this.boardedCount,
+  });
+
+  final bool isLive;
+  final int remainingCount;
+  final int boardedCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final cts = context.cts;
+    final scheme = context.scheme;
+    final theme = Theme.of(context);
+
+    return Semantics(
+      label: isLive
+          ? 'Trip live. $remainingCount remaining. $boardedCount boarded.'
+          : 'Connection waiting. $remainingCount remaining. $boardedCount boarded.',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: scheme.inverseSurface,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            D2dLiveStatusChip(isLive: isLive, prominent: true),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                isLive ? 'Trip live' : 'Reconnecting…',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: scheme.onInverseSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              'Rem $remainingCount',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: cts.yellow,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                '·',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: scheme.onInverseSurface.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
+            Text(
+              'Boarded $boardedCount',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: cts.yellow,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
       ),
     );
