@@ -116,7 +116,7 @@ class D2dTripHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                _LiveStatusChip(isLive: isLive),
+                D2dLiveStatusChip(isLive: isLive),
               ],
             ),
           ),
@@ -126,8 +126,9 @@ class D2dTripHeader extends StatelessWidget {
   }
 }
 
-class _LiveStatusChip extends StatelessWidget {
-  const _LiveStatusChip({required this.isLive});
+/// Connection / trip LIVE chip — not a remaining-queue occupancy indicator.
+class D2dLiveStatusChip extends StatelessWidget {
+  const D2dLiveStatusChip({super.key, required this.isLive});
 
   final bool isLive;
 
@@ -140,7 +141,7 @@ class _LiveStatusChip extends StatelessWidget {
     final label = isLive ? 'LIVE' : 'WAITING';
 
     return Semantics(
-      label: isLive ? 'Trip live' : 'Waiting for commuters',
+      label: isLive ? 'Trip live' : 'Connection waiting',
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
@@ -452,6 +453,224 @@ class D2dAlreadyInTile extends StatelessWidget {
   }
 }
 
+/// Waiting vs On board summary for driver live trip.
+class D2dTripCountsRow extends StatelessWidget {
+  const D2dTripCountsRow({
+    super.key,
+    required this.waitingCount,
+    required this.onBoardCount,
+  });
+
+  final int waitingCount;
+  final int onBoardCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final cts = context.cts;
+    final scheme = context.scheme;
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: cts.navy.withValues(alpha: 0.35)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Waiting',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: cts.navy,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$waitingCount',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: cts.navy,
+                    fontWeight: FontWeight.w800,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: scheme.inverseSurface,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'On board',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: cts.yellow,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$onBoardCount',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: cts.yellow,
+                    fontWeight: FontWeight.w800,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tall name + yellow Board row for driver live trip.
+class D2dBoardRow extends StatelessWidget {
+  const D2dBoardRow({
+    super.key,
+    required this.commuter,
+    required this.provider,
+    this.onCall,
+    this.showDivider = true,
+  });
+
+  final D2dCommuterModel commuter;
+  final D2dChannelProvider provider;
+  final VoidCallback? onCall;
+  final bool showDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+    final theme = Theme.of(context);
+    final commuterId = commuter.id?.toString();
+    final role = SessionRole.userType;
+    final canConfirm =
+        D2dChannelRolePolicy.can(role, D2dChannelAction.confirmPickup);
+    final canRemove =
+        D2dChannelRolePolicy.can(role, D2dChannelAction.removeFromQueue);
+
+    return Slidable(
+      key: ValueKey(commuterId ?? commuter.inLine ?? commuter.hashCode),
+      startActionPane: canRemove
+          ? ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.22,
+              children: [
+                SlidableAction(
+                  onPressed: (_) {
+                    if (commuterId != null) {
+                      provider.denyCommuter(commuterId);
+                    }
+                  },
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
+                  icon: Icons.delete_rounded,
+                  label: 'Delete',
+                ),
+              ],
+            )
+          : null,
+      endActionPane: canConfirm
+          ? ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.22,
+              children: [
+                SlidableAction(
+                  onPressed: (_) {
+                    if (commuterId != null) {
+                      provider.confirmCommuter(commuterId);
+                    }
+                  },
+                  backgroundColor: cts.success,
+                  foregroundColor: scheme.surface,
+                  icon: Icons.check_circle_rounded,
+                  label: 'Picked up',
+                ),
+              ],
+            )
+          : null,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: onCall,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        commuter.username,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: !canConfirm || commuterId == null
+                        ? null
+                        : () => provider.confirmCommuter(commuterId),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: cts.yellow,
+                      foregroundColor: scheme.onPrimary,
+                      disabledBackgroundColor:
+                          cts.yellow.withValues(alpha: 0.45),
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Board',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: scheme.onPrimary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (showDivider)
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: cts.navy.withValues(alpha: 0.08),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class D2dDriverCommuterTile extends StatelessWidget {
   const D2dDriverCommuterTile({
     super.key,
@@ -466,95 +685,11 @@ class D2dDriverCommuterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-
-    final commuterId = commuter.id?.toString();
-    final role = SessionRole.userType;
-    final canConfirm =
-        D2dChannelRolePolicy.can(role, D2dChannelAction.confirmPickup);
-    final canRemove =
-        D2dChannelRolePolicy.can(role, D2dChannelAction.removeFromQueue);
-
-    return Slidable(
-      key: ValueKey(commuterId ?? commuter.inLine ?? commuter.hashCode),
-      startActionPane: canRemove
-          ? ActionPane(
-              motion: const DrawerMotion(),
-              extentRatio: 0.25,
-              children: [
-                SlidableAction(
-                  onPressed: (_) {
-                    if (commuterId != null) {
-                      provider.denyCommuter(commuterId);
-                    }
-                  },
-                  backgroundColor: scheme.error,
-                  foregroundColor: scheme.surface,
-                  icon: Icons.delete_rounded,
-                  label: 'Delete',
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                  ),
-                  flex: 1,
-                ),
-              ],
-            )
-          : null,
-      endActionPane: canConfirm
-          ? ActionPane(
-              motion: const DrawerMotion(),
-              extentRatio: 0.25,
-              children: [
-                SlidableAction(
-                  onPressed: (_) {
-                    if (commuterId != null) {
-                      provider.confirmCommuter(commuterId);
-                    }
-                  },
-                  backgroundColor: cts.success,
-                  foregroundColor: scheme.surface,
-                  icon: Icons.check_circle_rounded,
-                  label: 'Picked up',
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
-                  ),
-                  flex: 1,
-                ),
-              ],
-            )
-          : null,
-      child: ModernListCard(
-        title: commuter.username,
-        subtitle: 'Stop #${commuter.inLine ?? '?'}',
-        icon: Icons.person_rounded,
-        iconColor: scheme.primary,
-        trailing: IconButton(
-          tooltip: 'Call commuter',
-          onPressed: onCall,
-          icon: Icon(
-            Icons.call_rounded,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        children: [
-          InfoRow(
-            icon: Icons.location_on_rounded,
-            label: 'POP:',
-            value: commuter.popId?.pickUpPointName ?? 'N/A',
-            iconColor: cts.info,
-          ),
-          if (commuter.mobileNumber?.isNotEmpty ?? false)
-            InfoRow(
-              icon: Icons.phone_android_rounded,
-              label: 'Mobile:',
-              value: commuter.mobileNumber,
-              iconColor: cts.yellowDark,
-            ),
-        ],
-      ),
+    return D2dBoardRow(
+      commuter: commuter,
+      provider: provider,
+      onCall: onCall,
+      showDivider: false,
     );
   }
 }

@@ -136,7 +136,7 @@ class _D2dChannelState extends State<D2dChannel> {
             );
           }
 
-          final isLive = provider.commuters.isNotEmpty;
+          final isLive = provider.isChannelLive;
           final driverName = provider.driverName;
           final liveCommuterIds = provider.commuters
               .map((commuter) => commuter.id)

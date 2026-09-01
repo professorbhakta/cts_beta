@@ -5,10 +5,7 @@ import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
-import 'package:cts/widgets/app_drawer.dart';
-import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/common_button.dart';
-import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/modern_list_card.dart';
 import 'package:cts/widgets/status_message.dart';
@@ -52,10 +49,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
   Widget build(BuildContext context) {
     return OfflineAutoRedirect(
       child: Scaffold(
-        appBar: const BrandAppBar(),
-        drawer: const AppDrawer(),
+        backgroundColor: context.scheme.surfaceContainerHighest,
         body: SafeArea(
-          top: false,
           child: RefreshIndicator(
             onRefresh: () =>
                 context.read<DriverHomeProvider>().fetchDriverProfile(),
@@ -139,13 +134,16 @@ class _DriverHomePageState extends State<DriverHomePage> {
                     CommonPrimaryButton(
                       width: double.infinity,
                       radius: 12,
-                      borderColor: context.scheme.primary,
-                      backgroundColor: context.scheme.inverseSurface,
-                      textColor: context.scheme.onInverseSurface,
+                      borderColor: context.cts.navy,
+                      backgroundColor: context.cts.yellow,
+                      textColor: context.scheme.onPrimary,
                       label: 'START TRIP',
                       fontSize: 20,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      icon: const Icon(Icons.play_arrow_rounded),
+                      icon: Icon(
+                        Icons.play_arrow_rounded,
+                        color: context.scheme.onPrimary,
+                      ),
                       onPressed: batchId != null
                           ? () => context.push('${RouteName.d2dLog}/$batchId')
                           : null,
@@ -155,13 +153,16 @@ class _DriverHomePageState extends State<DriverHomePage> {
                       CommonPrimaryButton(
                         width: double.infinity,
                         radius: 12,
-                        borderColor: context.scheme.primary,
-                        backgroundColor: context.scheme.surface,
-                        textColor: context.scheme.primary,
+                        borderColor: context.cts.navy,
+                        backgroundColor: context.cts.navy,
+                        textColor: context.scheme.onSecondary,
                         label: 'RETURN LIST',
                         fontSize: 18,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        icon: const Icon(Icons.assignment_return_outlined),
+                        icon: Icon(
+                          Icons.assignment_return_outlined,
+                          color: context.scheme.onSecondary,
+                        ),
                         onPressed: () => context.push(
                           '${RouteName.driverReturnCommuter}/$batchId',
                         ),
@@ -192,68 +193,58 @@ class _DriverHomePageState extends State<DriverHomePage> {
     final cts = context.cts;
     final theme = context.theme;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [cts.yellowDark, scheme.primary],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Text(
+              'c2s',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: cts.navy,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+                height: 1,
+              ),
+            ),
+            const Spacer(),
+            IconButton(
+              tooltip: 'Profile',
+              onPressed: () => context.push(RouteName.profileScreen),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+              icon: CircleAvatar(
+                radius: 18,
+                backgroundColor: cts.navy,
+                child: Icon(
+                  Icons.person_rounded,
+                  color: scheme.onSecondary,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: cts.yellowDark.withValues(alpha: 0.22),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+        const SizedBox(height: 16),
+        Text(
+          _greeting(),
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: cts.navy.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w500,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _greeting(),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  name,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    color: scheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                    height: 1.15,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Review today\'s assignment and start your trip when ready.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.75),
-                  ),
-                ),
-              ],
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          name,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: cts.navy,
+            fontWeight: FontWeight.bold,
+            height: 1.15,
           ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: scheme.surface.withValues(alpha: 0.85),
-              shape: BoxShape.circle,
-            ),
-            child: const CtsBrandLogo(height: 40),
-          ),
-        ],
-      ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 

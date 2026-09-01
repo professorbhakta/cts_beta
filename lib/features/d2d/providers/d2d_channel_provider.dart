@@ -175,10 +175,44 @@ class D2dChannelProvider with ChangeNotifier {
   bool get connectionLost => _connectionLost;
   String? get connectedBatchId => _connectedBatchId;
 
+  /// WebSocket / trip liveness — NOT remaining-queue occupancy.
+  ///
+  /// True when a batch is bound, the socket is not marked lost, and the trip
+  /// has not ended. When [tripStatus] is known, `active` confirms live and
+  /// `none`/`ended` force false; `unknown` falls back to connection fields.
+  bool get isChannelLive {
+    if (_connectedBatchId == null || _connectionLost || _tripEnded) {
+      return false;
+    }
+    switch (_tripStatus) {
+      case D2dTripStatus.active:
+        return true;
+      case D2dTripStatus.ended:
+      case D2dTripStatus.none:
+        return false;
+      case D2dTripStatus.unknown:
+        return true;
+    }
+  }
+
   /// Binds an active batch for lifecycle resume tests without opening a socket.
   @visibleForTesting
   void bindActiveBatchForLifecycle(String batchId) {
     _connectedBatchId = batchId;
+  }
+
+  /// Test-only override of connection / trip flags for [isChannelLive].
+  @visibleForTesting
+  void debugSetChannelLiveState({
+    String? batchId,
+    bool connectionLost = false,
+    bool tripEnded = false,
+    D2dTripStatus tripStatus = D2dTripStatus.unknown,
+  }) {
+    _connectedBatchId = batchId;
+    _connectionLost = connectionLost;
+    _tripEnded = tripEnded;
+    _tripStatus = tripStatus;
   }
 
   String? get driverMobile {

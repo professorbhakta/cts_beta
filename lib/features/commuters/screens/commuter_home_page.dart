@@ -6,16 +6,14 @@ import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/models/return_intent_model.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/providers/commuter_home_provider.dart';
-import 'package:cts/widgets/app_drawer.dart';
-import 'package:cts/widgets/brand_app_bar.dart';
-import 'package:cts/widgets/common_button.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+
+enum _HeroMode { notComing, scan, boarded }
 
 class CommuterHomePage extends StatefulWidget {
   const CommuterHomePage({super.key});
@@ -26,6 +24,7 @@ class CommuterHomePage extends StatefulWidget {
 
 class _CommuterHomePageState extends State<CommuterHomePage> {
   static const double _maxContentWidth = 720;
+  int _navIndex = 0;
 
   @override
   void initState() {
@@ -35,20 +34,20 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     });
   }
 
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  }
-
   String _formatBatchTime(String? batchTime) {
-    if (batchTime == null || batchTime.isEmpty) return 'N/A';
+    if (batchTime == null || batchTime.isEmpty) return '—';
     if (batchTime.length >= 5) return batchTime.substring(0, 5);
     return batchTime;
   }
 
-  void _openTrackCab(CommuterModel commuter) {
+  _HeroMode _heroMode(CommuterHomeProvider provider) {
+    final coming = provider.commuterProfile?.isComing ?? false;
+    if (!coming) return _HeroMode.notComing;
+    if (provider.hasBoardedToday) return _HeroMode.boarded;
+    return _HeroMode.scan;
+  }
+
+  Future<void> _openTrackCab(CommuterModel commuter) async {
     if (commuter.cabId == null) {
       SnackBarService.showErrorSnackbar(
         'No cab assigned to your profile yet. Contact admin.',
@@ -66,25 +65,60 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
       params['cabReg'] = reg;
     }
 
-    context.push(
+    await context.push(
       Uri(path: RouteName.trackCabScreen, queryParameters: params).toString(),
     );
   }
 
+  Future<void> _openBoardingScan(CommuterHomeProvider provider) async {
+    final coming = provider.commuterProfile?.isComing ?? false;
+    if (!coming) {
+      SnackBarService.showErrorSnackbar(
+        'Mark Coming first, then scan the boarding QR.',
+      );
+      return;
+    }
+    final boarded = await context.push<bool>(RouteName.boardingScan);
+    if (!mounted) return;
+    if (boarded == true) {
+      provider.markBoardedToday();
+    }
+  }
+
+  Future<void> _onBottomNavTap(int index, CommuterHomeProvider provider) async {
+    final profile = provider.commuterProfile;
+    if (index == 0) {
+      setState(() => _navIndex = 0);
+      return;
+    }
+    if (profile == null) return;
+    if (index == 1) {
+      setState(() => _navIndex = 1);
+      await _openBoardingScan(provider);
+      if (mounted) setState(() => _navIndex = 0);
+      return;
+    }
+    if (index == 2) {
+      setState(() => _navIndex = 2);
+      await _openTrackCab(profile);
+      if (mounted) setState(() => _navIndex = 0);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
 
     return Scaffold(
-      appBar: const BrandAppBar(),
-      drawer: const AppDrawer(),
+      backgroundColor: scheme.surfaceContainerHighest,
       body: SafeArea(
-        top: false,
+        bottom: false,
         child: RefreshIndicator(
           onRefresh: () =>
               context.read<CommuterHomeProvider>().fetchCommuterProfile(),
           child: Consumer<CommuterHomeProvider>(
             builder: (context, provider, child) {
-
               return switch (provider.state) {
                 ViewState.loading => _buildSkeleton(context),
                 ViewState.error => ListView(
@@ -96,8 +130,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                       ),
                     ],
                   ),
-                _ when provider.commuterProfile == null =>
-                  ListView(
+                _ when provider.commuterProfile == null => ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: const [
                       StatusMessage(
@@ -113,23 +146,87 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           ),
         ),
       ),
+      bottomNavigationBar: Consumer<CommuterHomeProvider>(
+        builder: (context, provider, _) {
+          return NavigationBar(
+            backgroundColor: scheme.surfaceContainerHighest,
+            indicatorColor: cts.yellow.withValues(alpha: 0.35),
+            selectedIndex: _navIndex,
+            onDestinationSelected: (i) => _onBottomNavTap(i, provider),
+            destinations: [
+              NavigationDestination(
+                icon: Icon(Icons.home_outlined, color: cts.navy),
+                selectedIcon: Icon(Icons.home_rounded, color: cts.navy),
+                label: 'Home',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.qr_code_scanner_outlined, color: cts.navy),
+                selectedIcon: Icon(Icons.qr_code_scanner, color: cts.navy),
+                label: 'Scan',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.my_location_outlined, color: cts.navy),
+                selectedIcon: Icon(Icons.my_location_rounded, color: cts.navy),
+                label: 'Track',
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final cts = context.cts;
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+      child: Row(
+        children: [
+          Text(
+            'c2s',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: cts.navy,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              height: 1,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            tooltip: 'Profile',
+            onPressed: () => context.push(RouteName.profileScreen),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            icon: CircleAvatar(
+              radius: 18,
+              backgroundColor: cts.navy,
+              child: Icon(
+                Icons.person_rounded,
+                color: context.scheme.onSecondary,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildContent(BuildContext context, CommuterHomeProvider provider) {
     final commuter = provider.commuterProfile!;
-    final commuterName = commuter.userId?.username ?? 'Commuter';
+    final mode = _heroMode(provider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-
         final horizontalPadding = constraints.maxWidth >= 600 ? 20.0 : 16.0;
 
         return ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             horizontalPadding,
-            16,
+            8,
             horizontalPadding,
             24,
           ),
@@ -141,56 +238,39 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildWelcomeSection(context, commuterName),
-                    const SizedBox(height: 28),
-                    _buildSectionHeader(
-                      context,
-                      title: 'Today\'s Status',
-                      subtitle: 'Confirm whether you\'re riding today',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildDateStrip(context, commuter.isComing ?? false),
+                    _buildHeader(context),
+                    const SizedBox(height: 8),
+                    _buildHeroCard(context, provider, commuter, mode),
+                    const SizedBox(height: 14),
+                    _buildCompactTripStrip(context, commuter),
                     const SizedBox(height: 10),
-                    _buildStatusToggle(context, provider, commuter),
-                    const SizedBox(height: 12),
-                    _buildScanBoardingButton(context, commuter),
+                    _buildQuietComingToggle(context, provider, commuter),
                     if (provider.isUpdating) ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       const Center(
                         child: SizedBox(
-                          width: 24,
-                          height: 24,
+                          width: 22,
+                          height: 22,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       ),
                     ],
                     const SizedBox(height: 28),
-                    _buildSectionHeader(
-                      context,
-                      title: 'Return today',
-                      subtitle:
-                          'Tell the pool if you need home, skip, or an earlier cab',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildReturnIntentSection(context, provider),
-                    const SizedBox(height: 28),
-                    _buildSectionHeader(
-                      context,
-                      title: 'Trip Details',
-                      subtitle: 'Your assigned batch and route info',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildTripSummaryCard(context, commuter),
-                    const SizedBox(height: 12),
-                    _buildTripInfoGrid(context, commuter),
-                    const SizedBox(height: 28),
-                    CommonPrimaryButton(
-                      width: double.infinity,
-                      label: 'Track your Cab',
-                      radius: 12,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      icon: Icon(Icons.my_location_rounded),
+                    _buildQuietReturnSection(context, provider),
+                    const SizedBox(height: 20),
+                    TextButton.icon(
                       onPressed: () => _openTrackCab(commuter),
+                      icon: Icon(
+                        Icons.my_location_rounded,
+                        color: context.cts.navy,
+                      ),
+                      label: Text(
+                        'Track your cab',
+                        style: TextStyle(
+                          color: context.cts.navy,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -202,75 +282,121 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context, String name) {
-    final scheme = context.scheme;
+  Widget _buildHeroCard(
+    BuildContext context,
+    CommuterHomeProvider provider,
+    CommuterModel commuter,
+    _HeroMode mode,
+  ) {
     final cts = context.cts;
-
     final theme = Theme.of(context);
+    final batchName = commuter.batchId?.batchName ?? 'No batch';
+    final gate = commuter.popId?.pickUpPointName ?? 'Pickup TBD';
+    final cab = commuter.cabId?.regNumber ?? 'Cab TBD';
+    final time = _formatBatchTime(commuter.batchId?.batchTime);
+    final meta = '$batchName · $gate · $cab';
+
+    late final String headline;
+    late final String ctaLabel;
+    late final String statusLine;
+    late final VoidCallback? onCta;
+
+    switch (mode) {
+      case _HeroMode.notComing:
+        headline = 'Mark coming to ride';
+        ctaLabel = "I'm coming today";
+        statusLine = "You're not marked coming";
+        onCta = provider.isUpdating
+            ? null
+            : () => _showConfirmationDialog(context, provider, true);
+      case _HeroMode.scan:
+        headline = 'Scan to board';
+        ctaLabel = 'Scan boarding QR';
+        statusLine = "You're marked coming";
+        onCta = () => _openBoardingScan(provider);
+      case _HeroMode.boarded:
+        headline = "You're on board";
+        ctaLabel = 'Track your cab';
+        statusLine = 'Boarded · track your ride';
+        onCta = () => _openTrackCab(commuter);
+    }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [cts.yellowDark, scheme.primary],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: cts.yellowDark.withValues(alpha: 0.22),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: cts.navy,
+        borderRadius: BorderRadius.circular(22),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _greeting(),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w500,
-                  ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: cts.yellow,
+                borderRadius: BorderRadius.circular(99),
+              ),
+              child: Text(
+                'TODAY · $time',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: context.scheme.onPrimary,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.2,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  name,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    color: scheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                    height: 1.15,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Update your status and review today\'s trip.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.75),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: scheme.surface.withValues(alpha: 0.85),
-              shape: BoxShape.circle,
+          const SizedBox(height: 16),
+          Text(
+            headline,
+            style: theme.textTheme.headlineMedium?.copyWith(
+              color: context.scheme.onSecondary,
+              fontWeight: FontWeight.w800,
+              height: 1.15,
             ),
-            child: Image.asset(
-              'assets/images/c2s.png',
-              width: 40,
-              height: 40,
-              fit: BoxFit.cover,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            meta,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: context.scheme.onSecondary.withValues(alpha: 0.88),
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: onCta,
+              style: FilledButton.styleFrom(
+                backgroundColor: cts.yellow,
+                foregroundColor: context.scheme.onPrimary,
+                disabledBackgroundColor: cts.yellow.withValues(alpha: 0.5),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Text(
+                ctaLabel,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: context.scheme.onPrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            statusLine,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: context.scheme.onSecondary.withValues(alpha: 0.9),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -278,355 +404,192 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     );
   }
 
-  Widget _buildSectionHeader(
-    BuildContext context, {
-    required String title,
-    String? subtitle,
-  }) {
-
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: scheme.onSurface,
-          ),
-        ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildDateStrip(BuildContext context, bool isComing) {
+  Widget _buildCompactTripStrip(BuildContext context, CommuterModel commuter) {
+    final scheme = context.scheme;
     final cts = context.cts;
-
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
-    final statusColor = isComing ? cts.success : scheme.error;
-    final statusLabel = isComing ? 'COMING' : 'NOT COMING';
+    final batch = commuter.batchId?.batchName ?? '—';
+    final time = _formatBatchTime(commuter.batchId?.batchTime);
+    final pop = commuter.popId?.pickUpPointName ?? '—';
+    final cab = commuter.cabId?.regNumber ?? '—';
+    final adminMobile = commuter.adminCode?.userId?.mobileNumber;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: isLight ? scheme.surface : statusColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isLight
-              ? scheme.outline.withValues(alpha: 0.35)
-              : statusColor.withValues(alpha: 0.3),
-        ),
-        boxShadow: isLight
-            ? [
-                BoxShadow(
-                  color: scheme.shadow.withValues(alpha: 0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cts.navy.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: scheme.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.calendar_today_rounded,
-              color: Colors.white,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              DateFormat.yMMMEd().format(DateTime.now()),
-              style: theme.textTheme.titleSmall?.copyWith(
+              '$batch · $time · $pop · $cab',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: cts.navy,
                 fontWeight: FontWeight.w600,
-                color: scheme.onSurface,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: isLight ? 0.12 : 0.2),
-              borderRadius: BorderRadius.circular(99),
-              border: Border.all(color: statusColor.withValues(alpha: 0.35)),
+          if (adminMobile != null && adminMobile.isNotEmpty)
+            IconButton(
+              tooltip: 'Call admin',
+              visualDensity: VisualDensity.compact,
+              onPressed: () => calling(adminMobile),
+              icon: Icon(Icons.call_rounded, color: cts.navy, size: 20),
             ),
-            child: Text(
-              statusLabel,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: statusColor,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildScanBoardingButton(BuildContext context, CommuterModel commuter) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-    final isComing = commuter.isComing ?? false;
-    return FilledButton.icon(
-      onPressed: () {
-        if (!isComing) {
-          SnackBarService.showErrorSnackbar(
-            'Mark Coming first, then scan the boarding QR.',
-          );
-          return;
-        }
-        context.push(RouteName.boardingScan);
-      },
-      icon: Icon(Icons.qr_code_scanner),
-      label: const Text('Scan boarding QR'),
-      style: FilledButton.styleFrom(
-        backgroundColor: cts.yellowDark,
-        foregroundColor: scheme.onPrimary,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-      ),
-    );
-  }
-
-  Widget _buildStatusToggle(
+  Widget _buildQuietComingToggle(
     BuildContext context,
     CommuterHomeProvider provider,
     CommuterModel commuter,
   ) {
     final cts = context.cts;
-
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
     final isComing = commuter.isComing ?? false;
-    final accent = isComing ? cts.success : scheme.error;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isLight ? scheme.surface : accent.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isLight
-              ? scheme.outline.withValues(alpha: 0.35)
-              : accent.withValues(alpha: 0.3),
-        ),
-        boxShadow: isLight
-            ? [
-                BoxShadow(
-                  color: scheme.shadow.withValues(alpha: 0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              decoration: BoxDecoration(
-                color: accent,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(12),
-                ),
-              ),
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            'Coming today',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cts.navy.withValues(alpha: 0.75),
+              fontWeight: FontWeight.w500,
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: accent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        isComing
-                            ? Icons.check_circle_rounded
-                            : Icons.cancel_outlined,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Coming today',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: scheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Let admin know if you\'re riding today.',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Switch(
-                      value: isComing,
-                      onChanged: provider.isUpdating
-                          ? null
-                          : (newValue) {
-                              _showConfirmationDialog(
-                                context,
-                                provider,
-                                newValue,
-                              );
-                            },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        Switch(
+          value: isComing,
+          onChanged: provider.isUpdating
+              ? null
+              : (newValue) {
+                  _showConfirmationDialog(context, provider, newValue);
+                },
+        ),
+      ],
     );
   }
 
-  Widget _buildReturnIntentSection(
+  Widget _buildQuietReturnSection(
     BuildContext context,
     CommuterHomeProvider provider,
   ) {
+    final cts = context.cts;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
     final selected = provider.returnIntent.intent;
     final busy = provider.isUpdatingIntent;
     final earlierLabel = provider.earlierOptionLabel;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isLight ? scheme.surface : scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: scheme.outline.withValues(alpha: 0.35),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Return tonight',
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: cts.navy.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w700,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _intentChip(
-                context,
-                label: 'Home',
-                selected: selected == ReturnIntentKind.home,
-                enabled: !busy,
-                onSelected: () => _saveIntent(
-                  context,
-                  provider,
-                  () => provider.selectHomeIntent(),
-                  successMessage: 'Return intent set to Home',
-                ),
-              ),
-              _intentChip(
-                context,
-                label: 'Skip',
-                selected: selected == ReturnIntentKind.skip,
-                enabled: !busy,
-                onSelected: () => _saveIntent(
-                  context,
-                  provider,
-                  () => provider.selectSkipIntent(),
-                  successMessage: 'Return trip skipped for today',
-                ),
-              ),
-              _intentChip(
-                context,
-                label: earlierLabel == null ? 'Earlier…' : 'Earlier',
-                selected: selected == ReturnIntentKind.earlier,
-                enabled: !busy,
-                onSelected: () => _pickEarlierBatch(context, provider),
-              ),
-            ],
+        const SizedBox(height: 4),
+        Text(
+          'Home, skip, or earlier — optional',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
           ),
-          if (selected == ReturnIntentKind.earlier && earlierLabel != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              'Target: $earlierLabel',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _intentChip(
+              context,
+              label: 'Home',
+              selected: selected == ReturnIntentKind.home,
+              enabled: !busy,
+              onSelected: () => _saveIntent(
+                context,
+                provider,
+                () => provider.selectHomeIntent(),
+                successMessage: 'Return intent set to Home',
               ),
             ),
-          ],
-          if (provider.intentErrorMessage != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              provider.intentErrorMessage!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.error,
+            _intentChip(
+              context,
+              label: 'Skip',
+              selected: selected == ReturnIntentKind.skip,
+              enabled: !busy,
+              onSelected: () => _saveIntent(
+                context,
+                provider,
+                () => provider.selectSkipIntent(),
+                successMessage: 'Return trip skipped for today',
               ),
             ),
-          ],
-          if (busy) ...[
-            const SizedBox(height: 12),
-            const Center(
-              child: SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+            _intentChip(
+              context,
+              label: earlierLabel == null ? 'Earlier…' : 'Earlier',
+              selected: selected == ReturnIntentKind.earlier,
+              enabled: !busy,
+              onSelected: () => _pickEarlierBatch(context, provider),
             ),
           ],
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: (busy || provider.isJoiningWaiting)
-                ? null
-                : () => _offerJoinReturnWaiting(context, provider),
-            icon: const Icon(Icons.hourglass_top_rounded),
-            label: const Text('Join return waiting line'),
+        ),
+        if (selected == ReturnIntentKind.earlier && earlierLabel != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Target: $earlierLabel',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
           ),
-          if (provider.joinWaitingError != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              provider.joinWaitingError!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.error,
-              ),
-            ),
-          ],
         ],
-      ),
+        if (provider.intentErrorMessage != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            provider.intentErrorMessage!,
+            style: theme.textTheme.bodySmall?.copyWith(color: scheme.error),
+          ),
+        ],
+        if (busy) ...[
+          const SizedBox(height: 10),
+          const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        ],
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: (busy || provider.isJoiningWaiting)
+              ? null
+              : () => _offerJoinReturnWaiting(context, provider),
+          child: Text(
+            'Join return waiting line',
+            style: TextStyle(
+              color: cts.navy.withValues(alpha: 0.75),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        if (provider.joinWaitingError != null) ...[
+          Text(
+            provider.joinWaitingError!,
+            style: theme.textTheme.bodySmall?.copyWith(color: scheme.error),
+          ),
+        ],
+      ],
     );
   }
 
@@ -672,18 +635,19 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     required bool enabled,
     required VoidCallback onSelected,
   }) {
-
     final scheme = Theme.of(context).colorScheme;
+    final cts = context.cts;
     return FilterChip(
       label: Text(label),
       selected: selected,
       onSelected: enabled ? (_) => onSelected() : null,
-      selectedColor: scheme.primary.withValues(alpha: 0.55),
-      checkmarkColor: scheme.onSurface,
+      selectedColor: cts.yellow.withValues(alpha: 0.55),
+      checkmarkColor: scheme.onPrimary,
       labelStyle: TextStyle(
-        color: selected ? scheme.onSurface : scheme.onSurface,
-        fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+        color: cts.navy,
+        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
       ),
+      side: BorderSide(color: cts.navy.withValues(alpha: 0.2)),
     );
   }
 
@@ -720,7 +684,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
       context: context,
       showDragHandle: true,
       builder: (sheetContext) {
-
         return SafeArea(
           child: ListView(
             shrinkWrap: true,
@@ -741,7 +704,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                       ? null
                       : Text('Return ${option.endTime}'),
                   trailing: provider.returnIntent.targetBatchId == option.id
-                      ? Icon(Icons.check_rounded)
+                      ? const Icon(Icons.check_rounded)
                       : null,
                   onTap: () => Navigator.of(sheetContext).pop(option.id),
                 ),
@@ -760,192 +723,12 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     );
   }
 
-  Widget _buildTripSummaryCard(BuildContext context, CommuterModel commuter) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final cts = context.cts;
-    final isLight = theme.brightness == Brightness.light;
-    final batchName = commuter.batchId?.batchName ?? 'No batch assigned';
-    final collegeName = commuter.collegeName;
-    final adminMobile = commuter.adminCode?.userId?.mobileNumber;
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isLight ? scheme.surface : scheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isLight
-              ? scheme.outline.withValues(alpha: 0.35)
-              : scheme.primary.withValues(alpha: 0.3),
-        ),
-        boxShadow: isLight
-            ? [
-                BoxShadow(
-                  color: scheme.shadow.withValues(alpha: 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: scheme.primary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.directions_bus_filled_rounded,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  batchName,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: scheme.onSurface,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  collegeName?.isNotEmpty == true
-                      ? collegeName!
-                      : 'Your assigned trip for today',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          if (adminMobile != null && adminMobile.isNotEmpty)
-            IconButton(
-              tooltip: 'Call admin',
-              onPressed: () => calling(adminMobile),
-              style: IconButton.styleFrom(
-                backgroundColor: cts.success.withValues(alpha: 0.12),
-                foregroundColor: cts.success,
-              ),
-              icon: Icon(Icons.call_rounded, size: 20),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTripInfoGrid(BuildContext context, CommuterModel commuter) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-    final batchName = commuter.batchId?.batchName ?? 'N/A';
-    final startTime = _formatBatchTime(commuter.batchId?.batchTime);
-    final popName = commuter.popId?.pickUpPointName ?? 'N/A';
-    final routeName = commuter.popId?.routeId?.routeName ?? 'N/A';
-    final cabNumber = commuter.cabId?.regNumber ?? 'N/A';
-
-    final tiles = [
-      _TripInfoTile(
-        icon: Icons.access_time_rounded,
-        label: 'Start',
-        value: startTime,
-        color: scheme.primary,
-      ),
-      _TripInfoTile(
-        icon: Icons.location_on_rounded,
-        label: 'Pick-up Point',
-        value: popName,
-        color: cts.orangeWarm,
-      ),
-      _TripInfoTile(
-        icon: Icons.route_rounded,
-        label: 'Route',
-        value: routeName,
-        color: cts.yellowBright,
-      ),
-      _TripInfoTile(
-        icon: Icons.directions_car_rounded,
-        label: 'Cab',
-        value: cabNumber,
-        color: cts.orangeBright,
-      ),
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 480) {
-          return Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(child: tiles[0]),
-                  const SizedBox(width: 10),
-                  Expanded(child: tiles[1]),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(child: tiles[2]),
-                  const SizedBox(width: 10),
-                  Expanded(child: tiles[3]),
-                ],
-              ),
-              const SizedBox(height: 10),
-              _TripInfoTile(
-                icon: Icons.event_rounded,
-                label: 'Batch',
-                value: batchName,
-                color: cts.yellowDark,
-                fullWidth: true,
-              ),
-            ],
-          );
-        }
-
-        return Column(
-          children: [
-            Row(
-              children: [
-                for (var i = 0; i < tiles.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 10),
-                  Expanded(child: tiles[i]),
-                ],
-              ],
-            ),
-            const SizedBox(height: 10),
-            _TripInfoTile(
-              icon: Icons.event_rounded,
-              label: 'Batch',
-              value: batchName,
-              color: cts.yellowDark,
-              fullWidth: true,
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildSkeleton(BuildContext context) {
-
     final scheme = Theme.of(context).colorScheme;
     final placeholder = scheme.surfaceContainerHighest;
 
     return Shimmer.fromColors(
-      baseColor: scheme.surfaceContainerHighest,
+      baseColor: scheme.outline.withValues(alpha: 0.2),
       highlightColor: scheme.surface,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -958,77 +741,28 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: 120,
+                    height: 28,
+                    width: 64,
                     decoration: BoxDecoration(
                       color: placeholder,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 16),
                   Container(
-                    height: 16,
-                    width: 130,
+                    height: 220,
                     decoration: BoxDecoration(
                       color: placeholder,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(22),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Container(
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: placeholder,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: placeholder,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  Container(
-                    height: 16,
-                    width: 110,
-                    decoration: BoxDecoration(
-                      color: placeholder,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    height: 76,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: placeholder,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: placeholder,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Container(
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: placeholder,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -1077,83 +811,5 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
         ),
       );
     }
-  }
-}
-
-class _TripInfoTile extends StatelessWidget {
-  const _TripInfoTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-    this.fullWidth = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-  final bool fullWidth;
-
-  @override
-  Widget build(BuildContext context) {
-
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
-
-    return Container(
-      width: fullWidth ? double.infinity : null,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: isLight ? scheme.surface : color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isLight
-              ? scheme.outline.withValues(alpha: 0.35)
-              : color.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: Colors.white, size: 17),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

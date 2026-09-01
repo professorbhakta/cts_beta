@@ -26,6 +26,16 @@ class CommuterHomeProvider with ChangeNotifier {
   bool _isUpdating = false;
   bool get isUpdating => _isUpdating;
 
+  /// Session-local boarding flag (set after successful scan). No new API.
+  bool _hasBoardedToday = false;
+  bool get hasBoardedToday => _hasBoardedToday;
+
+  void markBoardedToday() {
+    if (_hasBoardedToday) return;
+    _hasBoardedToday = true;
+    notifyListeners();
+  }
+
   ReturnIntentModel _returnIntent = const ReturnIntentModel(
     intent: ReturnIntentKind.home,
   );
@@ -93,6 +103,9 @@ class CommuterHomeProvider with ChangeNotifier {
     if (result.isSuccess) {
       if (_commuterProfile != null) {
         _commuterProfile!.isComing = isComing;
+      }
+      if (!isComing) {
+        _hasBoardedToday = false;
       }
     } else {
       _errorMessage = result.failure?.message;
