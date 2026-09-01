@@ -150,7 +150,6 @@ class _DriverHomePageState extends State<DriverHomePage> {
   }
 
   Widget _buildHeader(BuildContext context, String name) {
-    final scheme = context.scheme;
     final cts = context.cts;
     final theme = context.theme;
 
@@ -162,14 +161,14 @@ class _DriverHomePageState extends State<DriverHomePage> {
             IconButton(
               tooltip: 'Menu',
               onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: Icon(Icons.menu_rounded, color: cts.navy),
+              icon: Icon(Icons.menu, color: cts.navy),
             ),
             Text(
               'c2s',
-              style: theme.textTheme.headlineSmall?.copyWith(
+              style: theme.textTheme.titleLarge?.copyWith(
                 color: cts.navy,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.3,
                 height: 1,
               ),
             ),
@@ -177,17 +176,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
             IconButton(
               tooltip: 'Profile',
               onPressed: () => context.push(RouteName.profileScreen),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-              icon: CircleAvatar(
-                radius: 18,
-                backgroundColor: cts.navy,
-                child: Icon(
-                  Icons.person_rounded,
-                  color: scheme.onSecondary,
-                  size: 20,
-                ),
-              ),
+              icon: Icon(Icons.person_outline, color: cts.navy, size: 22),
             ),
           ],
         ),
@@ -199,7 +188,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
             children: [
               Text(
                 _greeting(),
-                style: theme.textTheme.titleSmall?.copyWith(
+                style: theme.textTheme.bodySmall?.copyWith(
                   color: cts.navy.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                 ),
@@ -209,7 +198,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
                 name,
                 style: theme.textTheme.titleLarge?.copyWith(
                   color: cts.navy,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
                   height: 1.15,
                 ),
                 maxLines: 2,
@@ -236,30 +226,23 @@ class _DriverHomePageState extends State<DriverHomePage> {
     final dateLabel = DateFormat.yMMMEd().format(DateTime.now());
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 18, 16, 18),
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
       decoration: BoxDecoration(
         color: cts.navy,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: cts.yellow,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  'READY',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: scheme.onPrimary,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.4,
-                  ),
+              Text(
+                'READY',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: scheme.onSecondary.withValues(alpha: 0.7),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
                 ),
               ),
               const Spacer(),
@@ -274,42 +257,43 @@ class _DriverHomePageState extends State<DriverHomePage> {
                   ),
                   onPressed: () => calling(adminMobile),
                   icon: Icon(
-                    Icons.call_rounded,
-                    color: scheme.onSecondary.withValues(alpha: 0.85),
+                    Icons.call,
+                    color: scheme.onSecondary.withValues(alpha: 0.75),
                     size: 18,
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Text(
             batchName,
             style: theme.textTheme.headlineSmall?.copyWith(
               color: scheme.onSecondary,
-              fontWeight: FontWeight.w800,
-              height: 1.15,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              height: 1.2,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             dateLabel,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: scheme.onSecondary.withValues(alpha: 0.78),
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           _assignmentMetaRow(
             context,
-            label: 'Start',
+            label: 'START',
             value: startTime,
           ),
           const SizedBox(height: 8),
           _assignmentMetaRow(
             context,
-            label: 'Cab',
+            label: 'CAB',
             value: cabNumber,
           ),
         ],
@@ -327,12 +311,14 @@ class _DriverHomePageState extends State<DriverHomePage> {
     return Row(
       children: [
         SizedBox(
-          width: 52,
+          width: 56,
           child: Text(
             label,
-            style: theme.textTheme.labelLarge?.copyWith(
+            style: theme.textTheme.labelSmall?.copyWith(
               color: scheme.onSecondary.withValues(alpha: 0.65),
+              fontSize: 11,
               fontWeight: FontWeight.w600,
+              letterSpacing: 1.0,
             ),
           ),
         ),
@@ -341,7 +327,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
             value,
             style: theme.textTheme.titleSmall?.copyWith(
               color: scheme.onSecondary,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -358,6 +344,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
 
     return SizedBox(
       width: double.infinity,
+      height: 44,
       child: FilledButton(
         onPressed: batchId == null
             ? null
@@ -366,17 +353,17 @@ class _DriverHomePageState extends State<DriverHomePage> {
           backgroundColor: cts.yellow,
           foregroundColor: scheme.onPrimary,
           disabledBackgroundColor: cts.yellow.withValues(alpha: 0.45),
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
         child: Text(
           'START TRIP',
-          style: theme.textTheme.titleMedium?.copyWith(
+          style: theme.textTheme.titleSmall?.copyWith(
             color: scheme.onPrimary,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.4,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.6,
           ),
         ),
       ),
@@ -389,24 +376,25 @@ class _DriverHomePageState extends State<DriverHomePage> {
 
     return SizedBox(
       width: double.infinity,
+      height: 44,
       child: OutlinedButton(
         onPressed: () => context.push(
           '${RouteName.driverReturnCommuter}/$batchId',
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: cts.navy,
-          side: BorderSide(color: cts.navy.withValues(alpha: 0.45), width: 1.5),
-          padding: const EdgeInsets.symmetric(vertical: 15),
+          side: BorderSide(color: cts.navy.withValues(alpha: 0.4)),
+          padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
         child: Text(
           'RETURN LIST',
           style: theme.textTheme.titleSmall?.copyWith(
             color: cts.navy,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.4,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.6,
           ),
         ),
       ),
