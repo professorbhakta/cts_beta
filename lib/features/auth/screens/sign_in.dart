@@ -109,24 +109,8 @@ class _SignInScreenState extends State<SignInScreen> {
                               ),
                             ),
                             const SizedBox(height: 28),
-                            Text(
-                              'Mobile',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: scheme.onSurface,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
                             _buildMobileField(signInProvider, scheme),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Password',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: scheme.onSurface,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 20),
                             _buildPasswordField(signInProvider, scheme),
                             const SizedBox(height: 28),
                             _buildLoginButton(signInProvider, scheme),
@@ -146,12 +130,13 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Widget _buildMobileField(SignInProvider provider, ColorScheme scheme) {
     return CommonTextFormField(
+      variant: CommonTextFormFieldVariant.hairline,
+      label: 'Mobile',
       controller: provider.mobileCtrl,
       enabled: provider.state != ViewState.loading,
       hintText: '10-digit mobile number',
       keyboardType: TextInputType.number,
       textInputAction: TextInputAction.next,
-      prefixIcon: Icon(Icons.phone_android, color: scheme.onSurfaceVariant),
       inputFormatters: [
         LengthLimitingTextInputFormatter(10),
         FilteringTextInputFormatter.digitsOnly,
@@ -171,18 +156,20 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Widget _buildPasswordField(SignInProvider provider, ColorScheme scheme) {
     return CommonTextFormField(
+      variant: CommonTextFormFieldVariant.hairline,
+      label: 'Password',
       controller: provider.passwordCtrl,
       enabled: provider.state != ViewState.loading,
       hintText: 'Password',
       obscureText: !_isPasswordVisible,
       keyboardType: TextInputType.visiblePassword,
       textInputAction: TextInputAction.done,
-      prefixIcon: Icon(Icons.lock_outline, color: scheme.onSurfaceVariant),
       suffixIcon: IconButton(
         tooltip: _isPasswordVisible ? 'Hide password' : 'Show password',
         icon: Icon(
-          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-          color: scheme.onSurfaceVariant,
+          _isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          color: scheme.onSurface.withValues(alpha: 0.55),
+          size: 20,
         ),
         onPressed: () {
           setState(() {
