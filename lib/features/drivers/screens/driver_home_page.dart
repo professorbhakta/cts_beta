@@ -52,55 +52,48 @@ class _DriverHomePageState extends State<DriverHomePage> {
         backgroundColor: scheme.surfaceContainerHighest,
         drawer: const AppDrawer(),
         body: SafeArea(
-          bottom: false,
-          child: Consumer<DriverHomeProvider>(
-            builder: (context, provider, child) {
-              return switch (provider.state) {
-                ViewState.loading => ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: const [
-                      SizedBox(height: 200, child: LoadingIndicator()),
-                    ],
-                  ),
-                ViewState.error => ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      StatusMessage.error(
-                        title: provider.errorMessage ?? 'An error occurred',
-                        onRetry: () => provider.fetchDriverProfile(),
-                      ),
-                    ],
-                  ),
-                _ when provider.driverProfile == null => ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: const [
-                      StatusMessage(
-                        icon: Icons.assignment_outlined,
-                        title: 'No assignment details found.',
-                        message: 'Pull to refresh.',
-                      ),
-                    ],
-                  ),
-                _ => Column(
-                    children: [
-                      Expanded(
-                        child: RefreshIndicator(
-                          onRefresh: () => provider.fetchDriverProfile(),
-                          child: _buildBoard(context, provider),
+          child: RefreshIndicator(
+            onRefresh: () =>
+                context.read<DriverHomeProvider>().fetchDriverProfile(),
+            child: Consumer<DriverHomeProvider>(
+              builder: (context, provider, child) {
+                return switch (provider.state) {
+                  ViewState.loading => ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 200, child: LoadingIndicator()),
+                      ],
+                    ),
+                  ViewState.error => ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        StatusMessage.error(
+                          title: provider.errorMessage ?? 'An error occurred',
+                          onRetry: () => provider.fetchDriverProfile(),
                         ),
-                      ),
-                      _buildStickyActions(context, provider),
-                    ],
-                  ),
-              };
-            },
+                      ],
+                    ),
+                  _ when provider.driverProfile == null => ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        StatusMessage(
+                          icon: Icons.assignment_outlined,
+                          title: 'No assignment details found.',
+                          message: 'Pull to refresh.',
+                        ),
+                      ],
+                    ),
+                  _ => _buildBoard(context, provider),
+                };
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildStickyActions(
+  Widget _buildPrimaryActions(
     BuildContext context,
     DriverHomeProvider provider,
   ) {
@@ -109,58 +102,52 @@ class _DriverHomePageState extends State<DriverHomePage> {
     final theme = Theme.of(context);
     final batchId = provider.driverProfile?.batchId?.id?.toString();
 
-    return Material(
-      color: scheme.surfaceContainerHighest,
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: Material(
-                color: cts.yellow,
-                child: InkWell(
-                  onTap: batchId == null
-                      ? null
-                      : () => context.push('${RouteName.d2dLog}/$batchId'),
-                  child: Center(
-                    child: Text(
-                      'START TRIP',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: scheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: Material(
+            color: cts.yellow,
+            child: InkWell(
+              onTap: batchId == null
+                  ? null
+                  : () => context.push('${RouteName.d2dLog}/$batchId'),
+              child: Center(
+                child: Text(
+                  'START TRIP',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: scheme.onPrimary,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
                   ),
                 ),
               ),
             ),
-            if (batchId != null)
-              SizedBox(
-                width: double.infinity,
-                height: 44,
-                child: InkWell(
-                  onTap: () => context.push(
-                    '${RouteName.driverReturnCommuter}/$batchId',
-                  ),
-                  child: Center(
-                    child: Text(
-                      'RETURN LIST',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: cts.navy,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.6,
-                      ),
-                    ),
+          ),
+        ),
+        if (batchId != null)
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: InkWell(
+              onTap: () => context.push(
+                '${RouteName.driverReturnCommuter}/$batchId',
+              ),
+              child: Center(
+                child: Text(
+                  'RETURN LIST',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: cts.navy,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.6,
                   ),
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -310,8 +297,10 @@ class _DriverHomePageState extends State<DriverHomePage> {
                           ),
                       ],
                     ),
+                    const SizedBox(height: 20),
+                    _buildPrimaryActions(context, provider),
                     if (batchId == null) ...[
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
                       Text(
                         'No batch assigned yet. Contact admin if this looks wrong.',
                         style: theme.textTheme.bodySmall?.copyWith(

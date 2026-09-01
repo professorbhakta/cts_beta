@@ -146,7 +146,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                         child: _buildBoard(context, provider),
                       ),
                     ),
-                    _buildStickyActions(context, provider),
+                    _buildBottomNav(context, provider),
                   ],
                 ),
             };
@@ -156,7 +156,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     );
   }
 
-  Widget _buildStickyActions(
+  Widget _buildPrimaryCta(
     BuildContext context,
     CommuterHomeProvider provider,
   ) {
@@ -164,80 +164,83 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     final scheme = context.scheme;
     final theme = Theme.of(context);
     final mode = _heroMode(provider);
-    final profile = provider.commuterProfile;
+    final profile = provider.commuterProfile!;
 
     final ctaLabel = mode == _HeroMode.boarded
         ? 'TRACK YOUR CAB'
         : 'SCAN BOARDING QR';
 
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: Material(
+        color: cts.yellow,
+        child: InkWell(
+          onTap: () {
+            if (mode == _HeroMode.boarded) {
+              _openTrackCab(profile);
+            } else {
+              _openBoardingScan(provider);
+            }
+          },
+          child: Center(
+            child: Text(
+              ctaLabel,
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: scheme.onPrimary,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNav(
+    BuildContext context,
+    CommuterHomeProvider provider,
+  ) {
+    final cts = context.cts;
+    final scheme = context.scheme;
+    final theme = Theme.of(context);
+
     return Material(
       color: scheme.surfaceContainerHighest,
       child: SafeArea(
         top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: Material(
-                color: cts.yellow,
-                child: InkWell(
-                  onTap: profile == null
-                      ? null
-                      : () {
-                          if (mode == _HeroMode.boarded) {
-                            _openTrackCab(profile);
-                          } else {
-                            _openBoardingScan(provider);
-                          }
-                        },
-                  child: Center(
-                    child: Text(
-                      ctaLabel,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: scheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.8,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+          child: Row(
+            children: [
+              for (final entry in [
+                (0, 'Home'),
+                (1, 'Scan'),
+                (2, 'Track'),
+              ])
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _onBottomNavTap(entry.$1, provider),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        entry.$2,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: cts.navy.withValues(
+                            alpha: _navIndex == entry.$1 ? 1 : 0.55,
+                          ),
+                          fontWeight: _navIndex == entry.$1
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
-              child: Row(
-                children: [
-                  for (final entry in [
-                    (0, 'Home'),
-                    (1, 'Scan'),
-                    (2, 'Track'),
-                  ])
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => _onBottomNavTap(entry.$1, provider),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Text(
-                            entry.$2,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: cts.navy.withValues(
-                                alpha: _navIndex == entry.$1 ? 1 : 0.55,
-                              ),
-                              fontWeight: _navIndex == entry.$1
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -360,8 +363,14 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 28),
-                    Divider(height: 1, thickness: 1, color: cts.navy.withValues(alpha: 0.12)),
+                    const SizedBox(height: 20),
+                    _buildPrimaryCta(context, provider),
+                    const SizedBox(height: 24),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: cts.navy.withValues(alpha: 0.12),
+                    ),
                     _buildQuietComingToggle(context, provider, commuter),
                     if (provider.isUpdating)
                       const Padding(
@@ -374,7 +383,11 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                           ),
                         ),
                       ),
-                    Divider(height: 1, thickness: 1, color: cts.navy.withValues(alpha: 0.12)),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: cts.navy.withValues(alpha: 0.12),
+                    ),
                     const SizedBox(height: 16),
                     _buildQuietReturnSection(context, provider),
                   ],
