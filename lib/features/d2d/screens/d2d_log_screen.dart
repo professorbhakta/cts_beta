@@ -18,7 +18,6 @@ import 'package:cts/features/d2d/widgets/odometer_km_sheet.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
-import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -303,6 +302,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     final fg = theme.appBarTheme.foregroundColor ?? scheme.onInverseSurface;
     final isLive = provider.isChannelLive;
 
+    // Dense AppBar: LIVE + CALL only (Sort lives in remaining list header).
     return [
       Padding(
         padding: const EdgeInsets.only(right: 4),
@@ -318,7 +318,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         onPressed: _callAdmin,
         style: TextButton.styleFrom(
           foregroundColor: fg,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
@@ -328,23 +328,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
             color: fg,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.6,
-          ),
-        ),
-      ),
-      TextButton(
-        onPressed: provider.toggleSortOrder,
-        style: TextButton.styleFrom(
-          foregroundColor: fg,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        child: Text(
-          provider.isAscending ? 'SORT ASC' : 'SORT DESC',
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: fg,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.4,
           ),
         ),
       ),
@@ -416,26 +399,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               ),
           ],
         ),
-        // Visible Call Admin (also in app bar as CALL)
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: _callAdmin,
-            icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
-            label: Text(
-              'Call Admin',
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: cts.navy,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         // 09 Boarding QR panel (+ Refresh inside panel / QR refresh above)
         BoardingQrPanel(
           key: _qrKey,
@@ -444,20 +408,41 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           enabled: qrEnabled,
         ),
         const SizedBox(height: 12),
-        // 11 Remaining / On board counts
+        // 11 One source of counts: Remaining | On board split row
         D2dTripCountsRow(
           waitingCount: provider.commuters.length,
           onBoardCount: provider.alreadyInCommuters.length,
         ),
-        const SizedBox(height: 16),
-        Text(
-          'Remaining · ${provider.commuters.length}',
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: cts.navy,
-            fontWeight: FontWeight.w600,
-          ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Riders',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: provider.toggleSortOrder,
+              icon: Icon(Icons.sort, color: cts.navy, size: 18),
+              label: Text(
+                provider.isAscending ? 'Asc' : 'Desc',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
         Divider(
           height: 1,
           thickness: 1,
@@ -481,40 +466,22 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               onCall: () => _callCommuter(provider.commuters[i].mobileNumber),
               showDivider: i < provider.commuters.length - 1,
             ),
-        // 13 Waiting line (always listed; section hides itself if empty)
-        const SizedBox(height: 20),
-        D2dWaitingSection(
-          commuters: provider.waitingCommuters,
-          onCall: (commuter) => _callCommuter(commuter.mobileNumber),
-        ),
-        if (provider.waitingCommuters.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              'WAITING LINE · 0',
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: cts.navy.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.2,
-              ),
-            ),
+        // 13 Waiting line — section hides when empty (never print · 0)
+        if (provider.waitingCommuters.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          D2dWaitingSection(
+            commuters: provider.waitingCommuters,
+            onCall: (commuter) => _callCommuter(commuter.mobileNumber),
           ),
-        // 14 Already IN collapsed
-        const SizedBox(height: 12),
-        if (provider.alreadyInCommuters.isEmpty)
-          Text(
-            'ALREADY IN · 0',
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: cts.navy.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-            ),
-          )
-        else
+        ],
+        // 14 Already IN collapsed — section hides when empty
+        if (provider.alreadyInCommuters.isNotEmpty) ...[
+          const SizedBox(height: 12),
           D2dAlreadyInSection(
             commuters: provider.alreadyInCommuters,
             onCall: (commuter) => _callCommuter(commuter.mobileNumber),
           ),
+        ],
         // 15 Add also available as text when FAB hidden by role
         if (canAdd) ...[
           const SizedBox(height: 16),
@@ -590,8 +557,8 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
-      // 01 App bar + drawer (hamburger → openDrawer). BrandAppBar pattern
-      // (logo + platform title alignment) with LIVE / CALL / SORT actions.
+      // 01 App bar + drawer. Title = same c2s text mark as driver home.
+      // Actions: LIVE + CALL only (Sort in remaining list header).
       drawer: const AppDrawer(),
       appBar: PreferredSize(
         preferredSize: const BrandAppBar().preferredSize,
@@ -615,7 +582,15 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                   onPressed: () => Scaffold.of(btnContext).openDrawer(),
                 ),
               ),
-              title: const CtsBrandLogo(height: 40),
+              title: Text(
+                'c2s',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: fg,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                  height: 1,
+                ),
+              ),
               actions: _buildAppBarActions(context, provider),
             );
           },
@@ -645,11 +620,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                           color: cts.navy,
                           fontWeight: FontWeight.w700,
                         ),
-                  ),
-                  TextButton.icon(
-                    onPressed: _callAdmin,
-                    icon: Icon(Icons.call_outlined, color: cts.navy),
-                    label: const Text('Call Admin'),
                   ),
                   const SizedBox(height: 16),
                   StatusMessage.error(
