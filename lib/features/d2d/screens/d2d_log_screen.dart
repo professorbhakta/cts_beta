@@ -16,6 +16,7 @@ import 'package:cts/features/d2d/widgets/d2d_add_commuter_sheet.dart';
 import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
 import 'package:cts/features/d2d/widgets/odometer_km_sheet.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
+import 'package:cts/models/d2d_commuter_model.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/loading_indicator.dart';
@@ -44,9 +45,33 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   bool _startKmPrompted = false;
   bool _startKmSheetOpen = false;
   bool _stopping = false;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
   final GlobalKey<BoardingQrPanelState> _qrKey =
       GlobalKey<BoardingQrPanelState>();
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _d2dProvider?.removeListener(_onD2dProviderChanged);
+    _d2dProvider?.disconnect(notify: false);
+    super.dispose();
+  }
+
+  List<D2dCommuterModel> _filteredRemaining(
+    List<D2dCommuterModel> remaining,
+  ) {
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return remaining;
+    return remaining.where((c) {
+      final haystack = [
+        c.username,
+        c.mobileNumber,
+        c.popId?.pickUpPointName,
+      ].whereType<String>().join(' ').toLowerCase();
+      return haystack.contains(q);
+    }).toList();
+  }
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -77,13 +102,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       _d2dProvider?.fetchTripStatus(widget.batchId);
       _d2dProvider?.connect(widget.batchId);
     });
-  }
-
-  @override
-  void dispose() {
-    _d2dProvider?.removeListener(_onD2dProviderChanged);
-    _d2dProvider?.disconnect(notify: false);
-    super.dispose();
   }
 
   String? _adminMobile(BuildContext context) {
@@ -408,23 +426,45 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           enabled: qrEnabled,
         ),
         const SizedBox(height: 12),
-        // 11 One source of counts: Remaining | On board split row
+        // Counts: Remaining | waiting hourglass | On board (dialogs, not inline)
         D2dTripCountsRow(
-          waitingCount: provider.commuters.length,
+          remainingCount: provider.commuters.length,
+          waitingLineCount: provider.waitingCommuters.length,
           onBoardCount: provider.alreadyInCommuters.length,
+          onWaitingLineTap: provider.waitingCommuters.isEmpty
+              ? null
+              : () => showD2dWaitingLineDialog(
+                    context,
+                    commuters: provider.waitingCommuters,
+                    onCall: (c) => _callCommuter(c.mobileNumber),
+                  ),
+          onOnBoardTap: provider.alreadyInCommuters.isEmpty
+              ? null
+              : () => showD2dAlreadyInDialog(
+                    context,
+                    commuters: provider.alreadyInCommuters,
+                    onCall: (c) => _callCommuter(c.mobileNumber),
+                  ),
         ),
         const SizedBox(height: 8),
+        // Riders title + hairline search + Sort
         Row(
           children: [
-            Expanded(
-              child: Text(
-                'Riders',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: cts.navy,
-                  fontWeight: FontWeight.w600,
-                ),
+            Text(
+              'Riders',
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: cts.navy,
+                fontWeight: FontWeight.w600,
               ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _RidersHairlineSearch(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _searchQuery = value),
+              ),
+            ),
+            const SizedBox(width: 4),
             TextButton.icon(
               onPressed: provider.toggleSortOrder,
               icon: Icon(Icons.sort, color: cts.navy, size: 18),
@@ -448,40 +488,44 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
           thickness: 1,
           color: cts.navy.withValues(alpha: 0.12),
         ),
-        // 11 empty state + 12 rider rows (call, Board, swipe Picked up/Delete)
-        if (provider.commuters.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: StatusMessage(
-              icon: Icons.hourglass_empty,
-              title: 'No riders waiting pickup',
-              message: 'Remaining commuters will appear here.',
-            ),
-          )
-        else
-          for (var i = 0; i < provider.commuters.length; i++)
-            D2dDriverCommuterTile(
-              commuter: provider.commuters[i],
-              provider: provider,
-              onCall: () => _callCommuter(provider.commuters[i].mobileNumber),
-              showDivider: i < provider.commuters.length - 1,
-            ),
-        // 13 Waiting line — section hides when empty (never print · 0)
-        if (provider.waitingCommuters.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          D2dWaitingSection(
-            commuters: provider.waitingCommuters,
-            onCall: (commuter) => _callCommuter(commuter.mobileNumber),
-          ),
-        ],
-        // 14 Already IN collapsed — section hides when empty
-        if (provider.alreadyInCommuters.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          D2dAlreadyInSection(
-            commuters: provider.alreadyInCommuters,
-            onCall: (commuter) => _callCommuter(commuter.mobileNumber),
-          ),
-        ],
+        // Remaining riders (local search filter — does not mutate provider)
+        Builder(
+          builder: (context) {
+            final remaining = provider.commuters;
+            final visible = _filteredRemaining(remaining);
+            if (remaining.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: StatusMessage(
+                  icon: Icons.hourglass_empty,
+                  title: 'No riders waiting pickup',
+                  message: 'Remaining commuters will appear here.',
+                ),
+              );
+            }
+            if (visible.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: StatusMessage(
+                  icon: Icons.search_off,
+                  title: 'No matches',
+                  message: 'No remaining riders match “$_searchQuery”.',
+                ),
+              );
+            }
+            return Column(
+              children: [
+                for (var i = 0; i < visible.length; i++)
+                  D2dDriverCommuterTile(
+                    commuter: visible[i],
+                    provider: provider,
+                    onCall: () => _callCommuter(visible[i].mobileNumber),
+                    showDivider: i < visible.length - 1,
+                  ),
+              ],
+            );
+          },
+        ),
         // 15 Add also available as text when FAB hidden by role
         if (canAdd) ...[
           const SizedBox(height: 16),
@@ -691,6 +735,84 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         builder: (context, provider, _) =>
             _buildStopTripBar(context, provider),
       ),
+    );
+  }
+}
+
+/// Compact hairline search on the Riders row — no grey boxed field.
+class _RidersHairlineSearch extends StatelessWidget {
+  const _RidersHairlineSearch({
+    required this.controller,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final cts = context.cts;
+    final idle = cts.navy.withValues(alpha: 0.2);
+
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        return TextField(
+          controller: controller,
+          onChanged: onChanged,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: cts.navy,
+            fontWeight: FontWeight.w500,
+          ),
+          cursorColor: scheme.primary,
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: 'Search',
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: cts.navy.withValues(alpha: 0.35),
+            ),
+            prefixIcon: Icon(
+              Icons.search,
+              size: 18,
+              color: cts.navy.withValues(alpha: 0.45),
+            ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 28,
+              minHeight: 28,
+            ),
+            suffixIcon: value.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear',
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 28,
+                      minHeight: 28,
+                    ),
+                    onPressed: () {
+                      controller.clear();
+                      onChanged('');
+                    },
+                    icon: Icon(
+                      Icons.close,
+                      size: 16,
+                      color: cts.navy.withValues(alpha: 0.45),
+                    ),
+                  ),
+            border: InputBorder.none,
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: idle, width: 1),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: scheme.primary, width: 1),
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+          ),
+        );
+      },
     );
   }
 }

@@ -167,22 +167,33 @@ class D2dLiveStatusChip extends StatelessWidget {
   }
 }
 
-/// Remaining / On board counts in a quiet split row (not cartoon cards).
+/// Trip counts: Remaining | waiting-line hourglass (badge) | On board.
+///
+/// Waiting line and On board open dialogs when tappable — not inline sections.
 class D2dTripCountsRow extends StatelessWidget {
   const D2dTripCountsRow({
     super.key,
-    required this.waitingCount,
+    required this.remainingCount,
+    required this.waitingLineCount,
     required this.onBoardCount,
+    this.onWaitingLineTap,
+    this.onOnBoardTap,
   });
 
-  final int waitingCount;
+  final int remainingCount;
+  final int waitingLineCount;
   final int onBoardCount;
+  final VoidCallback? onWaitingLineTap;
+  final VoidCallback? onOnBoardTap;
 
   @override
   Widget build(BuildContext context) {
     final cts = context.cts;
     final theme = Theme.of(context);
     final hairline = cts.navy.withValues(alpha: 0.12);
+    final waitingTappable =
+        waitingLineCount > 0 && onWaitingLineTap != null;
+    final onBoardTappable = onBoardCount > 0 && onOnBoardTap != null;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -209,7 +220,7 @@ class D2dTripCountsRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$waitingCount',
+                      '$remainingCount',
                       style: theme.textTheme.headlineSmall?.copyWith(
                         color: cts.navy,
                         fontWeight: FontWeight.w600,
@@ -222,30 +233,84 @@ class D2dTripCountsRow extends StatelessWidget {
               ),
             ),
             VerticalDivider(width: 1, thickness: 1, color: hairline),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: waitingTappable ? onWaitingLineTap : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Waiting',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: cts.navy.withValues(alpha: 0.55),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Badge(
+                        isLabelVisible: waitingLineCount > 0,
+                        backgroundColor: cts.navy,
+                        label: Text(
+                          '$waitingLineCount',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.surface,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.hourglass_empty,
+                          color: waitingLineCount > 0
+                              ? cts.navy
+                              : cts.navy.withValues(alpha: 0.35),
+                          size: 26,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            VerticalDivider(width: 1, thickness: 1, color: hairline),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'On board',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: cts.navy.withValues(alpha: 0.55),
-                        fontWeight: FontWeight.w500,
-                      ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onBoardTappable ? onOnBoardTap : null,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 16,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$onBoardCount',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: cts.navy,
-                        fontWeight: FontWeight.w600,
-                        height: 1.1,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'On board',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: cts.navy.withValues(alpha: 0.55),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '$onBoardCount',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            color: cts.navy,
+                            fontWeight: FontWeight.w600,
+                            height: 1.1,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -254,6 +319,187 @@ class D2dTripCountsRow extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showD2dWaitingLineDialog(
+  BuildContext context, {
+  required List<D2dCommuterModel> commuters,
+  required void Function(D2dCommuterModel commuter) onCall,
+}) {
+  return _showD2dCommuterListDialog(
+    context,
+    title: 'Waiting line',
+    subtitle: 'First come, first served — boarded when a seat opens.',
+    emptyMessage: 'No one in the waiting line.',
+    commuters: commuters,
+    showPosition: true,
+    onCall: onCall,
+  );
+}
+
+Future<void> showD2dAlreadyInDialog(
+  BuildContext context, {
+  required List<D2dCommuterModel> commuters,
+  required void Function(D2dCommuterModel commuter) onCall,
+}) {
+  return _showD2dCommuterListDialog(
+    context,
+    title: 'Already in',
+    subtitle: 'Confirmed in the cab.',
+    emptyMessage: 'No boarded riders yet.',
+    commuters: commuters,
+    showPosition: false,
+    onCall: onCall,
+  );
+}
+
+Future<void> _showD2dCommuterListDialog(
+  BuildContext context, {
+  required String title,
+  required String subtitle,
+  required String emptyMessage,
+  required List<D2dCommuterModel> commuters,
+  required bool showPosition,
+  required void Function(D2dCommuterModel commuter) onCall,
+}) {
+  final cts = context.cts;
+  final theme = Theme.of(context);
+  final scheme = theme.colorScheme;
+  final hairline = cts.navy.withValues(alpha: 0.12);
+
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: theme.scaffoldBackgroundColor,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+    ),
+    builder: (sheetContext) {
+      final maxHeight = MediaQuery.sizeOf(sheetContext).height * 0.7;
+      return SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 8, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$title · ${commuters.length}',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: cts.navy,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cts.navy.withValues(alpha: 0.55),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(sheetContext).pop(),
+                      icon: Icon(Icons.close, color: cts.navy),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(height: 1, thickness: 1, color: hairline),
+              if (commuters.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    emptyMessage,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                )
+              else
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.fromLTRB(20, 4, 8, 16),
+                    itemCount: commuters.length,
+                    separatorBuilder: (_, _) =>
+                        Divider(height: 1, thickness: 1, color: hairline),
+                    itemBuilder: (context, index) {
+                      final c = commuters[index];
+                      final pop = c.popId?.pickUpPointName;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Row(
+                          children: [
+                            if (showPosition)
+                              SizedBox(
+                                width: 28,
+                                child: Text(
+                                  '${index + 1}',
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: cts.navy.withValues(alpha: 0.55),
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    c.username,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      color: cts.navy,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (pop != null && pop.isNotEmpty)
+                                    Text(
+                                      showPosition
+                                          ? pop
+                                          : 'Stop #${c.inLine ?? '?'} · $pop',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: cts.navy.withValues(alpha: 0.55),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Call commuter',
+                              onPressed: () => onCall(c),
+                              icon: Icon(
+                                Icons.call_outlined,
+                                color: cts.navy,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
 /// Name + outlined navy Board. Swipe confirm/remove unchanged.
