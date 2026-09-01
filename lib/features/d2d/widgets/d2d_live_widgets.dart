@@ -526,34 +526,44 @@ class D2dDriverCommuterTile extends StatelessWidget {
               ],
             )
           : null,
-      child: ModernListCard(
-        title: commuter.username,
-        subtitle: 'Stop #${commuter.inLine ?? '?'}',
-        icon: Icons.person_rounded,
-        iconColor: scheme.primary,
-        trailing: IconButton(
-          tooltip: 'Call commuter',
-          onPressed: onCall,
-          icon: Icon(
-            Icons.call_rounded,
-            color: Theme.of(context).colorScheme.primary,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: ModernListCard(
+          title: commuter.username,
+          subtitle: 'Pickup: ${commuter.popId?.pickUpPointName ?? 'N/A'}',
+          icon: Icons.person_rounded,
+          iconColor: scheme.secondary,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: scheme.primary,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '${commuter.inLine ?? '?'}',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: scheme.onPrimary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Call commuter',
+                onPressed: onCall,
+                icon: Icon(
+                  Icons.call_rounded,
+                  color: scheme.secondary,
+                ),
+              ),
+            ],
           ),
         ),
-        children: [
-          InfoRow(
-            icon: Icons.location_on_rounded,
-            label: 'POP:',
-            value: commuter.popId?.pickUpPointName ?? 'N/A',
-            iconColor: cts.info,
-          ),
-          if (commuter.mobileNumber?.isNotEmpty ?? false)
-            InfoRow(
-              icon: Icons.phone_android_rounded,
-              label: 'Mobile:',
-              value: commuter.mobileNumber,
-              iconColor: cts.yellowDark,
-            ),
-        ],
       ),
     );
   }

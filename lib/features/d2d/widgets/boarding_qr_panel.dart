@@ -123,7 +123,6 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.scheme;
-    final cts = context.cts;
 
     if (!widget.enabled) return const SizedBox.shrink();
 
@@ -131,54 +130,46 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
     final payload = _payload?.qrPayload ?? '';
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 8),
       color: scheme.surface,
-      elevation: 0,
+      elevation: 1,
+      shadowColor: scheme.shadow.withValues(alpha: 0.12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: scheme.primary.withValues(alpha: 0.35)),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.qr_code_2_rounded,
-                  color: cts.yellowDark,
+                const Spacer(),
+                Text(
+                  'Boarding QR',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-                const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'Boarding QR',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      tooltip: 'Refresh QR',
+                      onPressed: _loading ? null : _loadQr,
+                      icon: _loading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.refresh),
                     ),
                   ),
                 ),
-                IconButton(
-                  tooltip: 'Refresh QR',
-                  onPressed: _loading ? null : _loadQr,
-                  icon: _loading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(Icons.refresh),
-                ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Commuters scan this code to board. Swipe remains as fallback.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey.shade700,
-              ),
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             if (_error != null && payload.isEmpty)
               _StatusInline(message: _error!)
             else if (payload.isEmpty && _loading)
@@ -193,14 +184,22 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
                 child: QrImageView(
                   data: payload,
                   version: QrVersions.auto,
-                  size: 200,
+                  size: 280,
                   backgroundColor: Colors.white,
+                  eyeStyle: const QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: Colors.black,
+                  ),
+                  dataModuleStyle: const QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: Colors.black,
+                  ),
                 ),
               )
             else
               const _StatusInline(message: 'QR unavailable. Tap refresh.'),
             if (_payload != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
                 'Refreshes in ~${_payload!.expiresIn}s',
                 textAlign: TextAlign.center,

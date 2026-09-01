@@ -26,7 +26,7 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 | Driver boarding QR | `widgets/boarding_qr_panel.dart` — wakelock + auto-refresh |
 | Commuter scan | `screens/boarding_scan_screen.dart` — route `RouteName.boardingScan` |
 | Admin screen | `screens/d2d_channel.dart` (**no** QR) — **Remaining** first; **Already IN** collapsed |
-| Driver screen | `screens/d2d_log_screen.dart` — start KM → QR+CList → end KM → STOP |
+| Driver screen | `screens/d2d_log_screen.dart` — start KM → large QR + CList → end KM → full-width **STOP TRIP** bar (no admin drawer) |
 | Live widgets | `widgets/d2d_live_widgets.dart` — includes `D2dAlreadyInSection` |
 | Action error SnackBar | `widgets/d2d_action_error_listener.dart` |
 | Add commuter sheet | `widgets/d2d_add_commuter_sheet.dart` — search by name, mobile, batch, POP |
@@ -36,8 +36,8 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 | Flow | Behavior |
 |------|----------|
 | Driver start | After WS connect → start-KM sheet (**hard lock** until recorded; skip if already set) |
-| Driver live | Boarding QR + swipe REMOVE fallback; **Remaining** queue first; **Already IN** collapsed (tap to expand) |
-| Driver STOP | End-KM sheet first (**skip if endKm already set**); soft “Stop anyway” if dismissed |
+| Driver live | Large boarding QR (~280) + swipe REMOVE fallback; **Remaining** queue first (pickup label, not POP jargon); **Waiting line**; **Already IN** collapsed |
+| Driver STOP | Full-width bottom **STOP TRIP** bar; end-KM sheet first (**skip if endKm already set**); soft “Stop anyway” if dismissed |
 | Commuter | Mark Coming → Scan boarding QR → `boardingScan` |
 
 Camera: **ImageSource.camera only** when used. Odometer: **KM required**, **photo optional**. Sheet: **Close** (top) / **Skip** (bottom) — no swipe-dismiss; Confirm submits without photo OK. Soft STOP (BE does not block).

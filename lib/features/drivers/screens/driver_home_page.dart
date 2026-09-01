@@ -5,12 +5,9 @@ import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
-import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
-import 'package:cts/widgets/common_button.dart';
-import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/loading_indicator.dart';
-import 'package:cts/widgets/modern_list_card.dart';
+import 'package:cts/widgets/role_bottom_nav.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -35,25 +32,22 @@ class _DriverHomePageState extends State<DriverHomePage> {
     });
   }
 
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  }
-
   String _formatBatchTime(String? batchTime) {
     if (batchTime == null || batchTime.isEmpty) return 'N/A';
     if (batchTime.length >= 5) return batchTime.substring(0, 5);
     return batchTime;
   }
 
+  void _openReturnList(String? batchId) {
+    if (batchId == null) return;
+    context.push('${RouteName.driverReturnCommuter}/$batchId');
+  }
+
   @override
   Widget build(BuildContext context) {
     return OfflineAutoRedirect(
       child: Scaffold(
-        appBar: const BrandAppBar(),
-        drawer: const AppDrawer(),
+        appBar: const BrandAppBar(automaticallyImplyLeading: false),
         body: SafeArea(
           top: false,
           child: RefreshIndicator(
@@ -77,8 +71,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                         ),
                       ],
                     ),
-                  _ when provider.driverProfile == null =>
-                    ListView(
+                  _ when provider.driverProfile == null => ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       children: const [
                         StatusMessage(
@@ -94,6 +87,17 @@ class _DriverHomePageState extends State<DriverHomePage> {
             ),
           ),
         ),
+        bottomNavigationBar: Consumer<DriverHomeProvider>(
+          builder: (context, provider, _) {
+            final batchId = provider.driverProfile?.batchId?.id?.toString();
+            return RoleBottomNav(
+              selected: RoleBottomNavTab.home,
+              onReturnList: batchId == null
+                  ? null
+                  : () => _openReturnList(batchId),
+            );
+          },
+        ),
       ),
     );
   }
@@ -101,7 +105,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
   Widget _buildContent(BuildContext context, DriverHomeProvider provider) {
     final driverProfile = provider.driverProfile!;
     final adminMobile = driverProfile.adminCode?.userId?.mobileNumber;
-    final batchId = driverProfile.batchId?.id;
+    final batchId = driverProfile.batchId?.id?.toString();
     final driverName = driverProfile.userId?.username ?? 'Driver';
 
     return LayoutBuilder(
@@ -124,59 +128,27 @@ class _DriverHomePageState extends State<DriverHomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildWelcomeSection(context, driverName),
-                    const SizedBox(height: 28),
-                    _buildSectionHeader(
+                    Text(
+                      'Hi, $driverName',
+                      style: context.theme.textTheme.titleMedium?.copyWith(
+                        color: context.scheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat.yMMMEd().format(DateTime.now()),
+                      style: context.theme.textTheme.bodySmall?.copyWith(
+                        color: context.scheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildAssignmentHero(
                       context,
-                      title: 'Today\'s Assignment',
-                      subtitle: 'Review your route and cab for today',
+                      driverProfile,
+                      adminMobile,
+                      batchId,
                     ),
-                    const SizedBox(height: 12),
-                    _buildDateStrip(context),
-                    const SizedBox(height: 12),
-                    _buildAssignmentCard(context, driverProfile, adminMobile),
-                    const SizedBox(height: 32),
-                    CommonPrimaryButton(
-                      width: double.infinity,
-                      radius: 12,
-                      borderColor: context.scheme.primary,
-                      backgroundColor: context.scheme.inverseSurface,
-                      textColor: context.scheme.onInverseSurface,
-                      label: 'START TRIP',
-                      fontSize: 20,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      icon: const Icon(Icons.play_arrow_rounded),
-                      onPressed: batchId != null
-                          ? () => context.push('${RouteName.d2dLog}/$batchId')
-                          : null,
-                    ),
-                    if (batchId != null) ...[
-                      const SizedBox(height: 12),
-                      CommonPrimaryButton(
-                        width: double.infinity,
-                        radius: 12,
-                        borderColor: context.scheme.primary,
-                        backgroundColor: context.scheme.surface,
-                        textColor: context.scheme.primary,
-                        label: 'RETURN LIST',
-                        fontSize: 18,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        icon: const Icon(Icons.assignment_return_outlined),
-                        onPressed: () => context.push(
-                          '${RouteName.driverReturnCommuter}/$batchId',
-                        ),
-                      ),
-                    ],
-                    if (batchId == null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'No batch assigned yet. Contact admin if this looks wrong.',
-                        textAlign: TextAlign.center,
-                        style: context.texts.bodySmall?.copyWith(
-                          color: context.scheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -187,213 +159,182 @@ class _DriverHomePageState extends State<DriverHomePage> {
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context, String name) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-    final theme = context.theme;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [cts.yellowDark, scheme.primary],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: cts.yellowDark.withValues(alpha: 0.22),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _greeting(),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  name,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    color: scheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                    height: 1.15,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Review today\'s assignment and start your trip when ready.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.75),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: scheme.surface.withValues(alpha: 0.85),
-              shape: BoxShape.circle,
-            ),
-            child: const CtsBrandLogo(height: 40),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(
-    BuildContext context, {
-    required String title,
-    String? subtitle,
-  }) {
-    final theme = context.theme;
-    final scheme = context.scheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: scheme.onSurface,
-          ),
-        ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildDateStrip(BuildContext context) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-    final theme = context.theme;
-    final isLight = theme.brightness == Brightness.light;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: isLight ? scheme.surface : cts.success.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isLight
-              ? scheme.outline.withValues(alpha: 0.35)
-              : cts.success.withValues(alpha: 0.3),
-        ),
-        boxShadow: isLight
-            ? [
-                BoxShadow(
-                  color: scheme.shadow.withValues(alpha: 0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.calendar_today_rounded,
-            color: scheme.primary,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              DateFormat.yMMMEd().format(DateTime.now()),
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: cts.success.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(99),
-            ),
-            child: Text(
-              'READY',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: cts.success,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAssignmentCard(
+  Widget _buildAssignmentHero(
     BuildContext context,
     DriverModel driverProfile,
     String? adminMobile,
+    String? batchId,
   ) {
     final scheme = context.scheme;
     final cts = context.cts;
+    final theme = context.theme;
     final batchName = driverProfile.batchId?.batchName ?? 'No batch assigned';
     final startTime = _formatBatchTime(driverProfile.batchId?.batchTime);
     final cabNumber = driverProfile.cabId?.regNumber ?? 'N/A';
 
-    return ModernListCard(
-      title: batchName,
-      subtitle: 'Assigned route for today',
-      icon: Icons.directions_bus_filled_rounded,
-      iconColor: scheme.primary,
-      trailing: adminMobile != null && adminMobile.isNotEmpty
-          ? IconButton(
-              tooltip: 'Call admin',
-              onPressed: () => calling(adminMobile),
-              icon: Icon(
-                Icons.call_rounded,
-                color: scheme.primary,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cts.navy,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: cts.navy.withValues(alpha: 0.28),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: scheme.onSecondary.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  batchName,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: scheme.onSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            )
-          : null,
+              const Spacer(),
+              if (adminMobile != null && adminMobile.isNotEmpty)
+                IconButton(
+                  tooltip: 'Call admin',
+                  onPressed: () => calling(adminMobile),
+                  style: IconButton.styleFrom(
+                    foregroundColor: scheme.onSecondary,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  icon: const Icon(Icons.call_rounded, size: 20),
+                ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Today\'s assignment',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: scheme.onSecondary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _detailRow(
+            context,
+            icon: Icons.access_time_rounded,
+            label: 'Start',
+            value: startTime,
+          ),
+          const SizedBox(height: 10),
+          _detailRow(
+            context,
+            icon: Icons.directions_car_rounded,
+            label: 'Cab',
+            value: cabNumber,
+          ),
+          const SizedBox(height: 22),
+          FilledButton.icon(
+            onPressed: batchId != null
+                ? () => context.push('${RouteName.d2dLog}/$batchId')
+                : null,
+            icon: Icon(Icons.play_arrow_rounded, color: scheme.onPrimary),
+            label: Text(
+              'START TRIP',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: scheme.onPrimary,
+              ),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: scheme.primary,
+              foregroundColor: scheme.onPrimary,
+              disabledBackgroundColor:
+                  scheme.primary.withValues(alpha: 0.35),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+          if (batchId != null) ...[
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => _openReturnList(batchId),
+              icon: Icon(
+                Icons.assignment_return_outlined,
+                color: scheme.onSecondary,
+              ),
+              label: Text(
+                'RETURN LIST',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: scheme.onSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                  color: scheme.onSecondary.withValues(alpha: 0.45),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 12),
+            Text(
+              'No batch assigned yet. Contact admin if this looks wrong.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSecondary.withValues(alpha: 0.75),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    final scheme = context.scheme;
+    final theme = context.theme;
+    return Row(
       children: [
-        InfoRow(
-          icon: Icons.event_rounded,
-          label: 'Batch:',
-          value: batchName,
-          iconColor: cts.yellowDark,
-        ),
-        InfoRow(
-          icon: Icons.access_time_rounded,
-          label: 'Start:',
-          value: startTime,
-          iconColor: scheme.primary,
-        ),
-        InfoRow(
-          icon: Icons.directions_car_rounded,
-          label: 'Cab:',
-          value: cabNumber,
-          iconColor: cts.info,
+        Icon(icon, color: scheme.onSecondary.withValues(alpha: 0.85), size: 20),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: scheme.onSecondary.withValues(alpha: 0.7),
+                ),
+              ),
+              Text(
+                value,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: scheme.onSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
