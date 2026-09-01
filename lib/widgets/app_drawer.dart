@@ -15,9 +15,293 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Drawer(
+    return Drawer(
       backgroundColor: Colors.transparent,
-      child: AdminNavList(),
+      child: SessionRole.isCommuter
+          ? const CommuterNavList()
+          : const AdminNavList(),
+    );
+  }
+}
+
+/// Commuter-only drawer: Home, Profile, Track cab, Logout.
+/// No admin management routes (Routes / POPs / Batches / Cabs / Drivers / Offline).
+class CommuterNavList extends StatelessWidget {
+  const CommuterNavList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+    final theme = context.theme;
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
+    final homeRoute = RouteName.commuterHomeScreen;
+
+    final topInset = MediaQuery.paddingOf(context).top;
+    final drawerBg =
+        theme.appBarTheme.backgroundColor ?? scheme.inverseSurface;
+    final onDrawer = scheme.onInverseSurface;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            drawerBg,
+            Color.alphaBlend(
+              onDrawer.withValues(alpha: 0.08),
+              drawerBg,
+            ),
+          ],
+        ),
+      ),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.fromLTRB(20, topInset + 16, 20, 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [scheme.primary, cts.yellowBright],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  radius: 32,
+                  backgroundImage: AssetImage('assets/images/driver.png'),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _drawerDisplayName(),
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _drawerDisplayMobile(),
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.9),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          _DrawerNavTile(
+            icon: Icons.home_rounded,
+            title: 'Home',
+            route: homeRoute,
+            color: scheme.primary,
+            isSelected: currentRoute == homeRoute,
+          ),
+          _DrawerNavTile(
+            icon: Icons.person_rounded,
+            title: 'Profile',
+            route: RouteName.profileScreen,
+            color: cts.yellowBright,
+            isSelected: currentRoute == RouteName.profileScreen,
+          ),
+          _DrawerNavTile(
+            icon: Icons.my_location_rounded,
+            title: 'Track cab',
+            route: RouteName.trackCabScreen,
+            color: cts.navyLight,
+            isSelected: currentRoute == RouteName.trackCabScreen,
+          ),
+          const SizedBox(height: 16),
+          Divider(
+            color: scheme.surfaceContainerHighest,
+            height: 1,
+            thickness: 1,
+            indent: 20,
+            endIndent: 20,
+          ),
+          const SizedBox(height: 8),
+          const _DrawerLogoutTile(),
+        ],
+      ),
+    );
+  }
+}
+
+String _drawerDisplayName() {
+  final userName = AppManager.instance.getString(ManagerKey.userName);
+  final name = AppManager.instance.getString(ManagerKey.name);
+  if (name.isNotEmpty && name != '0') return name;
+  if (userName.isNotEmpty && userName != '0') return userName;
+  return SessionRole.roleLabel;
+}
+
+String _drawerDisplayMobile() {
+  final mobile = AppManager.instance.getString(ManagerKey.mobile);
+  if (mobile.isNotEmpty && mobile != '0') return mobile;
+  return 'No mobile available';
+}
+
+class _DrawerNavTile extends StatelessWidget {
+  const _DrawerNavTile({
+    required this.icon,
+    required this.title,
+    required this.route,
+    required this.color,
+    required this.isSelected,
+  });
+
+  final IconData icon;
+  final String title;
+  final String route;
+  final Color color;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final onDrawer = context.scheme.onInverseSurface;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      decoration: BoxDecoration(
+        color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: isSelected
+            ? Border.all(color: color.withValues(alpha: 0.5), width: 1)
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState?.isDrawerOpen ?? false) {
+              Navigator.of(context).pop();
+            }
+            if (ModalRoute.of(context)?.settings.name != route) {
+              context.push(route);
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? color.withValues(alpha: 0.3)
+                        : color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isSelected ? color : color.withValues(alpha: 0.8),
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: isSelected
+                          ? onDrawer
+                          : onDrawer.withValues(alpha: 0.85),
+                      fontSize: 15,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  Icon(Icons.chevron_right_rounded, color: color, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerLogoutTile extends StatelessWidget {
+  const _DrawerLogoutTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      decoration: BoxDecoration(
+        color: scheme.error.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(color: scheme.error.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () async {
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState?.isDrawerOpen ?? false) {
+              Navigator.of(context).pop();
+            }
+
+            final signInProvider = Provider.of<SignInProvider>(
+              context,
+              listen: false,
+            );
+
+            try {
+              await signInProvider.logout();
+            } catch (_) {}
+
+            if (!context.mounted) return;
+            ControllerResetUtil.resetAllControllers(context);
+            await context.read<SessionAuthNotifier>().refresh();
+            if (!context.mounted) return;
+            context.go(RouteName.signIn);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: scheme.error.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.logout_rounded,
+                    color: scheme.error,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: scheme.error,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -98,7 +382,7 @@ class AdminNavList extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  _getDisplayName(),
+                  _drawerDisplayName(),
                   style: TextStyle(
                     color: scheme.onPrimary,
                     fontSize: 20,
@@ -108,7 +392,7 @@ class AdminNavList extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _getDisplayMobile(),
+                  _drawerDisplayMobile(),
                   style: TextStyle(
                     color: scheme.onPrimary.withValues(alpha: 0.9),
                     fontSize: 13,
@@ -247,35 +531,10 @@ class AdminNavList extends StatelessWidget {
           const SizedBox(height: 8),
 
           // Logout Button
-          _logoutTile(context),
+          const _DrawerLogoutTile(),
         ],
       ),
     );
-  }
-
-  String _getDisplayName() {
-    final userName = AppManager.instance.getString(ManagerKey.userName);
-    final name = AppManager.instance.getString(ManagerKey.name);
-
-    // Prefer name over userName, fallback to role label if both are empty
-    if (name.isNotEmpty && name != '0') {
-      return name;
-    } else if (userName.isNotEmpty && userName != '0') {
-      return userName;
-    } else {
-      return SessionRole.roleLabel;
-    }
-  }
-
-  String _getDisplayMobile() {
-    final mobile = AppManager.instance.getString(ManagerKey.mobile);
-
-    // Return mobile if available, otherwise show a placeholder
-    if (mobile.isNotEmpty && mobile != '0') {
-      return mobile;
-    } else {
-      return 'No mobile available';
-    }
   }
 
   Widget _syncStatusBanner(BuildContext context) {
@@ -356,144 +615,12 @@ class AdminNavList extends StatelessWidget {
     required Color color,
     required bool isSelected,
   }) {
-    final onDrawer = context.scheme.onInverseSurface;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      decoration: BoxDecoration(
-        color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        border: isSelected
-            ? Border.all(color: color.withValues(alpha: 0.5), width: 1)
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            final scaffoldState = Scaffold.maybeOf(context);
-            final isDrawerOpen = scaffoldState?.isDrawerOpen ?? false;
-            if (isDrawerOpen) {
-              Navigator.of(context).pop();
-            }
-            if (ModalRoute.of(context)?.settings.name != route) {
-              context.push(route);
-            }
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? color.withValues(alpha: 0.3)
-                        : color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: isSelected ? color : color.withValues(alpha: 0.8),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isSelected
-                          ? onDrawer
-                          : onDrawer.withValues(alpha: 0.85),
-                      fontSize: 15,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-                if (isSelected)
-                  Icon(Icons.chevron_right_rounded, color: color, size: 20),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _logoutTile(BuildContext context) {
-    final scheme = context.scheme;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      decoration: BoxDecoration(
-        color: scheme.error.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: scheme.error.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            final scaffoldState = Scaffold.maybeOf(context);
-            final isDrawerOpen = scaffoldState?.isDrawerOpen ?? false;
-            if (isDrawerOpen) {
-              Navigator.of(context).pop();
-            }
-
-            final signInProvider = Provider.of<SignInProvider>(
-              context,
-              listen: false,
-            );
-
-            try {
-              await signInProvider.logout();
-            } catch (_) {
-              // Continue with reset/navigation even if logout fails.
-            }
-
-            if (!context.mounted) return;
-            ControllerResetUtil.resetAllControllers(context);
-            await context.read<SessionAuthNotifier>().refresh();
-            if (!context.mounted) return;
-            context.go(RouteName.signIn);
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: scheme.error.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.logout_rounded,
-                    color: scheme.error,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    'Logout',
-                    style: TextStyle(
-                      color: scheme.error,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return _DrawerNavTile(
+      icon: icon,
+      title: title,
+      route: route,
+      color: color,
+      isSelected: isSelected,
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/models/return_intent_model.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/providers/commuter_home_provider.dart';
+import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -112,6 +113,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
+      drawer: const AppDrawer(),
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
@@ -150,7 +152,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
         builder: (context, provider, _) {
           return NavigationBar(
             backgroundColor: scheme.surfaceContainerHighest,
-            indicatorColor: cts.yellow.withValues(alpha: 0.35),
+            indicatorColor: cts.navy.withValues(alpha: 0.10),
             selectedIndex: _navIndex,
             onDestinationSelected: (i) => _onBottomNavTap(i, provider),
             destinations: [
@@ -181,9 +183,14 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+      padding: const EdgeInsets.fromLTRB(0, 4, 4, 8),
       child: Row(
         children: [
+          IconButton(
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            icon: Icon(Icons.menu_rounded, color: cts.navy),
+          ),
           Text(
             'c2s',
             style: theme.textTheme.headlineSmall?.copyWith(
@@ -284,24 +291,20 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     // Hero CTA is Scan or Track only — Coming is controlled solely by the Switch.
     late final String headline;
     late final String ctaLabel;
-    late final String statusLine;
     late final VoidCallback? onCta;
 
     switch (mode) {
       case _HeroMode.notComing:
         headline = 'Scan to board';
         ctaLabel = 'Scan boarding QR';
-        statusLine = 'Mark coming to scan';
         onCta = () => _openBoardingScan(provider);
       case _HeroMode.scan:
         headline = 'Scan to board';
         ctaLabel = 'Scan boarding QR';
-        statusLine = "You're marked as coming";
         onCta = () => _openBoardingScan(provider);
       case _HeroMode.boarded:
         headline = "You're on board";
         ctaLabel = 'Track your cab';
-        statusLine = "You're marked as coming";
         onCta = () => _openTrackCab(commuter);
     }
 
@@ -391,15 +394,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            statusLine,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: scheme.onSecondary.withValues(alpha: 0.9),
-              fontWeight: FontWeight.w500,
             ),
           ),
         ],
