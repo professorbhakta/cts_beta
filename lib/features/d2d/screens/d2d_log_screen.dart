@@ -1,5 +1,6 @@
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
+import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:go_router/go_router.dart';
@@ -15,10 +16,11 @@ import 'package:cts/features/d2d/widgets/d2d_add_commuter_sheet.dart';
 import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
 import 'package:cts/features/d2d/widgets/odometer_km_sheet.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
+import 'package:cts/widgets/app_drawer.dart';
+import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class D2DLogScreen extends StatefulWidget {
@@ -35,7 +37,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   bool _startKmPrompted = false;
   bool _startKmSheetOpen = false;
   bool _stopping = false;
-  int? _startKm;
 
   @override
   void didChangeDependencies() {
@@ -66,7 +67,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       }
       _d2dProvider?.fetchTripStatus(widget.batchId);
       _d2dProvider?.connect(widget.batchId);
-      _refreshStartKm();
     });
   }
 
@@ -75,17 +75,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     _d2dProvider?.removeListener(_onD2dProviderChanged);
     _d2dProvider?.disconnect(notify: false);
     super.dispose();
-  }
-
-  Future<void> _refreshStartKm() async {
-    try {
-      final repo = context.read<D2dRepository>();
-      final existing = await repo.getOdometer(widget.batchId);
-      if (!mounted) return;
-      if (existing.isSuccess) {
-        setState(() => _startKm = existing.data?.morning.startKm);
-      }
-    } catch (_) {}
   }
 
   String? _adminMobile(BuildContext context) {
@@ -110,7 +99,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     if (fromDriver != null && fromDriver.trim().isNotEmpty) {
       return fromDriver.trim();
     }
-    return 'Batch ${widget.batchId}';
+    return 'Batch #${widget.batchId}';
   }
 
   Future<void> _callAdmin() async {
@@ -150,6 +139,20 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     );
   }
 
+  void _openAddCommuter(D2dChannelProvider provider) {
+    final liveCommuterIds =
+        provider.commuters.map((c) => c.id).whereType<int>().toSet();
+    final alreadyInIds =
+        provider.alreadyInCommuters.map((c) => c.id).whereType<int>().toSet();
+    D2dAddCommuterSheet.show(
+      context,
+      batchId: widget.batchId,
+      d2dProvider: provider,
+      liveCommuterIds: liveCommuterIds,
+      alreadyInCommuterIds: alreadyInIds,
+    );
+  }
+
   /// After live channel opens (or REST confirms active trip): prompt start KM once.
   void _maybePromptStartKm() {
     final provider = _d2dProvider;
@@ -185,26 +188,20 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       final repo = context.read<D2dRepository>();
       final existing = await repo.getOdometer(widget.batchId);
       if (!mounted) return;
-      if (existing.isSuccess &&
-          existing.data?.morning.startKm != null) {
-        setState(() => _startKm = existing.data?.morning.startKm);
+      if (existing.isSuccess && existing.data?.morning.startKm != null) {
         return;
       }
 
-      // Prompt once: Close/Skip → continue trip without KM; Confirm → recorded.
       final provider = _d2dProvider;
       if (provider == null || provider.isTripEnded) {
         return;
       }
-      final recorded = await OdometerKmSheet.show(
+      await OdometerKmSheet.show(
         context,
         batchId: widget.batchId,
         mode: OdometerSheetMode.start,
         leg: OdometerLeg.morning,
       );
-      if (recorded == true) {
-        await _refreshStartKm();
-      }
     } finally {
       _startKmSheetOpen = false;
     }
@@ -218,12 +215,10 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       final existing = await repo.getOdometer(widget.batchId);
       if (!mounted) return;
 
-      // Skip noisy end sheet when end KM already recorded.
-      var recorded = existing.isSuccess &&
-          existing.data?.morning.endKm != null;
+      var recorded =
+          existing.isSuccess && existing.data?.morning.endKm != null;
 
       if (!recorded) {
-        // Prefer end-KM sheet; soft STOP if driver dismisses without submit.
         recorded = await OdometerKmSheet.show(
               context,
               batchId: widget.batchId,
@@ -273,156 +268,135 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     }
   }
 
-  Widget _buildKmChip(BuildContext context) {
-    final cts = context.cts;
+  /// Quiet trip-status badge (not a candy pill). No starting KM.
+  Widget _buildTripActiveBadge(BuildContext context, D2dTripStatus tripStatus) {
     final scheme = context.scheme;
-    final theme = Theme.of(context);
-    final km = _startKm;
-    final kmText = km == null
-        ? 'Start —'
-        : 'Start ${NumberFormat('#,###').format(km)} km';
+    final cts = context.cts;
+
+    if (tripStatus == D2dTripStatus.unknown ||
+        tripStatus == D2dTripStatus.none) {
+      return const SizedBox.shrink();
+    }
+
+    final isEnded = tripStatus == D2dTripStatus.ended;
+    final color = isEnded ? scheme.error : cts.navy;
+    final label = isEnded ? 'TRIP ENDED TODAY' : 'TRIP ACTIVE';
 
     return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 4),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: scheme.inverseSurface,
-              borderRadius: BorderRadius.circular(99),
-            ),
-            child: Text(
-              'KM',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: scheme.onInverseSurface,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            kmText,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: cts.navy,
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: color.withValues(alpha: isEnded ? 1 : 0.65),
               fontWeight: FontWeight.w600,
+              letterSpacing: 1.0,
             ),
-          ),
-          const Spacer(),
-          IconButton(
-            tooltip: 'Call admin',
-            onPressed: _callAdmin,
-            icon: Icon(Icons.call_rounded, color: cts.navy),
-          ),
-          IconButton(
-            tooltip: 'Sort',
-            onPressed: () => context.read<D2dChannelProvider>().toggleSortOrder(),
-            icon: Icon(Icons.sort_rounded, color: cts.navy),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildHeader(
+  Widget _buildTopBar(
     BuildContext context, {
-    required bool canAdd,
     required bool isLive,
+    required bool canAdd,
+    required D2dChannelProvider provider,
   }) {
     final cts = context.cts;
     final theme = Theme.of(context);
-    final provider = context.read<D2dChannelProvider>();
-    final liveCommuterIds = provider.commuters
-        .map((c) => c.id)
-        .whereType<int>()
-        .toSet();
-    final alreadyInIds = provider.alreadyInCommuters
-        .map((c) => c.id)
-        .whereType<int>()
-        .toSet();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: 'Back',
-            onPressed: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go(RouteName.driverHomeScreen);
-              }
-            },
-            icon: Icon(Icons.arrow_back_rounded, color: cts.navy),
-          ),
-          Expanded(
-            child: Text(
-              'Live trip · ${_batchLabel(context)}',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: cts.navy,
-                fontWeight: FontWeight.w800,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          D2dLiveStatusChip(isLive: isLive, prominent: true),
-          const SizedBox(width: 4),
-          if (canAdd)
-            IconButton(
-              tooltip: 'Add commuter',
-              onPressed: () => D2dAddCommuterSheet.show(
-                context,
-                batchId: widget.batchId,
-                d2dProvider: provider,
-                liveCommuterIds: liveCommuterIds,
-                alreadyInCommuterIds: alreadyInIds,
-              ),
-              icon: Icon(Icons.person_add_rounded, color: cts.navy),
-            )
-          else
-            const SizedBox(width: 8),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStickyLiveTop(BuildContext context, D2dChannelProvider provider) {
-    final canAdd = D2dChannelRolePolicy.can(
-      SessionRole.userType,
-      D2dChannelAction.addCommuter,
-    );
-    final isLive = provider.isChannelLive;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildHeader(context, canAdd: canAdd, isLive: isLive),
-          D2dConnectionLostBanner(
-            provider: provider,
-            batchId: widget.batchId,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Live Commuter Log',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: cts.navy,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _batchLabel(context),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cts.navy.withValues(alpha: 0.65),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  D2dLiveStatusChip(isLive: isLive, prominent: true),
+                  const SizedBox(height: 4),
+                  TextButton.icon(
+                    onPressed: _callAdmin,
+                    icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
+                    label: Text(
+                      'Call Admin',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: cts.navy,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      visualDensity: VisualDensity.compact,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          BoardingQrPanel(
-            batchId: widget.batchId,
-            compact: true,
-            enabled: !provider.isTripEnded &&
-                provider.tripStatus != D2dTripStatus.ended,
-          ),
-          const SizedBox(height: 10),
-          // High-contrast Live status ABOVE the queue — never behind the QR.
-          D2dLiveStatusStrip(
-            isLive: isLive,
-            remainingCount: provider.commuters.length,
-            boardedCount: provider.alreadyInCommuters.length,
-          ),
-          const SizedBox(height: 10),
-          D2dTripCountsRow(
-            waitingCount: provider.commuters.length,
-            onBoardCount: provider.alreadyInCommuters.length,
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              TextButton.icon(
+                onPressed: provider.toggleSortOrder,
+                icon: Icon(Icons.sort, color: cts.navy, size: 18),
+                label: Text(
+                  provider.isAscending ? 'Asc' : 'Desc',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: cts.navy,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const Spacer(),
+              if (canAdd)
+                TextButton.icon(
+                  onPressed: () => _openAddCommuter(provider),
+                  icon: Icon(Icons.person_add_outlined, color: cts.navy, size: 18),
+                  label: Text(
+                    'Add',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: cts.navy,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+            ],
           ),
         ],
       ),
@@ -430,57 +404,86 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   }
 
   Widget _buildTripContent(BuildContext context, D2dChannelProvider provider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final cts = context.cts;
+    final theme = Theme.of(context);
+    // LIVE = WebSocket / trip connected — never remaining-queue occupancy.
+    final isLive = provider.isChannelLive;
+    final canAdd = D2dChannelRolePolicy.can(
+      SessionRole.userType,
+      D2dChannelAction.addCommuter,
+    );
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
-        _buildStickyLiveTop(context, provider),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            children: [
-              _buildKmChip(context),
-              const SizedBox(height: 4),
-              if (provider.commuters.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: StatusMessage(
-                    icon: Icons.hourglass_empty_rounded,
-                    title: 'No riders waiting pickup',
-                    message: 'Remaining commuters will appear here.',
-                  ),
-                )
-              else
-                for (var i = 0; i < provider.commuters.length; i++)
-                  D2dBoardRow(
-                    commuter: provider.commuters[i],
-                    provider: provider,
-                    onCall: () =>
-                        _callCommuter(provider.commuters[i].mobileNumber),
-                    showDivider: i < provider.commuters.length - 1,
-                  ),
-              if (provider.waitingCommuters.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                D2dWaitingSection(
-                  commuters: provider.waitingCommuters,
-                  onCall: (commuter) => _callCommuter(commuter.mobileNumber),
-                ),
-              ],
-              if (provider.alreadyInCommuters.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                D2dAlreadyInSection(
-                  commuters: provider.alreadyInCommuters,
-                  onCall: (commuter) => _callCommuter(commuter.mobileNumber),
-                ),
-              ],
-            ],
+        D2dConnectionLostBanner(
+          provider: provider,
+          batchId: widget.batchId,
+        ),
+        _buildTopBar(
+          context,
+          isLive: isLive,
+          canAdd: canAdd,
+          provider: provider,
+        ),
+        _buildTripActiveBadge(context, provider.tripStatus),
+        BoardingQrPanel(
+          batchId: widget.batchId,
+          compact: true,
+          enabled: !provider.isTripEnded &&
+              provider.tripStatus != D2dTripStatus.ended,
+        ),
+        const SizedBox(height: 12),
+        D2dTripCountsRow(
+          waitingCount: provider.commuters.length,
+          onBoardCount: provider.alreadyInCommuters.length,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Remaining',
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: cts.navy,
+            fontWeight: FontWeight.w600,
           ),
         ),
+        const SizedBox(height: 4),
+        Divider(height: 1, thickness: 1, color: cts.navy.withValues(alpha: 0.12)),
+        if (provider.commuters.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: StatusMessage(
+              icon: Icons.hourglass_empty,
+              title: 'No riders waiting pickup',
+              message: 'Remaining commuters will appear here.',
+            ),
+          )
+        else
+          for (var i = 0; i < provider.commuters.length; i++)
+            D2dDriverCommuterTile(
+              commuter: provider.commuters[i],
+              provider: provider,
+              onCall: () => _callCommuter(provider.commuters[i].mobileNumber),
+              showDivider: i < provider.commuters.length - 1,
+            ),
+        if (provider.waitingCommuters.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          D2dWaitingSection(
+            commuters: provider.waitingCommuters,
+            onCall: (commuter) => _callCommuter(commuter.mobileNumber),
+          ),
+        ],
+        if (provider.alreadyInCommuters.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          D2dAlreadyInSection(
+            commuters: provider.alreadyInCommuters,
+            onCall: (commuter) => _callCommuter(commuter.mobileNumber),
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildEndTripBar(BuildContext context, D2dChannelProvider provider) {
-    final cts = context.cts;
+  Widget _buildStopTripBar(BuildContext context, D2dChannelProvider provider) {
     final scheme = context.scheme;
     final canStop = D2dChannelRolePolicy.can(
       SessionRole.userType,
@@ -493,14 +496,14 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     }
 
     return Material(
-      color: cts.navy,
+      color: AppColors.acBlack,
       child: SafeArea(
         top: false,
         child: InkWell(
           onTap: _stopping ? null : _stopTrip,
           child: SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 52,
             child: Center(
               child: _stopping
                   ? SizedBox(
@@ -508,14 +511,15 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                       height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: scheme.onSecondary,
+                        color: scheme.surface,
                       ),
                     )
                   : Text(
-                      'End trip',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: scheme.onSecondary,
-                            fontWeight: FontWeight.w800,
+                      'STOP TRIP',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: scheme.surface,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.8,
                           ),
                     ),
             ),
@@ -531,7 +535,10 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
+      appBar: const BrandAppBar(),
+      drawer: const AppDrawer(),
       body: SafeArea(
+        top: false,
         bottom: false,
         child: Consumer<D2dChannelProvider>(
           builder: (context, provider, child) {
@@ -539,11 +546,13 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _buildHeader(
+                  _buildTopBar(
                     context,
-                    canAdd: false,
                     isLive: provider.isChannelLive,
+                    canAdd: false,
+                    provider: provider,
                   ),
+                  _buildTripActiveBadge(context, provider.tripStatus),
                   const SizedBox(height: 24),
                   StatusMessage.error(
                     title: provider.errorMessage ?? 'This trip has ended.',
@@ -563,11 +572,13 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _buildHeader(
+                  _buildTopBar(
                     context,
-                    canAdd: false,
                     isLive: provider.isChannelLive,
+                    canAdd: false,
+                    provider: provider,
                   ),
+                  _buildTripActiveBadge(context, provider.tripStatus),
                   const SizedBox(height: 24),
                   const LoadingIndicator(),
                 ],
@@ -579,7 +590,8 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         ),
       ),
       bottomNavigationBar: Consumer<D2dChannelProvider>(
-        builder: (context, provider, _) => _buildEndTripBar(context, provider),
+        builder: (context, provider, _) =>
+            _buildStopTripBar(context, provider),
       ),
     );
   }

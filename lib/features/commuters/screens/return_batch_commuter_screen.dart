@@ -1,10 +1,11 @@
 import 'package:cts/theme/cts_colors.dart';
+import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/providers/return_batch_provider.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
+import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
-import 'package:cts/widgets/headline_widget.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/search_bar_widget.dart';
 import 'package:cts/widgets/status_message.dart';
@@ -143,7 +144,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   }
 
   String _headline() {
-    return 'Return Trip — Batch #${widget.batchId}';
+    return 'Return list';
   }
 
   String _emptyMessage({
@@ -156,35 +157,16 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
 
     return Scaffold(
+      backgroundColor: scheme.surfaceContainerHighest,
       appBar: const BrandAppBar(),
-      floatingActionButton: (!widget.canEndTrip || widget.readOnly)
-          ? null
-          : Consumer<ReturnBatchProvider>(
-              builder: (context, provider, _) {
-    final scheme = context.scheme;
-
-                if (provider.state != ViewState.success) {
-                  return const SizedBox.shrink();
-                }
-
-                return FloatingActionButton.extended(
-                  onPressed: provider.actionInProgress
-                      ? null
-                      : () => _endReturnTrip(provider),
-                  backgroundColor: scheme.error,
-                  foregroundColor: scheme.surface,
-                  icon: Icon(Icons.flag_rounded),
-                  label: const Text('End return'),
-                );
-              },
-            ),
+      drawer: const AppDrawer(),
       body: SafeArea(
+        bottom: false,
         child: Consumer<ReturnBatchProvider>(
           builder: (context, provider, _) {
-    final scheme = context.scheme;
-
             if (!provider.isDisplayingBatch(widget.batchId)) {
               return const LoadingIndicator();
             }
@@ -206,92 +188,154 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
             final total = capacity?.totalCapacity ?? 0;
             final status = provider.statusForBatch(widget.batchId);
             final isActive = capacity?.isActive ?? status?.isActive ?? false;
+            final cts = context.cts;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Headline(headline: _headline(), fontSize: 21),
-                      const SizedBox(height: 12),
-                      _CapacityBanner(
-                        remaining: remaining,
-                        total: total,
-                        confirmedCount: capacity?.confirmedCount ?? 0,
-                        isActive: isActive,
-                        homeHold: status?.homeHold,
-                        overflowConfirmed: status?.overflowConfirmed,
-                        overflowRemaining: status?.overflowRemaining,
-                        cutoffApplied: status?.cutoffApplied ?? false,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              _headline(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: cts.navy,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Batch #${widget.batchId}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: cts.navy.withValues(alpha: 0.65),
+                                  ),
+                            ),
+                            const SizedBox(height: 12),
+                            _CapacityBanner(
+                              remaining: remaining,
+                              total: total,
+                              confirmedCount: capacity?.confirmedCount ?? 0,
+                              isActive: isActive,
+                              homeHold: status?.homeHold,
+                              overflowConfirmed: status?.overflowConfirmed,
+                              overflowRemaining: status?.overflowRemaining,
+                              cutoffApplied: status?.cutoffApplied ?? false,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (provider.waitingCommuters.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                          child: _ReturnWaitingSection(
+                            commuters: provider.waitingCommuters,
+                          ),
+                        ),
+                      TabBar(
+                        controller: _tabController,
+                        labelColor: cts.navy,
+                        unselectedLabelColor: cts.navy.withValues(alpha: 0.5),
+                        indicatorColor: cts.navy,
+                        tabs: [
+                          Tab(
+                            text:
+                                'Available (${provider.availableCommuters.length})',
+                          ),
+                          Tab(
+                            text:
+                                'Confirmed (${provider.confirmedCommuters.length})',
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _AvailableListTab(
+                              home: provider.homeCommuters,
+                              overflow: provider.overflowCommuters,
+                              emptyMessage: _emptyMessage(
+                                defaultMessage:
+                                    'Commuters marked Coming today appear here. Home shows this batch, Overflow shows other-batch riders.',
+                                isActive: isActive,
+                              ),
+                              onConfirm: (commuter) =>
+                                  _confirmCommuter(provider, commuter),
+                              onRefresh: _refresh,
+                              actionInProgress: provider.actionInProgress,
+                              readOnly: widget.readOnly,
+                              canConfirm: widget.canConfirmAvailable,
+                              overflowConfirmAllowed: status == null ||
+                                  !status.hasPoolExtras ||
+                                  (status.overflowRemaining ?? 0) > 0,
+                            ),
+                            _CommuterListTab(
+                              commuters: provider.confirmedCommuters,
+                              emptyTitle: 'No confirmed commuters',
+                              emptyMessage: _emptyMessage(
+                                defaultMessage:
+                                    'Confirm riders from the Available tab. The driver can then manage the confirmed list.',
+                                isActive: isActive,
+                              ),
+                              actionLabel: 'Remove',
+                              actionColor: scheme.error,
+                              actionIcon: Icons.remove_circle_outline,
+                              onAction: (commuter) =>
+                                  _removeCommuter(provider, commuter),
+                              onRefresh: _refresh,
+                              actionInProgress: provider.actionInProgress,
+                              readOnly: widget.readOnly ||
+                                  !widget.canRemoveConfirmed,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-                if (provider.waitingCommuters.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: _ReturnWaitingSection(
-                      commuters: provider.waitingCommuters,
+                if (widget.canEndTrip &&
+                    !widget.readOnly &&
+                    provider.state == ViewState.success)
+                  Material(
+                    color: AppColors.acBlack,
+                    child: SafeArea(
+                      top: false,
+                      child: InkWell(
+                        onTap: provider.actionInProgress
+                            ? null
+                            : () => _endReturnTrip(provider),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: Center(
+                            child: Text(
+                              'END RETURN',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                    color: scheme.surface,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.8,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                TabBar(
-                  controller: _tabController,
-                  tabs: [
-                    Tab(
-                      text: 'Available (${provider.availableCommuters.length})',
-                    ),
-                    Tab(
-                      text: 'Confirmed (${provider.confirmedCommuters.length})',
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _AvailableListTab(
-                        home: provider.homeCommuters,
-                        overflow: provider.overflowCommuters,
-                        emptyMessage: _emptyMessage(
-                          defaultMessage:
-                              'Commuters marked Coming today appear here. Home shows this batch, Overflow shows other-batch riders.',
-                          isActive: isActive,
-                        ),
-                        onConfirm: (commuter) =>
-                            _confirmCommuter(provider, commuter),
-                        onRefresh: _refresh,
-                        actionInProgress: provider.actionInProgress,
-                        readOnly: widget.readOnly,
-                        canConfirm: widget.canConfirmAvailable,
-                        overflowConfirmAllowed:
-                            status == null ||
-                            !status.hasPoolExtras ||
-                            (status.overflowRemaining ?? 0) > 0,
-                      ),
-                      _CommuterListTab(
-                        commuters: provider.confirmedCommuters,
-                        emptyTitle: 'No confirmed commuters',
-                        emptyMessage: _emptyMessage(
-                          defaultMessage:
-                              'Confirm riders from the Available tab. The driver can then manage the confirmed list.',
-                          isActive: isActive,
-                        ),
-                        actionLabel: 'Remove',
-                        actionColor: scheme.error,
-                        actionIcon: Icons.remove_circle_outline,
-                        onAction: (commuter) =>
-                            _removeCommuter(provider, commuter),
-                        onRefresh: _refresh,
-                        actionInProgress: provider.actionInProgress,
-                        readOnly:
-                            widget.readOnly || !widget.canRemoveConfirmed,
-                      ),
-                    ],
-                  ),
-                ),
               ],
             );
           },
@@ -515,51 +559,48 @@ class _CapacityBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = context.scheme;
-
+    final cts = context.cts;
     final theme = Theme.of(context);
+    final hairline = cts.navy.withValues(alpha: 0.12);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: scheme.primary.withValues(alpha: 0.25),
+        border: Border(
+          top: BorderSide(color: hairline),
+          bottom: BorderSide(color: hairline),
         ),
       ),
-      child: Row(
-        children: [
-          Icon(Icons.event_seat, color: scheme.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$remaining of $total seats remaining',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  '$confirmedCount confirmed${isActive ? ' • trip active' : ''}',
-                  style: theme.textTheme.bodySmall,
-                ),
-                if (_hasPoolExtras)
-                  Text(
-                    'Home hold $homeHold • Overflow in $overflowConfirmed • Overflow open $overflowRemaining'
-                    '${cutoffApplied ? ' • Holds released (T−15)' : ''}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$remaining of $total seats remaining',
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: cts.navy,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 2),
+            Text(
+              '$confirmedCount confirmed${isActive ? ' · trip active' : ''}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: cts.navy.withValues(alpha: 0.65),
+              ),
+            ),
+            if (_hasPoolExtras)
+              Text(
+                'Home hold $homeHold · Overflow in $overflowConfirmed · Overflow open $overflowRemaining'
+                '${cutoffApplied ? ' · Holds released (T−15)' : ''}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cts.navy.withValues(alpha: 0.55),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -713,72 +754,78 @@ class _ReturnWaitingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = context.scheme;
     final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.12);
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cts.yellowDark.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cts.yellowDark.withValues(alpha: 0.35)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.hourglass_top_rounded, color: cts.yellowDark, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Waiting line (${commuters.length})',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: cts.yellowDark,
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Waiting line · ${commuters.length}',
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: cts.navy.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 6),
-          Text(
-            'First come, first served — auto-confirmed when a seat opens.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.65),
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'First come, first served — auto-confirmed when a seat opens.',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: cts.navy.withValues(alpha: 0.55),
           ),
-          const SizedBox(height: 10),
-          for (var i = 0; i < commuters.length; i++) ...[
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(
-                radius: 16,
-                backgroundColor: scheme.primary.withValues(alpha: 0.12),
-                child: Text(
-                  '${i + 1}',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: scheme.primary,
-                    fontWeight: FontWeight.w700,
+        ),
+        const SizedBox(height: 8),
+        Divider(height: 1, thickness: 1, color: hairline),
+        for (var i = 0; i < commuters.length; i++) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 28,
+                  child: Text(
+                    '${i + 1}',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: cts.navy.withValues(alpha: 0.55),
+                    ),
                   ),
                 ),
-              ),
-              title: Text(commuters[i].userId?.username ?? 'N/A'),
-              subtitle: Text(
-                commuters[i].popId?.pickUpPointName ?? 'Waiting for seat',
-              ),
-              trailing: IconButton(
-                tooltip: 'Call commuter',
-                icon: const Icon(Icons.call),
-                onPressed: () {
-                  final mobile = commuters[i].userId?.mobileNumber ?? '';
-                  if (mobile.isNotEmpty) calling(mobile);
-                },
-              ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        commuters[i].userId?.username ?? 'N/A',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        commuters[i].popId?.pickUpPointName ??
+                            'Waiting for seat',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cts.navy.withValues(alpha: 0.55),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Call commuter',
+                  icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
+                  onPressed: () {
+                    final mobile = commuters[i].userId?.mobileNumber ?? '';
+                    if (mobile.isNotEmpty) calling(mobile);
+                  },
+                ),
+              ],
             ),
-            if (i < commuters.length - 1) const Divider(height: 1),
-          ],
+          ),
+          if (i < commuters.length - 1)
+            Divider(height: 1, thickness: 1, color: hairline),
         ],
-      ),
+      ],
     );
   }
 }
