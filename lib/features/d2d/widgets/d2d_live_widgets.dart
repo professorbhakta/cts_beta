@@ -128,6 +128,7 @@ class D2dLiveStatusChip extends StatelessWidget {
     super.key,
     required this.isLive,
     this.prominent = false,
+    this.onAppBar = false,
   });
 
   final bool isLive;
@@ -135,17 +136,27 @@ class D2dLiveStatusChip extends StatelessWidget {
   /// Kept for call-site compatibility; both modes use quiet status text.
   final bool prominent;
 
+  /// When true (black AppBar), WAITING uses AppBar foreground — never navy.
+  final bool onAppBar;
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final cts = context.cts;
+    final appBarFg = theme.appBarTheme.foregroundColor ?? scheme.onInverseSurface;
     final label = isLive ? 'LIVE' : 'WAITING';
-    final color = isLive ? cts.success : cts.navy.withValues(alpha: 0.45);
+    final color = isLive
+        ? cts.success
+        : onAppBar
+            ? appBarFg.withValues(alpha: 0.65)
+            : cts.navy.withValues(alpha: 0.45);
 
     return Semantics(
       label: isLive ? 'Trip live' : 'Connection waiting',
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        style: theme.textTheme.labelSmall?.copyWith(
               color: color,
               fontSize: prominent ? 12 : 11,
               fontWeight: FontWeight.w700,

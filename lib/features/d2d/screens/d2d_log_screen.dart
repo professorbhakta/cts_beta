@@ -298,21 +298,26 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     BuildContext context,
     D2dChannelProvider provider,
   ) {
-    final cts = context.cts;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final fg = theme.appBarTheme.foregroundColor ?? scheme.onInverseSurface;
     final isLive = provider.isChannelLive;
 
     return [
       Padding(
         padding: const EdgeInsets.only(right: 4),
         child: Center(
-          child: D2dLiveStatusChip(isLive: isLive, prominent: true),
+          child: D2dLiveStatusChip(
+            isLive: isLive,
+            prominent: true,
+            onAppBar: true,
+          ),
         ),
       ),
       TextButton(
         onPressed: _callAdmin,
         style: TextButton.styleFrom(
-          foregroundColor: cts.navy,
+          foregroundColor: fg,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -320,7 +325,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         child: Text(
           'CALL',
           style: theme.textTheme.labelLarge?.copyWith(
-            color: cts.navy,
+            color: fg,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.6,
           ),
@@ -329,7 +334,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
       TextButton(
         onPressed: provider.toggleSortOrder,
         style: TextButton.styleFrom(
-          foregroundColor: cts.navy,
+          foregroundColor: fg,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -337,7 +342,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         child: Text(
           provider.isAscending ? 'SORT ASC' : 'SORT DESC',
           style: theme.textTheme.labelLarge?.copyWith(
-            color: cts.navy,
+            color: fg,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.4,
           ),
@@ -592,12 +597,21 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         preferredSize: const BrandAppBar().preferredSize,
         child: Consumer<D2dChannelProvider>(
           builder: (context, provider, _) {
+            final theme = Theme.of(context);
+            final scheme = theme.colorScheme;
+            final fg =
+                theme.appBarTheme.foregroundColor ?? scheme.onInverseSurface;
+
             return AppBar(
               centerTitle: BrandAppBar.platformCentersTitle,
+              backgroundColor: theme.appBarTheme.backgroundColor,
+              foregroundColor: fg,
+              iconTheme: IconThemeData(color: fg),
+              actionsIconTheme: IconThemeData(color: fg),
               leading: Builder(
                 builder: (btnContext) => IconButton(
                   tooltip: 'Menu',
-                  icon: Icon(Icons.menu, color: cts.navy),
+                  icon: Icon(Icons.menu, color: fg),
                   onPressed: () => Scaffold.of(btnContext).openDrawer(),
                 ),
               ),
