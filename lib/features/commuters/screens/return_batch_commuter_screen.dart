@@ -230,6 +230,13 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                     ],
                   ),
                 ),
+                if (provider.waitingCommuters.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: _ReturnWaitingSection(
+                      commuters: provider.waitingCommuters,
+                    ),
+                  ),
                 TabBar(
                   controller: _tabController,
                   tabs: [
@@ -694,6 +701,84 @@ class _CommuterListTabState extends State<_CommuterListTab> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ReturnWaitingSection extends StatelessWidget {
+  const _ReturnWaitingSection({required this.commuters});
+
+  final List<CommuterModel> commuters;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = context.scheme;
+    final cts = context.cts;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cts.yellowDark.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cts.yellowDark.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.hourglass_top_rounded, color: cts.yellowDark, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Waiting line (${commuters.length})',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: cts.yellowDark,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'First come, first served — auto-confirmed when a seat opens.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onSurface.withValues(alpha: 0.65),
+            ),
+          ),
+          const SizedBox(height: 10),
+          for (var i = 0; i < commuters.length; i++) ...[
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                radius: 16,
+                backgroundColor: scheme.primary.withValues(alpha: 0.12),
+                child: Text(
+                  '${i + 1}',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              title: Text(commuters[i].userId?.username ?? 'N/A'),
+              subtitle: Text(
+                commuters[i].popId?.pickUpPointName ?? 'Waiting for seat',
+              ),
+              trailing: IconButton(
+                tooltip: 'Call commuter',
+                icon: const Icon(Icons.call),
+                onPressed: () {
+                  final mobile = commuters[i].userId?.mobileNumber ?? '';
+                  if (mobile.isNotEmpty) calling(mobile);
+                },
+              ),
+            ),
+            if (i < commuters.length - 1) const Divider(height: 1),
+          ],
+        ],
+      ),
     );
   }
 }

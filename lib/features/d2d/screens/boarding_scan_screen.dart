@@ -47,6 +47,52 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
     }
   }
 
+  Future<bool> _offerJoinWaiting(String message) async {
+    final wantsJoin = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Join waiting line?'),
+        content: Text(
+          '$message\n\nYou can join the FCFS waiting line for this trip.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Join waiting line'),
+          ),
+        ],
+      ),
+    );
+    return wantsJoin == true;
+  }
+
+  Future<void> _joinWaiting(String token) async {
+    final repo = context.read<D2dRepository>();
+    final result = await repo.boardingScan(token, action: 'join_waiting');
+    if (!mounted) return;
+
+    if (result.isFailure) {
+      ClientPackFeedback.showFailure(result.failure!);
+      await _controller.start();
+      return;
+    }
+
+    final data = result.data;
+    final msg = data?.message?.trim();
+    if (data?.queuePosition == 0) {
+      ClientPackFeedback.showSuccess(msg ?? 'Boarded from waiting line.');
+    } else {
+      ClientPackFeedback.showSuccess(
+        msg ?? 'You are #${data?.queuePosition ?? ''} in the waiting line.',
+      );
+    }
+    if (mounted) Navigator.of(context).pop(true);
+  }
+
   Future<void> _onDetect(BarcodeCapture capture) async {
     if (_handling) return;
     final raw = capture.barcodes
@@ -64,7 +110,18 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
       if (!mounted) return;
 
       if (result.isFailure) {
-        ClientPackFeedback.showFailure(result.failure!);
+        final failure = result.failure!;
+        final code = failure.code;
+        if (code == 'not_in_queue' || code == 'capacity_full') {
+          final wantsJoin = await _offerJoinWaiting(
+            failure.message ?? 'Cannot board right now.',
+          );
+          if (wantsJoin && mounted) {
+            await _joinWaiting(raw);
+            return;
+          }
+        }
+        ClientPackFeedback.showFailure(failure);
         await _controller.start();
         return;
       }
@@ -130,7 +187,8 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            'Mark Coming first, then scan the cab QR shown by the driver.',
+                            'Scan to board if you are on the live queue. '
+                            'If not added yet, you can join the waiting line.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,

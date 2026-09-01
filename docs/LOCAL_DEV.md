@@ -83,8 +83,8 @@ Network: `backend` bridge. Django bind-mount `./django:/app/django`. Volumes: `p
 |-----------|-------|-------|------|
 | C2S-Nginx | cts-docker-nginx | **80** → host | Reverse proxy + WS upgrade |
 | C2S-Django | cts-docker-c2s | internal 8000 | Uvicorn ASGI |
-| C2S-PostgresDB | cts-docker-postgres | internal 5432 | DB `c2s_dev_test` |
-| C2S-PostgresBackup | cts-docker-db-backup | — | Daily `pg_dump` → `postgres/backups/` |
+| C2S-PostgresDB | `cts-docker-postgres:16` | internal 5432 | PostgreSQL **16** — DB `c2s_dev_test` |
+| C2S-PostgresBackup | `cts-docker-postgres:16` (same image) | — | `pg_dump` (PG16) → `postgres/backups/` |
 | C2S-redis | redis:latest | 6379 | Morning `d2d:live:…` + evening `{date}_{batch}` |
 
 ### Django startup (`django/entrypoint.sh`)
@@ -122,6 +122,8 @@ Network: `backend` bridge. Django bind-mount `./django:/app/django`. Volumes: `p
 ```
 
 ### Postgres backups
+
+Stack is pinned to **PostgreSQL 16** (`postgres/Dockerfile` → `postgres:16-bookworm`). `C2S-PostgresDB` and `C2S-PostgresBackup` share the same image (`cts-docker-postgres:16`) so `pg_dump` always matches the server major. `db_backup.sh` aborts if either side is not PG16. Seed dump `postgres/dumps20.sql` was created with pg_dump 16.4.
 
 Dumps land on the host at `D:\cts-docker\postgres\backups\backup_*.sql.gz` (gitignored).
 

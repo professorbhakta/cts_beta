@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-25 21:45 IST
-> **Session:** Fast-path docs; widget_test removed; STEP 8 open
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Doc sync — test count 128; STEP 8 open
 
 # Project Todo & Progress
 
@@ -175,8 +175,8 @@ lib/
 - Production offline-first for batches remains wired via `OfflineFirstBatchRepository`
 
 ### Lint / env
-- [x] `flutter analyze` — 0 errors (7 pre-existing info/warnings)
-- [x] `flutter test` — 101 passed (P9)
+- [x] `flutter analyze` — 0 errors (1 warning + 5 info; 2026-09-01)
+- [x] `flutter test` — 128 passed (2026-09-01)
 
 ## Build fixes (2026-07-17)
 - [x] Fixed Windows assembleDebug blocker: Kotlin incremental cache crash across drives (Pub cache on C:, project on D:)

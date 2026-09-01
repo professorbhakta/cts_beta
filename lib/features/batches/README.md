@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-25 21:36 IST
-> **Session:** Merged backend/04 return lifecycle notes; thin ownership
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Phase 3 return waiting pool + join_waiting + Waiting line UI
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -15,11 +15,11 @@ Feature owner for batch management, running batches, and evening return trips (R
 | | Live D2D | Return batch |
 |--|----------|--------------|
 | Transport | WebSocket | REST |
-| Redis | `d2d:live:{date}:{batch}` | `{dd-mm-yyyy}_{batch_id}` (e.g. `05-08-2026_1`) |
+| Redis | `d2d:live:{date}:{batch}` · `d2d:waiting:{date}:{batch}` (morning) | `{dd-mm-yyyy}_{batch_id}` confirmed · `d2d:return_waiting:{date}:{batch}` waiting |
 | UI refresh | Push broadcast | Pull-to-refresh / resume |
 | IDs | User IDs in DS / CList | User ID strings in Redis set |
 
-Morning STOP does **not** empty the evening Available pool. Return `view/` = `home[]` + `overflow[]` from current `isComing=True`; confirm sets `isComing=False`; remove/end restore `isComing=True`.
+Morning STOP does **not** empty the evening Available pool. Return `view/` = `home[]` + `overflow[]` from current `isComing=True`; confirm sets `isComing=False` for that rider; remove sets `isComing=True` during an active return. **End return** clears Redis and sets `isComing=False` for home batch + cross-batch confirmed (riders must Mark Coming again for a later return).
 
 ---
 
@@ -70,8 +70,9 @@ Entry: Admin home or batch screen → Return Batches.
 |--------|---------|
 | `fetchStatusesForBatches(ids)` | `GET return_batch/status/{id}` — **max 10 concurrent** (P8); progressive UI updates |
 | `loadReturnTrip(batchId)` | Parallel `view/` + `get_commuter/` |
-| `confirmCommuter(userId, batchId)` | `POST add_commuter` |
-| `removeCommuter(userId, batchId)` | `POST remove_commuter` |
+| `confirmCommuter(userId, batchId)` | `POST add_commuter` (`action: confirm`) |
+| `joinReturnWaiting(userId, batchId)` | `POST add_commuter` (`action: join_waiting`) — commuter self-serve |
+| `removeCommuter(userId, batchId)` | `POST remove_commuter` — FCFS promotes waiting when seat opens |
 | `endReturnTrip(batchId)` | `POST end/{id}` |
 
 **ID rule:** Always pass **`userId.id`** as `commuter_id` in POST body.
@@ -135,4 +136,4 @@ final status = context.read<ReturnBatchProvider>().statusForBatch(batchId);
 5. Overflow Confirm is off when Overflow open is 0. Seats left is still remaining/total.
 7. Picker **Seats left** is `remaining/total`, not Overflow open. Home hold `0` after no morning STOP is valid extras, not a bug.
 8. If GET status omits extras (fail closed), Home hold / Overflow rows are hidden; old counts still show.
-9. `Coming today` commuters appear even without a morning STOP log; confirming hides them until remove/end restores `isComing`.
+9. `Coming today` commuters appear even without a morning STOP log; confirming hides them until remove sets `isComing=true` again. **End return** sets `isComing=false` (same as morning STOP) — riders Mark Coming again for a later return.

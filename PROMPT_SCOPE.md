@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-08-26 08:40 IST
-> **Session:** AppColors → Theme (features fixup)
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Doc header sync; UI updates next
 
 # PROMPT SCOPE — CTS
 
@@ -39,16 +39,16 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | migrate-widgets + migrate-features: AppColors → Theme/CtsColors |
-| P2 | Role / surface? | yes | Shared widgets, snackbar/tools, all feature screens |
-| P3 | Non-negotiables? | yes | AppColors seed only in theme; analyze + test |
-| P4 | Both ends? | n/a | |
-| P5 | R10 isComing? | n/a | |
-| P6 | Git branch? | yes | No commit unless asked |
-| P7 | Docs policy? | yes | No new md; update PROMPT_SCOPE |
-| P8 | Out of scope? | yes | Keep AppColors file; no redesign; no google_fonts bump |
+| P1 | Goal clear? | yes | Phase 3 complete; session closed |
+| P2 | Role / surface? | yes | Extend return_batch + batches UI; mirror morning Phase 2 |
+| P3 | Non-negotiables? | yes | No new REST unless needed; Provider; locked Q1–Q4 product |
+| P4 | Both ends? | yes | `cts-docker` return pool + `cts_beta` return screens |
+| P5 | R10 isComing? | yes | Return confirm ≠ isComing; End clears via trip_end scope |
+| P6 | Git branch? | yes | beta-ver; no commit unless asked |
+| P7 | Docs policy? | yes | Update API_CONTRACTS + batches README; handoff in D2D_PHASE3_CONTINUE_PROMPT |
+| P8 | Out of scope? | yes | Do not redo morning Phase 1+2; STEP 8 only on **go** |
 
-**This prompt:** Theme token migration (widgets + features).
+**This prompt:** Phase 3 — return trip waiting + FCFS → [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt).
 
 ---
 
@@ -56,11 +56,13 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
-| 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **await go** | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [FLOWS](docs/FLOWS_BY_ROLE.md) |
+| 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
 | 4 | Q-batch-coming | Mark all coming **per batch** | future | `CommuterListScreen` |
 | 5 | Q-r7-tests | Django lazy cutoff + Flutter `cutoff_applied` | future | BE tests |
+| — | Q-d2d-phase3 | Return waiting pool + FCFS parity | **done** | batches README + API_CONTRACTS |
+| — | Q-d2d-phase1-2 | Morning cross-batch + waiting + FCFS | **done** | d2d README + API_CONTRACTS |
 | — | Q-docs-consol / story-split / nginx / backup | shipped | **done** | — |
 
 ---
@@ -80,6 +82,18 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-01 10:20 | Doc header sync — API_CONTRACTS view/ waiting[] example; feature READMEs; FLOWS; PROJECT_TODOS 128 tests | `cts_beta` |
+| 2026-08-31 13:45 | D2D Phase 3 shipped — return waiting Redis + join_waiting + FCFS + FE waiting UI | both |
+| 2026-08-31 13:20 | D2D Phase 1+2 shipped (morning); Phase 3 handoff prompt + brain/scope/registry sync | both |
+| 2026-08-29 13:25 | STEP 8 resume go — fix ISSUE-008 (driver adminCode); finish M6/M7|R5 + return R1–R8 | both |
+| 2026-08-29 10:27 | END sync: PROJECT_BRAIN §5/§6/§9; DOC_REGISTRY fast+on-change; CHAT_PROMPTS; DISCUSSION_LOG pointer | `cts_beta` |
+| 2026-08-29 10:02 | LIB_STRUCTURE.md: target tree aligned to disk; Phase B done; legacy root folders documented | `cts_beta` |
+| 2026-08-29 10:16 | reviewer_agent.md: role card — LIB_STRUCTURE law; no Riverpod; no data/domain/presentation | `cts_beta` |
+| 2026-08-29 10:10 | test_agent.md: role card — TESTING.md owner; test/features/<name>/; unit tests ≠ push gate | `cts_beta` |
+| 2026-08-29 10:06 | ui_agent.md: role card — PROJECT_BRAIN first; features/screens + lib/widgets; Material only; no presentation/ | `cts_beta` |
+| 2026-08-29 10:03 | main_agent.md: orchestrator role card — PROJECT_BRAIN/.cursorrules first; attach §3; END sync; Provider only | `cts_beta` |
+| 2026-08-29 10:03 | ARCHITECTURE.md: layer mermaid → Screen/Provider/Repository/API; flow ≠ folders; legacy lib/data|domain loud; Provider only | `cts_beta` |
+| 2026-08-29 09:35 | logic_agent.md: full replace — Provider (ChangeNotifier) only; never Riverpod; module paths locked | `cts_beta` |
 | 2026-08-26 08:50 | migrate-widgets + migrate-features done; analyze 0 errors; 128 tests pass | `cts_beta` |
 | 2026-08-26 08:40 | Features/offline: fix Theme migration scope/const; 0 analyze errors | `cts_beta` |
 | 2026-08-26 08:35 | Widgets + appManager off AppColors → Theme (scheme/cts) | `cts_beta` |

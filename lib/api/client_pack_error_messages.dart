@@ -56,7 +56,12 @@ class ClientPackErrorMessages {
     'trip_not_active': 'Trip is not active. Wait for the driver to start.',
     'no_live_state': 'Live trip is not ready yet. Try again in a moment.',
     'not_coming': 'Mark Coming first, then scan the QR.',
-    'not_in_queue': 'You are not on this trip queue. Mark Coming for this batch.',
+    'not_in_queue':
+        'You are not on this trip queue. Join the waiting line if the driver has not added you yet.',
+    'already_in_queue': 'You are already on the live queue for this trip.',
+    'already_waiting': 'You are already in the waiting line.',
+    'already_boarded': 'You are already on the bus.',
+    'invalid_action': 'Unsupported boarding action.',
     'wrong_batch': 'This QR is for a different cab/batch.',
     'capacity_full': 'Cab is full. Contact the driver or admin.',
     'invalid_commuter': 'Commuter profile not found.',

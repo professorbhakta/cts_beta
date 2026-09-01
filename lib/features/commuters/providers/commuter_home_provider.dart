@@ -141,4 +141,41 @@ class CommuterHomeProvider with ChangeNotifier {
       ),
     );
   }
+
+  bool _isJoiningWaiting = false;
+  bool get isJoiningWaiting => _isJoiningWaiting;
+
+  String? _joinWaitingError;
+  String? get joinWaitingError => _joinWaitingError;
+
+  /// Commuter self-serve: join FCFS return waiting line for home batch.
+  Future<String?> joinReturnWaitingLine() async {
+    final profile = _commuterProfile;
+    final userId = profile?.userId?.id?.toString();
+    final batchId = profile?.batchId?.id?.toString();
+    if (userId == null || batchId == null) {
+      _joinWaitingError = 'Profile or batch not loaded.';
+      notifyListeners();
+      return _joinWaitingError;
+    }
+
+    _isJoiningWaiting = true;
+    _joinWaitingError = null;
+    notifyListeners();
+
+    final result = await _returnBatchRepository.joinReturnWaiting(
+      userId,
+      batchId,
+    );
+
+    _isJoiningWaiting = false;
+    if (result.isFailure) {
+      _joinWaitingError = result.failure?.message;
+      notifyListeners();
+      return _joinWaitingError;
+    }
+
+    notifyListeners();
+    return result.data;
+  }
 }

@@ -37,6 +37,9 @@ class ReturnBatchProvider with ChangeNotifier {
   List<CommuterModel> _overflowCommuters = [];
   List<CommuterModel> get overflowCommuters => _overflowCommuters;
 
+  List<CommuterModel> _waitingCommuters = [];
+  List<CommuterModel> get waitingCommuters => _waitingCommuters;
+
   List<CommuterModel> get availableCommuters => [
     ..._homeCommuters,
     ..._overflowCommuters,
@@ -59,6 +62,7 @@ class ReturnBatchProvider with ChangeNotifier {
   bool get hasTripData =>
       _homeCommuters.isNotEmpty ||
       _overflowCommuters.isNotEmpty ||
+      _waitingCommuters.isNotEmpty ||
       _confirmedCommuters.isNotEmpty ||
       _capacity != null;
 
@@ -147,8 +151,21 @@ class ReturnBatchProvider with ChangeNotifier {
 
     final split = availableResult.data ??
         const ReturnAvailableResult(home: [], overflow: []);
-    _homeCommuters = split.home.where(isOpen).toList();
-    _overflowCommuters = split.overflow.where(isOpen).toList();
+    _waitingCommuters = split.waiting;
+    final waitingIds = {
+      for (final commuter in _waitingCommuters)
+        if (commuter.userId?.id != null) commuter.userId!.id.toString(),
+    };
+    _homeCommuters =
+        split.home.where(isOpen).where((c) {
+          final id = c.userId?.id?.toString();
+          return id == null || !waitingIds.contains(id);
+        }).toList();
+    _overflowCommuters =
+        split.overflow.where(isOpen).where((c) {
+          final id = c.userId?.id?.toString();
+          return id == null || !waitingIds.contains(id);
+        }).toList();
     _capacity = confirmedResult.data?.capacity;
     if (statusResult.isSuccess && statusResult.data != null) {
       _statusByBatchId[batchId] = statusResult.data!;
@@ -166,6 +183,12 @@ class ReturnBatchProvider with ChangeNotifier {
   Future<String?> removeCommuter(String userId, String batchId) async {
     return _runAction(
       () => _repository.removeCommuterFromConfirmList(userId, batchId),
+    );
+  }
+
+  Future<String?> joinReturnWaiting(String userId, String batchId) async {
+    return _runAction(
+      () => _repository.joinReturnWaiting(userId, batchId),
     );
   }
 
@@ -187,6 +210,7 @@ class ReturnBatchProvider with ChangeNotifier {
 
     _homeCommuters = [];
     _overflowCommuters = [];
+    _waitingCommuters = [];
     _confirmedCommuters = [];
     _statusByBatchId.remove(batchId);
     _capacity = const ReturnBatchCapacityModel(
@@ -266,6 +290,7 @@ class ReturnBatchProvider with ChangeNotifier {
   void _clearTripLists() {
     _homeCommuters = [];
     _overflowCommuters = [];
+    _waitingCommuters = [];
     _confirmedCommuters = [];
     _capacity = null;
   }

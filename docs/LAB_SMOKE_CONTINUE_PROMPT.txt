@@ -1,0 +1,60 @@
+> **Doc:** docs/LAB_SMOKE_CONTINUE_PROMPT.txt
+> **Updated:** 2026-08-29 13:20 IST
+> **Session:** Fresh START for next agent — resume STEP 8 / full lab smoke
+================================================================================
+COPY FROM HERE → paste as new chat START
+================================================================================
+
+@PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+@docs/client_req/DISCUSSION_LOG.md
+@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@docs/LAB_SMOKE_ISSUES.txt
+@docs/LAB_SMOKE_CONTINUE_PROMPT.txt
+@lib/features/d2d/README.md
+@lib/features/batches/README.md
+@docs/API_CONTRACTS.md
+@docs/TESTING.md
+@docs/LOCAL_DEV.md
+@docs/FLOWS_BY_ROLE.md
+@docs/FEATURES.md
+@docs/features/RETURN_BATCH_E2E.md
+
+Task: Resume full lab smoke (STEP 8 + return capacity) — user already said go.
+
+BEFORE ANY TAP: read docs/LAB_SMOKE_ISSUES.txt end-to-end. Obey ISSUE-011
+(uiautomator dump → bounds → tap center; Show taps + Pointer location ON).
+Do not guess pixels. Append new issues to LAB_SMOKE_ISSUES.txt as you find them.
+
+Repos: D:\cts_beta (beta-ver) · D:\cts-docker
+Devices: emulator-5554 admin 7069036462 / password · phone 5f36af49 driver 9876544111 / password
+LAN: PROJECT_BRAIN §5 / .env (one LAN IP for both — no 10.0.2.2 when phone in run)
+
+Prior run (2026-08-29) — PARTIAL:
+  Phase 0 PASS (128 tests; analyze 0 errors)
+  Phase 3 Mark all coming DONE by user (1500 coming)
+  Morning: M1–M4, M8–M9 PASS · M5 SKIP · M6 NOT RUN · M7 BLOCKED (ISSUE-008)
+  Return Phases 5–7 NOT DONE
+
+Resume order:
+  1. Confirm both devices still logged in; trip ended (no LIVE morning) or STOP first.
+  2. Prefer fix or work around ISSUE-008 (Add sheet GET …/admin/commuter/0 → 500)
+     before retrying morning M7; else prove capacity_full on return R5.
+  3. Complete M6 swipe REMOVE (ask user approval if auto-review blocks).
+  4. Phase 5 return R1–R8 (Batch-01) per RETURN_BATCH_E2E + API_CONTRACTS.
+  5. Phase 6 feature matrix (high-signal open+back).
+  6. Phase 7 report + update DISCUSSION_LOG + PROJECT_BRAIN §5 + LAB_SMOKE_ISSUES.
+
+SKIP: QR/camera scan only (log SKIPPED). Mark all coming already done — re-check
+if Available pool empty.
+
+Constraints:
+  beta-ver only. No commit/push unless asked.
+  Do not reopen D1–D10 / product locks.
+  Do not invent attach order or new docs (except append LAB_SMOKE_ISSUES.txt).
+  flutter run sequential if Gradle lock (ISSUE-006).
+  Prefer keep live sessions; adb OK on phone per LOCAL_DEV.md.
+
+================================================================================
+END COPY
+================================================================================

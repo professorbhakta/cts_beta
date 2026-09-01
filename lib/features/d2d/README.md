@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-08-25 21:50 IST
-> **Session:** Stability — owner of morning UI; BE↔FE map in brain §10
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Phase 1+2 morning waiting pool + scan join_waiting + Waiting line UI
 
 # D2D Feature — Live WebSocket
 
@@ -25,7 +25,7 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 | Odometer sheet | `widgets/odometer_km_sheet.dart` — start/end KM + camera photo |
 | Driver boarding QR | `widgets/boarding_qr_panel.dart` — wakelock + auto-refresh |
 | Commuter scan | `screens/boarding_scan_screen.dart` — route `RouteName.boardingScan` |
-| Admin screen | `screens/d2d_channel.dart` (**no** QR) |
+| Admin screen | `screens/d2d_channel.dart` (**no** QR) — **Remaining** first; **Already IN** collapsed |
 | Driver screen | `screens/d2d_log_screen.dart` — start KM → QR+CList → end KM → STOP |
 | Live widgets | `widgets/d2d_live_widgets.dart` — includes `D2dAlreadyInSection` |
 | Action error SnackBar | `widgets/d2d_action_error_listener.dart` |
@@ -36,7 +36,7 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 | Flow | Behavior |
 |------|----------|
 | Driver start | After WS connect → start-KM sheet (**hard lock** until recorded; skip if already set) |
-| Driver live | Boarding QR + swipe REMOVE fallback |
+| Driver live | Boarding QR + swipe REMOVE fallback; **Remaining** queue first; **Already IN** collapsed (tap to expand) |
 | Driver STOP | End-KM sheet first (**skip if endKm already set**); soft “Stop anyway” if dismissed |
 | Commuter | Mark Coming → Scan boarding QR → `boardingScan` |
 
@@ -138,6 +138,12 @@ When admin is on the channel and the trip ends, the provider sets `isTripEnded` 
 The admin screen then calls `RunningBatchProvider.fetchOnce()` and `AdminProvider.refreshRunningBatches()` once. Close channel / Go back also snapshot those lists so the dashboard LIVE tile is not stale. Evening return trips stay on `ReturnBatchProvider` REST and are never mixed into this path.
 
 Driver **STOP TRIP** FAB is hidden when `isTripEnded` or REST status is `ended`.
+
+**STOP side effects (2026-08-31):** `set_commuters_is_coming(is_coming=False, scope='trip_end', …)` — home batch bulk + cross-batch participants (queue/CList/waiting). Redis live + waiting keys deleted via `live_state.py`. Phase 2 adds waiting join + FCFS auto-board.
+
+**QR scan:** commuter must be in the live queue to board (`action: board`); cross-batch guests admin/driver ADDed may scan. Not in queue → `action: join_waiting` on same endpoint (separate tap after scan prompt). FCFS auto-boards waiting riders when seats open (DELETE / capacity).
+
+**Waiting UI:** driver/admin see **Waiting line** between Remaining and collapsed Already IN.
 
 **QA 2026-08-17:** Admin watching STOP showed ended UI (not WAITING). Close channel cleared Batch-01 LIVE tile. Driver same-day START showed 4001 / TRIP ENDED TODAY.
 

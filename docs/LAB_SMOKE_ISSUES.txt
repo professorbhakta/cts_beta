@@ -1,0 +1,178 @@
+> **Doc:** docs/LAB_SMOKE_ISSUES.txt
+> **Updated:** 2026-08-29 13:20 IST
+> **Session:** STEP 8 lab smoke — issues / glitches / agent gotchas
+================================================================================
+CTS LAB SMOKE — ISSUES LOG
+Purpose: Capture errors, glitches, and agent pitfalls found during device smoke
+         so the next agent does NOT rediscover them the hard way.
+Write:   newest first under LOG. Severity: BLOCKER | FAIL | GLITCH | GOTCHA
+Do NOT:  reopen D1–D10 / product locks. Prefer fix or work around; log either way.
+================================================================================
+
+--------------------------------------------------------------------------------
+HOW TO USE (next agent)
+--------------------------------------------------------------------------------
+1. Read this file before Phase 3–7 of STEP 8 / full lab smoke.
+2. Use **uiautomator dump → content-desc/bounds → tap center** (not guessed pixels).
+3. Enable Android Show taps + Pointer location on both devices before adb taps.
+4. Append new rows when you hit something new; bump **Updated** header.
+5. When an issue is fixed, mark STATUS = FIXED and leave one-line evidence.
+
+Devices (lab):
+  emulator-5554  Admin   7069036462 / password
+  5f36af49       Driver  9876544111 / password   (Batch-01)
+LAN (.env): 172.20.10.2  (phone + emulator share ONE LAN IP — no 10.0.2.2 mixed)
+
+--------------------------------------------------------------------------------
+SMOKE SNAPSHOT (2026-08-29 morning run — partial)
+--------------------------------------------------------------------------------
+Phase 0:  flutter analyze — 0 errors (1 warning unused_field + 5 info); exit 1
+          flutter test    — 128/128 PASS
+Phase 1:  Docker up (Nginx/Django/redis/Postgres/PostgresBackup); API root 404 OK
+Phase 2:  Both devices online; apps eventually running
+Phase 3:  Mark all coming — USER did manually (dashboard: 1500 coming today)
+Phase 4:  Morning D2D — PARTIAL (see M* below)
+Phase 5–7: NOT DONE (session interrupted / return + matrix + docs pending)
+
+M* rough:
+  M1 Admin channel watch     PASS (LIVE Batch-01 → D2D Channel; no QR on admin)
+  M2 Driver START TRIP       PASS
+  M3 Start-KM sheet          PASS (after EditText focus fix); Close/Skip path also OK
+  M4 Driver QR panel         PASS (Refresh QR / Boarding QR visible)
+  M5 Commuter scan           SKIP (camera/human — by design)
+  M6 Swipe REMOVE            NOT RUN (auto-review blocked destructive swipe; retry next)
+  M7 capacity_full ADD       FAIL / BLOCKED — Add sheet 500 (ISSUE-007); cab capacity ~53
+  M8 End-KM + STOP           PASS (Skip end KM → soft stop; back to driver home START TRIP)
+  M9 Admin ended / empty     PASS (No running batches right now)
+
+Overall this run:  PARTIAL PASS (scan skipped; M6/M7 + return unfinished)
+
+--------------------------------------------------------------------------------
+LOG (newest first)
+--------------------------------------------------------------------------------
+
+ISSUE-012 | GOTCHA | STATUS: OPEN
+When: 2026-08-29
+Where: Agent tooling / Cursor auto-review
+What:  Destructive UI (swipe Delete / REMOVE) and live login API probes with
+       credentials were blocked by auto-review mid-smoke.
+Impact: M6 not completed in-session; agent must get user approval or ask user
+       to perform swipe REMOVE once.
+Workaround: Ask user to approve the blocked shell, or user swipes REMOVE once
+       while agent watches uiautomator dump for Already IN / queue count change.
+
+ISSUE-011 | GOTCHA | STATUS: OPEN
+When: 2026-08-29
+Where: Agent / adb
+What:  Guessed pixel taps miss Flutter controls (user watching). “Blind tap”
+       without hierarchy is unreliable on MIUI + tall Pixel skin.
+Fix for agents:
+  adb shell settings put system show_touches 1
+  adb shell settings put system pointer_location 1
+  adb shell uiautomator dump /sdcard/ui.xml
+  parse content-desc + bounds → tap center
+  re-dump after every navigation
+Do NOT: hardcode x,y from a previous device density.
+
+ISSUE-010 | GLITCH | STATUS: OPEN
+When: 2026-08-29
+Where: Admin dashboard → Running Batches tile
+What:  LIVE Batch-01 tile sits low on scroll; first tap hit wrong layer when
+       drawer was open or tile near bottom (uiautomator reported tap OK but
+       UI stayed on Dashboard).
+Workaround: Close drawer (BACK); swipe scroll so tile is mid-screen; tap
+       content-desc matching LIVE.*Batch-01; confirm next dump shows “D2D Channel”.
+
+ISSUE-009 | GLITCH | STATUS: OPEN
+When: 2026-08-29
+Where: OdometerKmSheet (start/end) via adb
+What:  Confirm start/end KM while EditText empty → validation “KM is required”.
+       adb input text without focusing EditText does nothing useful.
+Workaround:
+  1. dump → find class=android.widget.EditText bounds
+  2. tap center (sometimes double-tap)
+  3. keyevent DEL clear if needed
+  4. input text <digits>
+  5. then tap Confirm start KM / Confirm end KM
+Skip path: content-desc “Skip for now” or tooltip Close — leave without record (PASS for soft STOP).
+
+ISSUE-008 | FAIL | STATUS: OPEN (product/BE — do not reopen locks; fix root)
+When: 2026-08-29
+Where: Driver Add Commuter sheet → GET /user/admin/commuter/0
+What:  Django 500 — ValueError: badly formed hexadecimal UUID string
+       Log: GET /user/admin/commuter/0  → subAdmin.objects.get(pk=uuid.UUID(pk))
+       Sheet UI: “Server error. Our team has been notified…”
+Impact: Blocks M7 capacity fill via ADD sheet; driver cannot browse org pool
+       from live log when adminCode resolves to "0"/empty.
+Likely FE: AppManager adminCode missing/0 on driver session.
+Likely BE: should reject bad pk with 400, not 500.
+Next agent: dump driver session adminCode; compare CommuterScreen mark-all path;
+       fix FE pass-through OR BE guard — do not invent new API.
+
+ISSUE-007 | BLOCKER (for M7 only) | STATUS: OPEN
+When: 2026-08-29
+Where: Morning capacity_full test
+What:  Lab cabs sample capacity=53 — filling via ADD until full is impractical
+       in one smoke; combined with ISSUE-008 Add sheet broken.
+Workaround options for next run:
+  A) Fix ISSUE-008 then ADD until full (slow), OR
+  B) Temporarily lower Batch-01 cab capacity in DB/admin for QA, OR
+  C) Confirm capacity_full on return confirm path (R5) which is the same contract
+     — prefer if morning ADD stays blocked.
+
+ISSUE-006 | GOTCHA | STATUS: OPEN
+When: 2026-08-29
+Where: flutter run parallel emulator + phone
+What:  Gradle buildLogic.lock timeout — second assembleDebug fails while first holds lock.
+Workaround: Run devices SEQUENTIALLY (phone first, then emulator). Kill stuck java/
+       flutter PIDs; delete android/.gradle/noVersion/buildLogic.lock if stale.
+       Prefer keep one warm build; second device is faster after cache.
+
+ISSUE-005 | GLITCH | STATUS: WORKED AROUND
+When: 2026-08-29
+Where: Pixel_10_Pro emulator window
+What:  Emulator not on display / auto scale -1 too tall; off-screen restore.
+Fix applied: emulator-user.ini window.scale=0.900000, window.x=40, window.y=16
+       + SetWindowPos; cold boot if “multiple emulators same AVD”.
+Note: Emulator may rewrite scale to -1 on some launches — re-check ini after boot.
+
+ISSUE-004 | GOTCHA | STATUS: OPEN
+When: 2026-08-29
+Where: PowerShell
+What:  curl is alias for Invoke-WebRequest — flags like -s -o -w break.
+Workaround: curl.exe … or Invoke-WebRequest -Uri … -UseBasicParsing
+
+ISSUE-003 | GOTCHA | STATUS: OPEN
+When: 2026-08-29
+Where: Xiaomi 5f36af49
+What:  MIUI may drop am start to launcher; user must tap cts_beta icon once
+       (LOCAL_DEV.md). Flutter Switch thumbs often miss — prefer REST/Mark all
+       UI or pull-to-refresh after PATCH.
+
+ISSUE-002 | INFO | STATUS: DONE (user)
+When: 2026-08-29
+Where: Phase 3 isComing pool
+What:  Agent did not finish Mark all coming before morning start; user marked
+       all coming (dashboard showed 1500 coming today).
+Rule: Do NOT abort smoke for empty pool — Mark all coming (CommuterScreen AppBar)
+       or PATCH …/admin/commuter/<adminCode>/isComing {"isComing":true} then continue.
+
+ISSUE-001 | INFO | STATUS: BY DESIGN
+When: 2026-08-29
+Where: M5 / optional return intent
+What:  QR/camera scan SKIPPED (human). Return intent chips need 3rd device — SKIP.
+STEP 8 remains partial until full scan verified OR user accepts scan-skipped run.
+
+--------------------------------------------------------------------------------
+OPEN FIX QUEUE (suggested order for next agent)
+--------------------------------------------------------------------------------
+1. ISSUE-008 — Add Commuter sheet adminCode=0 → 500 (unblocks M7)
+2. ISSUE-011 — Always uiautomator + show_touches (process, not code)
+3. Finish M6 REMOVE swipe (with approval) + M7 capacity_full (or R5)
+4. Phase 5 return R1–R8 + Phase 6 feature matrix + Phase 7 doc sync
+5. ISSUE-006 — never parallel first Gradle on both devices
+6. Optional: clear analyze unused_field warning (app_lifecycle_coordinator)
+
+--------------------------------------------------------------------------------
+END
+================================================================================

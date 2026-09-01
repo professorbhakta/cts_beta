@@ -215,6 +215,11 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
           ManagerKey.isComing,
           profileData["isComing"]?.toString() ?? 'false',
         );
+        // Nested subAdmin UUID — same key admin login stores from profile id.
+        AppManager.instance.setString(
+          ManagerKey.adminCode,
+          profileData["adminCode"]?["id"]?.toString() ?? '',
+        );
         break;
       case 'DRIVER':
         AppClass.userType = 2;
@@ -237,6 +242,12 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
         AppManager.instance.setString(
           ManagerKey.cabNumb,
           profileData["cabId"]?["regNumber"]?.toString() ?? '',
+        );
+        // Required for Add Commuter sheet: GET user/admin/commuter/{adminCode}.
+        // Without this, AppManager.getString defaults to "0" → Django 500.
+        AppManager.instance.setString(
+          ManagerKey.adminCode,
+          profileData["adminCode"]?["id"]?.toString() ?? '',
         );
         break;
       case 'ADMIN':

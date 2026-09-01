@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-08-26 07:53 IST
-> **Session:** Odometer Close/Skip + photo optional
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Morning + return waiting line; commuter join_waiting journeys
 
 # Flows by role
 
@@ -113,8 +113,8 @@ Back / leave screen = **disconnect only** — trip stays `isActive` until STOP.
 | Step | Action |
 |------|--------|
 | 1 | Home → **RETURN LIST** → `/driverReturnCommuter/:batchId` |
-| 2 | Confirm / Remove riders |
-| 3 | **End return** (driver FAB; admin monitors) |
+| 2 | Confirm / Remove riders; **Waiting line** visible when pool non-empty |
+| 3 | **End return** (driver FAB; admin monitors) — clears confirmed + waiting |
 
 ```mermaid
 flowchart LR
@@ -145,6 +145,7 @@ flowchart LR
 | Step | Action |
 |------|--------|
 | Return today | Home / Skip / Earlier… (intent chips — not seat confirm) |
+| Join return waiting | Explicit button on home → `POST add_commuter` `action: join_waiting` (FCFS; auto-confirmed when seat opens) |
 | Pull to refresh | Reload profile + intent |
 | Track your Cab | Fleet Edge WebView (`trackingVehicleId`) |
 

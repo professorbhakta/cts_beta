@@ -608,9 +608,61 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               ),
             ),
           ],
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: (busy || provider.isJoiningWaiting)
+                ? null
+                : () => _offerJoinReturnWaiting(context, provider),
+            icon: const Icon(Icons.hourglass_top_rounded),
+            label: const Text('Join return waiting line'),
+          ),
+          if (provider.joinWaitingError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              provider.joinWaitingError!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.error,
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  Future<void> _offerJoinReturnWaiting(
+    BuildContext context,
+    CommuterHomeProvider provider,
+  ) async {
+    final wantsJoin = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Join return waiting line?'),
+        content: const Text(
+          'If return seats are full, you can join the FCFS waiting line. '
+          'You will be auto-confirmed when a seat opens.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Join waiting line'),
+          ),
+        ],
+      ),
+    );
+    if (wantsJoin != true || !context.mounted) return;
+
+    final message = await provider.joinReturnWaitingLine();
+    if (!context.mounted) return;
+    if (message != null && provider.joinWaitingError == null) {
+      SnackBarService.showsSuccessSnackbar(message, '');
+    } else if (provider.joinWaitingError != null) {
+      SnackBarService.showErrorSnackbar(provider.joinWaitingError!);
+    }
   }
 
   Widget _intentChip(

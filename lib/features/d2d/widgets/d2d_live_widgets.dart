@@ -218,7 +218,7 @@ class D2dLiveControlsBar extends StatelessWidget {
   }
 }
 
-class D2dAlreadyInSection extends StatelessWidget {
+class D2dAlreadyInSection extends StatefulWidget {
   const D2dAlreadyInSection({
     super.key,
     required this.commuters,
@@ -229,12 +229,98 @@ class D2dAlreadyInSection extends StatelessWidget {
   final void Function(D2dCommuterModel commuter)? onCall;
 
   @override
+  State<D2dAlreadyInSection> createState() => _D2dAlreadyInSectionState();
+}
+
+class _D2dAlreadyInSectionState extends State<D2dAlreadyInSection> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
     final cts = context.cts;
 
-    if (commuters.isEmpty) return const SizedBox.shrink();
+    if (widget.commuters.isEmpty) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Material(
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 20,
+                    color: cts.success,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Already IN (${widget.commuters.length})',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: cts.success,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    _expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (_expanded) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Confirmed in the cab — removed from the remaining queue.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+            ),
+          ),
+          const SizedBox(height: 12),
+          for (var i = 0; i < widget.commuters.length; i++) ...[
+            D2dAlreadyInTile(
+              commuter: widget.commuters[i],
+              onCall: widget.onCall == null
+                  ? null
+                  : () => widget.onCall!(widget.commuters[i]),
+            ),
+            if (i < widget.commuters.length - 1) const SizedBox(height: 8),
+          ],
+        ],
+      ],
+    );
+  }
+}
+
+class D2dWaitingSection extends StatelessWidget {
+  const D2dWaitingSection({
+    super.key,
+    required this.commuters,
+    this.onCall,
+  });
+
+  final List<D2dCommuterModel> commuters;
+  final void Function(D2dCommuterModel commuter)? onCall;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = context.scheme;
+    final cts = context.cts;
+
+    if (commuters.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -242,37 +328,77 @@ class D2dAlreadyInSection extends StatelessWidget {
         Row(
           children: [
             Icon(
-              Icons.check_circle_rounded,
+              Icons.hourglass_top_rounded,
               size: 20,
-              color: cts.success,
+              color: cts.yellowDark,
             ),
             const SizedBox(width: 8),
             Text(
-              'Already IN (${commuters.length})',
+              'Waiting line (${commuters.length})',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: cts.success,
+                color: cts.yellowDark,
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
         Text(
-          'Confirmed in the cab — removed from the live queue.',
+          'First come, first served — auto-boarded when a seat opens.',
           style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+            color: scheme.onSurface.withValues(alpha: 0.65),
           ),
         ),
         const SizedBox(height: 12),
         for (var i = 0; i < commuters.length; i++) ...[
-          D2dAlreadyInTile(
+          D2dWaitingTile(
+            position: i + 1,
             commuter: commuters[i],
-            onCall: onCall == null
-                ? null
-                : () => onCall!(commuters[i]),
+            onCall: onCall == null ? null : () => onCall!(commuters[i]),
           ),
           if (i < commuters.length - 1) const SizedBox(height: 8),
         ],
+      ],
+    );
+  }
+}
+
+class D2dWaitingTile extends StatelessWidget {
+  const D2dWaitingTile({
+    super.key,
+    required this.position,
+    required this.commuter,
+    this.onCall,
+  });
+
+  final int position;
+  final D2dCommuterModel commuter;
+  final VoidCallback? onCall;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final name = commuter.username;
+
+    return ModernListCard(
+      title: '#$position · $name',
+      subtitle: commuter.popId?.pickUpPointName ?? 'Waiting for seat',
+      icon: Icons.schedule_rounded,
+      iconColor: scheme.primary,
+      trailing: onCall == null
+          ? null
+          : IconButton(
+              tooltip: 'Call commuter',
+              onPressed: onCall,
+              icon: Icon(Icons.call_rounded, color: scheme.primary),
+            ),
+      children: [
+        if (commuter.mobileNumber != null && commuter.mobileNumber!.isNotEmpty)
+          InfoRow(
+            icon: Icons.phone_rounded,
+            label: 'Mobile:',
+            value: commuter.mobileNumber!,
+          ),
       ],
     );
   }

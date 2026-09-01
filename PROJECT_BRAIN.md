@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-25 22:15 IST
-> **Session:** Rest — docs complete; STEP 8 still on go
+> **Updated:** 2026-08-31 13:45 IST
+> **Session:** D2D Phase 3 shipped; STEP 8 next on go
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -81,21 +81,22 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ## 5. Current focus
 
-**Session wrap (2026-08-25):** Docs/structure complete (ownership + story split + FLOWS QR/KM). **Resting.** Next product move: STEP 8 smoke on user **go**.
+**Session (2026-08-31):** Morning D2D Phase 1+2 + **Return Phase 3** shipped — cross-batch QR, trip-end `isComing`, morning/return waiting pool + FCFS, collapsed Already IN, return Waiting line UI.
 
 | Piece | Detail |
 |-------|--------|
-| Specs | API_CONTRACTS + d2d README + 05 story/locks |
-| Journeys | FLOWS_BY_ROLE — morning QR+KM |
-| Stack | LOCAL_DEV (nginx 8m + Postgres backup) |
-| Next | **go** → STEP 8 · then Q-26d / d2d tests / commit when asked |
+| Morning D2D | Phase 1+2 **done** — see [d2d/README.md](lib/features/d2d/README.md) |
+| Return batch | Phase 3 **done** — `return_waiting_pool.py` + `action: join_waiting` on add_commuter |
+| STEP 8 smoke | Still **partial** — [LAB_SMOKE_ISSUES.txt](docs/LAB_SMOKE_ISSUES.txt) |
+| Helper | `set_commuters_is_coming()` in `return_batch_utils.py` — one on/off/trip_end entry |
+| Stack | LOCAL_DEV · Docker restart after BE pulls |
 
-**Also open:** Confirm “API every time” (**26d-discuss**) or batch-wise Mark all — do not redo 26d intent product.
+**Also open:** STEP 8 on user **go** · ISSUE-008 adminCode (uncommitted FE) · Q-26d-discuss · commit when asked.
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | `beta-ver` | Uncommitted client-pack UI + docs consolidation |
-| `D:\cts-docker` | (local) | nginx body + backup compose; uncommitted |
+| `D:\cts_beta` | `beta-ver` | Uncommitted: D2D Phase 1+2 FE + docs + ISSUE-008 |
+| `D:\cts-docker` | (local) | Uncommitted: waiting_pool, boarding, consumers, return end, tests |
 
 **26d facts (do not redo):**
 - Intent ≠ confirm. Admin/driver still `POST add_commuter`. Do **not** reuse `isComing` as return intent (R10).
@@ -109,7 +110,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 | State | Detail |
 |-------|--------|
-| `.env` | LAN **`192.168.1.15`** (check `docs/LOCAL_DEV.md` if Wi‑Fi changed) |
+| `.env` | LAN **`172.20.10.2`** (iPhone hotspot lab; check `docs/LOCAL_DEV.md` if Wi‑Fi changed) |
 | Backend containers | Up: Nginx / Django / redis / Postgres / **PostgresBackup** |
 
 ---
@@ -126,6 +127,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 - Ops: nginx `client_max_body_size 8m`; Postgres backup sidecar
 - Docs consolidation — no `backend/01–04`, no `guides/`; FLOWS owns journeys
 - Agent fast-path attach + DOC_REGISTRY fast/on-change split; `widget_test` removed
+- Agent role cards + LIB_STRUCTURE + ARCHITECTURE — Provider/folder law locked; five `.cursor/rules/*_agent.md` (2026-08-29)
 - Full-cycle smoke PASS (2026-08-23) Batch-01 D2D + return end
 
 ### Open backlog (from PROJECT_TODOS)
@@ -174,9 +176,10 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-08-31 | D2D Phase 3 | Return waiting Redis + `join_waiting` + FCFS auto-confirm; FE Waiting line + commuter join; uncommitted both repos |
+| 2026-08-31 | D2D Phase 1+2 | Morning: cross-batch QR, trip-end isComing, waiting pool + FCFS, UI collapse/waiting line |
+| 2026-08-29 | Agent law + layout END sync | Five role cards; LIB_STRUCTURE + ARCHITECTURE aligned; STEP 8 on **go** |
 | 2026-08-25 | Rest / wrap | Docs complete; STEP 8 still blocked on **go** |
-| 2026-08-25 | Story split + FLOWS QR/KM | 05 / FLOWS / 07 / DISCUSSION_LOG roles locked |
-| 2026-08-25 | Consol + client pack UI | 01–04/guides retired; BUILD UI 1–7; nginx/backup |
 
 ---
 
@@ -199,7 +202,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Dot | Backend (`cts-docker`) | Frontend (`cts_beta`) | Doc owner |
 |-----|------------------------|----------------------|-----------|
-| Stack / LAN / nginx 8m / backup | compose, `nginx.conf`, `C2S-PostgresBackup` | `.env` LAN | LOCAL_DEV |
+| Waiting pool + FCFS (morning) | `waiting_pool.py` + `live_state.py` · `boarding_scan` `action=join_waiting` | `waitingCommuters` · scan join dialog | d2d README + API_CONTRACTS |
+| Trip-end isComing | `set_commuters_is_coming(scope=trip_end)` on STOP + return end | — | API_CONTRACTS + batches README |
+| Waiting pool + FCFS (return) | `return_waiting_pool.py` · `add_commuter` `action=join_waiting` | `waitingCommuters` · commuter join button | batches README + API_CONTRACTS |
 | DTODLOG odo cols | `d2d_log/models.py` | `odometer_models.dart` | API_CONTRACTS |
 | Odometer REST | `odometer_views.py` + `urls.py` | `ApiUrl` + `submitOdometer*` / `getOdometer*` | API_CONTRACTS |
 | QR + scan REST | `boarding_views.py` + tokens | `getBoardingQr` / `boardingScan` / unboard | API_CONTRACTS |

@@ -1,6 +1,6 @@
 > **Doc:** docs/LIB_STRUCTURE.md
-> **Updated:** 2026-08-20 23:10 IST
-> **Session:** offline_module barrel removed note
+> **Updated:** 2026-08-29 10:02 IST
+> **Session:** Target tree aligned to disk; folder law only
 
 # Library structure (human-friendly)
 
@@ -10,17 +10,20 @@ This document replaces the confusing **Clean Architecture folder names** (`data/
 
 ---
 
-## Problem with the current migration
+## Legacy migration (features resolved)
 
-The repo ended up with **two structures at once**:
+The repo previously had **two structures at once** — root stubs re-exporting into `features/.../presentation/|domain/|data/`. That is **gone on disk**: every feature uses flat `screens/`, `providers/`, `models/`, `repositories/` (plus optional `forms/`, `widgets/`, `helpers/`, `utils/`, `constants/` scoped to one feature).
+
+**Still on disk — legacy only; do not copy into new features:**
 
 ```text
-lib/screens/batch_screen.dart          → export stub → features/.../presentation/screens/...
-lib/controllers/batch_controller.dart    → export stub → features/.../presentation/providers/...
-lib/data/repositories/...              → export stub → features/.../data/repositories/...
+lib/data/ + lib/domain/     → shared session/auth (root-level contracts + impl)
+lib/appManager/             → session, snackbar, config (target: fold into app/ over time)
+lib/core/network/           → one file (`network_action_guard.dart`); HTTP lives in lib/api/
+lib/offline_temp/           → prototype offline UI (pending merge or isolation)
 ```
 
-That makes debugging painful: search hits multiple paths, “Go to definition” lands on a one-line export, and juniors cannot tell which file is real.
+No re-export stub files remain. **New product code** goes only under `features/<name>/`.
 
 ---
 
@@ -32,28 +35,35 @@ That makes debugging painful: search hits multiple paths, “Go to definition”
 lib/
 ├── main.dart
 │
-├── app/                    # Bootstrap: CtsApp, router, theme, Provider DI
+├── app/                    # Bootstrap: CtsApp, router, Provider DI
 │   ├── cts_app.dart
-│   ├── di/app_providers.dart
+│   ├── app_providers.dart  # DI — single file; no di/ subfolder
+│   ├── app_lifecycle_host.dart
 │   ├── router/
-│   ├── theme/
-│   └── services/           # Session, snackbar, view state (from appManager)
+│   └── …                   # session_invalidation, etc.
 │
-├── api/                    # Network layer (Dio, endpoints, API result types)
+├── api/                    # Network layer (Dio, endpoints, API result types) — canonical HTTP
 │
 ├── core/                   # Infrastructure devs rarely edit day-to-day
-│   ├── network/            # (merge into api/ over time, or keep as impl detail)
 │   ├── sync/               # SyncManager
-│   └── storage/            # SQLite helpers if split from data/local
+│   ├── lifecycle/          # Foreground / background / resume
+│   └── concurrency/        # BatchedRunner
 │
 ├── widgets/                # Shared UI (buttons, cards, drawer, shell…)
 │
 ├── models/                 # Shared models ONLY (UserModel, app-wide DTOs)
 │
-├── screens/                # App-level screens ONLY
-│   ├── splash_screen.dart
+├── theme/                  # AppTheme / ColorScheme tokens
+├── utils/                  # Validators, sort helpers
+│
+├── screens/                # App-level screens ONLY (errors, no internet)
 │   ├── error_page.dart
 │   └── no_internet_screen.dart
+│
+├── data/                   # Legacy shared: session/auth impl + local SQLite (root only)
+├── domain/                 # Legacy shared: auth/session contracts + use cases (root only)
+├── appManager/             # Legacy session, snackbar, config — migrate to app/ over time
+├── offline_temp/           # Offline prototype (pending merge or isolation)
 │
 └── features/               # Business modules — main place for product code
     ├── auth/
@@ -65,7 +75,8 @@ lib/
     ├── cabs/
     ├── admin_home/
     ├── d2d/
-    └── profile/
+    ├── profile/
+    └── splash/
 ```
 
 ### Inside every feature — flat, predictable
@@ -76,7 +87,11 @@ features/batches/
 ├── forms/                  # Optional: create/edit UI
 ├── providers/              # ChangeNotifier classes (old “controllers”)
 ├── models/                 # batch_model.dart, etc.
-└── repositories/           # API + cache; interfaces can live here too
+├── repositories/           # API + cache; interfaces can live here too
+├── widgets/                # Optional: feature-scoped UI (e.g. d2d/, batches/)
+├── helpers/                # Optional: non-UI helpers scoped to this feature
+├── utils/                  # Optional: sort/filter helpers for this feature
+└── constants/              # Optional: layout URLs, CSS tokens, etc.
 ```
 
 | Old name (original app) | New name (inside feature) | Notes |
@@ -86,7 +101,7 @@ features/batches/
 | `models/` | `features/<x>/models/` | Entity models stay with the feature |
 | `api/` calls | `features/<x>/repositories/` | Hides HTTP/SQLite details from UI |
 
-**Do not use** `presentation/`, `domain/`, or `data/` in new code.
+**Do not use** `presentation/`, `domain/`, or `data/` **inside `features/`**. (Root `lib/data/` and `lib/domain/` are legacy shared session/auth — not a pattern for new modules.)
 
 ---
 
@@ -109,11 +124,12 @@ lib/
 
 ```text
 lib/
-├── api/             # still obvious
-├── app/             # appManager split into app + services
+├── api/             # still obvious — canonical HTTP (no lib/core/network/ for Dio)
+├── app/             # CtsApp, app_providers.dart, router
 ├── widgets/         # still obvious
 ├── models/          # only shared models
-├── screens/         # only global screens
+├── screens/         # only global error / offline screens
+├── theme/ + utils/  # app-wide tokens and helpers
 └── features/
     └── batches/
         ├── screens/
@@ -133,7 +149,7 @@ lib/
 | UI layout / navigation | `features/<name>/screens/` or `app/router/` |
 | Button does nothing / state wrong | `features/<name>/providers/` |
 | Wrong data / API error | `features/<name>/repositories/` then `api/` |
-| Login / session | `app/services/` + `features/auth/` |
+| Login / session | `features/auth/` + legacy `appManager/` / root `data/` + `domain/` |
 | Shared list card, drawer | `widgets/` |
 | Offline sync badge | `core/sync/` + `features/batches/repositories/` |
 
@@ -147,9 +163,11 @@ lib/
 2. **New code only** in `features/<x>/screens|providers|models|repositories/`.
 3. Do not add re-export stub files.
 
-### Phase B — Flatten feature internals
+### Phase B — Flatten feature internals — **done**
 
-For each feature, rename folders (git mv):
+Feature folders on disk use `screens/`, `forms/`, `providers/`, `models/`, `repositories/` only — no `presentation/`, `domain/`, or `data/` subfolders inside `features/`.
+
+(Historical rename map, already applied:)
 
 | From | To |
 |------|-----|
@@ -159,16 +177,14 @@ For each feature, rename folders (git mv):
 | `domain/models/` | `models/` |
 | `domain/repositories/` + `data/repositories/` | `repositories/` |
 
-Update imports + barrel `index.dart` files. Order: `auth` → `splash` → CRUD features → `admin_home` / `d2d` / `profile`.
+### Phase C — Collapse legacy root folders — **partial**
 
-### Phase C — Collapse legacy root folders
+1. Move `shared/widgets/*` → `widgets/` (canonical) — **done**.
+2. Move `appManager/*` → `app/services/` — **open** (`appManager/` still on disk).
+3. HTTP under `lib/api/` — **done**; lone `core/network/network_action_guard.dart` may move to `api/` or `core/` root later.
+4. Delete stub folders — **done** (no re-export stubs; root `controllers/` gone; `lib/screens/` is error + no-internet only; splash lives in `features/splash/`).
 
-1. Move `shared/widgets/*` → `widgets/` (canonical).
-2. Move `appManager/*` → `app/services/` (keep thin re-exports temporarily if needed).
-3. Move `core/network/*` implementation under `api/` OR document `api/` as the public import path.
-4. Delete stub folders: legacy `screens/`, `controllers/`, duplicate `data/repositories/` exports.
-
-**As of 2026-08-20:** (1) and (3) are done in code — canonical UI is `lib/widgets/`, HTTP is `lib/api/`. (2) `appManager/` still exists. (4) root `controllers/` is gone; `lib/screens/` is only error + no-internet; `sort_utils.dart` no longer re-exports feature sort helpers (import feature utils directly). Phase 9 keeps `offline_temp/` drawer-scoped (unused `offline_module.dart` barrel removed). Phase C/D naming/stub removal still pending.
+**As of 2026-08-29:** Phase B complete. Phase C items (2) and (3) guard-file tidy still open. `offline_temp/` drawer-scoped; unused `offline_module.dart` barrel removed.
 
 ### Phase D — Naming cleanup
 
@@ -203,12 +219,15 @@ With 15+ entities and 3 roles, flat folders become unsearchable. Module folders 
 The app uses the **Provider** package. File names should match what’s inside (`ChangeNotifier` providers).
 
 **Is Clean Architecture gone?**  
-No — repositories still hide API/DB; UI still doesn’t call Dio directly. We only removed jargon from **folder names**.
+No — repositories still hide API/DB; UI still doesn’t call Dio directly. We only removed jargon from **feature folder names**. Root `lib/data/` and `lib/domain/` keep contract/impl split for shared session/auth only.
+
+**Why is `app_providers.dart` directly under `app/`?**  
+Startup and DI wiring are documented in [ARCHITECTURE.md](./ARCHITECTURE.md). This file owns **where folders live**, not bootstrap sequence.
 
 ---
 
 ## Related docs
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — startup, DI, data flow
-- [CODE_MAP.md](./CODE_MAP.md) — file index (update after Phase B)
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — startup, DI, data flow (not folder names)
+- [CODE_MAP.md](./CODE_MAP.md) — file index (update after major layout moves)
 - [PROJECT_TODOS.md](../PROJECT_TODOS.md) — migration checklist

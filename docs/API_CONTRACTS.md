@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-08-25 21:50 IST
-> **Session:** Client pack UI shipped note; BE urls verified vs ApiUrl
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Doc sync — view/ waiting[] example; headers aligned to Phase 3
 
 # API Contracts — Backend ↔ Flutter
 
@@ -85,6 +85,7 @@ Handshake: `ADMIN` may join any batch; `DRIVER` only if assigned to that batch. 
 
 - **`data`** — live fly queue.
 - **`already_in`** — CList riders confirmed in the cab (same entry shape as `data`).
+- **`waiting`** — FCFS waiting pool (Phase 2); `POST boarding_scan` with `action: join_waiting`; auto-boarded to CList when a seat opens.
 
 ### Client → server
 
@@ -93,7 +94,7 @@ Handshake: `ADMIN` may join any batch; `DRIVER` only if assigned to that batch. 
 | `REMOVE` | `[user_id]` | `confirmCommuter()` |
 | `DELETE` | `[user_id]` | `denyCommuter()` / `removeCommuter()` |
 | `ADD` | scalar `user_id` | `addCommuter()` — lookup by user ID (this batch first, then any). Needs a POP. Flutter success toast only after the rider is on the live list |
-| `STOP` | — | `stopTrip()` — **driver only**. Broadcasts `{ result: { isActive: false, data: [] } }` then closes the group with **4001**. Admin Close channel / back is disconnect, not STOP |
+| `STOP` | — | `stopTrip()` — **driver only**. Clears org home-batch `isComing`, cross-batch participants (queue/CList/waiting), flushes Redis live + waiting pools, broadcasts `{ result: { isActive: false, data: [] } }`, then closes **4001**. Admin Close channel / back is disconnect, not STOP |
 
 ### Ended trip / auth close
 
@@ -144,7 +145,7 @@ Same `C2S-redis` container; keys do not overwrite each other.
 | Key | `d2d:live:{YYYY-MM-DD}:{batch_id}` | `{dd-mm-yyyy}_{batch_id}` |
 | Value | JSON DS blob | Set of user ID strings |
 | Cleared by | WS `STOP` | `POST/GET end/{batch_id}` |
-| Module | `d2d_log/live_state.py` | `d2d_log/return_batch_utils.py` |
+| Module | `d2d_log/live_state.py` | `d2d_log/return_batch_utils.py` + `return_waiting_pool.py` |
 
 Morning STOP does not empty the evening confirmed set; ending return does not touch morning live DS.
 
@@ -185,7 +186,7 @@ Schema: nullable KM/photo columns on **`DTODLOG`**. Media on disk; photo URLs = 
 | `GET /d2d/odometer/org/<admin_code>/?date=` | ADMIN | `getOdometerOrg` |
 | `GET /d2d/odometer/photo/…` | DRIVER / ADMIN | URL on snapshot (session cookie) |
 | `GET /d2d/boarding_qr/<batch_id>/` | DRIVER / ADMIN | `getBoardingQr` |
-| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` |
+| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` — body `{token, action?}` · `action`: **`board`** (default) or **`join_waiting`** |
 | `POST /d2d/boarding_unboard/` | DRIVER / ADMIN | `boardingUnboard` |
 
 Error body: `{ "status": "error", "code": "<code>", "message": "…" }`.  
@@ -199,7 +200,7 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 | `start_required` / `km_below_start` / `km_below_morning_end` | Leg order / validation |
 | `expired_token` / `invalid_token` | Refresh QR |
 | `trip_not_active` / `no_live_state` | Need live WS trip |
-| `not_coming` / `not_in_queue` / `wrong_batch` | Commuter eligibility |
+| `not_coming` / `not_in_queue` / `wrong_batch` | Commuter eligibility — scan requires **in live queue**; cross-batch guests admin ADDed to queue may scan (`require_home_batch=false`). Join waiting list is Phase 2 (separate action) |
 | `capacity_full` | Cab full |
 | `not_boarded` | Unboard target not in CList |
 
@@ -215,12 +216,12 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 
 | Backend | Purpose | Flutter `ApiUrl` / method | UI |
 |---------|---------|---------------------------|----|
-| `GET /d2d/return_batch/view/<batch_id>` | Available `home[]` then `overflow[]` from current `isComing=true` pool | `returnBatchView` · `getAvailableCommuters` | Available tab Home / Overflow |
+| `GET /d2d/return_batch/view/<batch_id>` | Available `home[]`, `overflow[]`, **`waiting[]`** (FCFS pool) | `returnBatchView` · `getAvailableCommuters` | Available tab + **Waiting line** banner |
 | `GET /d2d/return_batch/status/<batch_id>` | Counts, capacity, confirmed ids, `is_active`; optional pool extras | `returnBatchStatus` · `getReturnBatchStatus` | Batch picker cards |
 | `GET /d2d/return_batch/get_commuter/<batch_id>` | Confirmed ids + profiles (any assigned batch) | `returnBatchGetCommuter` · `getConfirmedCommuters` | Confirmed tab + capacity banner |
-| `POST /d2d/return_batch/add_commuter` | Confirm seat | `returnBatchAddCommuter` · `addCommuterToConfirmList` | Admin + driver swipe Confirm |
-| `POST /d2d/return_batch/remove_commuter` | Remove seat | `returnBatchRemoveCommuter` · `removeCommuterFromConfirmList` | Admin + driver swipe Remove |
-| `POST /d2d/return_batch/end/<batch_id>` | Clear Redis set, restore `isComing` | `returnBatchEnd` · `endReturnTrip` | Driver End FAB |
+| `POST /d2d/return_batch/add_commuter` | Confirm seat (default) **or** `action: join_waiting` (commuter self-serve FCFS line) | `returnBatchAddCommuter` · `addCommuterToConfirmList` / `joinReturnWaiting` | Admin + driver Confirm · commuter home **Join waiting line** |
+| `POST /d2d/return_batch/remove_commuter` | Remove seat; FCFS promotes waiting head when capacity opens | `returnBatchRemoveCommuter` · `removeCommuterFromConfirmList` | Admin + driver swipe Remove |
+| `POST /d2d/return_batch/end/<batch_id>` | Clear Redis confirmed + **return waiting**; `isComing=false` for home batch + cross-batch confirmed/waiting | `returnBatchEnd` · `endReturnTrip` | Driver End FAB |
 | `GET /d2d/return_batch/intent` | Current user’s return intent for today | `returnBatchIntent` · `getReturnIntent` | Commuter home — Return today |
 | `POST /d2d/return_batch/intent` | Set intent `skip` \| `home` \| `earlier` (+ `target_batch_id`) | `returnBatchIntent` · `setReturnIntent` | Commuter home chips |
 | `GET /d2d/return_batch/intent_options` | Org batches with strictly earlier `end_time` than home | `returnBatchIntentOptions` · `getReturnIntentOptions` | Earlier… picker |
@@ -246,8 +247,12 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 ### POST body (add / remove)
 
 ```json
-{ "batch_id": "1", "commuter_id": "4" }
+{ "batch_id": "1", "commuter_id": "4", "action": "confirm" }
 ```
+
+`action` optional: **`confirm`** (default, admin/driver) or **`join_waiting`** (COMMUTER only, self `commuter_id`). Join waiting is a **separate explicit action** — not a silent fallback on failed confirm. FCFS auto-confirms waiting head to Redis confirmed set when a seat opens (after remove or on join when capacity allows).
+
+Redis return waiting key: `d2d:return_waiting:{YYYY-MM-DD}:{batch_id}` — flushed on **End return** (same trip-end `isComing` scope as morning STOP).
 
 `commuter_id` = **user ID** (`CommuterModel.userId.id`).
 
@@ -281,12 +286,14 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
   "batch_id": "4",
   "home": [{ "userId": { "id": 21 }, "popId": {...}, "batchId": {...} }],
   "overflow": [{ "userId": { "id": 780 }, "popId": {...}, "batchId": {...} }],
+  "waiting": [{ "userId": { "id": 42 }, "popId": {...}, "batchId": {...} }],
   "home_count": 1,
-  "overflow_count": 1
+  "overflow_count": 1,
+  "waiting_count": 1
 }
 ```
 
-`home[]` = current `isComing=true` commuters whose home batch is this departure. `overflow[]` = current `isComing=true` commuters from other batches in the same org. No flat `commuters` key.
+`home[]` = current `isComing=true` commuters whose home batch is this departure. `overflow[]` = current `isComing=true` commuters from other batches in the same org. `waiting[]` = FCFS pool (commuter `join_waiting`; auto-promoted to confirmed when a seat opens). No flat `commuters` key.
 
 ### `get_commuter/` response
 

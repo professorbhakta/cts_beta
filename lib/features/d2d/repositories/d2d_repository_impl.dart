@@ -201,14 +201,21 @@ class D2dRepositoryImpl implements D2dRepository {
   }
 
   @override
-  Future<ApiResult<BoardingScanResult>> boardingScan(String token) async {
+  Future<ApiResult<BoardingScanResult>> boardingScan(
+    String token, {
+    String action = 'board',
+  }) async {
     final trimmed = token.trim();
     if (trimmed.isEmpty) {
       return _codedFailure('invalid_token');
     }
+    final normalizedAction = action.trim().toLowerCase();
+    if (normalizedAction.isEmpty) {
+      return _codedFailure('invalid_action');
+    }
     try {
       final response = await _apiService.postApi(
-        {'token': trimmed},
+        {'token': trimmed, 'action': normalizedAction},
         ApiUrl.boardingScan,
       );
       if (response is! Map) {

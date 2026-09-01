@@ -178,20 +178,8 @@ class _D2dChannelState extends State<D2dChannel> {
                 onToggleSort: provider.toggleSortOrder,
               ),
               const SizedBox(height: 16),
-              if (provider.alreadyInCommuters.isNotEmpty) ...[
-                D2dAlreadyInSection(
-                  commuters: provider.alreadyInCommuters,
-                  onCall: (commuter) {
-                    final mobile = commuter.mobileNumber;
-                    if (mobile != null && mobile.isNotEmpty) {
-                      calling(mobile);
-                    }
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
               Text(
-                'Live queue',
+                'Remaining',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -200,14 +188,14 @@ class _D2dChannelState extends State<D2dChannel> {
               if (provider.commuters.isEmpty)
                 const StatusMessage(
                   icon: Icons.hourglass_empty_rounded,
-                  title: 'Waiting for commuter data...',
-                  message: 'Live riders will appear here shortly.',
+                  title: 'No riders waiting pickup',
+                  message: 'Remaining commuters will appear here shortly.',
                 )
               else ...[
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
-                    '${provider.commuters.length} commuter${provider.commuters.length == 1 ? '' : 's'} on board',
+                    '${provider.commuters.length} commuter${provider.commuters.length == 1 ? '' : 's'} remaining',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -227,6 +215,30 @@ class _D2dChannelState extends State<D2dChannel> {
                   if (i < provider.commuters.length - 1)
                     const SizedBox(height: 8),
                 ],
+              ],
+              if (provider.waitingCommuters.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                D2dWaitingSection(
+                  commuters: provider.waitingCommuters,
+                  onCall: (commuter) {
+                    final mobile = commuter.mobileNumber;
+                    if (mobile != null && mobile.isNotEmpty) {
+                      calling(mobile);
+                    }
+                  },
+                ),
+              ],
+              if (provider.alreadyInCommuters.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                D2dAlreadyInSection(
+                  commuters: provider.alreadyInCommuters,
+                  onCall: (commuter) {
+                    final mobile = commuter.mobileNumber;
+                    if (mobile != null && mobile.isNotEmpty) {
+                      calling(mobile);
+                    }
+                  },
+                ),
               ],
             ],
               ),

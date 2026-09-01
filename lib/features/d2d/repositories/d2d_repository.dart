@@ -35,7 +35,10 @@ abstract class D2dRepository {
   // --- Boarding QR ---
   Future<ApiResult<BoardingQrPayload>> getBoardingQr(String batchId);
 
-  Future<ApiResult<BoardingScanResult>> boardingScan(String token);
+  Future<ApiResult<BoardingScanResult>> boardingScan(
+    String token, {
+    String action = 'board',
+  });
 
   Future<ApiResult<void>> boardingUnboard({
     required String batchId,

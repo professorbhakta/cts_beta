@@ -74,14 +74,16 @@ All under `/d2d/`, session cookie. Detail + errors: API_CONTRACTS.
 **WS (unchanged wire):** `connect` / `REMOVE` / `DELETE` / `ADD` / `STOP`.  
 `REMOVE` + `boarding_scan` → shared `board_commuter()` + `group_send`.
 
-**Eligibility (scan):** Coming / in live queue; home batch; capacity; idempotent if already in CList.
+**Eligibility (scan):** Must be **in live queue** (same-batch Mark Coming at start, or admin/driver ADD). Cross-batch guests in queue may scan. Capacity; idempotent if already in CList. Not in queue → blocked (Join waiting list — Phase 2).
 
 ---
 
 ## 5. DT ↔ API map
 
 ```text
-DTODLOG + Redis live     ← who is waiting / Already IN (CList)
+DTODLOG + Redis live     ← remaining queue + Already IN (CList)
+Redis waiting (Phase 2)  ← morning FCFS pool; flushed on STOP
+Redis return waiting     ← evening FCFS pool (`d2d:return_waiting:…`); flushed on End return
 DTODLOG odo columns      ← morning/return KM + optional photo paths
 Media files              ← photo bytes (auth URL on GET odometer)
 Signed QR token          ← issued by boarding_qr; consumed by boarding_scan

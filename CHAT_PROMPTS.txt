@@ -1,7 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-25 22:15 IST
-> **Session:** Rest — next START = STEP 8 on go
-
+> **Updated:** 2026-08-29 10:27 IST
+> **Session:** END sync — agent law pass complete
 ================================================================================
 QUICK START (minimal)
 ================================================================================
@@ -43,9 +42,10 @@ MIDDLE CONTEXT
 ================================================================================
 
 Current focus:
-  - RESTING — docs/structure complete
-  - Next: STEP 8 smoke only after user go
-  - Later: 26d-discuss; new d2d tests; commit when asked; parked return KM / org odo / unboard
+  - D2D Phase 1–3 DONE (2026-08-31): morning + return waiting/FCFS parity shipped (uncommitted)
+  - Next: STEP 8 device smoke only after user **go** — restart C2S-Django first
+  - Later: Q-client-tests; 26d-discuss; commit when asked; parked return KM / org odo / unboard
+  - Code legacy still open: appManager/, root data/domain/, *_controller.dart in providers/ (Phase C/D)
 
 Story split (stable):
   - 05 = product story/locks · FLOWS = QR/KM journeys · 07 = smoke · DISCUSSION_LOG = pointer

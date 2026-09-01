@@ -1,6 +1,6 @@
 > **Doc:** docs/ARCHITECTURE.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-29 10:03 IST
+> **Session:** Layer mermaid → flow names; no folder jargon
 
 # Architecture
 
@@ -49,29 +49,34 @@ sequenceDiagram
 
 ## Layer diagram
 
+Runtime flow — **not folder names**. On disk, use `features/<name>/screens|providers|models|repositories/` ([LIB_STRUCTURE.md](./LIB_STRUCTURE.md)).
+
 ```mermaid
 flowchart TB
-  subgraph presentation [Presentation]
+  subgraph screen [Screen]
     Screens[Screens and Forms]
-    Providers[ChangeNotifier Providers]
-    Screens --> Providers
   end
 
-  subgraph domain [Domain]
+  subgraph provider [Provider]
+    Providers[ChangeNotifier Providers]
+  end
+
+  subgraph repository [Repository]
     RepoIf[Repository interfaces]
-    Models[Domain models]
+    RepoImpl[Repository implementations]
+    Models[Models]
     UseCases[Use cases e.g. GetInitialRoute]
   end
 
-  subgraph data [Data]
-    RepoImpl[Repository implementations]
-    API[NetworkApiServices Dio]
+  subgraph api [API]
+    HTTP[NetworkApiServices Dio]
     Local[SQLite cache sync queue]
   end
 
+  Screens --> Providers
   Providers --> RepoIf
   RepoImpl --> RepoIf
-  RepoImpl --> API
+  RepoImpl --> HTTP
   RepoImpl --> Local
   UseCases --> RepoIf
 ```
@@ -85,15 +90,14 @@ flowchart TB
 | Path | Role |
 |------|------|
 | `lib/app/` | `CtsApp`, theme, router, `AppProviders` |
-| `lib/api/` | HTTP client, endpoints, API helpers |
+| `lib/api/` | HTTP client, endpoints, API helpers (canonical; there is no `lib/core/network/` for Dio) |
 | `lib/core/sync/` | `SyncManager` — offline mutation queue |
-| `lib/api/` | HTTP client, endpoints, API helpers (canonical; there is no `lib/core/network/`) |
-| `lib/features/<name>/` | Business modules: `screens/`, `providers/`, `models/`, `repositories/` |
-| `lib/widgets/` | Shared UI (canonical; `shared/widgets/` merging here) |
+| `lib/features/<name>/` | Business modules: `screens/`, `providers/`, `models/`, `repositories/` — **never** `data/`, `domain/`, or `presentation/` here |
+| `lib/widgets/` | Shared UI (canonical) |
 | `lib/models/` | Shared models only (e.g. `UserModel`) |
-| `lib/screens/` | App-level screens only (splash, errors) |
-| `lib/data/` | Shared session/auth impl + local DB (app infrastructure) |
-| `lib/domain/` | Shared auth/session contracts + use cases |
+| `lib/screens/` | App-level error / offline screens only |
+| `lib/data/` | **Legacy shared only** — session/auth impl + local DB; do **not** copy this pattern into new features |
+| `lib/domain/` | **Legacy shared only** — auth/session contracts + use cases; do **not** copy this pattern into new features |
 | `lib/offline_temp/` | Prototype offline UI (pending merge or isolation) |
 | `lib/appManager/`, legacy `controllers/`, duplicate `screens/` | **Being removed** — re-export stubs only; do not add code here |
 
@@ -111,7 +115,7 @@ All providers are registered in [`lib/app/app_providers.dart`](../lib/app/app_pr
 
 **Pattern:** Screens call `context.read<X>()` in `initState` / actions and `context.watch` / `Consumer` in build.
 
-**Decision (documented in code):** Riverpod deferred; Provider kept for migration cost vs benefit.
+**State management:** Provider (`ChangeNotifier`) only — do not introduce Riverpod.
 
 ---
 

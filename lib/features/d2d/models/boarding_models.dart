@@ -36,17 +36,26 @@ class BoardingScanResult {
     required this.alreadyBoarded,
     required this.batchId,
     required this.userId,
+    this.action = 'board',
+    this.queuePosition = 0,
+    this.message,
   });
 
   final bool alreadyBoarded;
   final String batchId;
   final int userId;
+  final String action;
+  final int queuePosition;
+  final String? message;
 
   factory BoardingScanResult.fromJson(Map<String, dynamic> json) {
     return BoardingScanResult(
       alreadyBoarded: json['already_boarded'] == true,
       batchId: json['batch_id']?.toString() ?? '',
       userId: int.tryParse(json['user_id']?.toString() ?? '') ?? 0,
+      action: json['action']?.toString() ?? 'board',
+      queuePosition: int.tryParse(json['queue_position']?.toString() ?? '') ?? 0,
+      message: json['message']?.toString(),
     );
   }
 }

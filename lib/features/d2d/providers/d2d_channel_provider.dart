@@ -30,6 +30,13 @@ List<D2dCommuterModel>? parseAlreadyInFromResult(Map<String, dynamic> result) {
   return _parseCommutersFromPayloadData(raw);
 }
 
+/// Parses FCFS waiting pool from WS `waiting`.
+List<D2dCommuterModel>? parseWaitingFromResult(Map<String, dynamic> result) {
+  final raw = result['waiting'];
+  if (raw == null) return null;
+  return _parseCommutersFromPayloadData(raw);
+}
+
 List<D2dCommuterModel>? _parseCommutersFromPayloadData(dynamic data) {
   if (data == null) return null;
 
@@ -141,6 +148,7 @@ class D2dChannelProvider with ChangeNotifier {
   DriverModel? _driver;
   List<D2dCommuterModel> _commuters = [];
   List<D2dCommuterModel> _alreadyInCommuters = [];
+  List<D2dCommuterModel> _waitingCommuters = [];
   bool _isAscending = true;
   bool _isConnected = false;
   bool _isDisposed = false;
@@ -162,6 +170,7 @@ class D2dChannelProvider with ChangeNotifier {
   DriverModel? get driver => _driver;
   List<D2dCommuterModel> get commuters => _commuters;
   List<D2dCommuterModel> get alreadyInCommuters => _alreadyInCommuters;
+  List<D2dCommuterModel> get waitingCommuters => _waitingCommuters;
   bool get isAscending => _isAscending;
   bool get connectionLost => _connectionLost;
   String? get connectedBatchId => _connectedBatchId;
@@ -483,6 +492,7 @@ class D2dChannelProvider with ChangeNotifier {
     _channel = null;
     _commuters = [];
     _alreadyInCommuters = [];
+    _waitingCommuters = [];
     _tripEnded = true;
     _tripStatus = D2dTripStatus.ended;
     _state = ViewState.error;
@@ -547,6 +557,11 @@ class D2dChannelProvider with ChangeNotifier {
       final parsedAlreadyIn = parseAlreadyInFromResult(resultMap);
       if (parsedAlreadyIn != null) {
         _alreadyInCommuters = parsedAlreadyIn;
+      }
+
+      final parsedWaiting = parseWaitingFromResult(resultMap);
+      if (parsedWaiting != null) {
+        _waitingCommuters = parsedWaiting;
       }
 
       _state = ViewState.success;
@@ -718,6 +733,7 @@ class D2dChannelProvider with ChangeNotifier {
     _channel = null;
     _commuters = [];
     _alreadyInCommuters = [];
+    _waitingCommuters = [];
     _driver = null;
     _actionErrorMessage = null;
     _connectionLost = false;

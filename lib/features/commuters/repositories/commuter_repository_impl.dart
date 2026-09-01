@@ -32,6 +32,13 @@ class CommuterRepositoryImpl implements CommuterRepository {
   Future<ApiResult<List<CommuterModel>>> getCommuters() async {
     try {
       final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
+      if (adminCode.isEmpty || adminCode == '0') {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle(
+            'Admin org code missing. Sign out and sign in again.',
+          ),
+        );
+      }
       final response = await _apiService.getApi(
         "${ApiUrl.adminCommuterUrl}$adminCode",
       );
