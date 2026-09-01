@@ -124,10 +124,10 @@ class _DriverHomePageState extends State<DriverHomePage> {
                     const SizedBox(height: 16),
                     _buildAssignmentCard(context, driverProfile, adminMobile),
                     const SizedBox(height: 20),
-                    _buildStartTripButton(context, batchId),
+                    _buildStartTripButton(context, batchId?.toString()),
                     if (batchId != null) ...[
                       const SizedBox(height: 12),
-                      _buildReturnListButton(context, batchId),
+                      _buildReturnListButton(context, batchId.toString()),
                     ],
                     if (batchId == null) ...[
                       const SizedBox(height: 12),
