@@ -15,8 +15,6 @@ import 'package:cts/features/d2d/widgets/d2d_add_commuter_sheet.dart';
 import 'package:cts/features/d2d/widgets/d2d_live_widgets.dart';
 import 'package:cts/features/d2d/widgets/odometer_km_sheet.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
-import 'package:cts/widgets/admin_form_header.dart';
-import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
@@ -289,7 +287,6 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
   Widget _buildTripContent(
     BuildContext context,
     D2dChannelProvider provider,
-    double fabPadding,
   ) {
     final scheme = context.scheme;
     final isLive = provider.commuters.isNotEmpty;
@@ -309,14 +306,14 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
     return Stack(
       children: [
         ListView(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, fabPadding + (canAdd ? 72 : 0)),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 24 + (canAdd ? 72 : 0)),
       children: [
         D2dConnectionLostBanner(
           provider: provider,
           batchId: widget.batchId,
         ),
         D2dTripHeader(
-          title: 'Live Commuter Log',
+          title: 'Live trip',
           subtitle: 'Batch #${widget.batchId}',
           isLive: isLive,
         ),
@@ -338,7 +335,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         Text(
           'Remaining',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
         ),
         const SizedBox(height: 8),
@@ -349,11 +346,31 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
             message: 'Remaining commuters will appear here.',
           )
         else ...[
-          Text(
-            '${provider.commuters.length} commuter${provider.commuters.length == 1 ? '' : 's'} remaining',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
+          Row(
+            children: [
+              Text(
+                '${provider.commuters.length} remaining',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: scheme.secondary,
+                  borderRadius: BorderRadius.circular(99),
                 ),
+                child: Text(
+                  '${provider.commuters.length}',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: scheme.onSecondary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           for (var i = 0; i < provider.commuters.length; i++) ...[
@@ -384,7 +401,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
         if (canAdd)
           Positioned(
             right: 16,
-            bottom: fabPadding,
+            bottom: 16,
             child: FloatingActionButton(
               heroTag: 'd2dDriverAddCommuter',
               tooltip: 'Add commuter',
@@ -406,12 +423,8 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    final fabPadding = d2dFabScrollPadding(context);
-
     return Scaffold(
-      appBar: const BrandAppBar(),
-      drawer: const AppDrawer(),
+      appBar: const BrandAppBar(automaticallyImplyLeading: true),
       body: SafeArea(
         top: false,
         child: Consumer<D2dChannelProvider>(
@@ -421,7 +434,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   D2dTripHeader(
-                    title: 'Live Commuter Log',
+                    title: 'Live trip',
                     subtitle: 'Batch #${widget.batchId}',
                     isLive: false,
                   ),
@@ -446,7 +459,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   D2dTripHeader(
-                    title: 'Live Commuter Log',
+                    title: 'Live trip',
                     subtitle: 'Batch #${widget.batchId}',
                     isLive: false,
                   ),
@@ -457,14 +470,13 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               );
             }
 
-            return _buildTripContent(context, provider, fabPadding);
+            return _buildTripContent(context, provider);
           },
         ),
       ),
-      floatingActionButton: Consumer<D2dChannelProvider>(
+      bottomNavigationBar: Consumer<D2dChannelProvider>(
         builder: (context, provider, _) {
-    final scheme = context.scheme;
-
+          final scheme = context.scheme;
           final canStop = D2dChannelRolePolicy.can(
             SessionRole.userType,
             D2dChannelAction.stopTrip,
@@ -474,16 +486,40 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
               provider.tripStatus == D2dTripStatus.ended) {
             return const SizedBox.shrink();
           }
-          return FloatingActionButton.extended(
-            onPressed: _stopTrip,
-            label: const Text('STOP TRIP'),
-            icon: Icon(Icons.stop_circle_outlined),
-            backgroundColor: scheme.error,
-            foregroundColor: scheme.surface,
+          return SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: FilledButton.icon(
+                  onPressed: _stopping ? null : _stopTrip,
+                  icon: Icon(
+                    Icons.stop_circle_outlined,
+                    color: scheme.onError,
+                  ),
+                  label: Text(
+                    'STOP TRIP',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: scheme.onError,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                        ),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: scheme.error,
+                    foregroundColor: scheme.onError,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           );
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
