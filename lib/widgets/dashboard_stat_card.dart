@@ -1,270 +1,139 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 
-/// Primary overview stat card for dashboard (Batches, Commuters, etc.)
+/// Quiet overview stat tile — number + label + subtitle, hairline border.
+/// No colored icons (admin dashboard mock).
 class DashboardStatCard extends StatelessWidget {
   const DashboardStatCard({
     super.key,
     required this.title,
     required this.value,
-    required this.icon,
     required this.onTap,
     this.subtitle,
+    this.icon,
     this.color,
   });
 
   final String title;
   final String value;
-  final IconData icon;
   final VoidCallback onTap;
   final String? subtitle;
+
+  /// Unused on the quiet board; kept for call-site compatibility.
+  final IconData? icon;
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
-    final effectiveColor = color ?? scheme.primary;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 96),
-          decoration: BoxDecoration(
-            color: isLight ? scheme.surface : effectiveColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isLight
-                  ? scheme.outline.withValues(alpha: 0.35)
-                  : effectiveColor.withValues(alpha: 0.35),
-            ),
-            boxShadow: isLight
-                ? [
-                    BoxShadow(
-                      color: scheme.shadow.withValues(alpha: 0.07),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: effectiveColor.withValues(alpha: 0.12),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                Container(
-                  width: 5,
-                  decoration: BoxDecoration(
-                    color: effectiveColor,
-                    borderRadius: const BorderRadius.horizontal(
-                      left: Radius.circular(14),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: effectiveColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            icon,
-                            color: AppColors.onColor(effectiveColor),
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                value,
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: scheme.onSurface,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.1,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                title,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
-                                ),
-                              ),
-                              if (subtitle != null) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  subtitle!,
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: effectiveColor,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.1,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
-                          size: 22,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return _QuietOverviewTile(
+      title: title,
+      value: value,
+      subtitle: subtitle,
+      onTap: onTap,
     );
   }
 }
 
-/// A compact stat card for secondary metrics — theme-aware for light/dark.
+/// Compact overview tile — same quiet visual language as [DashboardStatCard].
 class CompactStatCard extends StatelessWidget {
   const CompactStatCard({
     super.key,
     required this.title,
     required this.value,
-    required this.icon,
     required this.onTap,
+    this.subtitle,
+    this.icon,
     this.color,
+  });
+
+  final String title;
+  final String value;
+  final VoidCallback onTap;
+  final String? subtitle;
+
+  /// Unused on the quiet board; kept for call-site compatibility.
+  final IconData? icon;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return _QuietOverviewTile(
+      title: title,
+      value: value,
+      subtitle: subtitle,
+      onTap: onTap,
+    );
+  }
+}
+
+class _QuietOverviewTile extends StatelessWidget {
+  const _QuietOverviewTile({
+    required this.title,
+    required this.value,
+    required this.onTap,
     this.subtitle,
   });
 
   final String title;
   final String value;
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color? color;
   final String? subtitle;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
-    final effectiveColor = color ?? scheme.primary;
+    final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.14);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: Container(
           constraints: const BoxConstraints(minHeight: 88),
+          padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
           decoration: BoxDecoration(
-            color: isLight ? scheme.surface : effectiveColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isLight
-                  ? scheme.outline.withValues(alpha: 0.35)
-                  : effectiveColor.withValues(alpha: 0.35),
-            ),
-            boxShadow: isLight
-                ? [
-                    BoxShadow(
-                      color: scheme.shadow.withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: effectiveColor.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: hairline, width: 1),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: effectiveColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: AppColors.onColor(effectiveColor),
-                  size: 22,
+              Text(
+                value,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w700,
+                  height: 1.05,
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      value,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: scheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                        height: 1.1,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      title,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle!,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: effectiveColor,
-                          fontWeight: FontWeight.w600,
-                          height: 1.1,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w700,
+                  height: 1.15,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
-                size: 20,
-              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cts.navy.withValues(alpha: 0.65),
+                    fontWeight: FontWeight.w400,
+                    height: 1.15,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
           ),
         ),
