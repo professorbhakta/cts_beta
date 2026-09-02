@@ -5,6 +5,7 @@ import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/widgets/app_drawer.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -165,15 +166,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
               onPressed: () => Scaffold.of(context).openDrawer(),
               icon: Icon(Icons.menu, color: cts.navy),
             ),
-            Text(
-              'c2s',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: cts.navy,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.3,
-                height: 1,
-              ),
-            ),
+            const CtsBrandLogo(height: 28),
             const Spacer(),
             IconButton(
               tooltip: 'Profile',

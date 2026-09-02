@@ -1,6 +1,7 @@
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/splash/providers/splash_provider.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/provider_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,10 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    'assets/images/c2s-01-logo.png',
-                    height: 100,
-                  ),
+                  const CtsBrandLogo(height: 100),
                   const SizedBox(height: 24),
                   Text(
                     'Welcome to c2s',

@@ -8,6 +8,7 @@ import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/providers/commuter_home_provider.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -248,7 +249,6 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
 
   Widget _buildHeader(BuildContext context) {
     final cts = context.cts;
-    final theme = Theme.of(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 4, 8),
@@ -259,15 +259,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             onPressed: () => Scaffold.of(context).openDrawer(),
             icon: Icon(Icons.menu, color: cts.navy),
           ),
-          Text(
-            'c2s',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: cts.navy,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.3,
-              height: 1,
-            ),
-          ),
+          const CtsBrandLogo(height: 28),
           const Spacer(),
           IconButton(
             tooltip: 'Profile',

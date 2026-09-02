@@ -43,22 +43,11 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cts = context.cts;
-    final theme = Theme.of(context);
-
     return OfflineAutoRedirect(
       child: DashboardShell(
         title: 'c2s',
         quietBrandAppBar: true,
-        titleWidget: Text(
-          'c2s',
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: cts.navy,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.3,
-            height: 1,
-          ),
-        ),
+        titleWidget: const CtsBrandLogo(height: 32),
         child: Consumer<AdminProvider>(
           builder: (context, provider, child) {
             switch (provider.state) {

@@ -6,6 +6,7 @@ import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:cts/core/sync/sync_manager.dart';
 import 'package:cts/offline_temp/screens/offline_home_screen.dart';
 import 'package:cts/theme/cts_colors.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -236,7 +237,7 @@ class _DrawerShell extends StatelessWidget {
   }
 }
 
-/// Quiet cream header: C2S kicker, name, mobile, hairline. No gradient avatar art.
+/// Quiet cream header: brand mark, name, mobile, hairline. No gradient avatar art.
 class _DrawerQuietHeader extends StatelessWidget {
   const _DrawerQuietHeader();
 
@@ -254,14 +255,7 @@ class _DrawerQuietHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'C2S',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.4,
-            ),
-          ),
+          const CtsBrandLogo(height: 28),
           const SizedBox(height: 14),
           Row(
             children: [

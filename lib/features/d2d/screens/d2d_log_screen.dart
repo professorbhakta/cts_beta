@@ -19,6 +19,7 @@ import 'package:cts/features/drivers/providers/driver_home_provider.dart';
 import 'package:cts/models/d2d_commuter_model.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -601,7 +602,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
-      // 01 App bar + drawer. Title = same c2s text mark as driver home.
+      // 01 App bar + drawer. Title = original c2s mark (CtsBrandLogo).
       // Actions: LIVE + CALL only (Sort in remaining list header).
       drawer: const AppDrawer(),
       appBar: PreferredSize(
@@ -626,15 +627,7 @@ class _D2DLogScreenState extends State<D2DLogScreen> {
                   onPressed: () => Scaffold.of(btnContext).openDrawer(),
                 ),
               ),
-              title: Text(
-                'c2s',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: fg,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.3,
-                  height: 1,
-                ),
-              ),
+              title: const CtsBrandLogo(height: 32),
               actions: _buildAppBarActions(context, provider),
             );
           },
