@@ -15,10 +15,10 @@ import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/dashboard_stat_card.dart'
     show CompactStatCard;
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/quick_action_button.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -167,11 +167,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             border: Border.all(color: hairline, width: 1),
           ),
           clipBehavior: Clip.antiAlias,
-          child: SvgPicture.asset(
-            'assets/brand/cts_logo.svg',
-            width: 52,
-            height: 52,
-            fit: BoxFit.cover,
+          child: const Padding(
+            padding: EdgeInsets.all(4),
+            child: CtsBrandLogo(height: 44),
           ),
         ),
       ],
