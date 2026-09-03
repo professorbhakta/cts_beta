@@ -1,3 +1,4 @@
+import 'package:cts/appManager/app_class.dart';
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/offline_auto_redirect.dart';
 import 'package:cts/app/router/route_names.dart';
@@ -12,7 +13,9 @@ import 'package:cts/features/pops/providers/pop_form_provider.dart';
 import 'package:cts/features/routes/providers/route_form_provider.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
-import 'package:cts/widgets/dashboard_stat_card.dart';
+import 'package:cts/widgets/dashboard_stat_card.dart'
+    show CompactStatCard;
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/quick_action_button.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -40,29 +43,29 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return OfflineAutoRedirect(
       child: DashboardShell(
-        title: 'Dashboard',
+        title: 'c2s',
+        quietBrandAppBar: true,
+        titleWidget: const CtsBrandLogo(height: 32),
         child: Consumer<AdminProvider>(
-        builder: (context, provider, child) {
-
-          switch (provider.state) {
-            case ViewState.loading:
-              return _buildDashboardSkeleton(context);
-            case ViewState.error:
-              return StatusMessage.error(
-                title:
-                    provider.errorMessage ?? 'Failed to load dashboard data.',
-                message: 'Please check your connection and try again.',
-                onRetry: () => provider.loadDetailedDashboardData(),
-              );
-            case ViewState.success:
-            case ViewState.idle:
-              return _buildDashboard(context, provider);
-          }
-        },
-      ),
+          builder: (context, provider, child) {
+            switch (provider.state) {
+              case ViewState.loading:
+                return _buildDashboardSkeleton(context);
+              case ViewState.error:
+                return StatusMessage.error(
+                  title:
+                      provider.errorMessage ?? 'Failed to load dashboard data.',
+                  message: 'Please check your connection and try again.',
+                  onRetry: () => provider.loadDetailedDashboardData(),
+                );
+              case ViewState.success:
+              case ViewState.idle:
+                return _buildDashboard(context, provider);
+            }
+          },
+        ),
       ),
     );
   }
@@ -72,7 +75,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
       onRefresh: () => provider.loadDetailedDashboardData(),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -80,136 +83,12 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               _buildPartialLoadBanner(context, provider),
               const SizedBox(height: 16),
             ],
-            _buildWelcomeSection(context),
-            const SizedBox(height: 32),
-
-            // Main Statistics Cards
-            LayoutBuilder(
-              builder: (context, constraints) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-
-                final isCompact = constraints.maxWidth < 600;
-                final batchCard = DashboardStatCard(
-                  title: 'Batches',
-                  value: provider.batchCount.toString(),
-                  icon: Icons.directions_bus,
-                  subtitle: '${provider.runningBatchCount} active',
-                  onTap: () => context.push(RouteName.batchScreen),
-                  color: scheme.primary,
-                );
-                final commuterCard = DashboardStatCard(
-                  title: 'Commuters',
-                  value: provider.commuterCount.toString(),
-                  icon: Icons.people_alt,
-                  subtitle: '${provider.isComingCount} coming today',
-                  onTap: () => context.push(RouteName.commuterScreen),
-                  color: cts.orangeWarm,
-                );
-
-                if (isCompact) {
-                  return Column(
-                    children: [
-                      batchCard,
-                      const SizedBox(height: 12),
-                      commuterCard,
-                    ],
-                  );
-                }
-
-                return Row(
-                  children: [
-                    Expanded(child: batchCard),
-                    const SizedBox(width: 16),
-                    Expanded(child: commuterCard),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 20),
-
-            // Secondary Statistics — 2×2 on phone, single row on tablet+
-            LayoutBuilder(
-              builder: (context, constraints) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-
-                final cards = [
-                  CompactStatCard(
-                    title: 'Routes',
-                    value: provider.routeCount.toString(),
-                    subtitle: 'Active',
-                    icon: Icons.route_outlined,
-                    onTap: () =>
-                        context.push(RouteName.routeScreen),
-                    color: scheme.primary,
-                  ),
-                  CompactStatCard(
-                    title: 'Pick-up Points',
-                    value: provider.popCount.toString(),
-                    subtitle: 'Locations',
-                    icon: Icons.location_on_outlined,
-                    onTap: () =>
-                        context.push(RouteName.popScreen),
-                    color: cts.orangeWarm,
-                  ),
-                  CompactStatCard(
-                    title: 'Cabs',
-                    value: provider.cabCount.toString(),
-                    subtitle: 'Vehicles',
-                    icon: Icons.directions_car_outlined,
-                    onTap: () =>
-                        context.push(RouteName.cabScreen),
-                    color: cts.yellowBright,
-                  ),
-                  CompactStatCard(
-                    title: 'Drivers',
-                    value: provider.driverCount.toString(),
-                    subtitle: 'Active',
-                    icon: Icons.person_outline,
-                    onTap: () =>
-                        context.push(RouteName.driverScreen),
-                    color: cts.orangeBright,
-                  ),
-                ];
-                if (constraints.maxWidth < 600) {
-                  return Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: cards[0]),
-                          const SizedBox(width: 12),
-                          Expanded(child: cards[1]),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(child: cards[2]),
-                          const SizedBox(width: 12),
-                          Expanded(child: cards[3]),
-                        ],
-                      ),
-                    ],
-                  );
-                }
-                return Row(
-                  children: [
-                    for (var i = 0; i < cards.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 12),
-                      Expanded(child: cards[i]),
-                    ],
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 32),
-
-            // Live running batches — tap to open D2D WebSocket channel
+            _buildGreetingSection(context),
+            const SizedBox(height: 28),
             _buildRunningBatchesSection(context, provider),
-            const SizedBox(height: 32),
-
-            // Quick Actions Section
+            const SizedBox(height: 28),
+            _buildOverviewSection(context, provider),
+            const SizedBox(height: 28),
             _buildQuickActionsSection(context),
           ],
         ),
@@ -217,84 +96,171 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = context.scheme;
-    final cts = context.cts;
-    final now = DateTime.now();
-    final hour = now.hour;
-    String greeting;
-    if (hour < 12) {
-      greeting = 'Good Morning';
-    } else if (hour < 17) {
-      greeting = 'Good Afternoon';
-    } else {
-      greeting = 'Good Evening';
-    }
+  String _timeOfDayGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [cts.yellowDark, scheme.primary],
+  /// Same source as the admin drawer header.
+  String _displayUserName() {
+    final name = AppManager.instance.getString(ManagerKey.name);
+    final userName = AppManager.instance.getString(ManagerKey.userName);
+    if (name.isNotEmpty && name != '0') return name;
+    if (userName.isNotEmpty && userName != '0') return userName;
+    return SessionRole.roleLabel;
+  }
+
+  Widget _buildGreetingSection(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.14);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _timeOfDayGreeting().toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _displayUserName(),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w700,
+                  height: 1.15,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: cts.yellowDark.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+        const SizedBox(width: 12),
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: hairline, width: 1),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          clipBehavior: Clip.antiAlias,
+          child: const Padding(
+            padding: EdgeInsets.all(4),
+            child: CtsBrandLogo(height: 44),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _sectionLabel(
+    BuildContext context,
+    String label, {
+    String? trailing,
+  }) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label.toUpperCase(),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cts.navy,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
+        if (trailing != null)
+          Text(
+            trailing,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cts.navy,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewSection(BuildContext context, AdminProvider provider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionLabel(context, 'Overview'),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final cards = [
+              CompactStatCard(
+                title: 'Batches',
+                value: provider.batchCount.toString(),
+                subtitle: '${provider.runningBatchCount} active',
+                onTap: () => context.push(RouteName.batchScreen),
+              ),
+              CompactStatCard(
+                title: 'Commuters',
+                value: provider.commuterCount.toString(),
+                subtitle: '${provider.isComingCount} coming today',
+                onTap: () => context.push(RouteName.commuterScreen),
+              ),
+              CompactStatCard(
+                title: 'Routes',
+                value: provider.routeCount.toString(),
+                subtitle: 'Active',
+                onTap: () => context.push(RouteName.routeScreen),
+              ),
+              CompactStatCard(
+                title: 'Pick-up Points',
+                value: provider.popCount.toString(),
+                subtitle: 'Locations',
+                onTap: () => context.push(RouteName.popScreen),
+              ),
+              CompactStatCard(
+                title: 'Cabs',
+                value: provider.cabCount.toString(),
+                subtitle: 'Vehicles',
+                onTap: () => context.push(RouteName.cabScreen),
+              ),
+              CompactStatCard(
+                title: 'Drivers',
+                value: provider.driverCount.toString(),
+                subtitle: 'Active',
+                onTap: () => context.push(RouteName.driverScreen),
+              ),
+            ];
+
+            // Prefer 3-col board; fall back to 2-col on very narrow widths.
+            final crossAxisCount = constraints.maxWidth < 340 ? 2 : 3;
+            const gap = 10.0;
+            final itemWidth =
+                (constraints.maxWidth - gap * (crossAxisCount - 1)) /
+                    crossAxisCount;
+
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
               children: [
-                Text(
-                  greeting,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    color: scheme.onInverseSurface,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Welcome Back!',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: scheme.onInverseSurface,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Manage your transportation system efficiently',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: scheme.onInverseSurface.withValues(alpha: 0.95),
-                  ),
-                ),
+                for (final card in cards)
+                  SizedBox(width: itemWidth, child: card),
               ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: scheme.onInverseSurface.withValues(alpha: 0.25),
-              shape: BoxShape.circle,
-            ),
-            child: Image.asset(
-              'assets/images/c2s.png',
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -303,8 +269,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     AdminProvider provider,
   ) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
+    final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.14);
     final batches = sortListAZ<RunningBatches>(
       provider.runningBatches,
       (batch) => batch.batchId?.batchName ?? '',
@@ -313,42 +279,27 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Running Batches',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+        _sectionLabel(
+          context,
+          'Running Now',
+          trailing: '${batches.length} live',
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Tap a live batch to open its door-to-door channel.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (batches.isEmpty)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             decoration: BoxDecoration(
-              color: isLight ? scheme.surface : scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: scheme.outline.withValues(alpha: 0.35),
-              ),
+              color: theme.scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: hairline, width: 1),
             ),
             child: Column(
               children: [
-                Icon(
-                  Icons.directions_bus_outlined,
-                  size: 36,
-                  color: scheme.onSurface.withValues(alpha: 0.45),
-                ),
-                const SizedBox(height: 12),
                 Text(
                   'No running batches right now',
                   style: theme.textTheme.titleSmall?.copyWith(
+                    color: cts.navy,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
@@ -357,7 +308,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 Text(
                   'When a batch goes live, it will appear here.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurface.withValues(alpha: 0.6),
+                    color: cts.navy.withValues(alpha: 0.65),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -365,7 +316,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 TextButton(
                   onPressed: () =>
                       context.push(RouteName.runningBatchScreen),
-                  child: const Text('View running batches'),
+                  child: Text(
+                    'View running batches',
+                    style: TextStyle(
+                      color: cts.navy,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -391,6 +348,57 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               ),
             );
           }),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () =>
+                      context.push(RouteName.runningBatchScreen),
+                  style: TextButton.styleFrom(
+                    foregroundColor: cts.navy,
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'RUNNING BATCHES',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: cts.navy,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () =>
+                      context.push(RouteName.returnBatchScreen),
+                  style: TextButton.styleFrom(
+                    foregroundColor: cts.navy,
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'RETURN BATCHES',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: cts.navy,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -399,11 +407,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     BuildContext context,
     AdminProvider provider,
   ) {
-
     final scheme = Theme.of(context).colorScheme;
     return Material(
       color: scheme.errorContainer,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
@@ -415,8 +422,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 provider.loadWarning ??
                     'Some dashboard data could not be loaded.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: scheme.onErrorContainer,
-                ),
+                      color: scheme.onErrorContainer,
+                    ),
               ),
             ),
             TextButton(
@@ -433,105 +440,68 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   }
 
   Widget _buildQuickActionsSection(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Quick Actions',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
+        _sectionLabel(context, 'Quick Actions'),
+        const SizedBox(height: 12),
         LayoutBuilder(
           builder: (context, constraints) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-
             final width = constraints.maxWidth;
-            final crossAxisCount = width >= 900 ? 4 : (width >= 600 ? 3 : 2);
-            final aspectRatio = crossAxisCount == 2 ? 2.6 : 2.35;
+            final crossAxisCount = width >= 900 ? 4 : 2;
+            final aspectRatio = crossAxisCount == 2 ? 3.1 : 2.8;
 
             return GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
               childAspectRatio: aspectRatio,
               children: [
-            QuickActionButton(
-              icon: Icons.add_circle_outline,
-              label: 'Add Batch',
-              onTap: () {
-                context.read<BatchFormProvider>().clearAll();
-                context.push(RouteName.batchForm);
-              },
-              color: scheme.primary,
-            ),
-            QuickActionButton(
-              icon: Icons.person_add_outlined,
-              label: 'Add Commuter',
-              onTap: () {
-                context.read<CommuterFormProvider>().clearAll();
-                context.push(RouteName.commuterForm);
-              },
-              color: cts.orangeWarm,
-            ),
-            QuickActionButton(
-              icon: Icons.drive_eta_outlined,
-              label: 'Add Driver',
-              onTap: () {
-                context.read<DriverFormProvider>().clearAll();
-                context.push(RouteName.driverForm);
-              },
-              color: cts.yellowBright,
-            ),
-            QuickActionButton(
-              icon: Icons.directions_car_outlined,
-              label: 'Add Cab',
-              onTap: () {
-                context.read<CabFormProvider>().clearAll();
-                context.push(RouteName.cabForm);
-              },
-              color: cts.orangeBright,
-            ),
-            QuickActionButton(
-              icon: Icons.route_outlined,
-              label: 'Add Route',
-              onTap: () {
-                context.read<RouteFormProvider>().clearAll();
-                context.push(RouteName.routeForm);
-              },
-              color: scheme.primary,
-            ),
-            QuickActionButton(
-              icon: Icons.location_on_outlined,
-              label: 'Add POP',
-              onTap: () {
-                context.read<PopFormProvider>().clearAll();
-                context.push(RouteName.popForm);
-              },
-              color: cts.orangeWarm,
-            ),
-            QuickActionButton(
-              icon: Icons.play_circle_outline,
-              label: 'Running Batches',
-              onTap: () {
-                context.push(RouteName.runningBatchScreen);
-              },
-              color: cts.yellowBright,
-            ),
-            QuickActionButton(
-              icon: Icons.assignment_returned_outlined,
-              label: 'Return Batches',
-              onTap: () {
-                context.push(RouteName.returnBatchScreen);
-              },
-              color: cts.orangeBright,
-            ),
+                QuickActionButton(
+                  label: 'Add Batch',
+                  emphasized: true,
+                  onTap: () {
+                    context.read<BatchFormProvider>().clearAll();
+                    context.push(RouteName.batchForm);
+                  },
+                ),
+                QuickActionButton(
+                  label: 'Add Commuter',
+                  onTap: () {
+                    context.read<CommuterFormProvider>().clearAll();
+                    context.push(RouteName.commuterForm);
+                  },
+                ),
+                QuickActionButton(
+                  label: 'Add Driver',
+                  onTap: () {
+                    context.read<DriverFormProvider>().clearAll();
+                    context.push(RouteName.driverForm);
+                  },
+                ),
+                QuickActionButton(
+                  label: 'Add Cab',
+                  onTap: () {
+                    context.read<CabFormProvider>().clearAll();
+                    context.push(RouteName.cabForm);
+                  },
+                ),
+                QuickActionButton(
+                  label: 'Add Route',
+                  onTap: () {
+                    context.read<RouteFormProvider>().clearAll();
+                    context.push(RouteName.routeForm);
+                  },
+                ),
+                QuickActionButton(
+                  label: 'Add POP',
+                  onTap: () {
+                    context.read<PopFormProvider>().clearAll();
+                    context.push(RouteName.popForm);
+                  },
+                ),
               ],
             );
           },
@@ -541,105 +511,120 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   }
 
   Widget _buildDashboardSkeleton(BuildContext context) {
+    final cts = context.cts;
+    final base = cts.navy.withValues(alpha: 0.08);
+    final highlight = cts.navy.withValues(alpha: 0.03);
 
-    final scheme = Theme.of(context).colorScheme;
     return Shimmer.fromColors(
-      baseColor: scheme.surfaceContainerHighest,
-      highlightColor: scheme.surface,
+      baseColor: base,
+      highlightColor: highlight,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome skeleton
-            Container(
-              height: 140,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            const SizedBox(height: 32),
-            // Stats skeleton
-            Column(
+            Row(
               children: [
-                Container(
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 12,
+                        width: 110,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 28,
+                        width: 180,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
                 Container(
-                  height: 96,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(14),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            // Compact cards skeleton
-            Row(
-              children: List.generate(
-                4,
-                (index) => Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(right: index < 3 ? 12 : 0),
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            // Running batches skeleton
+            const SizedBox(height: 28),
             Container(
-              height: 20,
-              width: 160,
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 88,
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            const SizedBox(height: 32),
-            // Quick actions skeleton
-            Container(
-              height: 20,
-              width: 150,
+              height: 12,
+              width: 100,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            Container(
+              height: 64,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: 28),
+            Container(
+              height: 12,
+              width: 80,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: List.generate(
+                6,
+                (_) => Container(
+                  width: (MediaQuery.sizeOf(context).width - 40 - 20) / 3,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            Container(
+              height: 12,
+              width: 110,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 12),
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 2.6,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 3.1,
               children: List.generate(
-                8,
-                (index) => Container(
+                6,
+                (_) => Container(
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
@@ -666,136 +651,75 @@ class _RunningBatchDashboardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cts = context.cts;
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
-    final liveColor = cts.success;
+    final hairline = cts.navy.withValues(alpha: 0.14);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 72),
+          constraints: const BoxConstraints(minHeight: 64),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
-            color: isLight ? scheme.surface : liveColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isLight
-                  ? scheme.outline.withValues(alpha: 0.35)
-                  : liveColor.withValues(alpha: 0.35),
-            ),
-            boxShadow: isLight
-                ? [
-                    BoxShadow(
-                      color: scheme.shadow.withValues(alpha: 0.07),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ]
-                : null,
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: hairline, width: 1),
           ),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                Container(
-                  width: 5,
-                  decoration: BoxDecoration(
-                    color: liveColor,
-                    borderRadius: const BorderRadius.horizontal(
-                      left: Radius.circular(14),
-                    ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: cts.navy,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'LIVE',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      batchName,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: cts.navy,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: liveColor.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.sensors_rounded,
-                            color: liveColor,
-                            size: 22,
-                          ),
+                    if (driverName != null && driverName!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Driver: $driverName',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cts.navy.withValues(alpha: 0.7),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: liveColor.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(99),
-                                    ),
-                                    child: Text(
-                                      'LIVE',
-                                      style: theme.textTheme.labelSmall?.copyWith(
-                                        color: liveColor,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 0.4,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      batchName,
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (driverName != null && driverName!.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Driver: $driverName',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: scheme.onSurface.withValues(alpha: 0.6),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: scheme.onSurface.withValues(alpha: 0.45),
-                        ),
-                      ],
-                    ),
-                  ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: cts.navy.withValues(alpha: 0.55),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
-
-
-

@@ -17,6 +17,7 @@ class BoardingQrPanel extends StatefulWidget {
     super.key,
     required this.batchId,
     this.enabled = true,
+    this.compact = false,
   });
 
   final String batchId;
@@ -24,15 +25,21 @@ class BoardingQrPanel extends StatefulWidget {
   /// When false (trip ended / STOP), clears QR and releases wakelock.
   final bool enabled;
 
+  /// Large high-contrast QR under batch/KM — minimal chrome.
+  final bool compact;
+
   @override
-  State<BoardingQrPanel> createState() => _BoardingQrPanelState();
+  State<BoardingQrPanel> createState() => BoardingQrPanelState();
 }
 
-class _BoardingQrPanelState extends State<BoardingQrPanel> {
+class BoardingQrPanelState extends State<BoardingQrPanel> {
   BoardingQrPayload? _payload;
   String? _error;
   bool _loading = false;
   Timer? _refreshTimer;
+
+  /// External refresh (e.g. "QR refresh" header control).
+  Future<void> refresh() => _loadQr();
 
   @override
   void initState() {
@@ -122,21 +129,106 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-
     if (!widget.enabled) return const SizedBox.shrink();
 
+    if (widget.compact) {
+      return _buildHeroQr(context);
+    }
+    return _buildLegacyCard(context);
+  }
+
+  Widget _buildHeroQr(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
     final theme = Theme.of(context);
     final payload = _payload?.qrPayload ?? '';
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+    return Column(
+      children: [
+        if (_error != null && payload.isEmpty)
+          _StatusInline(message: _error!)
+        else if (payload.isEmpty && _loading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else if (payload.isNotEmpty)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final size = (constraints.maxWidth * 0.94).clamp(240.0, 340.0);
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  color: scheme.surface,
+                  border: Border.all(
+                    color: cts.navy.withValues(alpha: 0.2),
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: QrImageView(
+                    data: payload,
+                    version: QrVersions.auto,
+                    size: size - 32,
+                    backgroundColor: scheme.surface,
+                    eyeStyle: QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: cts.navy,
+                    ),
+                    dataModuleStyle: QrDataModuleStyle(
+                      dataModuleShape: QrDataModuleShape.square,
+                      color: cts.navy,
+                    ),
+                  ),
+                ),
+              );
+            },
+          )
+        else
+          const _StatusInline(message: 'QR unavailable. Tap refresh.'),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_payload != null)
+              Text(
+                'Refreshes in ~${_payload!.expiresIn}s',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: cts.navy.withValues(alpha: 0.55),
+                ),
+              ),
+            IconButton(
+              tooltip: 'Refresh QR',
+              visualDensity: VisualDensity.compact,
+              onPressed: _loading ? null : _loadQr,
+              icon: _loading
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: cts.navy,
+                      ),
+                    )
+                  : Icon(Icons.refresh, color: cts.navy, size: 20),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegacyCard(BuildContext context) {
+    final scheme = context.scheme;
+    final cts = context.cts;
+    final theme = Theme.of(context);
+    final payload = _payload?.qrPayload ?? '';
+
+    return Material(
       color: scheme.surface,
-      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: scheme.primary.withValues(alpha: 0.35)),
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: cts.navy.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -145,16 +237,14 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.qr_code_2_rounded,
-                  color: cts.yellowDark,
-                ),
+                Icon(Icons.qr_code_2, color: cts.navy),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Boarding QR',
                     style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
+                      color: cts.navy,
                     ),
                   ),
                 ),
@@ -167,7 +257,7 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : Icon(Icons.refresh),
+                      : Icon(Icons.refresh, color: cts.navy),
                 ),
               ],
             ),
@@ -175,7 +265,7 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
             Text(
               'Commuters scan this code to board. Swipe remains as fallback.',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey.shade700,
+                color: cts.navy.withValues(alpha: 0.55),
               ),
             ),
             const SizedBox(height: 12),
@@ -185,7 +275,7 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(24),
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               )
             else if (payload.isNotEmpty)
@@ -193,8 +283,16 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
                 child: QrImageView(
                   data: payload,
                   version: QrVersions.auto,
-                  size: 200,
-                  backgroundColor: Colors.white,
+                  size: 220,
+                  backgroundColor: scheme.surface,
+                  eyeStyle: QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: cts.navy,
+                  ),
+                  dataModuleStyle: QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: cts.navy,
+                  ),
                 ),
               )
             else
@@ -204,7 +302,9 @@ class _BoardingQrPanelState extends State<BoardingQrPanel> {
               Text(
                 'Refreshes in ~${_payload!.expiresIn}s',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.labelSmall,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: cts.navy.withValues(alpha: 0.55),
+                ),
               ),
             ],
           ],

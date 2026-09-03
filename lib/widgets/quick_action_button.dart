@@ -1,27 +1,37 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 
-/// Quick action tile for dashboard — horizontal layout, theme-aware.
+/// Quick action tile — hairline navy border, 4px radius.
+/// Yellow fill only when [emphasized] (Add Batch).
 class QuickActionButton extends StatelessWidget {
   const QuickActionButton({
     super.key,
-    required this.icon,
     required this.label,
     required this.onTap,
+    this.icon,
     this.color,
+    this.emphasized = false,
   });
 
-  final IconData icon;
   final String label;
   final VoidCallback onTap;
+
+  /// Optional; quiet board is text-first (icons unused when null).
+  final IconData? icon;
+
+  /// Legacy accent; ignored when [emphasized] / hairline style applies.
   final Color? color;
+
+  /// Solid yellow primary action (Add Batch only).
+  final bool emphasized;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isLight = theme.brightness == Brightness.light;
-    final effectiveColor = color ?? scheme.primary;
+    final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.14);
+    final bg = emphasized ? cts.yellow : theme.scaffoldBackgroundColor;
+    final fg = cts.navy;
 
     return Semantics(
       button: true,
@@ -30,64 +40,34 @@ class QuickActionButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(4),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Ink(
               decoration: BoxDecoration(
-                color: isLight ? scheme.surface : effectiveColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                color: bg,
+                borderRadius: BorderRadius.circular(4),
                 border: Border.all(
-                  color: isLight
-                      ? scheme.outline.withValues(alpha: 0.35)
-                      : effectiveColor.withValues(alpha: 0.35),
+                  color: emphasized ? cts.yellow : hairline,
+                  width: 1,
                 ),
-                boxShadow: isLight
-                    ? [
-                        BoxShadow(
-                          color: scheme.shadow.withValues(alpha: 0.05),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ]
-                    : null,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: effectiveColor,
-                      borderRadius: BorderRadius.circular(8),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                  child: Text(
+                    label.toUpperCase(),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: fg,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                      height: 1.15,
                     ),
-                    child: Icon(
-                      icon,
-                      color: AppColors.onColor(effectiveColor),
-                      size: 17,
-                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: scheme.onSurface,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                        height: 1.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 16,
-                    color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

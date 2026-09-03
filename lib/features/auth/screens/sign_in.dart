@@ -24,7 +24,10 @@ class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
 
-  Future<void> _listenToLoginState(BuildContext context, SignInProvider provider) async {
+  Future<void> _listenToLoginState(
+    BuildContext context,
+    SignInProvider provider,
+  ) async {
     if (provider.state == ViewState.error) {
       SnackBarService.showErrorSnackbar(
         provider.errorMessage ?? 'An unknown error occurred.',
@@ -49,7 +52,10 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final signInProvider = Provider.of<SignInProvider>(context);
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    // Cream page via theme (scaffoldBackground / surfaceContainerHighest).
+    final cream = theme.scaffoldBackgroundColor;
 
     return ProviderListener<SignInProvider>(
       provider: signInProvider,
@@ -57,37 +63,64 @@ class _SignInScreenState extends State<SignInScreen> {
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              Theme.of(context).brightness == Brightness.dark
-                  ? Brightness.light
-                  : Brightness.dark,
-          statusBarBrightness: Theme.of(context).brightness,
+          statusBarIconBrightness: theme.brightness == Brightness.dark
+              ? Brightness.light
+              : Brightness.dark,
+          statusBarBrightness: theme.brightness,
         ),
         child: Scaffold(
-          backgroundColor: scheme.surface,
+          backgroundColor: cream,
           body: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildHeader(scheme),
-                      const SizedBox(height: 48.0),
-                      _buildMobileField(signInProvider, scheme),
-                      const SizedBox(height: 16.0),
-                      _buildPasswordField(signInProvider, scheme),
-                      const SizedBox(height: 32.0),
-                      _buildLoginButton(signInProvider, scheme),
-                    ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final horizontal =
+                    constraints.maxWidth >= 600 ? 32.0 : 24.0;
+
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: EdgeInsets.fromLTRB(horizontal, 28, horizontal, 24),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: CtsBrandLogo(height: 48),
+                            ),
+                            const SizedBox(height: 28),
+                            Text(
+                              'Sign in',
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                color: scheme.onSurface,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Use your mobile number and password.',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            _buildMobileField(signInProvider, scheme),
+                            const SizedBox(height: 20),
+                            _buildPasswordField(signInProvider, scheme),
+                            const SizedBox(height: 28),
+                            _buildLoginButton(signInProvider, scheme),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),
@@ -95,40 +128,15 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget _buildHeader(ColorScheme scheme) {
-    final onSurfaceMuted = scheme.onSurface.withValues(alpha: 0.6);
-
-    return Column(
-      children: [
-        const CtsBrandLogo(),
-        const SizedBox(height: 24.0),
-        Text(
-          'Welcome Back',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: scheme.onSurface,
-              ),
-        ),
-        const SizedBox(height: 8.0),
-        Text(
-          'Sign in to continue',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: onSurfaceMuted,
-              ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildMobileField(SignInProvider provider, ColorScheme scheme) {
     return CommonTextFormField(
+      variant: CommonTextFormFieldVariant.hairline,
+      label: 'Mobile',
       controller: provider.mobileCtrl,
       enabled: provider.state != ViewState.loading,
-      hintText: 'Mobile Number',
+      hintText: '10-digit mobile number',
       keyboardType: TextInputType.number,
       textInputAction: TextInputAction.next,
-      prefixIcon: Icon(Icons.phone_android, color: scheme.onSurface),
       inputFormatters: [
         LengthLimitingTextInputFormatter(10),
         FilteringTextInputFormatter.digitsOnly,
@@ -148,18 +156,20 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Widget _buildPasswordField(SignInProvider provider, ColorScheme scheme) {
     return CommonTextFormField(
+      variant: CommonTextFormFieldVariant.hairline,
+      label: 'Password',
       controller: provider.passwordCtrl,
       enabled: provider.state != ViewState.loading,
       hintText: 'Password',
       obscureText: !_isPasswordVisible,
       keyboardType: TextInputType.visiblePassword,
       textInputAction: TextInputAction.done,
-      prefixIcon: Icon(Icons.lock_outline, color: scheme.onSurface),
       suffixIcon: IconButton(
         tooltip: _isPasswordVisible ? 'Hide password' : 'Show password',
         icon: Icon(
-          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-          color: scheme.onSurface,
+          _isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          color: scheme.onSurface.withValues(alpha: 0.55),
+          size: 20,
         ),
         onPressed: () {
           setState(() {
@@ -172,9 +182,11 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildLoginButton(SignInProvider provider, ColorScheme scheme) {
+    // Yellow primary from theme — do not invent hexes.
     return CommonPrimaryButton(
       label: provider.state == ViewState.loading ? 'LOGGING IN...' : 'LOGIN',
-      fontSize: 18,
+      fontSize: 16,
+      isLoading: provider.state == ViewState.loading,
       onPressed: provider.state == ViewState.loading
           ? null
           : () {
@@ -182,11 +194,10 @@ class _SignInScreenState extends State<SignInScreen> {
                 provider.login();
               }
             },
-      backgroundColor: scheme.inverseSurface,
-      textColor: scheme.onInverseSurface,
+      backgroundColor: scheme.primary,
+      textColor: scheme.onPrimary,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(4),
     );
   }
-
 }

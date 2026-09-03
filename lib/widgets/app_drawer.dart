@@ -6,6 +6,7 @@ import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:cts/core/sync/sync_manager.dart';
 import 'package:cts/offline_temp/screens/offline_home_screen.dart';
 import 'package:cts/theme/cts_colors.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -15,272 +16,491 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Drawer(
-      backgroundColor: Colors.transparent,
-      child: AdminNavList(),
+    return Drawer(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      child: switch (SessionRole.userType) {
+        'COMMUTER' => const CommuterNavList(),
+        'DRIVER' => const DriverNavList(),
+        _ => const AdminNavList(),
+      },
     );
   }
 }
 
+/// Driver-only drawer: Home, Profile, Logout.
+/// No admin management routes.
+class DriverNavList extends StatelessWidget {
+  const DriverNavList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
+    final homeRoute = RouteName.driverHomeScreen;
+
+    return _DrawerShell(
+      children: [
+        const _DrawerQuietHeader(),
+        _DrawerNavTile(
+          icon: Icons.home_outlined,
+          title: 'Home',
+          route: homeRoute,
+          isSelected: currentRoute == homeRoute,
+        ),
+        _DrawerNavTile(
+          icon: Icons.person_outline,
+          title: 'Profile',
+          route: RouteName.profileScreen,
+          isSelected: currentRoute == RouteName.profileScreen,
+        ),
+        const Spacer(),
+        const _DrawerLogoutTile(),
+        SizedBox(height: MediaQuery.paddingOf(context).bottom + 12),
+      ],
+    );
+  }
+}
+
+/// Commuter-only drawer: Home, Profile, Track cab, Logout.
+/// No admin management routes.
+class CommuterNavList extends StatelessWidget {
+  const CommuterNavList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
+    final homeRoute = RouteName.commuterHomeScreen;
+
+    return _DrawerShell(
+      children: [
+        const _DrawerQuietHeader(),
+        _DrawerNavTile(
+          icon: Icons.home_outlined,
+          title: 'Home',
+          route: homeRoute,
+          isSelected: currentRoute == homeRoute,
+        ),
+        _DrawerNavTile(
+          icon: Icons.person_outline,
+          title: 'Profile',
+          route: RouteName.profileScreen,
+          isSelected: currentRoute == RouteName.profileScreen,
+        ),
+        _DrawerNavTile(
+          icon: Icons.my_location_outlined,
+          title: 'Track cab',
+          route: RouteName.trackCabScreen,
+          isSelected: currentRoute == RouteName.trackCabScreen,
+        ),
+        const Spacer(),
+        const _DrawerLogoutTile(),
+        SizedBox(height: MediaQuery.paddingOf(context).bottom + 12),
+      ],
+    );
+  }
+}
+
+/// Admin drawer: home/dashboard, profile, management routes, logout.
 class AdminNavList extends StatelessWidget {
   const AdminNavList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final scheme = context.scheme;
-    final cts = context.cts;
-    final theme = context.theme;
+    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
     final isAdmin = SessionRole.isAdmin;
     final homeRoute = SessionRole.homeRoute;
 
-    final topInset = MediaQuery.paddingOf(context).top;
-    final drawerBg =
-        theme.appBarTheme.backgroundColor ?? scheme.inverseSurface;
-    final onDrawer = scheme.onInverseSurface;
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            drawerBg,
-            Color.alphaBlend(
-              onDrawer.withValues(alpha: 0.08),
-              drawerBg,
+    return _DrawerShell(
+      scrollable: true,
+      children: [
+        const _DrawerQuietHeader(),
+        _DrawerNavTile(
+          icon: isAdmin ? Icons.dashboard_outlined : Icons.home_outlined,
+          title: isAdmin ? 'Dashboard' : 'Home',
+          route: homeRoute,
+          isSelected: currentRoute == homeRoute,
+        ),
+        _DrawerNavTile(
+          icon: Icons.person_outline,
+          title: 'Profile',
+          route: RouteName.profileScreen,
+          isSelected: currentRoute == RouteName.profileScreen,
+        ),
+        if (isAdmin) ...[
+          _SyncStatusBanner(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            child: Text(
+              'MANAGEMENT',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: scheme.onSurface.withValues(alpha: 0.5),
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.1,
+              ),
+            ),
+          ),
+          _DrawerNavTile(
+            icon: Icons.people_outline,
+            title: 'Commuters',
+            route: RouteName.commuterScreen,
+            isSelected: currentRoute == RouteName.commuterScreen,
+          ),
+          _DrawerNavTile(
+            icon: Icons.location_on_outlined,
+            title: 'Pick-up Points',
+            route: RouteName.popScreen,
+            isSelected: currentRoute == RouteName.popScreen,
+          ),
+          _DrawerNavTile(
+            icon: Icons.directions_bus_outlined,
+            title: 'Batches',
+            route: RouteName.batchScreen,
+            isSelected: currentRoute == RouteName.batchScreen,
+          ),
+          _DrawerNavTile(
+            icon: Icons.directions_car_outlined,
+            title: 'Cabs',
+            route: RouteName.cabScreen,
+            isSelected: currentRoute == RouteName.cabScreen,
+          ),
+          _DrawerNavTile(
+            icon: Icons.badge_outlined,
+            title: 'Drivers',
+            route: RouteName.driverScreen,
+            isSelected: currentRoute == RouteName.driverScreen,
+          ),
+          _DrawerNavTile(
+            icon: Icons.route_outlined,
+            title: 'Routes',
+            route: RouteName.routeScreen,
+            isSelected: currentRoute == RouteName.routeScreen,
+          ),
+          if (showOfflineDrawerTile()) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Text(
+                'OFFLINE',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurface.withValues(alpha: 0.5),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ),
+            _DrawerNavTile(
+              icon: Icons.cloud_off_outlined,
+              title: 'Offline Mode',
+              route: RouteName.offlineTempHome,
+              isSelected: currentRoute == RouteName.offlineTempHome,
             ),
           ],
+        ],
+        const SizedBox(height: 24),
+        const _DrawerLogoutTile(),
+        SizedBox(height: MediaQuery.paddingOf(context).bottom + 12),
+      ],
+    );
+  }
+}
+
+class _DrawerShell extends StatelessWidget {
+  const _DrawerShell({
+    required this.children,
+    this.scrollable = false,
+  });
+
+  final List<Widget> children;
+  final bool scrollable;
+
+  @override
+  Widget build(BuildContext context) {
+    final cream = Theme.of(context).scaffoldBackgroundColor;
+
+    if (scrollable) {
+      return ColoredBox(
+        color: cream,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: children,
         ),
+      );
+    }
+
+    return ColoredBox(
+      color: cream,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          // Header — top padding respects notch / Dynamic Island / status bar
-          Container(
-            padding: EdgeInsets.fromLTRB(20, topInset + 16, 20, 20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [scheme.primary, cts.yellowBright],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: scheme.primary.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: scheme.onPrimary.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: scheme.onSurface.withValues(alpha: 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const CircleAvatar(
-                    radius: 32,
-                    backgroundImage: AssetImage('assets/images/driver.png'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _getDisplayName(),
-                  style: TextStyle(
-                    color: scheme.onPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _getDisplayMobile(),
-                  style: TextStyle(
-                    color: scheme.onPrimary.withValues(alpha: 0.9),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
+    );
+  }
+}
 
-          const SizedBox(height: 8),
+/// Quiet cream header: brand mark, name, mobile, hairline. No gradient avatar art.
+class _DrawerQuietHeader extends StatelessWidget {
+  const _DrawerQuietHeader();
 
-          // Navigation Items
-          _navTile(
-            context,
-            icon: isAdmin
-                ? Icons.dashboard_customize_rounded
-                : Icons.home_rounded,
-            title: isAdmin ? 'Dashboard' : 'Home',
-            route: homeRoute,
-            color: scheme.primary,
-            isSelected: currentRoute == homeRoute,
-          ),
-          _navTile(
-            context,
-            icon: Icons.person_rounded,
-            title: 'Profile',
-            route: RouteName.profileScreen,
-            color: cts.yellowBright,
-            isSelected: currentRoute == RouteName.profileScreen,
-          ),
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final topInset = MediaQuery.paddingOf(context).top;
+    final name = _drawerDisplayName();
+    final mobile = _drawerDisplayMobile();
+    final initials = _drawerInitials(name);
 
-          if (isAdmin) ...[
-            _syncStatusBanner(context),
-            const SizedBox(height: 8),
-
-            // Section Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: Text(
-                'MANAGEMENT',
-                style: TextStyle(
-                  color: cts.yellowBright.withValues(alpha: 0.6),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-
-            _navTile(
-              context,
-              icon: Icons.people_alt_rounded,
-              title: 'Commuters',
-              route: RouteName.commuterScreen,
-              color: scheme.primary,
-              isSelected: currentRoute == RouteName.commuterScreen,
-            ),
-            _navTile(
-              context,
-              icon: Icons.location_on_rounded,
-              title: 'Pick-up Points',
-              route: RouteName.popScreen,
-              color: cts.yellowDark,
-              isSelected: currentRoute == RouteName.popScreen,
-            ),
-            _navTile(
-              context,
-              icon: Icons.directions_bus_rounded,
-              title: 'Batches',
-              route: RouteName.batchScreen,
-              color: cts.yellowBright,
-              isSelected: currentRoute == RouteName.batchScreen,
-            ),
-            _navTile(
-              context,
-              icon: Icons.directions_car_rounded,
-              title: 'Cabs',
-              route: RouteName.cabScreen,
-              color: scheme.primary,
-              isSelected: currentRoute == RouteName.cabScreen,
-            ),
-            _navTile(
-              context,
-              icon: Icons.person_outline_rounded,
-              title: 'Drivers',
-              route: RouteName.driverScreen,
-              color: cts.yellowDark,
-              isSelected: currentRoute == RouteName.driverScreen,
-            ),
-            _navTile(
-              context,
-              icon: Icons.route_rounded,
-              title: 'Routes',
-              route: RouteName.routeScreen,
-              color: cts.yellowBright,
-              isSelected: currentRoute == RouteName.routeScreen,
-            ),
-
-            if (showOfflineDrawerTile()) ...[
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, topInset + 20, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const CtsBrandLogo(height: 28),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: scheme.surface,
+                foregroundColor: scheme.onSurface,
                 child: Text(
-                  'OFFLINE',
-                  style: TextStyle(
-                    color: cts.yellowBright.withValues(alpha: 0.6),
-                    fontSize: 11,
+                  initials,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: scheme.onSurface,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
                   ),
                 ),
               ),
-              _navTile(
-                context,
-                icon: Icons.cloud_off_rounded,
-                title: 'Offline Mode',
-                route: RouteName.offlineTempHome,
-                color: Colors.tealAccent.shade400,
-                isSelected: currentRoute == RouteName.offlineTempHome,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: scheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      mobile,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ],
-          ],
-
+          ),
           const SizedBox(height: 16),
-
-          // Divider
           Divider(
-            color: scheme.surfaceContainerHighest,
             height: 1,
             thickness: 1,
-            indent: 20,
-            endIndent: 20,
+            color: scheme.onSurface.withValues(alpha: 0.12),
           ),
-
           const SizedBox(height: 8),
-
-          // Logout Button
-          _logoutTile(context),
         ],
       ),
     );
   }
+}
 
-  String _getDisplayName() {
-    final userName = AppManager.instance.getString(ManagerKey.userName);
-    final name = AppManager.instance.getString(ManagerKey.name);
+String _drawerDisplayName() {
+  final userName = AppManager.instance.getString(ManagerKey.userName);
+  final name = AppManager.instance.getString(ManagerKey.name);
+  if (name.isNotEmpty && name != '0') return name;
+  if (userName.isNotEmpty && userName != '0') return userName;
+  return SessionRole.roleLabel;
+}
 
-    // Prefer name over userName, fallback to role label if both are empty
-    if (name.isNotEmpty && name != '0') {
-      return name;
-    } else if (userName.isNotEmpty && userName != '0') {
-      return userName;
-    } else {
-      return SessionRole.roleLabel;
-    }
+String _drawerDisplayMobile() {
+  final mobile = AppManager.instance.getString(ManagerKey.mobile);
+  if (mobile.isNotEmpty && mobile != '0') return mobile;
+  return 'No mobile available';
+}
+
+String _drawerInitials(String name) {
+  final parts = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((p) => p.isNotEmpty)
+      .toList();
+  if (parts.isEmpty) return '?';
+  if (parts.length == 1) {
+    final s = parts.first;
+    return s.substring(0, s.length >= 2 ? 2 : 1).toUpperCase();
   }
+  return ('${parts.first[0]}${parts.last[0]}').toUpperCase();
+}
 
-  String _getDisplayMobile() {
-    final mobile = AppManager.instance.getString(ManagerKey.mobile);
+class _DrawerNavTile extends StatelessWidget {
+  const _DrawerNavTile({
+    required this.icon,
+    required this.title,
+    required this.route,
+    required this.isSelected,
+  });
 
-    // Return mobile if available, otherwise show a placeholder
-    if (mobile.isNotEmpty && mobile != '0') {
-      return mobile;
-    } else {
-      return 'No mobile available';
-    }
-  }
+  final IconData icon;
+  final String title;
+  final String route;
+  final bool isSelected;
 
-  Widget _syncStatusBanner(BuildContext context) {
-    final scheme = context.scheme;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     final cts = context.cts;
+    final fg = scheme.onSurface;
+    final selectedBg = scheme.surface;
+
+    return Material(
+      color: isSelected ? selectedBg : Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          final scaffoldState = Scaffold.maybeOf(context);
+          if (scaffoldState?.isDrawerOpen ?? false) {
+            Navigator.of(context).pop();
+          }
+          if (ModalRoute.of(context)?.settings.name != route) {
+            context.push(route);
+          }
+        },
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                Container(
+                  width: 3,
+                  color: isSelected ? cts.navy : Colors.transparent,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 17,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          icon,
+                          size: 22,
+                          color: isSelected
+                              ? cts.navy
+                              : fg.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: isSelected ? cts.navy : fg,
+                              fontWeight:
+                                  isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerLogoutTile extends StatelessWidget {
+  const _DrawerLogoutTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: scheme.onSurface.withValues(alpha: 0.12),
+          ),
+          const SizedBox(height: 4),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () async {
+                final scaffoldState = Scaffold.maybeOf(context);
+                if (scaffoldState?.isDrawerOpen ?? false) {
+                  Navigator.of(context).pop();
+                }
+
+                final signInProvider = Provider.of<SignInProvider>(
+                  context,
+                  listen: false,
+                );
+
+                try {
+                  await signInProvider.logout();
+                } catch (_) {}
+
+                if (!context.mounted) return;
+                ControllerResetUtil.resetAllControllers(context);
+                await context.read<SessionAuthNotifier>().refresh();
+                if (!context.mounted) return;
+                context.go(RouteName.signIn);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.logout,
+                      size: 22,
+                      color: scheme.onSurface.withValues(alpha: 0.75),
+                    ),
+                    const SizedBox(width: 14),
+                    Text(
+                      'Logout',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: scheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SyncStatusBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
     return Consumer<SyncManager>(
       builder: (context, sync, _) {
         if (!sync.hasPendingWork && sync.failedCount == 0) {
@@ -288,36 +508,34 @@ class AdminNavList extends StatelessWidget {
         }
 
         final hasFailures = sync.failedCount > 0;
-        final accent = hasFailures ? scheme.error : cts.yellowBright;
+        final accent = hasFailures ? scheme.error : scheme.secondary;
         final label = hasFailures
             ? '${sync.pendingCount} pending · ${sync.failedCount} failed'
             : '${sync.pendingCount} change${sync.pendingCount == 1 ? '' : 's'} waiting to sync';
 
         return Container(
-          margin: const EdgeInsets.fromLTRB(12, 4, 12, 0),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+            color: scheme.surface,
             border: Border.all(color: accent.withValues(alpha: 0.35)),
           ),
           child: Row(
             children: [
               Icon(
                 hasFailures
-                    ? Icons.sync_problem_rounded
-                    : Icons.cloud_upload_rounded,
+                    ? Icons.sync_problem_outlined
+                    : Icons.cloud_upload_outlined,
                 color: accent,
-                size: 20,
+                size: 18,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    color: scheme.onInverseSurface.withValues(alpha: 0.9),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurface,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -345,155 +563,6 @@ class AdminNavList extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _navTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String route,
-    required Color color,
-    required bool isSelected,
-  }) {
-    final onDrawer = context.scheme.onInverseSurface;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      decoration: BoxDecoration(
-        color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        border: isSelected
-            ? Border.all(color: color.withValues(alpha: 0.5), width: 1)
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            final scaffoldState = Scaffold.maybeOf(context);
-            final isDrawerOpen = scaffoldState?.isDrawerOpen ?? false;
-            if (isDrawerOpen) {
-              Navigator.of(context).pop();
-            }
-            if (ModalRoute.of(context)?.settings.name != route) {
-              context.push(route);
-            }
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? color.withValues(alpha: 0.3)
-                        : color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: isSelected ? color : color.withValues(alpha: 0.8),
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: isSelected
-                          ? onDrawer
-                          : onDrawer.withValues(alpha: 0.85),
-                      fontSize: 15,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-                if (isSelected)
-                  Icon(Icons.chevron_right_rounded, color: color, size: 20),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _logoutTile(BuildContext context) {
-    final scheme = context.scheme;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      decoration: BoxDecoration(
-        color: scheme.error.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: scheme.error.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            final scaffoldState = Scaffold.maybeOf(context);
-            final isDrawerOpen = scaffoldState?.isDrawerOpen ?? false;
-            if (isDrawerOpen) {
-              Navigator.of(context).pop();
-            }
-
-            final signInProvider = Provider.of<SignInProvider>(
-              context,
-              listen: false,
-            );
-
-            try {
-              await signInProvider.logout();
-            } catch (_) {
-              // Continue with reset/navigation even if logout fails.
-            }
-
-            if (!context.mounted) return;
-            ControllerResetUtil.resetAllControllers(context);
-            await context.read<SessionAuthNotifier>().refresh();
-            if (!context.mounted) return;
-            context.go(RouteName.signIn);
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: scheme.error.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.logout_rounded,
-                    color: scheme.error,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    'Logout',
-                    style: TextStyle(
-                      color: scheme.error,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

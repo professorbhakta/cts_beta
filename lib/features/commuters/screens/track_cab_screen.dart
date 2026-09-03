@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cts/features/commuters/constants/fleet_tracking_mobile_css.dart';
 import 'package:cts/features/commuters/constants/fleet_tracking_urls.dart';
-import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -278,7 +277,6 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
           ),
         ],
       ),
-      drawer: const AppDrawer(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

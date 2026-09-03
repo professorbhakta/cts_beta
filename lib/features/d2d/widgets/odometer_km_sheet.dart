@@ -2,6 +2,7 @@ import 'package:cts/theme/cts_colors.dart';
 import 'dart:io';
 
 import 'package:cts/api/api_result.dart';
+import 'package:cts/appManager/colors.dart';
 import 'package:cts/features/d2d/helpers/client_pack_feedback.dart';
 import 'package:cts/features/d2d/helpers/odometer_camera_helper.dart';
 import 'package:cts/features/d2d/models/odometer_models.dart';
@@ -65,7 +66,7 @@ class OdometerKmSheet extends StatefulWidget {
         );
       },
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
     );
   }
@@ -231,14 +232,15 @@ class _OdometerKmSheetState extends State<OdometerKmSheet> {
                       Text(
                         _title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
+                              color: cts.navy,
+                              fontWeight: FontWeight.w600,
                             ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Enter odometer KM (required). Photo is optional — camera only if you take one.',
+                        'Enter odometer KM (required). Photo is optional.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey.shade700,
+                              color: cts.navy.withValues(alpha: 0.65),
                             ),
                       ),
                       const SizedBox(height: 20),
@@ -249,10 +251,12 @@ class _OdometerKmSheetState extends State<OdometerKmSheet> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Odometer KM',
                           hintText: 'e.g. 25678',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                         validator: (value) {
                           final raw = value?.trim() ?? '';
@@ -267,7 +271,7 @@ class _OdometerKmSheetState extends State<OdometerKmSheet> {
                       const SizedBox(height: 16),
                       if (_photoPath != null) ...[
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(4),
                           child: Image.file(
                             File(_photoPath!),
                             height: 160,
@@ -279,15 +283,25 @@ class _OdometerKmSheetState extends State<OdometerKmSheet> {
                       OutlinedButton.icon(
                         onPressed:
                             (_submitting || _capturing) ? null : _takePhoto,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: cts.navy,
+                          side: BorderSide(
+                            color: cts.navy.withValues(alpha: 0.4),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
                         icon: _capturing
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 18,
                                 height: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
+                                  color: cts.navy,
                                 ),
                               )
-                            : Icon(Icons.photo_camera),
+                            : const Icon(Icons.photo_camera_outlined),
                         label: Text(
                           _photoPath == null
                               ? 'Take odometer photo (optional)'
@@ -298,16 +312,20 @@ class _OdometerKmSheetState extends State<OdometerKmSheet> {
                       FilledButton(
                         onPressed: _submitting ? null : _submit,
                         style: FilledButton.styleFrom(
-                          backgroundColor: cts.yellowDark,
-                          foregroundColor: scheme.onSurface,
+                          backgroundColor: AppColors.acBlack,
+                          foregroundColor: scheme.surface,
                           padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
                         child: _submitting
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 22,
                                 width: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
+                                  color: scheme.surface,
                                 ),
                               )
                             : Text(_confirmLabel),

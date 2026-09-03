@@ -1,21 +1,29 @@
-﻿import 'package:cts/widgets/app_drawer.dart';
+﻿import 'package:cts/theme/cts_colors.dart';
+import 'package:cts/widgets/app_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class DashboardShell extends StatelessWidget {
   const DashboardShell({
     required this.title,
     required this.child,
+    this.titleWidget,
     this.actions,
     this.fab,
     this.showDrawer = true,
+    this.quietBrandAppBar = false,
     super.key,
   });
 
   final String title;
+  final Widget? titleWidget;
   final Widget child;
   final List<Widget>? actions;
   final Widget? fab;
   final bool showDrawer;
+
+  /// Cream bar + navy mark (admin home). Other admin screens keep the default bar.
+  final bool quietBrandAppBar;
 
   static const double tabletBreakpoint = 600;
   static const double desktopBreakpoint = 900;
@@ -23,21 +31,53 @@ class DashboardShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cts = context.cts;
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= desktopBreakpoint;
     final isTablet = width >= tabletBreakpoint && width < desktopBreakpoint;
     final showNavigation = showDrawer;
     final navigation = const SafeArea(child: AdminNavList());
 
+    final Color? barBg = quietBrandAppBar ? theme.scaffoldBackgroundColor : null;
+    final Color? barFg = quietBrandAppBar ? cts.navy : null;
+
     final appBar = AppBar(
-      title: Text(title),
+      title: titleWidget ??
+          Text(
+            title,
+            style: quietBrandAppBar
+                ? theme.textTheme.titleLarge?.copyWith(
+                    color: cts.navy,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.3,
+                    height: 1,
+                  )
+                : null,
+          ),
       actions: actions,
+      backgroundColor: barBg,
+      foregroundColor: barFg,
+      surfaceTintColor: quietBrandAppBar ? Colors.transparent : null,
+      elevation: quietBrandAppBar ? 0 : null,
+      scrolledUnderElevation: quietBrandAppBar ? 0 : null,
+      iconTheme: quietBrandAppBar
+          ? IconThemeData(color: cts.navy)
+          : null,
+      systemOverlayStyle: quietBrandAppBar
+          ? const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            )
+          : null,
     );
 
     final horizontalPadding = isDesktop ? 16.0 : (isTablet ? 12.0 : 0.0);
 
     final body = ColoredBox(
-      color: theme.colorScheme.surface,
+      color: quietBrandAppBar
+          ? theme.scaffoldBackgroundColor
+          : theme.colorScheme.surface,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
