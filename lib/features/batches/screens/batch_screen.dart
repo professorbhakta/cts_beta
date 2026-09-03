@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
@@ -8,16 +10,15 @@ import 'package:cts/features/batches/providers/batch_form_provider.dart';
 import 'package:cts/features/commuters/screens/commuter_list_screen.dart';
 import 'package:cts/utils/sort_utils.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/list_item_actions_sheet.dart';
-import 'package:cts/widgets/modern_list_card.dart';
-import 'package:cts/widgets/search_bar_widget.dart';
-import 'package:cts/widgets/skeleton_list.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class BatchScreen extends StatefulWidget {
   const BatchScreen({super.key});
@@ -56,6 +57,11 @@ class BatchScreenState extends State<BatchScreen> {
           }).toList();
 
     return sortListAZ(filtered, (batch) => batch.batchName ?? '');
+  }
+
+  void _openAddBatch() {
+    context.read<BatchFormProvider>().clearAll();
+    context.push(RouteName.batchForm);
   }
 
   void _showEditDialog(BatchModel batch) {
@@ -116,52 +122,17 @@ class BatchScreenState extends State<BatchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+    final theme = Theme.of(context);
 
     return DashboardShell(
       title: 'Batches',
-      actions: [
-        IconButton(
-          icon: Icon(Icons.assignment_returned_outlined),
-          tooltip: 'Return Batches',
-          onPressed: () {
-            context.push(RouteName.returnBatchScreen);
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.add),
-          tooltip: 'Add Batch',
-          onPressed: () {
-            context.read<BatchFormProvider>().clearAll();
-            context.push(RouteName.batchForm);
-          },
-        ),
-      ],
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer<BatchProvider>(
         builder: (context, bc, child) {
-
           if (bc.state == ViewState.loading && bc.batches.isEmpty) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text(
-                  'All Batches',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Manage Batches and keep them updated.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const BatchSkeletonList(itemCount: 8),
-              ],
-            );
+            return _BatchSkeleton(onSearchChanged: _onSearchChanged);
           }
 
           if (bc.state == ViewState.error) {
@@ -180,67 +151,115 @@ class BatchScreenState extends State<BatchScreen> {
               title: 'No batches found',
               message: 'Get started by creating your first batch.',
               actionLabel: 'Create Batch',
-              onAction: () {
-                context.read<BatchFormProvider>().clearAll();
-                context.push(RouteName.batchForm);
-              },
+              onAction: _openAddBatch,
             );
           }
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SearchBarWidget(
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Batches',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          context.push(RouteName.returnBatchScreen),
+                      style: TextButton.styleFrom(
+                        foregroundColor: cts.navy,
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'RETURN BATCHES',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _HairlineSearchField(
                 hintText: 'Search batches by name or time...',
                 onSearchChanged: _onSearchChanged,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: Material(
+                    color: cts.yellow,
+                    borderRadius: BorderRadius.circular(4),
+                    child: InkWell(
+                      onTap: _openAddBatch,
+                      borderRadius: BorderRadius.circular(4),
+                      child: Center(
+                        child: Text(
+                          'ADD BATCH',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: cts.navy,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () => bc.fetchBatches(),
                   child: filteredBatches.isEmpty && _searchQuery.isNotEmpty
-                      ? const StatusMessage(
-                          icon: Icons.search_off,
-                          title: 'No batches match your search',
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            StatusMessage(
+                              icon: Icons.search_off,
+                              title: 'No batches match your search',
+                            ),
+                          ],
                         )
                       : CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                              sliver: SliverToBoxAdapter(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'All Batches',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Manage batches and keep them updated.',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.7),
-                                          ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                              ),
-                            ),
                             _BatchList(
                               batches: filteredBatches,
                               onEdit: _showEditDialog,
                               onDelete: _showDeleteDialog,
+                            ),
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  4,
+                                  16,
+                                  24,
+                                ),
+                                child: Text(
+                                  'Swipe to edit or delete • tap to open commuters',
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: cts.navy.withValues(alpha: 0.55),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -250,6 +269,152 @@ class BatchScreenState extends State<BatchScreen> {
           );
         },
       ),
+    );
+  }
+}
+
+class _HairlineSearchField extends StatefulWidget {
+  const _HairlineSearchField({
+    required this.hintText,
+    required this.onSearchChanged,
+  });
+
+  final String hintText;
+  final ValueChanged<String> onSearchChanged;
+
+  @override
+  State<_HairlineSearchField> createState() => _HairlineSearchFieldState();
+}
+
+class _HairlineSearchFieldState extends State<_HairlineSearchField> {
+  final _controller = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 200), () {
+      widget.onSearchChanged(value);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.14);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: TextField(
+        controller: _controller,
+        onChanged: (value) {
+          setState(() {});
+          _onChanged(value);
+        },
+        style: theme.textTheme.bodyMedium?.copyWith(color: cts.navy),
+        decoration: InputDecoration(
+          hintText: widget.hintText,
+          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+            color: cts.navy.withValues(alpha: 0.45),
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: cts.navy.withValues(alpha: 0.55),
+            size: 20,
+          ),
+          suffixIcon: _controller.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    color: cts.navy.withValues(alpha: 0.55),
+                    size: 18,
+                  ),
+                  onPressed: () {
+                    _controller.clear();
+                    widget.onSearchChanged('');
+                    setState(() {});
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: theme.scaffoldBackgroundColor,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: hairline),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: hairline),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: cts.navy.withValues(alpha: 0.35)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BatchSkeleton extends StatelessWidget {
+  const _BatchSkeleton({required this.onSearchChanged});
+
+  final ValueChanged<String> onSearchChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cts = context.cts;
+    final theme = Theme.of(context);
+    final base = cts.navy.withValues(alpha: 0.08);
+    final highlight = cts.navy.withValues(alpha: 0.03);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Text(
+            'Batches',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: cts.navy,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        _HairlineSearchField(
+          hintText: 'Search batches by name or time...',
+          onSearchChanged: onSearchChanged,
+        ),
+        Expanded(
+          child: Shimmer.fromColors(
+            baseColor: base,
+            highlightColor: highlight,
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              itemCount: 6,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (_, _) => Container(
+                height: 96,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -270,10 +435,10 @@ class _BatchList extends StatelessWidget {
     final scheme = context.scheme;
 
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       sliver: SliverList.separated(
         itemCount: batches.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 8),
+        separatorBuilder: (context, index) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final batch = batches[index];
           return Slidable(
@@ -290,8 +455,8 @@ class _BatchList extends StatelessWidget {
                   icon: Icons.delete_rounded,
                   label: 'Delete',
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
                   ),
                   flex: 1,
                 ),
@@ -304,21 +469,19 @@ class _BatchList extends StatelessWidget {
                 SlidableAction(
                   onPressed: (_) => onEdit(batch),
                   backgroundColor: scheme.primary,
-                  foregroundColor: scheme.surface,
+                  foregroundColor: scheme.onPrimary,
                   icon: Icons.edit_rounded,
                   label: 'Edit',
                   borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
                   ),
                   flex: 1,
                 ),
               ],
             ),
-            child: ModernListCard(
-              title: batch.batchName ?? 'Untitled Batch',
-              icon: Icons.event_rounded,
-              iconColor: scheme.primary,
+            child: _BatchCatalogCard(
+              batch: batch,
               onTap: () {
                 Navigator.push(
                   context,
@@ -335,24 +498,143 @@ class _BatchList extends StatelessWidget {
                 onEdit: () => onEdit(batch),
                 onDelete: () => onDelete(batch),
               ),
-              children: [
-                InfoRow(
-                  icon: Icons.access_time_rounded,
-                  label: 'Start Time:',
-                  value: batch.batchTime?.substring(0, 5) ?? 'N/A',
-                  iconColor: scheme.primary,
-                ),
-                InfoRow(
-                  icon: Icons.access_time_rounded,
-                  label: 'Return Time:',
-                  value: batch.returnTime?.substring(0, 5) ?? 'N/A',
-                  iconColor: scheme.primary,
-                ),
-              ],
             ),
           );
         },
       ),
+    );
+  }
+}
+
+class _BatchCatalogCard extends StatelessWidget {
+  const _BatchCatalogCard({
+    required this.batch,
+    required this.onTap,
+    required this.onLongPress,
+  });
+
+  final BatchModel batch;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+
+  String? get _driverLabel {
+    final user = batch.driver?.userId;
+    final full = [
+      user?.firstName,
+      user?.lastName,
+    ].whereType<String>().where((n) => n.isNotEmpty).join(' ');
+    if (full.isNotEmpty) return full;
+    final username = user?.username;
+    if (username != null && username.isNotEmpty) return username;
+    return null;
+  }
+
+  String _timeLabel(String? raw) {
+    if (raw == null || raw.isEmpty) return 'N/A';
+    if (raw.length >= 5) return raw.substring(0, 5);
+    return raw;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.14);
+    final driver = _driverLabel;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(8),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: hairline, width: 1),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  batch.batchName ?? 'Untitled Batch',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: cts.navy,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (driver != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    driver,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cts.navy.withValues(alpha: 0.65),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _TimeCell(
+                        value: _timeLabel(batch.batchTime),
+                        label: 'Start time',
+                      ),
+                    ),
+                    Expanded(
+                      child: _TimeCell(
+                        value: _timeLabel(batch.returnTime),
+                        label: 'Return time',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TimeCell extends StatelessWidget {
+  const _TimeCell({required this.value, required this.label});
+
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: cts.navy,
+            fontWeight: FontWeight.w700,
+            height: 1.1,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: cts.navy.withValues(alpha: 0.65),
+          ),
+        ),
+      ],
     );
   }
 }
