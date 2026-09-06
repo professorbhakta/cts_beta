@@ -30,12 +30,7 @@ class _SignInScreenState extends State<SignInScreen> {
       );
     } else if (provider.state == ViewState.success) {
       if (!mounted) return;
-      final route = switch (provider.userType) {
-        'ADMIN' => RouteName.adminHomeScreen,
-        'DRIVER' => RouteName.driverHomeScreen,
-        'COMMUTER' => RouteName.commuterHomeScreen,
-        _ => RouteName.signIn,
-      };
+      final route = RouteName.homeForRole(provider.userType);
       if (route == RouteName.signIn) {
         SnackBarService.showErrorSnackbar('Could not determine user type.');
       }

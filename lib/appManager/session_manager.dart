@@ -1,10 +1,15 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SessionKeys {
+  static const accessToken = 'accessToken';
+  static const refreshToken = 'refreshToken';
+
+  /// Legacy cookie keys — cleared on hydrate/clear so old installs migrate.
   static const csrfToken = 'csrfToken';
   static const sessionId = 'sessionId';
 }
 
+/// Secure storage for JWT access + refresh tokens (Flutter JWT auth).
 class SessionManager {
   SessionManager._internal();
 
@@ -20,49 +25,65 @@ class SessionManager {
     accessibility: KeychainAccessibility.first_unlock,
   );
 
-  String? _csrfToken;
-  String? _sessionId;
+  String? _accessToken;
+  String? _refreshToken;
   bool _hydrated = false;
 
-  Future<void> setCsrfToken(String? token) =>
-      _write(SessionKeys.csrfToken, token);
+  Future<void> setAccessToken(String? token) =>
+      _write(SessionKeys.accessToken, token);
 
-  Future<void> setSessionId(String? sessionId) =>
-      _write(SessionKeys.sessionId, sessionId);
+  Future<void> setRefreshToken(String? token) =>
+      _write(SessionKeys.refreshToken, token);
 
-  Future<String?> getCsrfToken() async {
-    await _hydrate();
-    return _csrfToken;
+  Future<void> setTokens({
+    required String access,
+    required String refresh,
+  }) async {
+    await setAccessToken(access);
+    await setRefreshToken(refresh);
   }
 
-  Future<String?> getSessionId() async {
+  Future<String?> getAccessToken() async {
     await _hydrate();
-    return _sessionId;
+    return _accessToken;
+  }
+
+  Future<String?> getRefreshToken() async {
+    await _hydrate();
+    return _refreshToken;
+  }
+
+  Future<bool> hasAccessToken() async {
+    final token = await getAccessToken();
+    return token != null && token.isNotEmpty;
   }
 
   Future<void> clear() async {
-    _csrfToken = null;
-    _sessionId = null;
+    _accessToken = null;
+    _refreshToken = null;
     _hydrated = true;
     await _storage.deleteAll(aOptions: _androidOptions, iOptions: _iosOptions);
   }
 
-  Future<Map<String, String>> buildCookieHeader() async {
-    await _hydrate();
-    return <String, String>{
-      'csrftoken': _csrfToken ?? '',
-      'sessionid': _sessionId ?? '',
-    };
-  }
-
   Future<void> _hydrate() async {
     if (_hydrated) return;
-    _csrfToken = await _storage.read(
+    _accessToken = await _storage.read(
+      key: SessionKeys.accessToken,
+      aOptions: _androidOptions,
+      iOptions: _iosOptions,
+    );
+    _refreshToken = await _storage.read(
+      key: SessionKeys.refreshToken,
+      aOptions: _androidOptions,
+      iOptions: _iosOptions,
+    );
+    // Drop legacy session cookies if present (one-time migration).
+    await _storage.delete(
       key: SessionKeys.csrfToken,
       aOptions: _androidOptions,
       iOptions: _iosOptions,
     );
-    _sessionId = await _storage.read(
+    await _storage.delete(
       key: SessionKeys.sessionId,
       aOptions: _androidOptions,
       iOptions: _iosOptions,
@@ -73,10 +94,10 @@ class SessionManager {
   Future<void> _write(String key, String? value) async {
     await _hydrate();
     final stored = (value == null || value.isEmpty) ? null : value;
-    if (key == SessionKeys.csrfToken) {
-      _csrfToken = stored;
-    } else if (key == SessionKeys.sessionId) {
-      _sessionId = stored;
+    if (key == SessionKeys.accessToken) {
+      _accessToken = stored;
+    } else if (key == SessionKeys.refreshToken) {
+      _refreshToken = stored;
     }
     if (stored == null) {
       await _storage.delete(

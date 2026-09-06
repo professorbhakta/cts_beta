@@ -71,18 +71,18 @@ UI maps failures to `ViewState.error` and snackbars via `SnackBarService`.
 
 ## Session and auth
 
-- **AuthenticationRepositoryImpl** — login API; public sign-up disabled (does not send `userType: ADMIN`)
-- **SessionRepositoryImpl** — logged-in requires `isLogin` **and** a non-empty `sessionid` in secure storage
-- Cookies: `SessionManager` (FlutterSecureStorage, in-memory after first read). Logout and HTTP 401 always call `AppManager.clearLocalSession()`. Do not add a session ping or extra connectivity probes.
+- **AuthenticationRepositoryImpl** — JWT login (`access`/`refresh` + camelCase `user`); public sign-up disabled
+- **SessionRepositoryImpl** — logged-in requires `isLogin` **and** a non-empty JWT access token in secure storage
+- Tokens: `SessionManager` (FlutterSecureStorage). Dio attaches `Authorization: Bearer <access>`; on 401 refreshes once via `POST /user/refresh`. Logout and failed refresh always call `AppManager.clearLocalSession()`. CSRF is not used for Flutter JWT calls.
 
-Logout clears secure cookies + prefs even if the logout POST fails, then refreshes `SessionAuthNotifier`.
+Logout clears JWT + prefs even if the logout POST fails, then refreshes `SessionAuthNotifier`.
 
 ---
 
 ## WebSocket (D2D)
 
 - URL from `AppConfig.instance.webSocketUrl` (see `.env`, not `ApiUrl`)
-- **D2dChannelProvider** — `IOWebSocketChannel.connect` with session `Cookie` header
+- **D2dChannelProvider** — `IOWebSocketChannel.connect` with `Authorization: Bearer <access>`
 - Used by admin **D2dChannel** and driver **D2DLogScreen**
 - Full URL pattern: `ws://<host>/ws/<batchId>/` (or `wss://` in production)
 - Close **4401** / **4403** if the session is missing or the role cannot control that batch

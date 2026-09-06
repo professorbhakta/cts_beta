@@ -52,11 +52,11 @@ Separate git repos. Backend runs via Docker Desktop; Flutter connects over LAN H
 
 ## User types
 
-- `ADMIN` — manages fleet; monitors live D2D via WebSocket
+- `ADMIN` / `SUPERVISOR` / `STAFF` — manage fleet; monitor live D2D via WebSocket (Phase A: share admin home)
 - `DRIVER` — runs live D2D log; confirms pickups
 - `COMMUTER` — self-service `isComing` toggle
 
-Login field: **mobile number**. Auth uses Django session cookies on REST. D2D WebSocket sends the same `sessionid` on connect: anonymous **4401**, not ADMIN/assigned DRIVER **4403**. Role is not re-checked on every ADD/DELETE/STOP. Public Flutter sign-up is disabled; backend `POST /user/` still trusts client `userType`.
+Login field: **mobile number**. Auth uses JWT (`access` + `refresh` in FlutterSecureStorage; `Authorization: Bearer` on REST). D2D WebSocket sends the same Bearer access token on connect: anonymous **4401**, not ADMIN/assigned DRIVER **4403**. Role is not re-checked on every ADD/DELETE/STOP. Public Flutter sign-up is disabled; backend `POST /user/` still trusts client `userType`.
 
 ## Critical features
 

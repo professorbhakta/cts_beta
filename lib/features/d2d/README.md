@@ -73,7 +73,7 @@ Always use **user ID** in CLIST.
 | Close code | Meaning | UI |
 |------------|---------|-----|
 | **4001** | Trip already ended | `isTripEnded`; retry hidden |
-| **4401** | No session cookie | error + session invalidation → sign-in |
+| **4401** | No Bearer access token | error + session invalidation → sign-in |
 | **4403** | Not ADMIN / assigned DRIVER | error + session invalidation → sign-in |
 
 Message for 4001: *"This trip has already ended. A new trip can be started tomorrow."*

@@ -240,11 +240,7 @@ class D2dChannelProvider with ChangeNotifier {
     try {
       final wsBaseUrl = AppConfig.instance.webSocketUrl;
       final uri = Uri.parse('$wsBaseUrl$batchId/');
-      final cookies = await SessionManager().buildCookieHeader();
-      final cookieHeader = cookies.entries
-          .where((entry) => entry.value.isNotEmpty)
-          .map((entry) => '${entry.key}=${entry.value}')
-          .join('; ');
+      final access = await SessionManager().getAccessToken();
 
       if (_isDisposed || generation != _connectGeneration) return;
 
@@ -255,7 +251,8 @@ class D2dChannelProvider with ChangeNotifier {
       _channel = IOWebSocketChannel.connect(
         uri,
         headers: {
-          if (cookieHeader.isNotEmpty) HttpHeaders.cookieHeader: cookieHeader,
+          if (access != null && access.isNotEmpty)
+            HttpHeaders.authorizationHeader: 'Bearer $access',
         },
       );
       _isConnected = true;

@@ -3,7 +3,9 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
+import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/domain/repositories/authentication_repository.dart';
+import 'package:cts/features/auth/models/login_response.dart';
 
 class AuthenticationRepositoryImpl implements AuthenticationRepository {
   AuthenticationRepositoryImpl({required this._apiService});
@@ -16,74 +18,142 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
     required String password,
   }) async {
     try {
-      final loginData = {"mobileNumber": mobileNumber, "password": password};
+      final loginData = {
+        'mobileNumber': mobileNumber,
+        'password': password,
+      };
 
       final loginResponse = await _apiService.postApi(
         loginData,
         ApiUrl.loginUrl,
       );
 
-      // Enhanced error handling for login response
-      if (loginResponse is! Map<String, dynamic>) {
+      if (loginResponse is! Map) {
         return ApiResult.failure(
           ApiFailure(
             type: ApiFailureType.parsing,
-            message: "Invalid login response format from server.",
+            message: 'Invalid login response format from server.',
           ),
         );
       }
 
-      final userId = loginResponse['user_id']?.toString();
-      final userType = loginResponse['user_type']?.toString().trim();
-
-      if (userId == null ||
-          userType == null ||
-          userId.isEmpty ||
-          userType.isEmpty) {
+      final LoginResponse parsed;
+      try {
+        parsed = LoginResponse.fromJson(
+          Map<String, dynamic>.from(loginResponse),
+        );
+      } on FormatException catch (e) {
         return ApiResult.failure(
           ApiFailure(
             type: ApiFailureType.parsing,
-            message: "Invalid login response: missing user_id or user_type.",
+            message: e.message,
           ),
         );
       }
 
-      final genericProfileResponse = await _apiService.getApi(
-        "${ApiUrl.userUrl}/$userId",
+      await SessionManager().setTokens(
+        access: parsed.access,
+        refresh: parsed.refresh,
       );
-      if (genericProfileResponse is! Map<String, dynamic>) {
-        return ApiResult.failure(
-          ApiFailure(
-            type: ApiFailureType.parsing,
-            message: "Invalid generic profile data format.",
-          ),
-        );
-      }
 
-      _saveGenericUserData(genericProfileResponse);
+      _persistLoginUser(parsed);
 
-      final String roleProfileUrl = _getRoleProfileUrl(userType, userId);
-      if (roleProfileUrl.isNotEmpty) {
-        final roleProfileResponse = await _apiService.getApi(roleProfileUrl);
-        if (roleProfileResponse is! Map<String, dynamic>) {
-          return ApiResult.failure(
-            ApiFailure(
-              type: ApiFailureType.parsing,
-              message:
-                  "Invalid role-specific profile data format for user type: $userType",
-            ),
-          );
-        }
-        _saveRoleSpecificData(userType, roleProfileResponse);
-      }
-
-      AppManager.instance.setBool(ManagerKey.isLogin, true);
-      AppManager.instance.setString(ManagerKey.userType, userType);
-      AppManager.instance.setString(ManagerKey.userId, userId);
-
-      return ApiResult.success(userType);
+      return ApiResult.success(parsed.user.userType);
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  /// Persist required Phase A user fields. Empty org arrays / null profile
+  /// stubs are ignored safely (no crash, no extra table fetches).
+  void _persistLoginUser(LoginResponse parsed) {
+    final user = parsed.user;
+
+    AppManager.instance.setBool(ManagerKey.isLogin, true);
+    AppManager.instance.setString(ManagerKey.userType, user.userType);
+    AppManager.instance.setString(ManagerKey.userId, user.id);
+    AppManager.instance.setString(ManagerKey.userName, user.username);
+    AppManager.instance.setString(ManagerKey.mobile, user.mobileNumber);
+    AppManager.instance.setString(ManagerKey.email, user.email ?? '');
+    AppManager.instance.setBool(ManagerKey.hasPaid, user.hasPaid);
+    if (user.deviceId != null && user.deviceId!.isNotEmpty) {
+      AppManager.instance.setString(ManagerKey.deviceId, user.deviceId!);
+    }
+
+    final adminCode = _stringifyAdminCode(parsed.adminCode);
+    if (adminCode != null && adminCode.isNotEmpty) {
+      AppManager.instance.setString(ManagerKey.adminCode, adminCode);
+    }
+
+    // Optional profile stub may carry role hints without requiring secondary GETs.
+    final profile = parsed.profile;
+    if (profile != null && profile.isNotEmpty) {
+      _applyOptionalProfileStub(user.userType, profile);
+    }
+
+    _syncAppClassUserType(user.userType);
+  }
+
+  String? _stringifyAdminCode(dynamic adminCode) {
+    if (adminCode == null) return null;
+    if (adminCode is String || adminCode is num) {
+      return adminCode.toString();
+    }
+    if (adminCode is Map) {
+      final id = adminCode['id'] ?? adminCode['adminCode'];
+      return id?.toString();
+    }
+    return adminCode.toString();
+  }
+
+  void _applyOptionalProfileStub(
+    String userType,
+    Map<String, dynamic> profileData,
+  ) {
+    switch (userType) {
+      case 'COMMUTER':
+      case 'DRIVER':
+        final batch = profileData['batchId'];
+        if (batch is Map) {
+          AppManager.instance.setString(
+            ManagerKey.batchId,
+            batch['id']?.toString() ?? '',
+          );
+          AppManager.instance.setString(
+            ManagerKey.batchName,
+            batch['batchName']?.toString() ?? '',
+          );
+          AppManager.instance.setString(
+            ManagerKey.batchTime,
+            batch['batchTime']?.toString() ?? '',
+          );
+        }
+        final cab = profileData['cabId'];
+        if (cab is Map) {
+          AppManager.instance.setString(
+            ManagerKey.cabId,
+            cab['id']?.toString() ?? '',
+          );
+          AppManager.instance.setString(
+            ManagerKey.cabNumb,
+            cab['regNumber']?.toString() ?? '',
+          );
+        }
+        if (userType == 'COMMUTER' && profileData.containsKey('isComing')) {
+          AppManager.instance.setString(
+            ManagerKey.isComing,
+            profileData['isComing']?.toString() ?? 'false',
+          );
+        }
+        break;
+      case 'ADMIN':
+      case 'SUPERVISOR':
+      case 'STAFF':
+        final id = profileData['id']?.toString();
+        if (id != null && id.isNotEmpty) {
+          AppManager.instance.setString(ManagerKey.adminCode, id);
+        }
+        break;
     }
   }
 
@@ -94,9 +164,10 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
 
     try {
       final response = await _apiService.getApi("${ApiUrl.userUrl}/$userId");
-      if (response is! Map<String, dynamic>) return true;
+      if (response is! Map) return true;
 
-      final serverType = response['userType']?.toString().trim();
+      final map = Map<String, dynamic>.from(response);
+      final serverType = map['userType']?.toString().trim();
       if (serverType == null || serverType.isEmpty) return true;
 
       final localType = AppManager.instance.getString(ManagerKey.userType);
@@ -119,6 +190,8 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       'COMMUTER' => 1,
       'DRIVER' => 2,
       'ADMIN' => 3,
+      'SUPERVISOR' => 4,
+      'STAFF' => 5,
       _ => 0,
     };
   }
@@ -150,102 +223,5 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       await AppManager.instance.clearLocalSession();
     }
     return ApiResult.success(null);
-  }
-
-  String _getRoleProfileUrl(String userType, String userId) {
-    switch (userType) {
-      case 'COMMUTER':
-        return "${ApiUrl.commuterUrl}/$userId";
-      case 'DRIVER':
-        return "${ApiUrl.driverUrl}/$userId";
-      case 'ADMIN':
-        return "${ApiUrl.adminUrl}$userId";
-      default:
-        return "";
-    }
-  }
-
-  void _saveGenericUserData(Map<String, dynamic> userData) {
-    AppManager.instance.setString(
-      ManagerKey.userName,
-      userData["username"] ?? '',
-    );
-    AppManager.instance.setString(
-      ManagerKey.mobile,
-      userData["mobileNumber"]?.toString() ?? '',
-    );
-    AppManager.instance.setString(
-      ManagerKey.address,
-      userData["address"]?.toString() ?? '',
-    );
-    AppManager.instance.setBool(
-      ManagerKey.hasPaid,
-      userData["hasPaid"] ?? false,
-    );
-  }
-
-  void _saveRoleSpecificData(
-    String userType,
-    Map<String, dynamic> profileData,
-  ) {
-    switch (userType) {
-      case 'COMMUTER':
-        AppClass.userType = 1;
-        AppManager.instance.setString(
-          ManagerKey.batchId,
-          profileData["batchId"]?["id"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.batchName,
-          profileData["batchId"]?["batchName"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.batchTime,
-          profileData["batchId"]?["batchTime"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.cabId,
-          profileData["cabId"]?["id"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.cabNumb,
-          profileData["cabId"]?["regNumber"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.isComing,
-          profileData["isComing"]?.toString() ?? 'false',
-        );
-        break;
-      case 'DRIVER':
-        AppClass.userType = 2;
-        AppManager.instance.setString(
-          ManagerKey.batchId,
-          profileData["batchId"]?["id"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.batchName,
-          profileData["batchId"]?["batchName"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.batchTime,
-          profileData["batchId"]?["batchTime"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.cabId,
-          profileData["cabId"]?["id"]?.toString() ?? '',
-        );
-        AppManager.instance.setString(
-          ManagerKey.cabNumb,
-          profileData["cabId"]?["regNumber"]?.toString() ?? '',
-        );
-        break;
-      case 'ADMIN':
-        AppClass.userType = 3;
-        AppManager.instance.setString(
-          ManagerKey.adminCode,
-          profileData["id"]?.toString() ?? '',
-        );
-        break;
-    }
   }
 }

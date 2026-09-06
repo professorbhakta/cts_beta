@@ -1,4 +1,5 @@
-import 'dart:convert'; // Import for jsonEncode
+import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -10,9 +11,9 @@ import 'package:dio/dio.dart';
 
 import 'package:cts/api/base_api_services.dart';
 
-const String _csrfCookieName = 'csrftoken';
-const String _sessionCookieName = 'sessionid';
-
+/// Dio client with JWT Bearer auth and single refresh-on-401 retry.
+///
+/// CSRF / session cookies are not used for Flutter JWT calls.
 class NetworkApiServices extends BaseApiServices {
   NetworkApiServices({
     String? baseUrl,
@@ -34,7 +35,6 @@ class NetworkApiServices extends BaseApiServices {
             },
           ),
         ) {
-    // Add comprehensive logging interceptor first (so it logs everything)
     _dio.interceptors.add(
       const LoggingInterceptor(
         logRequestHeaders: true,
@@ -45,49 +45,125 @@ class NetworkApiServices extends BaseApiServices {
       ),
     );
 
-    // Add cookie and CSRF token interceptor
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final cookies = await _cookieHeader();
-          if (cookies.isNotEmpty) {
-            options.headers[HttpHeaders.cookieHeader] = cookies;
-          }
-          
-          // Add CSRF token header for state-changing requests (POST, PATCH, DELETE)
-          if (options.method == 'POST' || options.method == 'PATCH' || options.method == 'DELETE') {
-            final csrfToken = await _sessionManager.getCsrfToken();
-            if (csrfToken != null && csrfToken.isNotEmpty) {
-              options.headers['X-CSRFToken'] = csrfToken;
+          if (!_isAuthExemptPath(options.path)) {
+            final access = await _sessionManager.getAccessToken();
+            if (access != null && access.isNotEmpty) {
+              options.headers[HttpHeaders.authorizationHeader] =
+                  'Bearer $access';
             }
           }
-          
           return handler.next(options);
-        },
-        onResponse: (response, handler) async {
-          await _handleSetCookie(response.headers['set-cookie']);
-          return handler.next(response);
         },
         onError: (error, handler) async {
           final status = error.response?.statusCode;
-          if (status == 401 && !_isLoginOrSignUpPath(error.requestOptions.path)) {
-            await _handleUnauthorized();
+          final request = error.requestOptions;
+
+          if (status != 401 ||
+              _isAuthExemptPath(request.path) ||
+              request.extra[_retriedExtraKey] == true) {
+            return handler.next(error);
           }
-          return handler.next(error);
+
+          try {
+            final refreshed = await _refreshAccessToken();
+            if (!refreshed) {
+              await _handleUnauthorized();
+              return handler.next(error);
+            }
+
+            final access = await _sessionManager.getAccessToken();
+            final opts = request.copyWith(
+              headers: Map<String, dynamic>.from(request.headers)
+                ..[HttpHeaders.authorizationHeader] = 'Bearer $access',
+              extra: Map<String, dynamic>.from(request.extra)
+                ..[_retriedExtraKey] = true,
+            );
+            final response = await _dio.fetch(opts);
+            return handler.resolve(response);
+          } catch (_) {
+            await _handleUnauthorized();
+            return handler.next(error);
+          }
         },
       ),
     );
   }
+
+  static const String _retriedExtraKey = 'jwt_retried';
 
   final Dio _dio;
   final SessionManager _sessionManager;
   final Future<void> Function()? _onUnauthorized;
   bool _clearingSession = false;
 
-  bool _isLoginOrSignUpPath(String path) {
+  Completer<bool>? _refreshCompleter;
+
+  bool _isAuthExemptPath(String path) {
     final normalized = path.toLowerCase();
     return normalized.endsWith(ApiUrl.loginUrl) ||
-        normalized.contains('/${ApiUrl.loginUrl}');
+        normalized.contains('/${ApiUrl.loginUrl}') ||
+        normalized.endsWith(ApiUrl.refreshUrl) ||
+        normalized.contains('/${ApiUrl.refreshUrl}');
+  }
+
+  /// One in-flight refresh shared by concurrent 401s.
+  Future<bool> _refreshAccessToken() async {
+    if (_refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+
+    final completer = Completer<bool>();
+    _refreshCompleter = completer;
+
+    try {
+      final refresh = await _sessionManager.getRefreshToken();
+      if (refresh == null || refresh.isEmpty) {
+        completer.complete(false);
+        return false;
+      }
+
+      // Bare Dio call — no interceptor — avoids refresh recursion.
+      final refreshDio = Dio(
+        BaseOptions(
+          baseUrl: _dio.options.baseUrl,
+          connectTimeout: _dio.options.connectTimeout,
+          receiveTimeout: _dio.options.receiveTimeout,
+          sendTimeout: _dio.options.sendTimeout,
+          headers: const {
+            'content-type': 'application/json',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      final response = await refreshDio.post(
+        ApiUrl.refreshUrl,
+        data: {'refresh': refresh},
+      );
+
+      final data = response.data;
+      final access = data is Map ? data['access']?.toString() : null;
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300 &&
+          access != null &&
+          access.isNotEmpty) {
+        await _sessionManager.setAccessToken(access);
+        completer.complete(true);
+        return true;
+      }
+
+      completer.complete(false);
+      return false;
+    } catch (_) {
+      completer.complete(false);
+      return false;
+    } finally {
+      _refreshCompleter = null;
+    }
   }
 
   Future<void> _handleUnauthorized() async {
@@ -99,40 +175,6 @@ class NetworkApiServices extends BaseApiServices {
     } finally {
       _clearingSession = false;
     }
-  }
-
-  Future<void> _handleSetCookie(List<String>? setCookieHeaders) async {
-    if (setCookieHeaders == null || setCookieHeaders.isEmpty) return;
-    for (final header in setCookieHeaders) {
-      final pair = _parseCookiePair(header);
-      if (pair == null) continue;
-      final key = pair.key.toLowerCase();
-      if (key == _csrfCookieName) {
-        await _sessionManager.setCsrfToken(pair.value);
-      } else if (key == _sessionCookieName) {
-        await _sessionManager.setSessionId(pair.value);
-      }
-    }
-  }
-
-  Future<String> _cookieHeader() async {
-    final cookies = await _sessionManager.buildCookieHeader();
-    final entries = cookies.entries
-        .where((entry) => entry.value.isNotEmpty)
-        .map((entry) => '${entry.key}=${entry.value}');
-    return entries.join('; ');
-  }
-
-  _CookiePair? _parseCookiePair(String header) {
-    if (header.isEmpty) return null;
-    final firstSegment = header.split(';').first;
-    if (!firstSegment.contains('=')) return null;
-    final separatorIndex = firstSegment.indexOf('=');
-    if (separatorIndex == -1) return null;
-    final key = firstSegment.substring(0, separatorIndex).trim();
-    final value = firstSegment.substring(separatorIndex + 1).trim();
-    if (key.isEmpty || value.isEmpty) return null;
-    return _CookiePair(key: key, value: value);
   }
 
   @override
@@ -182,10 +224,3 @@ class NetworkApiServices extends BaseApiServices {
     }
   }
 }
-
-class _CookiePair {
-  const _CookiePair({required this.key, required this.value});
-  final String key;
-  final String value;
-}
-

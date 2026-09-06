@@ -32,11 +32,21 @@ class SessionRole {
       1 => 'COMMUTER',
       2 => 'DRIVER',
       3 => 'ADMIN',
+      4 => 'SUPERVISOR',
+      5 => 'STAFF',
       _ => null,
     };
   }
 
   static bool get isAdmin => userType == 'ADMIN';
+
+  static bool get isSupervisor => userType == 'SUPERVISOR';
+
+  static bool get isStaff => userType == 'STAFF';
+
+  /// ADMIN / SUPERVISOR / STAFF share admin-home surfaces in Phase A.
+  static bool get isAdminLike =>
+      isAdmin || isSupervisor || isStaff;
 
   static bool get isDriver => userType == 'DRIVER';
 
@@ -46,6 +56,8 @@ class SessionRole {
 
   static String get roleLabel => switch (userType) {
         'ADMIN' => 'Admin',
+        'SUPERVISOR' => 'Supervisor',
+        'STAFF' => 'Staff',
         'DRIVER' => 'Driver',
         'COMMUTER' => 'Commuter',
         _ => 'User',

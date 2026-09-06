@@ -26,19 +26,19 @@ String? resolveAuthRedirect({
   }
 
   if (_matchesAny(location, RouteName.adminOnlyPrefixes) &&
-      userType != 'ADMIN') {
+      !RouteName.isAdminLike(userType)) {
     return RouteName.homeForRole(userType);
   }
 
   if (_matchesAny(location, RouteName.driverOnlyPrefixes) &&
       userType != 'DRIVER' &&
-      userType != 'ADMIN') {
+      !RouteName.isAdminLike(userType)) {
     return RouteName.homeForRole(userType);
   }
 
   if (_matchesAny(location, RouteName.commuterOnlyPrefixes) &&
       userType != 'COMMUTER' &&
-      userType != 'ADMIN') {
+      !RouteName.isAdminLike(userType)) {
     return RouteName.homeForRole(userType);
   }
 

@@ -98,6 +98,9 @@ class RouteName {
   static String homeForRole(String? userType) {
     switch (userType) {
       case 'ADMIN':
+      case 'SUPERVISOR':
+      case 'STAFF':
+        // Phase A: no dedicated supervisor/staff homes — land on admin home.
         return adminHomeScreen;
       case 'DRIVER':
         return driverHomeScreen;
@@ -107,4 +110,10 @@ class RouteName {
         return signIn;
     }
   }
+
+  /// Roles allowed on admin-only route prefixes.
+  static bool isAdminLike(String? userType) =>
+      userType == 'ADMIN' ||
+      userType == 'SUPERVISOR' ||
+      userType == 'STAFF';
 }

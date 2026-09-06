@@ -37,6 +37,22 @@ void main() {
       expect(await useCase(), RouteName.adminHomeScreen);
     });
 
+    test('supervisor session routes to admin home', () async {
+      final useCase = GetInitialRouteUseCase(
+        _FakeSessionRepository(loggedIn: true, userType: 'SUPERVISOR'),
+      );
+
+      expect(await useCase(), RouteName.adminHomeScreen);
+    });
+
+    test('staff session routes to admin home', () async {
+      final useCase = GetInitialRouteUseCase(
+        _FakeSessionRepository(loggedIn: true, userType: 'STAFF'),
+      );
+
+      expect(await useCase(), RouteName.adminHomeScreen);
+    });
+
     test('unknown role falls back to signIn', () async {
       final useCase = GetInitialRouteUseCase(
         _FakeSessionRepository(loggedIn: true, userType: 'UNKNOWN'),

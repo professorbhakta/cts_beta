@@ -1,6 +1,7 @@
 class ApiUrl {
 
   static String loginUrl = "user/login";
+  static String refreshUrl = "user/refresh";
   static String logoutUrl = "user/logout";
 
   static String userUrl = "user";

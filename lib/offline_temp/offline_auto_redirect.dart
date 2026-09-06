@@ -11,7 +11,7 @@ class OfflineAutoRedirect extends StatefulWidget {
   final Widget child;
 
   static bool isOfflineRole() {
-    return SessionRole.isAdmin || SessionRole.isDriver;
+    return SessionRole.isAdminLike || SessionRole.isDriver;
   }
 
   @override

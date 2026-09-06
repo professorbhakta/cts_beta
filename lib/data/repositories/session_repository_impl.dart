@@ -9,15 +9,12 @@ class SessionRepositoryImpl implements SessionRepository {
   Future<bool> isLoggedIn() async {
     final flagged = AppManager.instance.getBool(ManagerKey.isLogin);
     if (!flagged) return false;
-    final sessionId = await SessionManager().getSessionId();
-    return sessionId != null && sessionId.isNotEmpty;
+    return SessionManager().hasAccessToken();
   }
 
   @override
   Future<String?> getUserType() async {
-    // Use the singleton instance directly
     final userType = AppManager.instance.getString(ManagerKey.userType);
-    return userType.isEmpty ? null : userType;
+    return userType.isEmpty || userType == '0' ? null : userType;
   }
 }
-

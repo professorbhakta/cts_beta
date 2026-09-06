@@ -27,19 +27,25 @@ HTTP 4xx/5xx still flow through `ApiExceptionHandler` (Dio `badResponse`), which
 
 ---
 
-## Authentication (REST)
+## Authentication (REST) — JWT (Phase A)
+
+Wire keys are **camelCase only**. CSRF is **not** used for Flutter JWT calls.
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `POST /user/login` | `ApiUrl.loginUrl` | Session cookie stored in FlutterSecureStorage |
-| `POST /user/logout` | `ApiUrl.logoutUrl` | Client always clears cookies + prefs, even if POST fails |
-| HTTP 401 (not login) | Dio interceptor + `createSessionInvalidatedHandler` | Clears local session; snackbar; go_router → `/signIn` |
+| `POST /user/login` body `{mobileNumber, password}` | `ApiUrl.loginUrl` | Response: `{access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}, adminCode, organizations[], supervisorOrgs[], profile}`. Access + refresh stored in FlutterSecureStorage. Empty org arrays / null profile stubs are valid. |
+| `POST /user/refresh` body `{refresh}` → `{access}` | `ApiUrl.refreshUrl` | Dio interceptor: on **401**, one refresh attempt then retry original; if refresh fails → clear tokens + go `/signIn` |
+| Later APIs | Dio interceptor | `Authorization: Bearer <access>` on non-login/refresh requests |
+| `POST /user/logout` | `ApiUrl.logoutUrl` | Client always clears JWT + prefs, even if POST fails |
+| HTTP 401 after failed refresh | `createSessionInvalidatedHandler` | Clears local session; snackbar; go_router → `/signIn` |
+
+**Removed:** old cookie/session login and `{user_id, user_type}`-only response parsing.
 
 Public `/signUp` is disabled on the Flutter client (redirects to sign-in). **Backend `POST /user/` (P2):** unauthenticated callers may only create `COMMUTER`; `DRIVER`/`ADMIN` require authenticated admin session. `PATCH /user/<pk>` `userType` changes are admin-only.
 
 On startup/splash, Flutter calls `GET /user/<userId>` via `refreshSessionFromServer()` to reconcile cached role with server.
 
-D2D WebSocket requires a Django session cookie. Role is checked **once on connect** (anonymous **4401**, wrong role **4403**). Actions on an accepted socket are not re-authorized per message.
+D2D WebSocket sends `Authorization: Bearer <access>`. Role is checked **once on connect** (anonymous **4401**, wrong role **4403**). Actions on an accepted socket are not re-authorized per message.
 
 ---
 
@@ -70,7 +76,7 @@ Admin create/update goes through `CommuterForm` → `CommuterController` → `Co
 
 | Backend | Flutter |
 |---------|---------|
-| `ws://<host>/ws/<batch_id>/` or `wss://…` | `AppConfig.webSocketUrl` + `$batchId/` with `Cookie: sessionid=…` |
+| `ws://<host>/ws/<batch_id>/` or `wss://…` | `AppConfig.webSocketUrl` + `$batchId/` with `Authorization: Bearer <access>` |
 
 Handshake: `ADMIN` may join any batch; `DRIVER` only if assigned to that batch. Commuters and anonymous clients are rejected.
 

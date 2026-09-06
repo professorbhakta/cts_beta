@@ -28,7 +28,7 @@ class AdminNavList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
-    final isAdmin = SessionRole.isAdmin;
+    final isAdmin = SessionRole.isAdminLike;
     final homeRoute = SessionRole.homeRoute;
 
     final topInset = MediaQuery.paddingOf(context).top;

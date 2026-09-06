@@ -87,5 +87,29 @@ void main() {
         isNull,
       );
     });
+
+    test('supervisor lands on admin home from signIn', () {
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.signIn,
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPERVISOR',
+        ),
+        RouteName.adminHomeScreen,
+      );
+    });
+
+    test('staff may access admin CRUD', () {
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.batchScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'STAFF',
+        ),
+        isNull,
+      );
+    });
   });
 }

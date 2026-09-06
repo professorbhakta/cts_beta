@@ -32,7 +32,7 @@ stateDiagram-v2
   Splash --> SignIn: not logged in
   Splash --> RoleHome: logged in
   SignIn --> RoleHome: login success
-  RoleHome --> Admin: ADMIN
+  RoleHome --> Admin: ADMIN / SUPERVISOR / STAFF
   RoleHome --> Driver: DRIVER
   RoleHome --> Commuter: COMMUTER
 ```
@@ -41,7 +41,7 @@ stateDiagram-v2
 2. **GetInitialRouteUseCase** returns `signIn` or `RouteName.homeForRole(userType)`.
 3. Splash uses `context.go(route)`.
 
-**Sign-in success** (`SignInScreen`): refreshes session, then `context.go` to admin / driver / commuter home.
+**Sign-in success** (`SignInScreen`): refreshes session, then `context.go` via `RouteName.homeForRole` (`ADMIN`/`SUPERVISOR`/`STAFF` → admin home, `DRIVER`, `COMMUTER`).
 
 ---
 
@@ -56,9 +56,9 @@ Evaluated on navigation and when `SessionAuthNotifier` notifies (login/logout).
 | Location is `/signUp` | `/signIn` (public self-registration disabled) |
 | Not logged in + not public route | `/signIn` |
 | Logged in on `/signIn` | Role home |
-| Path in `adminOnlyPrefixes` + user ≠ ADMIN | Role home |
-| Path in `driverOnlyPrefixes` + user not DRIVER (ADMIN excluded from driver-only *home* paths) | Role home |
-| Path in `commuterOnlyPrefixes` + user not COMMUTER (ADMIN excluded) | Role home |
+| Path in `adminOnlyPrefixes` + user not ADMIN/SUPERVISOR/STAFF | Role home |
+| Path in `driverOnlyPrefixes` + user not DRIVER (admin-like roles excluded) | Role home |
+| Path in `commuterOnlyPrefixes` + user not COMMUTER (admin-like roles excluded) | Role home |
 | Otherwise | Allow |
 
 **Note:** ADMIN can access admin routes and D2D **Channel**; ADMIN is redirected away from driver home and commuter home prefixes when hitting those URLs directly.
@@ -109,11 +109,11 @@ Fallback builders redirect to safe screens if params missing (e.g. empty batchId
 
 `SessionAuthNotifier`:
 
-- `loggedIn` — `isLogin` **and** a non-empty `sessionid` in `SessionManager` (in-memory after first secure-storage read)
-- `userType` — `ADMIN` | `DRIVER` | `COMMUTER` (string from session; reconciled with `GET /user/<id>` on startup via `refreshSessionFromServer()`)
+- `loggedIn` — `isLogin` **and** a non-empty JWT `access` token in `SessionManager` (FlutterSecureStorage)
+- `userType` — `ADMIN` | `SUPERVISOR` | `STAFF` | `DRIVER` | `COMMUTER` (from login `user.userType`; reconciled with `GET /user/<id>` on startup via `refreshSessionFromServer()`)
 - `ready` — first refresh completed
 
-Router `refreshListenable: authNotifier` re-runs redirects when session changes. HTTP **401** (except login) and D2D WS **4401/4403** call `createSessionInvalidatedHandler`: clear local session, error snackbar, explicit `context.go(/signIn)`.
+Router `refreshListenable: authNotifier` re-runs redirects when session changes. HTTP **401** (after failed JWT refresh) and D2D WS **4401/4403** call `createSessionInvalidatedHandler`: clear local session, error snackbar, explicit `context.go(/signIn)`.
 
 Public **sign-up is disabled**. `/signUp` redirects to `/signIn`. Admins create DRIVER/COMMUTER via CRUD. Backend `POST /user/` enforces COMMUTER-only for unauthenticated callers (P2).
 
@@ -122,7 +122,7 @@ Public **sign-up is disabled**. `/signUp` redirects to `/signIn`. Admins create 
 ## Logout flow
 
 1. Profile or drawer → logout via `SignInProvider`
-2. `POST /user/logout` (best-effort); **always** `AppManager.clearLocalSession()` (cookies + prefs) even if POST fails
+2. `POST /user/logout` (best-effort); **always** `AppManager.clearLocalSession()` (JWT + prefs) even if POST fails
 3. `ControllerResetUtil.resetAllControllers(context)`
 4. `SessionAuthNotifier.refresh()`
 5. `context.go(RouteName.signIn)`
