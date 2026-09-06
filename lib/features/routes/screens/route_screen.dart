@@ -6,12 +6,11 @@ import 'package:cts/features/routes/providers/route_controller.dart';
 import 'package:cts/features/routes/providers/route_form_provider.dart';
 import 'package:cts/models/route_model.dart';
 import 'package:cts/utils/sort_utils.dart';
+import 'package:cts/widgets/catalog_list_chrome.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/list_item_actions_sheet.dart';
-import 'package:cts/widgets/modern_list_card.dart';
-import 'package:cts/widgets/search_bar_widget.dart';
-import 'package:cts/widgets/skeleton_list.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -43,7 +42,6 @@ class _RouteScreenState extends State<RouteScreen> {
   }
 
   List<RouteModel> _getFilteredRoutes(List<RouteModel> allRoutes) {
-    // First filter by search query
     List<RouteModel> filtered = _searchQuery.isEmpty
         ? allRoutes
         : allRoutes.where((route) {
@@ -51,11 +49,12 @@ class _RouteScreenState extends State<RouteScreen> {
             return name.contains(_searchQuery);
           }).toList();
 
-    // Then sort A-Z by route name
-    return sortListAZ(
-      filtered,
-      (route) => route.routeName ?? '',
-    );
+    return sortListAZ(filtered, (route) => route.routeName ?? '');
+  }
+
+  void _openAddRoute() {
+    context.read<RouteFormProvider>().clearAll();
+    context.push(RouteName.routeForm);
   }
 
   void _showEditDialog(RouteModel route) {
@@ -71,7 +70,8 @@ class _RouteScreenState extends State<RouteScreen> {
     ConfirmationDialog.showDeleteConfirmation(
       context,
       itemName: 'Route',
-      customMessage: 'Are you sure you want to delete "${route.routeName ?? 'this route'}"? This action cannot be undone.',
+      customMessage:
+          'Are you sure you want to delete "${route.routeName ?? 'this route'}"? This action cannot be undone.',
     ).then((confirmed) async {
       if (confirmed == true) {
         final success = await rc.deleteRoute(route.id ?? 0);
@@ -81,7 +81,10 @@ class _RouteScreenState extends State<RouteScreen> {
             rc.errorMessage ?? 'Failed to delete route.',
           );
         } else {
-          SnackBarService.showsSuccessSnackbar('Route deleted successfully!', '');
+          SnackBarService.showsSuccessSnackbar(
+            'Route deleted successfully!',
+            '',
+          );
         }
       }
     });
@@ -89,51 +92,14 @@ class _RouteScreenState extends State<RouteScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return DashboardShell(
       title: 'Routes',
-      actions: [
-        IconButton(
-          icon: Icon(Icons.add),
-          tooltip: 'Add Route',
-          iconSize: 36,
-          onPressed: () {
-            context.read<RouteFormProvider>().clearAll();
-            context.push(RouteName.routeForm);
-          },
-        ),
-      ],
-      // START: Reverted RouteProvider to RouteController
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer<RouteController>(
-        // END: Reverted RouteProvider to RouteController
         builder: (context, rc, _) {
-
-          // Show skeleton loader on initial load
           if (rc.state == ViewState.loading && rc.routes.isEmpty) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text(
-                  'All Routes',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Manage pickup corridors and keep them updated.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.7),
-                      ),
-                ),
-                const SizedBox(height: 16),
-                const RouteSkeletonList(itemCount: 8),
-              ],
-            );
+            return const CatalogListSkeleton(title: 'Routes');
           }
 
           if (rc.state == ViewState.error) {
@@ -144,7 +110,6 @@ class _RouteScreenState extends State<RouteScreen> {
             );
           }
 
-          // Get filtered routes (computed, no setState)
           final filteredRoutes = _getFilteredRoutes(rc.routes);
 
           if (rc.routes.isEmpty) {
@@ -153,65 +118,56 @@ class _RouteScreenState extends State<RouteScreen> {
               title: 'No routes found',
               message: 'Get started by creating your first route.',
               actionLabel: 'Create Route',
-              onAction: () {
-                context.read<RouteFormProvider>().clearAll();
-                context.push(RouteName.routeForm);
-              },
+              onAction: _openAddRoute,
             );
           }
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SearchBarWidget(
-                hintText: 'Search routes by name...',
-                onSearchChanged: _onSearchChanged,
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: CatalogPageTitle(title: 'Routes'),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: CatalogHairlineSearch(
+                  hintText: 'Search routes by name...',
+                  onSearchChanged: _onSearchChanged,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: CatalogYellowAddButton(
+                  label: 'Add Route',
+                  onPressed: _openAddRoute,
+                ),
               ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: rc.fetchRoutes,
                   child: filteredRoutes.isEmpty && _searchQuery.isNotEmpty
-                      ? const StatusMessage(
-                          icon: Icons.search_off,
-                          title: 'No routes match your search',
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            StatusMessage(
+                              icon: Icons.search_off,
+                              title: 'No routes match your search',
+                            ),
+                          ],
                         )
                       : CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                              sliver: SliverToBoxAdapter(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'All Routes',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Manage pickup corridors and keep them updated.',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.7),
-                                          ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                              ),
-                            ),
                             _RouteList(
                               routes: filteredRoutes,
                               onEdit: _showEditDialog,
                               onDelete: _showDeleteDialog,
+                            ),
+                            const SliverToBoxAdapter(
+                              child: CatalogFooterHint(
+                                'Swipe to edit or delete',
+                              ),
                             ),
                           ],
                         ),
@@ -241,67 +197,62 @@ class _RouteList extends StatelessWidget {
     final scheme = context.scheme;
 
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       sliver: SliverList.separated(
         itemCount: routes.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
-        final route = routes[index];
-        return Slidable(
-          key: ValueKey(route.id ?? index),
-          startActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            dismissible: DismissiblePane(
-              onDismissed: () => onDelete(route),
-            ),
-            children: [
-              SlidableAction(
-                onPressed: (_) => onDelete(route),
-                backgroundColor: scheme.error,
-                foregroundColor: scheme.surface,
-                icon: Icons.delete_rounded,
-                label: 'Delete',
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+          final route = routes[index];
+          return Slidable(
+            key: ValueKey(route.id ?? index),
+            startActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              dismissible: DismissiblePane(onDismissed: () => onDelete(route)),
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onDelete(route),
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
+                  icon: Icons.delete_rounded,
+                  label: 'Delete',
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-                flex: 1,
-              ),
-            ],
-          ),
-          endActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            children: [
-              SlidableAction(
-                onPressed: (_) => onEdit(route),
-                backgroundColor: scheme.primary,
-                foregroundColor: scheme.surface,
-                icon: Icons.edit_rounded,
-                label: 'Edit',
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                flex: 1,
-              ),
-            ],
-          ),
-          child: ModernListCard(
-            title: route.routeName ?? 'Untitled route',
-            icon: Icons.route_rounded,
-            iconColor: scheme.primary,
-            onLongPress: () => ListItemActionsSheet.show(
-              context,
-              onEdit: () => onEdit(route),
-              onDelete: () => onDelete(route),
+              ],
             ),
-          ),
-        );
-      },
+            endActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onEdit(route),
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
+                  icon: Icons.edit_rounded,
+                  label: 'Edit',
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  flex: 1,
+                ),
+              ],
+            ),
+            child: CatalogCard(
+              title: route.routeName ?? 'Untitled route',
+              onLongPress: () => ListItemActionsSheet.show(
+                context,
+                onEdit: () => onEdit(route),
+                onDelete: () => onDelete(route),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 }
-

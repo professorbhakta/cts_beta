@@ -1,3 +1,4 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Sort option model
@@ -18,10 +19,7 @@ class SortOption<T> {
   String toString() => label;
 }
 
-/// Reusable sort dropdown widget
-///
-/// This widget displays a dropdown button next to search bars
-/// that allows users to select how to sort the data.
+/// Reusable sort dropdown — cream board hairline chrome.
 class SortDropdownWidget<T> extends StatelessWidget {
   final String? hintText;
   final List<SortOption<T>> options;
@@ -43,21 +41,23 @@ class SortDropdownWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cts = context.cts;
+    final hairline = cts.navy.withValues(alpha: 0.14);
 
     return Tooltip(
       message: tooltip,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!),
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: hairline),
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<T>(
             value: selectedValue ?? options.first.value,
             isExpanded: false,
-            icon: Icon(Icons.arrow_drop_down, color: theme.colorScheme.primary),
+            icon: Icon(Icons.arrow_drop_down, color: cts.navy),
             items: options.map((SortOption<T> option) {
               return DropdownMenuItem<T>(
                 value: option.value,
@@ -65,7 +65,7 @@ class SortDropdownWidget<T> extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (option.icon != null) ...[
-                      Icon(option.icon, size: 18, color: Colors.grey[700]),
+                      Icon(option.icon, size: 18, color: cts.navy),
                       const SizedBox(width: 8),
                     ],
                     Flexible(
@@ -77,6 +77,7 @@ class SortDropdownWidget<T> extends StatelessWidget {
                             option.label,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w500,
+                              color: cts.navy,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -84,7 +85,7 @@ class SortDropdownWidget<T> extends StatelessWidget {
                             Text(
                               option.subLabel!,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
+                                color: cts.navy.withValues(alpha: 0.6),
                                 fontSize: 11,
                               ),
                             ),
@@ -100,7 +101,7 @@ class SortDropdownWidget<T> extends StatelessWidget {
                 onSortChanged(newValue);
               }
             },
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             selectedItemBuilder: (BuildContext context) {
               return options.map((SortOption<T> option) {
                 final isSelected = option.value == selectedValue;
@@ -111,8 +112,8 @@ class SortDropdownWidget<T> extends StatelessWidget {
                       icon,
                       size: 18,
                       color: isSelected
-                          ? theme.colorScheme.primary
-                          : Colors.grey[600],
+                          ? cts.navy
+                          : cts.navy.withValues(alpha: 0.55),
                     ),
                     const SizedBox(width: 6),
                     Flexible(
@@ -125,9 +126,7 @@ class SortDropdownWidget<T> extends StatelessWidget {
                                   option.label,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: isSelected
-                                        ? theme.colorScheme.primary
-                                        : Colors.grey[800],
+                                    color: cts.navy,
                                     fontSize: 13,
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -135,7 +134,7 @@ class SortDropdownWidget<T> extends StatelessWidget {
                                 Text(
                                   option.subLabel!,
                                   style: theme.textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
+                                    color: cts.navy.withValues(alpha: 0.6),
                                     fontSize: 10,
                                   ),
                                 ),
@@ -145,9 +144,7 @@ class SortDropdownWidget<T> extends StatelessWidget {
                               option.label,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
-                                color: isSelected
-                                    ? theme.colorScheme.primary
-                                    : Colors.grey[800],
+                                color: cts.navy,
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,

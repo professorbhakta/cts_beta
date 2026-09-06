@@ -8,11 +8,11 @@ import 'package:cts/features/drivers/models/driver_model.dart';
 import 'package:cts/features/drivers/utils/driver_sort_options.dart';
 import 'package:cts/features/drivers/utils/driver_sort_utils.dart';
 import 'package:cts/widgets/admin_search_sort_row.dart';
+import 'package:cts/widgets/catalog_list_chrome.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/list_item_actions_sheet.dart';
-import 'package:cts/widgets/modern_list_card.dart';
-import 'package:cts/widgets/skeleton_list.dart';
 import 'package:cts/widgets/sort_dropdown_widget.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +52,6 @@ class _DriverScreenState extends State<DriverScreen> {
   }
 
   List<DriverModel> _getFilteredAndSortedDrivers(List<DriverModel> allDrivers) {
-    // First filter by search query
     List<DriverModel> filtered = _searchQuery.isEmpty
         ? allDrivers
         : allDrivers.where((driver) {
@@ -68,7 +67,6 @@ class _DriverScreenState extends State<DriverScreen> {
                 cabNumber.contains(_searchQuery);
           }).toList();
 
-    // Then sort according to selected sort option
     return sortDriverList(filtered, _selectedSortOption);
   }
 
@@ -125,6 +123,11 @@ class _DriverScreenState extends State<DriverScreen> {
     ];
   }
 
+  void _openAddDriver() {
+    context.read<DriverFormProvider>().clearAll();
+    context.push(RouteName.driverForm);
+  }
+
   void _showEditDialog(DriverModel driver) {
     final formProvider = context.read<DriverFormProvider>();
     formProvider.forUpdate = true;
@@ -164,47 +167,14 @@ class _DriverScreenState extends State<DriverScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return DashboardShell(
       title: 'Drivers',
-      actions: [
-        IconButton(
-          icon: Icon(Icons.add),
-          tooltip: 'Add Driver',
-          iconSize: 36,
-          onPressed: () {
-            context.read<DriverFormProvider>().clearAll();
-            context.push(RouteName.driverForm);
-          },
-        ),
-      ],
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer<DriverProvider>(
         builder: (context, dc, child) {
-
-          // Show skeleton loader on initial load
           if (dc.state == ViewState.loading && dc.drivers.isEmpty) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text(
-                  'All Drivers',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Manage Drivers and keep them updated on the Batch & Cabs.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const DriverSkeletonList(itemCount: 8),
-              ],
-            );
+            return const CatalogListSkeleton(title: 'Drivers', itemHeight: 110);
           }
 
           if (dc.state == ViewState.error) {
@@ -215,7 +185,6 @@ class _DriverScreenState extends State<DriverScreen> {
             );
           }
 
-          // Get filtered and sorted drivers
           final filteredDrivers = _getFilteredAndSortedDrivers(dc.drivers);
 
           if (dc.drivers.isEmpty) {
@@ -224,15 +193,17 @@ class _DriverScreenState extends State<DriverScreen> {
               title: 'No drivers found',
               message: 'Get started by creating your first driver.',
               actionLabel: 'Create Driver',
-              onAction: () {
-                context.read<DriverFormProvider>().clearAll();
-                context.push(RouteName.driverForm);
-              },
+              onAction: _openAddDriver,
             );
           }
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: CatalogPageTitle(title: 'Drivers'),
+              ),
               AdminSearchSortRow<DriverSortOption>(
                 hintText: 'Search by name, mobile, batch, or cab...',
                 onSearchChanged: _onSearchChanged,
@@ -241,52 +212,38 @@ class _DriverScreenState extends State<DriverScreen> {
                 onSortChanged: _onSortChanged,
                 sortTooltip: 'Sort drivers',
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: CatalogYellowAddButton(
+                  label: 'Add Driver',
+                  onPressed: _openAddDriver,
+                ),
+              ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () => dc.fetchDrivers(),
                   child: filteredDrivers.isEmpty && _searchQuery.isNotEmpty
-                      ? const StatusMessage(
-                          icon: Icons.search_off,
-                          title: 'No drivers match your search',
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            StatusMessage(
+                              icon: Icons.search_off,
+                              title: 'No drivers match your search',
+                            ),
+                          ],
                         )
                       : CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                              sliver: SliverToBoxAdapter(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'All Drivers',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Manage drivers and keep them updated on batches & cabs.',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.7),
-                                          ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                              ),
-                            ),
                             _DriverList(
                               drivers: filteredDrivers,
                               onEdit: _showEditDialog,
                               onDelete: _showDeleteDialog,
+                            ),
+                            const SliverToBoxAdapter(
+                              child: CatalogFooterHint(
+                                'Swipe to edit or delete',
+                              ),
                             ),
                           ],
                         ),
@@ -316,83 +273,76 @@ class _DriverList extends StatelessWidget {
     final scheme = context.scheme;
 
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       sliver: SliverList.separated(
         itemCount: drivers.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final driver = drivers[index];
           return Slidable(
-          key: ValueKey(driver.userId?.id ?? index),
-          startActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            dismissible: DismissiblePane(onDismissed: () => onDelete(driver)),
-            children: [
-              SlidableAction(
-                onPressed: (_) => onDelete(driver),
-                backgroundColor: scheme.error,
-                foregroundColor: scheme.surface,
-                icon: Icons.delete_rounded,
-                label: 'Delete',
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+            key: ValueKey(driver.userId?.id ?? index),
+            startActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              dismissible:
+                  DismissiblePane(onDismissed: () => onDelete(driver)),
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onDelete(driver),
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
+                  icon: Icons.delete_rounded,
+                  label: 'Delete',
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-                flex: 1,
-              ),
-            ],
-          ),
-          endActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            children: [
-              SlidableAction(
-                onPressed: (_) => onEdit(driver),
-                backgroundColor: scheme.primary,
-                foregroundColor: scheme.surface,
-                icon: Icons.edit_rounded,
-                label: 'Edit',
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                flex: 1,
-              ),
-            ],
-          ),
-          child: ModernListCard(
-            title: driver.userId?.username ?? 'Untitled driver',
-            icon: Icons.person_outline_rounded,
-            iconColor: scheme.primary,
-            onLongPress: () => ListItemActionsSheet.show(
-              context,
-              onEdit: () => onEdit(driver),
-              onDelete: () => onDelete(driver),
+              ],
             ),
-            children: [
-              InfoRow(
-                icon: Icons.directions_car_rounded,
-                label: 'Cab:',
-                value: driver.cabId?.regNumber ?? 'N/A',
-                iconColor: scheme.primary,
-              ),
-              InfoRow(
-                icon: Icons.directions_bus_rounded,
-                label: 'Batch:',
-                value: driver.batchId?.batchName ?? 'N/A',
-                iconColor: scheme.primary,
-              ),
-              if (driver.userId?.mobileNumber != null &&
-                  driver.userId!.mobileNumber!.isNotEmpty)
-                InfoRow(
-                  icon: Icons.phone_rounded,
-                  label: 'Mobile:',
-                  value: driver.userId!.mobileNumber!,
-                  iconColor: scheme.primary,
+            endActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onEdit(driver),
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
+                  icon: Icons.edit_rounded,
+                  label: 'Edit',
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-            ],
-          ),
+              ],
+            ),
+            child: CatalogCard(
+              title: driver.userId?.username ?? 'Untitled driver',
+              onLongPress: () => ListItemActionsSheet.show(
+                context,
+                onEdit: () => onEdit(driver),
+                onDelete: () => onDelete(driver),
+              ),
+              children: [
+                if (driver.userId?.mobileNumber != null &&
+                    driver.userId!.mobileNumber!.isNotEmpty)
+                  CatalogField(
+                    label: 'Mobile',
+                    value: driver.userId!.mobileNumber!,
+                  ),
+                CatalogField(
+                  label: 'Batch',
+                  value: driver.batchId?.batchName ?? 'N/A',
+                ),
+                CatalogField(
+                  label: 'Cab',
+                  value: driver.cabId?.regNumber ?? 'N/A',
+                ),
+              ],
+            ),
           );
         },
       ),
