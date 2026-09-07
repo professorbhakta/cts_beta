@@ -1,87 +1,87 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-08-22
-> **Session:** 26d return intent
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Doc header sync — API_CONTRACTS, feature READMEs, FLOWS, TODOS
 
 # Documentation Registry
 
-Central tracker: when each doc was last updated or verified. Update at **end of every session** (see [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PROMPT).
+Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PROMPT).
+
+**Attach order is locked** in [PROJECT_BRAIN.md](PROJECT_BRAIN.md) §3 — do not invent a new order each chat.
+
+**Story split:** [05](docs/client_req/05-open-decisions.md) = product story/locks · [DESIGN_SNAPSHOT](docs/client_req/DESIGN_SNAPSHOT.md) = schema/APIs · [FLOWS](docs/FLOWS_BY_ROLE.md) = journeys · [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) = smoke · [DISCUSSION_LOG](docs/client_req/DISCUSSION_LOG.md) = pointer only.
 
 ---
 
 ## How to update
 
-1. After changing a doc, set its 3-line header: **Updated** timestamp (IST), **Session** note (what changed or "Verified unchanged").
-2. Update the matching row in the **Session sync set** table below.
-3. Update [PROJECT_BRAIN.md](PROJECT_BRAIN.md) §5 focus, §6 status, §9 session log.
-4. If backlog changed, update [PROJECT_TODOS.md](PROJECT_TODOS.md).
-5. Do **not** duplicate long specs into PROJECT_BRAIN — pointers only.
+1. Doc header: **Updated** (IST) + **Session** note.
+2. Matching row in **Fast sync** (always) or **On change** (when touched).
+3. [PROJECT_BRAIN.md](PROJECT_BRAIN.md) §5 / §6 / §9 (+ §10 map if ownership moved).
+4. [PROMPT_SCOPE.md](PROMPT_SCOPE.md) queue + change log.
+5. [PROJECT_TODOS.md](PROJECT_TODOS.md) if backlog moved.
+6. If client pack is still queue #1: **always** bump DISCUSSION_LOG (`LAST_SUMMARY` + `NEXT_SUGGEST`).
+7. No long specs in PROJECT_BRAIN — pointers only.
 
 ---
 
-## Session sync set
-
-Docs that get a header check every session. Attach via task packs in PROJECT_BRAIN §4.
+## Fast sync (every session)
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-22 | 26d intent; next cutoff |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-22 | 26d intent |
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-20 23:50 IST | Post DROP prune |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-08-22 | 26d intent done; cutoff open |
-| [.cursorrules](.cursorrules) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-20 23:10 IST | offline_module barrel removed note |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/FEATURES.md](docs/FEATURES.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-08-22 | Commuter Return today intent |
-| [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-08-19 17:55 IST | Verified unchanged |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-08-22 | Intent + intent_options |
-| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-19 23:25 IST | Verified unchanged |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-19 23:40 IST | Verified unchanged |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-08-19 23:55 IST | Verified unchanged |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-08-22 | Intent ApiUrl + model |
-| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | Verified unchanged |
-| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-20 22:15 IST | Verified unchanged (lab used 192.168.1.6) |
-| [docs/GLOSSARY.md](docs/GLOSSARY.md) | 2026-08-19 17:55 IST | Verified unchanged |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-08-31 13:45 IST | Phase 3 done; STEP 8 next on go |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-01 10:20 IST | doc sync changelog |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-08-31 13:45 IST | Phase 3 END sync |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-31 13:45 IST | MIDDLE CONTEXT — Phase 3 done |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-08-31 13:45 IST | pointer → STEP 8 |
+| [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
+| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
+| [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
+| [docs/client_req/05-open-decisions.md](docs/client_req/05-open-decisions.md) | 2026-08-26 07:58 IST | + snapshot link |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-01 10:20 IST | return waiting line + commuter join |
 
 ---
 
-## Reference set
+## Ownership (frozen)
 
-Updated when content changes; not verified every session unless touched.
+| Concern | Owner |
+|---------|--------|
+| Session / queue | `PROJECT_BRAIN` + `PROMPT_SCOPE` |
+| Docker / LAN / backup / nginx | `docs/LOCAL_DEV.md` |
+| REST + WS wire | `docs/API_CONTRACTS.md` |
+| Morning D2D + client pack UI | `lib/features/d2d/README.md` |
+| Return batch | `lib/features/batches/README.md` |
+| Operator journeys (incl. QR/KM) | `docs/FLOWS_BY_ROLE.md` |
+| Schema / APIs inventory | `docs/client_req/DESIGN_SNAPSHOT.md` |
+| Product story + D1–D10 | `docs/client_req/05-open-decisions.md` |
+| Pack handoff pointer | `docs/client_req/DISCUSSION_LOG.md` |
+| Smoke script | `docs/client_req/07-NEXT-AGENT-PROMPT.md` |
+| Smoke / test how-to | `docs/TESTING.md` |
+| BE module index | `docs/backend/README.md` |
 
-| Doc | Last updated | Notes |
-|-----|--------------|-------|
-| [docs/README.md](docs/README.md) | 2026-08-14 19:55 IST | Tree includes ROUTING_AND_AUTH |
-| [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-14 19:55 IST | Accounts created by admin, not public sign-up |
-| [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-08-14 21:55 IST | DTODLOG on connect; driver STOP; ADD by user ID |
-| [docs/CHANGELOG_SPRINTS.md](docs/CHANGELOG_SPRINTS.md) | — | **Removed** 2026-08-20 |
-| [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) | 2026-08-17 22:15 IST | STOP UX 2-device verified |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-17 22:15 IST | Wrap; 2-device leftovers passed |
-| [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) | 2026-08-20 12:20 IST | Return list uses isComing pool |
-| [docs/backend/](docs/backend/) | 2026-08-20 12:20 IST | Return pool switched to isComing |
-| [docs/next-plan/return-trip-allocation-roadmap.txt](docs/next-plan/return-trip-allocation-roadmap.txt) | 2026-08-22 | 26d intent DONE; next cutoff |
-| [docs/OFFLINE_AND_SYNC.md](docs/OFFLINE_AND_SYNC.md) | 2026-08-20 00:20 IST | P5 degraded mode section |
-| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-08-14 19:55 IST | /signUp redirect; sessionid + logout/401 |
-| [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-08-14 19:55 IST | Release has no cleartext |
-| [docs/guides/](docs/guides/) | 2026-08-14 22:00 IST | Driver RETURN LIST confirm/remove |
-| [docs/wireframes/](docs/wireframes/) | — | **Removed** 2026-08-20 |
-| [lib/README.md](lib/README.md) | 2026-08-05 11:37 IST | CODE_MAP + LIB_STRUCTURE links |
+**Full BE↔FE dot table:** [PROJECT_BRAIN.md §10](PROJECT_BRAIN.md#10-deep-docs--stable-befe-map).
+
+**Retired:** `docs/backend/01–04`, `docs/guides/`, client_req `00–04`+`06`, `test/widget_test.dart`.
 
 ---
 
-## Removed (2026-08-05 cleanup)
+## On change
 
-- `project-talk-guide/` — entire folder deleted after migration
-- `docs/FOLDER_SUMMARY.md`, `docs/FOLDER_GUIDE.md`, `docs/CursorshortCut.md`
-- `docs/wireframes/DOCS_ANALYSIS.md`
-
-## Removed (2026-08-20 cleanup)
-
-- `docs/final-gate/` — P1–P9 / Batch-02 phase checklists + smoke prompts (historical; gate closed)
-- `qa_lab/`, `qa_screens/` — device UI dumps (gitignored)
-- `docs/wireframes/`, `docs/WIREFRAME_GALLERY.md`, `lib/design/` — HTML + Flutter debug galleries
-- `docs/CHANGELOG_SPRINTS.md`, `docs/SENIOR_REVIEW_2026-08-19.txt`
-- `docs/DESIGN_SYSTEM_REVIEW.md`, `docs/SCREENSHOTS.md`, `docs/assets/screenshots/`
-- `docs/backend/05-audit-and-gaps.md`, `docs/backend/06-planned-fixes.md`
+| Doc | Last updated | Session note |
+|-----|--------------|--------------|
+| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-29 10:02 IST | Target tree aligned to disk; folder law |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-29 10:03 IST | Layer mermaid flow names; no folder jargon |
+| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-08-25 21:36 IST | canonical stack |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-01 10:20 IST | view/ waiting[] JSON example + header sync |
+| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-31 13:45 IST | return waiting Redis key |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-01 10:20 IST | return waiting line + commuter join |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-01 10:20 IST | Phase 3 return waiting shipped |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-01 10:20 IST | Phase 1+2 morning waiting + scan join_waiting |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-01 10:20 IST | test count 128; analyze note |
+| [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
+| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-08-25 22:05 IST | + `/boardingScan` |
+| [docs/README.md](docs/README.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
+| [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
+| [docs/backend/README.md](docs/backend/README.md) | 2026-08-25 21:50 IST | odo/boarding modules |
+| [docs/FEATURES.md](docs/FEATURES.md) | 2026-08-25 21:06 IST | + client pack routes |
+| E2E | D2D_E2E · RETURN_BATCH_E2E | when flows change |

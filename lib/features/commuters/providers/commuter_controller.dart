@@ -24,6 +24,8 @@ class CommuterController with ChangeNotifier {
 
   int _fetchGeneration = 0;
   final Set<int> _isComingInFlight = {};
+  bool _markAllComingInFlight = false;
+  bool get isMarkAllComingInFlight => _markAllComingInFlight;
 
   Future<void> fetchCommuters() => _loadCommuters(batchId: null);
 
@@ -178,6 +180,32 @@ class CommuterController with ChangeNotifier {
       return false;
     } finally {
       _isComingInFlight.remove(userId);
+    }
+  }
+
+  /// Marks every loaded org commuter coming. Returns updated count, or null on failure.
+  Future<int?> markAllComing() async {
+    if (_markAllComingInFlight) {
+      return null;
+    }
+    _markAllComingInFlight = true;
+    notifyListeners();
+
+    try {
+      final result = await _commuterRepository.markAllComing();
+      if (result.isSuccess) {
+        for (final c in _commuters) {
+          c.isComing = true;
+        }
+        notifyListeners();
+        return result.data ?? 0;
+      }
+      _errorMessage = result.failure?.message;
+      notifyListeners();
+      return null;
+    } finally {
+      _markAllComingInFlight = false;
+      notifyListeners();
     }
   }
 }

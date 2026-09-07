@@ -145,6 +145,15 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
             profileData['isComing']?.toString() ?? 'false',
           );
         }
+        // Nested subAdmin UUID (Add Commuter sheet); top-level adminCode
+        // from the login envelope is already stored in _persistLoginUser.
+        final nestedAdmin = profileData['adminCode'];
+        if (nestedAdmin is Map) {
+          final nestedId = nestedAdmin['id']?.toString();
+          if (nestedId != null && nestedId.isNotEmpty) {
+            AppManager.instance.setString(ManagerKey.adminCode, nestedId);
+          }
+        }
         break;
       case 'ADMIN':
       case 'SUPERVISOR':

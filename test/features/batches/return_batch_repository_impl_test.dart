@@ -18,7 +18,15 @@ class _FakeApiService implements BaseApiServices {
       throw UnimplementedError();
 
   @override
+  Future<dynamic> patchUrl(String url, dynamic data) =>
+      throw UnimplementedError();
+
+  @override
   Future<dynamic> postApi(dynamic data, String url) async => postResponse;
+
+  @override
+  Future<dynamic> postMultipart(dynamic data, String url) =>
+      throw UnimplementedError();
 }
 
 void main() {

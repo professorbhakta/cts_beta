@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -8,12 +8,12 @@ import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/utils/commuter_sort_options.dart';
 import 'package:cts/features/commuters/utils/commuter_sort_utils.dart';
 import 'package:cts/widgets/admin_search_sort_row.dart';
+import 'package:cts/widgets/catalog_list_chrome.dart';
 import 'package:cts/widgets/coming_today_switch.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/list_item_actions_sheet.dart';
-import 'package:cts/widgets/modern_list_card.dart';
-import 'package:cts/widgets/skeleton_list.dart';
 import 'package:cts/widgets/sort_dropdown_widget.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +55,6 @@ class _CommuterScreenState extends State<CommuterScreen> {
   List<CommuterModel> _getFilteredAndSortedCommuters(
     List<CommuterModel> allCommuters,
   ) {
-    // First filter by search query
     List<CommuterModel> filtered = _searchQuery.isEmpty
         ? allCommuters
         : allCommuters.where((commuter) {
@@ -71,7 +70,6 @@ class _CommuterScreenState extends State<CommuterScreen> {
                 batchName.contains(_searchQuery);
           }).toList();
 
-    // Then sort according to selected sort option
     return sortCommuterList(filtered, _selectedSortOption);
   }
 
@@ -164,7 +162,12 @@ class _CommuterScreenState extends State<CommuterScreen> {
     ];
   }
 
-  // START MODIFICATION: Update signature to be type-safe
+  void _openAddCommuter() {
+    final formProvider = context.read<CommuterFormProvider>();
+    formProvider.clearAll();
+    context.push(RouteName.commuterForm);
+  }
+
   void _showEditDialog(CommuterModel commuter) {
     context.read<CommuterFormProvider>().fillFromCommuter(commuter);
     context.push(RouteName.commuterForm);
@@ -196,49 +199,55 @@ class _CommuterScreenState extends State<CommuterScreen> {
       }
     });
   }
-  // END MODIFICATION
+
+  Future<void> _onMarkAllComing() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return ConfirmationDialog(
+          title: 'Mark all coming?',
+          message:
+              'Set Coming today to ON for every commuter in your organization.',
+          confirmLabel: 'Mark all',
+          cancelLabel: 'Cancel',
+          icon: Icons.done_all,
+          iconColor: theme.colorScheme.primary,
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+
+    final controller = context.read<CommuterController>();
+    final updated = await controller.markAllComing();
+    if (!mounted) return;
+    if (updated == null) {
+      SnackBarService.showErrorSnackbar(
+        controller.errorMessage ?? 'Failed to mark all coming.',
+      );
+    } else {
+      SnackBarService.showsSuccessSnackbar(
+        'Marked $updated commuter${updated == 1 ? '' : 's'} coming.',
+        '',
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+    final theme = Theme.of(context);
+
     return DashboardShell(
       title: 'Commuters',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.add),
-          tooltip: 'Add Commuter',
-          iconSize: 36,
-          onPressed: () {
-            final formProvider = context.read<CommuterFormProvider>();
-            formProvider.clearAll();
-            context.push(RouteName.commuterForm);
-          },
-        ),
-      ],
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer<CommuterController>(
         builder: (context, cc, child) {
-          // Show skeleton loader on initial load
           if (cc.state == ViewState.loading && cc.commuters.isEmpty) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text(
-                  'All Commuter',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Manage Commuter and keep them updated on the Batch & Cabs.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const CommuterSkeletonList(itemCount: 8),
-              ],
+            return const CatalogListSkeleton(
+              title: 'Commuters',
+              itemHeight: 130,
             );
           }
 
@@ -250,7 +259,6 @@ class _CommuterScreenState extends State<CommuterScreen> {
             );
           }
 
-          // Get filtered and sorted commuters
           final filteredCommuters = _getFilteredAndSortedCommuters(
             cc.commuters,
           );
@@ -261,16 +269,45 @@ class _CommuterScreenState extends State<CommuterScreen> {
               title: 'No commuters found',
               message: 'Get started by creating your first commuter.',
               actionLabel: 'Create Commuter',
-              onAction: () {
-                final formProvider = context.read<CommuterFormProvider>();
-                formProvider.clearAll();
-                context.push(RouteName.commuterForm);
-              },
+              onAction: _openAddCommuter,
             );
           }
 
+          final busy = cc.isMarkAllComingInFlight;
+
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: CatalogPageTitle(
+                  title: 'Commuters',
+                  trailing: TextButton.icon(
+                    onPressed: busy ? null : _onMarkAllComing,
+                    icon: busy
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: cts.navy,
+                            ),
+                          )
+                        : Icon(Icons.done_all, color: cts.navy, size: 18),
+                    label: Text(
+                      'Mark all',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: cts.navy,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: cts.navy,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                ),
+              ),
               AdminSearchSortRow<CommuterSortOption>(
                 hintText: 'Search by name, mobile, college, or batch...',
                 onSearchChanged: _onSearchChanged,
@@ -279,52 +316,38 @@ class _CommuterScreenState extends State<CommuterScreen> {
                 onSortChanged: _onSortChanged,
                 sortTooltip: 'Sort commuters',
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: CatalogYellowAddButton(
+                  label: 'Add Commuter',
+                  onPressed: _openAddCommuter,
+                ),
+              ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () => cc.fetchCommuters(),
                   child: filteredCommuters.isEmpty && _searchQuery.isNotEmpty
-                      ? const StatusMessage(
-                          icon: Icons.search_off,
-                          title: 'No commuters match your search',
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            StatusMessage(
+                              icon: Icons.search_off,
+                              title: 'No commuters match your search',
+                            ),
+                          ],
                         )
                       : CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                              sliver: SliverToBoxAdapter(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'All Commuters',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Manage commuters and keep them updated on batches & cabs.',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.7),
-                                          ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                              ),
-                            ),
                             _CommuterList(
                               commuters: filteredCommuters,
                               onEdit: _showEditDialog,
                               onDelete: _showDeleteDialog,
+                            ),
+                            const SliverToBoxAdapter(
+                              child: CatalogFooterHint(
+                                'Swipe to edit or delete',
+                              ),
                             ),
                           ],
                         ),
@@ -338,7 +361,6 @@ class _CommuterScreenState extends State<CommuterScreen> {
   }
 }
 
-// START MODIFICATION: Create new decoupled list widget
 class _CommuterList extends StatelessWidget {
   const _CommuterList({
     required this.commuters,
@@ -372,132 +394,91 @@ class _CommuterList extends StatelessWidget {
     }
   }
 
-  Widget _buildDetailItem(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-    Color iconColor,
-  ) {
-    return InfoRow(
-      icon: icon,
-      label: label,
-      value: value,
-      iconColor: iconColor,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       sliver: SliverList.separated(
         itemCount: commuters.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final commuter = commuters[index];
+          final title =
+              '${commuter.userId?.id ?? ''} ${commuter.userId?.username ?? 'Untitled commuter'}'
+                  .trim();
           return Slidable(
-          key: ValueKey(commuter.userId?.id ?? index),
-          startActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            dismissible: DismissiblePane(onDismissed: () => onDelete(commuter)),
-            children: [
-              SlidableAction(
-                onPressed: (_) => onDelete(commuter),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
-                icon: Icons.delete_rounded,
-                label: 'Delete',
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+            key: ValueKey(commuter.userId?.id ?? index),
+            startActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              dismissible:
+                  DismissiblePane(onDismissed: () => onDelete(commuter)),
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onDelete(commuter),
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
+                  icon: Icons.delete_rounded,
+                  label: 'Delete',
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-                flex: 1,
-              ),
-            ],
-          ),
-          endActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            children: [
-              SlidableAction(
-                onPressed: (_) => onEdit(commuter),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
-                icon: Icons.edit_rounded,
-                label: 'Edit',
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+              ],
+            ),
+            endActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onEdit(commuter),
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
+                  icon: Icons.edit_rounded,
+                  label: 'Edit',
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-                flex: 1,
-              ),
-            ],
-          ),
-          child: ModernListCard(
-            title:
-                '${commuter.userId?.id ?? ''} ${commuter.userId?.username ?? 'Untitled commuter'}'
-                    .trim(),
-            icon: Icons.person_rounded,
-            iconColor: AppColors.acYellowWarm,
-            onLongPress: () => ListItemActionsSheet.show(
-              context,
-              onEdit: () => onEdit(commuter),
-              onDelete: () => onDelete(commuter),
+              ],
             ),
-            trailing: ComingTodaySwitch(
-              value: commuter.isComing ?? false,
-              onChanged: (value) =>
-                  _handleIsComingToggle(context, commuter, value),
+            child: CatalogCard(
+              title: title,
+              onLongPress: () => ListItemActionsSheet.show(
+                context,
+                onEdit: () => onEdit(commuter),
+                onDelete: () => onDelete(commuter),
+              ),
+              trailing: ComingTodaySwitch(
+                value: commuter.isComing ?? false,
+                onChanged: (value) =>
+                    _handleIsComingToggle(context, commuter, value),
+              ),
+              children: [
+                CatalogField(
+                  label: 'Route',
+                  value: commuter.popId?.routeId?.routeName ?? 'N/A',
+                ),
+                CatalogField(
+                  label: 'Batch',
+                  value: commuter.batchId?.batchName ?? 'N/A',
+                ),
+                CatalogField(
+                  label: 'POP',
+                  value: commuter.popId?.pickUpPointName ?? 'N/A',
+                ),
+                CatalogField(
+                  label: 'Cab',
+                  value: commuter.cabId?.regNumber ?? 'N/A',
+                ),
+              ],
             ),
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildDetailItem(
-                      context,
-                      Icons.route_rounded,
-                      'Route:',
-                      commuter.popId?.routeId?.routeName ?? 'N/A',
-                      AppColors.acBlue,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildDetailItem(
-                      context,
-                      Icons.event_rounded,
-                      'Batch:',
-                      commuter.batchId?.batchName ?? 'N/A',
-                      AppColors.acYellowDark,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildDetailItem(
-                      context,
-                      Icons.location_on_rounded,
-                      'POP:',
-                      commuter.popId?.pickUpPointName ?? 'N/A',
-                      AppColors.acYellowWarm,
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildDetailItem(
-                      context,
-                      Icons.directions_car_rounded,
-                      'Cab:',
-                      commuter.cabId?.regNumber ?? 'N/A',
-                      AppColors.acBlue,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
           );
         },
       ),

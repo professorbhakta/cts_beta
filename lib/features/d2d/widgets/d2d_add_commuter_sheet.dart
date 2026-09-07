@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/features/commuters/repositories/commuter_repository.dart';
@@ -132,7 +132,9 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    final scheme = context.scheme;
+    final cts = context.cts;
+
     final theme = Theme.of(context);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final maxHeight = MediaQuery.sizeOf(context).height * 0.65;
@@ -158,7 +160,7 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
                   IconButton(
                     tooltip: 'Close',
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close_rounded),
+                    icon: Icon(Icons.close_rounded),
                   ),
                 ],
               ),
@@ -212,7 +214,7 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
-                              color: AppColors.acYellowWarm.withValues(
+                              color: scheme.primary.withValues(
                                 alpha: 0.25,
                               ),
                             ),
@@ -221,7 +223,7 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
                               .withValues(alpha: 0.35),
                           leading: CircleAvatar(
                             backgroundColor:
-                                AppColors.acYellowWarm.withValues(alpha: 0.2),
+                                scheme.primary.withValues(alpha: 0.2),
                             child: Text(
                               '${commuter.userId?.id ?? '?'}',
                               style: theme.textTheme.labelLarge?.copyWith(
@@ -236,7 +238,7 @@ class _D2dAddCommuterSheetState extends State<D2dAddCommuterSheet> {
                             onPressed: () => _addCommuter(commuter),
                             icon: Icon(
                               Icons.add_circle_rounded,
-                              color: AppColors.acGreen,
+                              color: cts.success,
                             ),
                           ),
                         );

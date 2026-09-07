@@ -1,74 +1,46 @@
 > **Doc:** docs/backend/README.md
-> **Updated:** 2026-08-19 18:25 IST
-> **Session:** M4 view split home/overflow + Flutter Available sections
+> **Updated:** 2026-08-25 21:50 IST
+> **Session:** Stable BE pointer map (+ client pack modules)
 
-# Backend Guide — `D:\cts-docker`
+# Backend guide — pointers only
 
-Entry point for Django/Docker backend work.
+Canonical docs live outside this folder. Do **not** reintroduce numbered `01–04` specs here.
 
-## Repo layout
+| Concern | Owner |
+|---------|--------|
+| Docker / Nginx / LAN / Postgres backup | [../LOCAL_DEV.md](../LOCAL_DEV.md) |
+| REST + WebSocket wire (incl. client pack 7 APIs) | [../API_CONTRACTS.md](../API_CONTRACTS.md) |
+| Morning D2D UI + consumer notes | [../../lib/features/d2d/README.md](../../lib/features/d2d/README.md) |
+| Return batch UI + Redis notes | [../../lib/features/batches/README.md](../../lib/features/batches/README.md) |
+| E2E morning / return | [../features/D2D_E2E.md](../features/D2D_E2E.md) · [../features/RETURN_BATCH_E2E.md](../features/RETURN_BATCH_E2E.md) |
+| Session status | [../../PROJECT_BRAIN.md](../../PROJECT_BRAIN.md#6-status-snapshot) |
+
+## Repo layout (`D:\cts-docker`)
 
 ```
 D:\cts-docker\
 ├── docker-compose.yml
 ├── .env
-├── nginx/nginx.conf
-├── postgres/          # Dockerfile, dumps20.sql seed
+├── nginx/nginx.conf          # client_max_body_size 8m
+├── postgres/                 # + backups/ via C2S-PostgresBackup
 └── django/
-    ├── c2s/           # settings, urls, asgi
+    ├── c2s/
     ├── user_servcies/
     ├── cab_services/
-    └── d2d_log/       # ★ D2D WebSocket + REST
+    └── d2d_log/              # WS + return REST + client pack
 ```
 
-## Key files for D2D
+### `d2d_log` modules (stable)
 
-| File | Purpose |
-|------|---------|
-| `d2d_log/consumers.py` | WebSocket — connect auth (4401/4403), REMOVE/ADD (user ID lookup)/DELETE/STOP (driver only) |
-| `d2d_log/live_state.py` | Morning live queue Redis (`d2d:live:…`) |
-| `d2d_log/routing.py` | WS URL patterns `/ws/<batch_id>/` |
-| `d2d_log/views.py` | REST: running_batches, get_d2d_log_status |
-| `d2d_log/return_batch_views.py` | REST: return batch endpoints |
-| `d2d_log/return_batch_utils.py` | Return Redis + business logic |
-| `d2d_log/return_attendance.py` | STOP-gated CList read (live trip not eligible) |
-| `d2d_log/return_allocator.py` | Pure home/overflow math; JSON extras names |
-| `d2d_log/return_pool.py` | Adapter views should call; fail closed omits extras |
-| `d2d_log/test_return_allocator.py` | Allocator + extras (no live DB, no REST / WS) |
-| `d2d_log/utils.py` | Shared helpers, get_d2d_log_data, Redis connect |
-| `d2d_log/models.py` | DTODLOG model |
-| `d2d_log/test_d2d_fixes.py` | Morning D2D verification script |
-| `d2d_log/test_return_batch_fixes.py` | Return batch verification script |
-
-## Return batch REST (evening)
-
-All used by Flutter. Full mapping: [../API_CONTRACTS.md](../API_CONTRACTS.md). Lifecycle: [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md).
-
-| Method | Path | Role in app |
-|--------|------|-------------|
-| GET | `/d2d/return_batch/view/<batch_id>` | Available tab: `home[]` then `overflow[]` (breaking; not org dump) |
-| GET | `/d2d/return_batch/status/<batch_id>` | Picker counts / capacity / `is_active`; optional `home_hold`, `overflow_confirmed`, `overflow_remaining` |
-| GET | `/d2d/return_batch/get_commuter/<batch_id>` | Confirmed list (hydrate default on) |
-| POST | `/d2d/return_batch/add_commuter` | Confirm `{ batch_id, commuter_id }` |
-| POST | `/d2d/return_batch/remove_commuter` | Remove (same body) |
-| POST | `/d2d/return_batch/end/<batch_id>` | End trip (Flutter POST; backend also allows GET) |
-
-## Docs in this guide
-
-| Doc | Topic |
-|-----|-------|
-| [../../PROJECT_BRAIN.md](../../PROJECT_BRAIN.md#6-status-snapshot) | Done vs pending (short) |
-| [01-docker-stack.md](./01-docker-stack.md) | Containers, Nginx, startup |
-| [02-data-model.md](./02-data-model.md) | Postgres, **two Redis key spaces**; User.email / address Flutter rules |
-| [03-d2d-websocket-lifecycle.md](./03-d2d-websocket-lifecycle.md) | Live D2D |
-| [04-return-batch-lifecycle.md](./04-return-batch-lifecycle.md) | Evening REST + Redis |
-
-## Cross-repo references
-
-- API ↔ Flutter: [../API_CONTRACTS.md](../API_CONTRACTS.md)
-- E2E morning trip: [../features/D2D_E2E.md](../features/D2D_E2E.md)
-- E2E return trip: [../features/RETURN_BATCH_E2E.md](../features/RETURN_BATCH_E2E.md)
-
-## Also in backend repo
-
-- `D:\cts-docker\WEBSOCKET_FIXES.md` — Nginx/uvicorn/routing fixes log
+| Module | Role |
+|--------|------|
+| `consumers.py` | Morning WS (ADD/REMOVE/DELETE/STOP); auth 4401/4403; ended 4001 |
+| `live_state.py` | Redis `d2d:live:…` |
+| `board_commuter` (helper) | Shared by WS REMOVE + `boarding_scan` |
+| `odometer_views.py` | start / end / get / org / photo |
+| `boarding_views.py` | boarding_qr / boarding_scan / boarding_unboard |
+| `boarding_tokens.py` / `boarding_auth.py` | QR token |
+| `return_batch_views.py` + `return_batch_utils.py` | Evening REST + Redis `{dd-mm-yyyy}_{id}` |
+| `models.py` | DTODLOG (+ nullable odometer cols) |
+| `urls.py` | All `/d2d/…` routes |
+| `test_odometer.py` / `test_boarding_scan.py` | BE unit tests |

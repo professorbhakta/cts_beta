@@ -1,4 +1,4 @@
-﻿import 'package:cts/appManager/colors.dart';
+﻿import 'package:cts/theme/cts_colors.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
@@ -37,7 +37,8 @@ class SearchableDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = context.theme;
+    final scheme = context.scheme;
 
     // Show loading state
     if (isLoading) {
@@ -45,11 +46,11 @@ class SearchableDropdown<T> extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(12),
-          color: AppColors.acWhite,
+          color: scheme.surface,
         ),
         child: const Center(child: CircularProgressIndicator()),
       );
@@ -61,23 +62,23 @@ class SearchableDropdown<T> extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.acRed,
+            color: scheme.error,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(12),
-          color: AppColors.acWhite,
+          color: scheme.surface,
         ),
         child: Text(
           'Error: $errorMessage',
-          style: TextStyle(color: AppColors.acRed),
+          style: TextStyle(color: scheme.error),
         ),
       );
     }
 
     return DropdownSearch<T>(
       selectedItem: value,
-      items: items,
-      onChanged: enabled ? onChanged : null,
+      items: (filter, _) => items,
+      onSelected: enabled ? onChanged : null,
       validator: validator,
       enabled: enabled,
       popupProps: PopupProps.menu(
@@ -89,26 +90,26 @@ class SearchableDropdown<T> extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.acYellowWarm,
+                color: scheme.primary,
                 width: 2,
               ),
             ),
             filled: true,
-            fillColor: AppColors.acWhite,
+            fillColor: scheme.surface,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -121,12 +122,13 @@ class SearchableDropdown<T> extends StatelessWidget {
           ),
           elevation: 8,
         ),
-        itemBuilder: (context, item, isSelected) {
+        itemBuilder: (context, item, isDisabled, isSelected) {
+          final itemScheme = context.scheme;
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: isSelected
-                  ? AppColors.acYellowWarm.withValues(alpha: 0.1)
+                  ? itemScheme.primary.withValues(alpha: 0.1)
                   : Colors.transparent,
             ),
             child: Row(
@@ -134,7 +136,7 @@ class SearchableDropdown<T> extends StatelessWidget {
                 if (isSelected)
                   Icon(
                     Icons.check_circle,
-                    color: AppColors.acYellowWarm,
+                    color: itemScheme.primary,
                     size: 20,
                   )
                 else
@@ -144,10 +146,13 @@ class SearchableDropdown<T> extends StatelessWidget {
                   child: Text(
                     itemAsString?.call(item) ?? item.toString(),
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: isSelected
-                          ? AppColors.acYellowWarm
-                          : theme.colorScheme.onSurface,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isDisabled
+                          ? theme.disabledColor
+                          : isSelected
+                              ? itemScheme.primary
+                              : itemScheme.onSurface,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -156,54 +161,54 @@ class SearchableDropdown<T> extends StatelessWidget {
           );
         },
       ),
-      dropdownDecoratorProps: DropDownDecoratorProps(
+      decoratorProps: DropDownDecoratorProps(
         baseStyle: theme.textTheme.bodyLarge,
-        dropdownSearchDecoration: InputDecoration(
+        decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
           prefixIcon: icon != null
               ? Icon(
                   icon,
-                  color: AppColors.acYellowWarm,
+                  color: scheme.primary,
                 )
               : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+              color: scheme.primary.withValues(alpha: 0.3),
               width: 1.5,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+              color: scheme.primary.withValues(alpha: 0.3),
               width: 1.5,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: AppColors.acYellowWarm,
+              color: scheme.primary,
               width: 2,
             ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: AppColors.acRed,
+              color: scheme.error,
               width: 1.5,
             ),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: AppColors.acRed,
+              color: scheme.error,
               width: 2,
             ),
           ),
           filled: true,
-          fillColor: AppColors.acWhite,
+          fillColor: scheme.surface,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -216,5 +221,3 @@ class SearchableDropdown<T> extends StatelessWidget {
     );
   }
 }
-
-

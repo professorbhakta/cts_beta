@@ -30,6 +30,13 @@ List<D2dCommuterModel>? parseAlreadyInFromResult(Map<String, dynamic> result) {
   return _parseCommutersFromPayloadData(raw);
 }
 
+/// Parses FCFS waiting pool from WS `waiting`.
+List<D2dCommuterModel>? parseWaitingFromResult(Map<String, dynamic> result) {
+  final raw = result['waiting'];
+  if (raw == null) return null;
+  return _parseCommutersFromPayloadData(raw);
+}
+
 List<D2dCommuterModel>? _parseCommutersFromPayloadData(dynamic data) {
   if (data == null) return null;
 
@@ -136,9 +143,12 @@ class D2dChannelProvider with ChangeNotifier {
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   int _connectGeneration = 0;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 8;
   DriverModel? _driver;
   List<D2dCommuterModel> _commuters = [];
   List<D2dCommuterModel> _alreadyInCommuters = [];
+  List<D2dCommuterModel> _waitingCommuters = [];
   bool _isAscending = true;
   bool _isConnected = false;
   bool _isDisposed = false;
@@ -160,14 +170,49 @@ class D2dChannelProvider with ChangeNotifier {
   DriverModel? get driver => _driver;
   List<D2dCommuterModel> get commuters => _commuters;
   List<D2dCommuterModel> get alreadyInCommuters => _alreadyInCommuters;
+  List<D2dCommuterModel> get waitingCommuters => _waitingCommuters;
   bool get isAscending => _isAscending;
   bool get connectionLost => _connectionLost;
   String? get connectedBatchId => _connectedBatchId;
+
+  /// WebSocket / trip liveness — NOT remaining-queue occupancy.
+  ///
+  /// True when a batch is bound, the socket is not marked lost, and the trip
+  /// has not ended. When [tripStatus] is known, `active` confirms live and
+  /// `none`/`ended` force false; `unknown` falls back to connection fields.
+  bool get isChannelLive {
+    if (_connectedBatchId == null || _connectionLost || _tripEnded) {
+      return false;
+    }
+    switch (_tripStatus) {
+      case D2dTripStatus.active:
+        return true;
+      case D2dTripStatus.ended:
+      case D2dTripStatus.none:
+        return false;
+      case D2dTripStatus.unknown:
+        return true;
+    }
+  }
 
   /// Binds an active batch for lifecycle resume tests without opening a socket.
   @visibleForTesting
   void bindActiveBatchForLifecycle(String batchId) {
     _connectedBatchId = batchId;
+  }
+
+  /// Test-only override of connection / trip flags for [isChannelLive].
+  @visibleForTesting
+  void debugSetChannelLiveState({
+    String? batchId,
+    bool connectionLost = false,
+    bool tripEnded = false,
+    D2dTripStatus tripStatus = D2dTripStatus.unknown,
+  }) {
+    _connectedBatchId = batchId;
+    _connectionLost = connectionLost;
+    _tripEnded = tripEnded;
+    _tripStatus = tripStatus;
   }
 
   String? get driverMobile {
@@ -225,6 +270,7 @@ class D2dChannelProvider with ChangeNotifier {
 
     _connectedBatchId = batchId;
     _connectionLost = false;
+    _reconnectAttempts = 0;
     _state = ViewState.loading;
     _errorMessage = null;
     _actionErrorMessage = null;
@@ -278,19 +324,7 @@ class D2dChannelProvider with ChangeNotifier {
           );
         },
         onDone: () {
-          if (!_isConnected || _isDisposed) return;
-          if (_tripEnded || _isEndedTripClose(null)) {
-            _markTripEnded();
-            return;
-          }
-          if (_isAuthClose(null)) {
-            _handleAuthClose();
-            return;
-          }
-          if (kDebugMode) {
-            debugPrint('D2D: WebSocket connection closed');
-          }
-          _handleUnexpectedDisconnect();
+          unawaited(_handleSocketDone());
         },
       );
 
@@ -305,6 +339,29 @@ class D2dChannelProvider with ChangeNotifier {
       _errorMessage = "Failed to connect to the live channel. ${e.toString()}";
       _safeNotifyListeners();
     }
+  }
+
+  Future<void> _handleSocketDone() async {
+    if (!_isConnected || _isDisposed) return;
+
+    // closeCode may not be populated synchronously on some platforms.
+    await Future<void>.delayed(Duration.zero);
+    final closeCode = _channel?.closeCode;
+    if (kDebugMode) {
+      debugPrint(
+        'D2D: WebSocket closed (code: $closeCode, reason: ${_channel?.closeReason})',
+      );
+    }
+
+    if (_tripEnded || _isEndedTripClose(null)) {
+      _markTripEnded();
+      return;
+    }
+    if (_isAuthClose(null)) {
+      _handleAuthClose();
+      return;
+    }
+    _handleUnexpectedDisconnect();
   }
 
   bool _isEndedTripClose(Object? error) {
@@ -356,7 +413,11 @@ class D2dChannelProvider with ChangeNotifier {
     _channel = null;
     _connectionLost = true;
 
-    if (_commuters.isNotEmpty) {
+    final keepUiUsable = _commuters.isNotEmpty ||
+        _tripStatus == D2dTripStatus.active ||
+        (_connectedBatchId != null && !_tripEnded);
+
+    if (keepUiUsable) {
       _state = ViewState.success;
       _errorMessage = message ?? _connectionLostMessage;
     } else {
@@ -404,6 +465,27 @@ class D2dChannelProvider with ChangeNotifier {
     if (_isDisposed || _tripEnded) return;
     if (_isConnected && _channel != null) return;
 
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+      if (kDebugMode) {
+        debugPrint(
+          'D2D: Reconnect stopped after $_reconnectAttempts attempts',
+        );
+      }
+      _connectionLost = true;
+      if (_connectedBatchId != null && !_tripEnded) {
+        _state = ViewState.success;
+        _errorMessage =
+            'Live connection unavailable. KM and QR still work — tap Retry on the banner.';
+      }
+      _safeNotifyListeners();
+      return;
+    }
+
+    _reconnectAttempts++;
+    final backoffMs = 400 * _reconnectAttempts.clamp(1, 6);
+    await Future<void>.delayed(Duration(milliseconds: backoffMs));
+    if (_isDisposed || _tripEnded) return;
+
     _connectionLost = false;
     _errorMessage = null;
     if (_commuters.isEmpty) {
@@ -441,6 +523,7 @@ class D2dChannelProvider with ChangeNotifier {
     _channel = null;
     _commuters = [];
     _alreadyInCommuters = [];
+    _waitingCommuters = [];
     _tripEnded = true;
     _tripStatus = D2dTripStatus.ended;
     _state = ViewState.error;
@@ -482,6 +565,7 @@ class D2dChannelProvider with ChangeNotifier {
 
       _connectionLost = false;
       _errorMessage = null;
+      _reconnectAttempts = 0;
 
       if (resultMap['driver'] is Map) {
         try {
@@ -504,6 +588,11 @@ class D2dChannelProvider with ChangeNotifier {
       final parsedAlreadyIn = parseAlreadyInFromResult(resultMap);
       if (parsedAlreadyIn != null) {
         _alreadyInCommuters = parsedAlreadyIn;
+      }
+
+      final parsedWaiting = parseWaitingFromResult(resultMap);
+      if (parsedWaiting != null) {
+        _waitingCommuters = parsedWaiting;
       }
 
       _state = ViewState.success;
@@ -675,10 +764,12 @@ class D2dChannelProvider with ChangeNotifier {
     _channel = null;
     _commuters = [];
     _alreadyInCommuters = [];
+    _waitingCommuters = [];
     _driver = null;
     _actionErrorMessage = null;
     _connectionLost = false;
     _connectedBatchId = null;
+    _reconnectAttempts = 0;
     _state = ViewState.idle;
 
     if (notify) {

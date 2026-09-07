@@ -4,22 +4,27 @@ class ReturnAvailableResult {
   const ReturnAvailableResult({
     required this.home,
     required this.overflow,
+    this.waiting = const [],
   });
 
   final List<CommuterModel> home;
   final List<CommuterModel> overflow;
+  final List<CommuterModel> waiting;
 
   List<CommuterModel> get all => [...home, ...overflow];
 
-  /// Breaking GET view/: parse home[] / overflow[]. Ignore flat `commuters`.
+  /// Breaking GET view/: parse home[] / overflow[] / waiting[]. Ignore flat `commuters`.
   factory ReturnAvailableResult.fromJson(Map<String, dynamic> json) {
-    final hasSplit = json.containsKey('home') || json.containsKey('overflow');
+    final hasSplit = json.containsKey('home') ||
+        json.containsKey('overflow') ||
+        json.containsKey('waiting');
     if (!hasSplit) {
       return const ReturnAvailableResult(home: [], overflow: []);
     }
     return ReturnAvailableResult(
       home: _parseList(json['home']),
       overflow: _parseList(json['overflow']),
+      waiting: _parseList(json['waiting']),
     );
   }
 

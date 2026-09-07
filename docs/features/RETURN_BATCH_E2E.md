@@ -1,6 +1,6 @@
 > **Doc:** docs/features/RETURN_BATCH_E2E.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-25 21:40 IST
+> **Session:** Related → API_CONTRACTS + batches README (backend/04 deleted)
 
 # Evening Return Trip (End-to-End)
 
@@ -94,7 +94,7 @@ Driver uses the same GET + add/remove + end POSTs. Admin monitors and adds from 
 | Flutter transport | `WebSocketChannel` | Dio REST |
 | Shared state? | **No** — separate keys |
 
-See [../backend/02-data-model.md](../backend/02-data-model.md).
+See [../API_CONTRACTS.md](../API_CONTRACTS.md) · [../../lib/features/batches/README.md](../../lib/features/batches/README.md).
 
 ---
 
@@ -141,7 +141,6 @@ sequenceDiagram
 
 ## Related
 
-- [../backend/04-return-batch-lifecycle.md](../backend/04-return-batch-lifecycle.md)
 - [../../lib/features/batches/README.md](../../lib/features/batches/README.md)
 - [../API_CONTRACTS.md](../API_CONTRACTS.md)
 - [D2D_E2E.md](./D2D_E2E.md) — separate morning flow

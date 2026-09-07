@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import 'package:cts/appManager/colors.dart';
+﻿import 'package:cts/theme/cts_colors.dart';
+import 'package:flutter/material.dart';
 
 class NoDataFound extends StatelessWidget {
   final String? message;
@@ -12,7 +12,7 @@ class NoDataFound extends StatelessWidget {
       child: Text(
         "NO DATA FOUND",
         style: TextStyle(
-          color: AppColors.acShadowColor,
+          color: context.cts.shadow,
           fontWeight: FontWeight.bold,
           fontSize: 24,
         ),
@@ -20,4 +20,3 @@ class NoDataFound extends StatelessWidget {
     );
   }
 }
-

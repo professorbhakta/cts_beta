@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/models/offline_batch.dart';
 import 'package:cts/offline_temp/models/offline_commuter.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
@@ -54,13 +54,14 @@ class _OfflineBatchCommutersScreenState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    final cts = context.cts;
+
     final scheme = Theme.of(context).colorScheme;
     final batchName = _batch?.name ?? 'Batch';
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.acBlack,
+        backgroundColor: scheme.onSurface,
         title: Text(batchName),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -76,14 +77,14 @@ class _OfflineBatchCommutersScreenState
           );
           if (changed == true) await _load();
         },
-        icon: const Icon(Icons.person_add_alt_1),
+        icon: Icon(Icons.person_add_alt_1),
         label: const Text('Commuter'),
       ),
       body: Column(
         children: [
           if (!_loading && _commuters.isNotEmpty)
             Material(
-              color: AppColors.acYellowSoft.withValues(alpha: 0.35),
+              color: cts.yellowSoft.withValues(alpha: 0.35),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 child: Row(
@@ -92,7 +93,7 @@ class _OfflineBatchCommutersScreenState
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: 'Search in batch...',
-                          prefixIcon: const Icon(Icons.search),
+                          prefixIcon: Icon(Icons.search),
                           filled: true,
                           fillColor: scheme.surface,
                           border: OutlineInputBorder(
@@ -163,8 +164,8 @@ class _OfflineBatchCommutersScreenState
                         '#${commuter.displayId} • ${commuter.routeName ?? 'No route'}',
                     icon: Icons.person_rounded,
                     iconColor: commuter.isComing
-                        ? AppColors.acGreen
-                        : AppColors.acOrange,
+                        ? cts.success
+                        : cts.orange,
                     trailing: Switch(
                       value: commuter.isComing,
                       onChanged: (value) async {
@@ -223,7 +224,7 @@ class _OfflineBatchCommutersScreenState
           Expanded(
             child: Text(
               value.isEmpty ? '-' : value,
-              style: const TextStyle(fontSize: 13),
+              style: TextStyle(fontSize: 13),
             ),
           ),
         ],

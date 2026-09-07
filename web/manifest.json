@@ -1,11 +1,11 @@
 {
-    "name": "cts_beta",
-    "short_name": "cts_beta",
+    "name": "cts",
+    "short_name": "cts",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F7F4EE",
+    "theme_color": "#F5C400",
+    "description": "Commuter Transport System",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

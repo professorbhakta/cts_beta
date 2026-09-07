@@ -158,8 +158,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Home hold'), findsOneWidget);
-      expect(find.text('Overflow open'), findsOneWidget);
+      expect(find.textContaining('Home hold'), findsOneWidget);
+      expect(find.textContaining('Overflow open'), findsOneWidget);
       expect(find.byType(SingleChildScrollView), findsNothing);
     });
 
@@ -193,7 +193,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(GridView), findsOneWidget);
+      expect(find.byType(CustomScrollView), findsOneWidget);
       expect(find.byType(SingleChildScrollView), findsNothing);
       expect(find.text('Batch-1'), findsOneWidget);
       expect(returnProvider.statusByBatchId.length, 24);

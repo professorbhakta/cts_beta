@@ -26,6 +26,16 @@ class CommuterHomeProvider with ChangeNotifier {
   bool _isUpdating = false;
   bool get isUpdating => _isUpdating;
 
+  /// Session-local boarding flag (set after successful scan). No new API.
+  bool _hasBoardedToday = false;
+  bool get hasBoardedToday => _hasBoardedToday;
+
+  void markBoardedToday() {
+    if (_hasBoardedToday) return;
+    _hasBoardedToday = true;
+    notifyListeners();
+  }
+
   ReturnIntentModel _returnIntent = const ReturnIntentModel(
     intent: ReturnIntentKind.home,
   );
@@ -94,6 +104,9 @@ class CommuterHomeProvider with ChangeNotifier {
       if (_commuterProfile != null) {
         _commuterProfile!.isComing = isComing;
       }
+      if (!isComing) {
+        _hasBoardedToday = false;
+      }
     } else {
       _errorMessage = result.failure?.message;
     }
@@ -140,5 +153,42 @@ class CommuterHomeProvider with ChangeNotifier {
         targetBatchId: targetBatchId,
       ),
     );
+  }
+
+  bool _isJoiningWaiting = false;
+  bool get isJoiningWaiting => _isJoiningWaiting;
+
+  String? _joinWaitingError;
+  String? get joinWaitingError => _joinWaitingError;
+
+  /// Commuter self-serve: join FCFS return waiting line for home batch.
+  Future<String?> joinReturnWaitingLine() async {
+    final profile = _commuterProfile;
+    final userId = profile?.userId?.id?.toString();
+    final batchId = profile?.batchId?.id?.toString();
+    if (userId == null || batchId == null) {
+      _joinWaitingError = 'Profile or batch not loaded.';
+      notifyListeners();
+      return _joinWaitingError;
+    }
+
+    _isJoiningWaiting = true;
+    _joinWaitingError = null;
+    notifyListeners();
+
+    final result = await _returnBatchRepository.joinReturnWaiting(
+      userId,
+      batchId,
+    );
+
+    _isJoiningWaiting = false;
+    if (result.isFailure) {
+      _joinWaitingError = result.failure?.message;
+      notifyListeners();
+      return _joinWaitingError;
+    }
+
+    notifyListeners();
+    return result.data;
   }
 }

@@ -1,0 +1,101 @@
+> **Doc:** docs/D2D_PHASE3_CONTINUE_PROMPT.txt
+> **Updated:** 2026-08-31 13:20 IST
+> **Session:** Phase 1+2 shipped; Phase 3 handoff for next agent
+================================================================================
+COPY FROM HERE → paste as new chat START (Phase 3 — return waiting + FCFS)
+================================================================================
+
+@PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+@docs/D2D_PHASE3_CONTINUE_PROMPT.txt
+@lib/features/d2d/README.md
+@lib/features/batches/README.md
+@docs/API_CONTRACTS.md
+@docs/FLOWS_BY_ROLE.md
+@docs/features/RETURN_BATCH_E2E.md
+@docs/client_req/DESIGN_SNAPSHOT.md
+@docs/LOCAL_DEV.md
+@docs/TESTING.md
+
+Task: **Phase 3 — Return trip waiting pool + FCFS parity** (evening REST batch).
+
+Repos: `D:\cts_beta` (beta-ver) · `D:\cts-docker` (local Docker)
+
+---
+
+## Context — what is already shipped (do NOT redo)
+
+### Morning D2D Phase 1 (2026-08-31)
+- QR scan: cross-batch guests **in live queue** may board (`require_home_batch=false` on existing `POST /d2d/boarding_scan/`).
+- WS `STOP` + return `end`: `set_commuters_is_coming(is_coming=False, scope='trip_end', …)` — bulk home batch + cross-batch participants; flush Redis waiting key.
+- Return **End** no longer restores `isComing=true` (riders Mark Coming again for later return).
+- Flutter: **Remaining** first; **Already IN** collapsed; ISSUE-008 adminCode fix (uncommitted on beta-ver — verify/land if still open).
+
+### Morning D2D Phase 2 (2026-08-31)
+- **Same endpoint** `POST /d2d/boarding_scan/` with optional `action`:
+  - `board` (default) — must be in live queue.
+  - `join_waiting` — FCFS waiting line (Q1 B: separate action, not auto on scan fail).
+- Redis `d2d:waiting:{YYYY-MM-DD}:{batch_id}` via `live_state.py`; logic in `waiting_pool.py`.
+- FCFS auto-board to **CList** when seat opens (Q2 B) — after WS `DELETE`, unboard, join when capacity allows.
+- WS `result.waiting[]` hydrated; Flutter `waitingCommuters` + **Waiting line** UI on driver/admin D2D screens.
+- Commuter scan: on `not_in_queue` / `capacity_full` → dialog → `join_waiting`.
+
+### One helper (no parallel on/off APIs)
+`return_batch_utils.set_commuters_is_coming(is_coming, scope='user'|'trip_end', …)` — use this; do not add `turn_on/off` duplicates.
+
+**Avoid new REST paths unless truly required.** Prefer extending existing return_batch endpoints or mirroring morning `action` pattern.
+
+---
+
+## Phase 3 goal
+
+Mirror morning waiting + FCFS on **evening return batch** (REST only):
+
+| Morning (done) | Return (Phase 3) |
+|----------------|------------------|
+| Live queue (`data`) | Available tab home[] + overflow[] |
+| Waiting Redis pool | **New** return waiting pool (design key; flush on **End return**) |
+| Join via `boarding_scan` `action=join_waiting` | Commuter **join return waiting** (extend existing endpoint OR parallel `action` on one return REST call — justify if new) |
+| FCFS → auto confirm/CList equivalent | FCFS → auto **add to confirmed Redis set** when seat opens |
+| Driver/admin see Waiting line | **ReturnCommuterListScreen** — waiting section between Available and Confirmed |
+| `scope=trip_end` on STOP | Already on `POST …/return_batch/end/` — include **return waiting** participants |
+
+Locked product rules (from discussion):
+- Q1 B: join waiting is a **separate explicit action**, not silent fallback on failed confirm.
+- Q2 B: FCFS promotes to **confirmed seat** (morning: CList), not merely “available list”.
+- Q3: End return clears `isComing` for home batch + cross-batch confirmed/waiting (same as morning STOP).
+- Do **not** reopen D1–D10 / R10 (return intent ≠ isComing).
+
+---
+
+## Suggested implementation order
+
+1. Read `return_batch_utils.py`, `return_pool.py`, `return_batch_views.py`, `ReturnBatchProvider`, `return_batch_commuter_screen.dart`.
+2. **BE:** return waiting Redis + join API (extend existing); FCFS hook after `remove_commuter` / capacity opens; flush on `end_return_trip`; tests in `d2d_log/test_*`.
+3. **FE:** parse waiting in return status/view if needed; UI section; commuter join flow (home/commuter screen or return-specific entry).
+4. **Docs:** `API_CONTRACTS.md`, `batches/README.md`, `FLOWS_BY_ROLE.md`, `DESIGN_SNAPSHOT.md` — update only; no new md files.
+5. `flutter analyze` + `flutter test`; Django tests when DB allows.
+
+---
+
+## Also open (do not block Phase 3 unless user says so)
+
+| Track | Status |
+|-------|--------|
+| STEP 8 device smoke | Partial — see `docs/LAB_SMOKE_ISSUES.txt` |
+| ISSUE-008 adminCode | FE fix uncommitted |
+| Q-26d-discuss | Return confirm “API every time” |
+| Phase 3 return waiting | **This prompt** |
+
+---
+
+## Constraints
+
+- `beta-ver` only; **no commit/push** unless user asks.
+- Provider only; module paths per `docs/LIB_STRUCTURE.md`.
+- No new public API surface without checking morning pattern first.
+- Restart `C2S-Django` after BE changes; hot-restart Flutter apps.
+
+================================================================================
+END COPY
+================================================================================

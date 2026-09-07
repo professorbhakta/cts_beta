@@ -1,6 +1,6 @@
 > **Doc:** docs/CODE_MAP.md
-> **Updated:** 2026-08-20 23:40 IST
-> **Session:** design/wireframes removed
+> **Updated:** 2026-08-25 21:40 IST
+> **Session:** Guides retired — point to FLOWS_BY_ROLE
 
 # Code map
 
@@ -92,8 +92,7 @@ Session cookies: `lib/appManager/session_manager.dart`. Connectivity (cached): `
 | go_router & roles (P1) | [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) |
 | Feature catalog (P1) | [FEATURES.md](./FEATURES.md) |
 | Offline / sync (P2) | [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md) |
-| Build / API / tests (P2) | [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [API_AND_ENV.md](./API_AND_ENV.md) · [TESTING.md](./TESTING.md) |
-| User guides (P3) | [guides/README.md](./guides/README.md) |
+| Build / API / tests (P2) | [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md) · [API_AND_ENV.md](./API_AND_ENV.md) · [TESTING.md](./TESTING.md) · [LOCAL_DEV.md](./LOCAL_DEV.md) · [API_CONTRACTS.md](./API_CONTRACTS.md) |
+| Role journeys (P3) | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) |
 | Navigation matrix + ASCII layouts | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
-| Role journeys | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) |
 | Task tracking | [../PROJECT_TODOS.md](../PROJECT_TODOS.md) |

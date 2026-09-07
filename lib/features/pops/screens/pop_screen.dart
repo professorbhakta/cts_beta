@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -7,12 +7,12 @@ import 'package:cts/features/pops/providers/pop_form_provider.dart';
 import 'package:cts/models/pop_model.dart';
 import 'package:cts/utils/pop_sort_options.dart';
 import 'package:cts/utils/sort_utils.dart';
+import 'package:cts/widgets/admin_search_sort_row.dart';
+import 'package:cts/widgets/catalog_list_chrome.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/list_item_actions_sheet.dart';
-import 'package:cts/widgets/modern_list_card.dart';
-import 'package:cts/widgets/search_bar_widget.dart';
-import 'package:cts/widgets/skeleton_list.dart';
 import 'package:cts/widgets/sort_dropdown_widget.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +54,6 @@ class _PopScreenState extends State<PopScreen> {
   List<PickUpPointModel> _getFilteredAndSortedPops(
     List<PickUpPointModel> allPops,
   ) {
-    // First filter by search query
     List<PickUpPointModel> filtered = _searchQuery.isEmpty
         ? allPops
         : allPops.where((pop) {
@@ -66,7 +65,6 @@ class _PopScreenState extends State<PopScreen> {
                 inline.contains(_searchQuery);
           }).toList();
 
-    // Then sort according to selected sort option
     return sortPopList(filtered, _selectedSortOption);
   }
 
@@ -111,7 +109,11 @@ class _PopScreenState extends State<PopScreen> {
     ];
   }
 
-  // MODIFIED: Accepts the model object directly for type safety
+  void _openAddPop() {
+    context.read<PopFormProvider>().clearAll();
+    context.push(RouteName.popForm);
+  }
+
   void _showEditDialog(PickUpPointModel pop) {
     final formProvider = context.read<PopFormProvider>();
     formProvider.nameCtrl.text = pop.pickUpPointName ?? "";
@@ -122,7 +124,6 @@ class _PopScreenState extends State<PopScreen> {
     context.push(RouteName.popForm);
   }
 
-  // MODIFIED: Accepts the model object directly for type safety
   void _showDeleteDialog(PickUpPointModel pop) {
     final controller = context.read<PopProvider>();
     ConfirmationDialog.showDeleteConfirmation(
@@ -152,49 +153,14 @@ class _PopScreenState extends State<PopScreen> {
   Widget build(BuildContext context) {
     return DashboardShell(
       title: 'Pick-Up Points',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.add),
-          tooltip: 'Add POP',
-          iconSize: 36,
-          onPressed: () {
-            context.read<PopFormProvider>().clearAll();
-            context.push(RouteName.popForm);
-          },
-        ),
-      ],
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer<PopProvider>(
         builder: (context, popCtrl, child) {
-          // Show skeleton loader on initial load
           if (popCtrl.state == ViewState.loading && popCtrl.pops.isEmpty) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'All Pick-Up Points',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Manage pickup locations and keep them updated.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const PopSkeletonList(itemCount: 8),
-                    ],
-                  ),
-                ),
-              ],
+            return const CatalogListSkeleton(
+              title: 'Pick-Up Points',
+              itemHeight: 96,
             );
           }
 
@@ -206,7 +172,6 @@ class _PopScreenState extends State<PopScreen> {
             );
           }
 
-          // Get filtered and sorted POPs
           final filteredPops = _getFilteredAndSortedPops(popCtrl.pops);
 
           if (popCtrl.pops.isEmpty) {
@@ -215,78 +180,57 @@ class _PopScreenState extends State<PopScreen> {
               title: 'No pick-up points found',
               message: 'Get started by creating your first pick-up point.',
               actionLabel: 'Create POP',
-              onAction: () {
-                context.read<PopFormProvider>().clearAll();
-                context.push(RouteName.popForm);
-              },
+              onAction: _openAddPop,
             );
           }
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: SearchBarWidget(
-                      hintText: 'Search by name, route, or inline number...',
-                      onSearchChanged: _onSearchChanged,
-                    ),
-                  ),
-                  SortDropdownWidget<PopSortOption>(
-                    options: _getSortOptions(),
-                    selectedValue: _selectedSortOption,
-                    onSortChanged: _onSortChanged,
-                    icon: Icons.sort,
-                    tooltip: 'Sort pick-up points',
-                  ),
-                ],
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: CatalogPageTitle(title: 'Pick-Up Points'),
+              ),
+              AdminSearchSortRow<PopSortOption>(
+                hintText: 'Search by name, route, or inline number...',
+                onSearchChanged: _onSearchChanged,
+                sortOptions: _getSortOptions(),
+                selectedSort: _selectedSortOption,
+                onSortChanged: _onSortChanged,
+                sortTooltip: 'Sort pick-up points',
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: CatalogYellowAddButton(
+                  label: 'Add POP',
+                  onPressed: _openAddPop,
+                ),
               ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () => popCtrl.fetchPops(),
                   child: filteredPops.isEmpty && _searchQuery.isNotEmpty
-                      ? const StatusMessage(
-                          icon: Icons.search_off,
-                          title: 'No pick-up points match your search',
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            StatusMessage(
+                              icon: Icons.search_off,
+                              title: 'No pick-up points match your search',
+                            ),
+                          ],
                         )
                       : CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                              sliver: SliverToBoxAdapter(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'All Pick-Up Points',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Manage pickup locations and keep them updated.',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.7),
-                                          ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                              ),
-                            ),
                             _PopList(
                               pops: filteredPops,
                               onEdit: _showEditDialog,
                               onDelete: _showDeleteDialog,
+                            ),
+                            const SliverToBoxAdapter(
+                              child: CatalogFooterHint(
+                                'Swipe to edit or delete',
+                              ),
                             ),
                           ],
                         ),
@@ -300,7 +244,6 @@ class _PopScreenState extends State<PopScreen> {
   }
 }
 
-// START INSERTION: The new, modern, decoupled widget
 class _PopList extends StatelessWidget {
   const _PopList({
     required this.pops,
@@ -314,81 +257,75 @@ class _PopList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       sliver: SliverList.separated(
         itemCount: pops.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final pop = pops[index];
           return Slidable(
-          key: ValueKey(pop.id),
-          startActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            dismissible: DismissiblePane(onDismissed: () => onDelete(pop)),
-            children: [
-              SlidableAction(
-                onPressed: (_) => onDelete(pop),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
-                icon: Icons.delete_rounded,
-                label: 'Delete',
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+            key: ValueKey(pop.id),
+            startActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              dismissible: DismissiblePane(onDismissed: () => onDelete(pop)),
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onDelete(pop),
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
+                  icon: Icons.delete_rounded,
+                  label: 'Delete',
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-                flex: 1,
-              ),
-            ],
-          ),
-          endActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            children: [
-              SlidableAction(
-                onPressed: (_) => onEdit(pop),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
-                icon: Icons.edit_rounded,
-                label: 'Edit',
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                flex: 1,
-              ),
-            ],
-          ),
-          child: ModernListCard(
-            title: pop.pickUpPointName ?? 'Unnamed Pick-Up Point',
-            icon: Icons.location_on_rounded,
-            iconColor: AppColors.acYellowWarm,
-            onLongPress: () => ListItemActionsSheet.show(
-              context,
-              onEdit: () => onEdit(pop),
-              onDelete: () => onDelete(pop),
+              ],
             ),
-            children: [
-              InfoRow(
-                icon: Icons.route_rounded,
-                label: 'Route:',
-                value: pop.routeId?.routeName ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
+            endActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onEdit(pop),
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
+                  icon: Icons.edit_rounded,
+                  label: 'Edit',
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  flex: 1,
+                ),
+              ],
+            ),
+            child: CatalogCard(
+              title: pop.pickUpPointName ?? 'Unnamed Pick-Up Point',
+              onLongPress: () => ListItemActionsSheet.show(
+                context,
+                onEdit: () => onEdit(pop),
+                onDelete: () => onDelete(pop),
               ),
-              InfoRow(
-                icon: Icons.numbers_rounded,
-                label: 'Stop Number:',
-                value: pop.inLine?.toString() ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
-              ),
-            ],
-          ),
+              children: [
+                CatalogField(
+                  label: 'Route',
+                  value: pop.routeId?.routeName ?? 'N/A',
+                ),
+                CatalogField(
+                  label: 'Stop Number',
+                  value: pop.inLine?.toString() ?? 'N/A',
+                ),
+              ],
+            ),
           );
         },
       ),
     );
   }
 }
-
-// END INSERTION

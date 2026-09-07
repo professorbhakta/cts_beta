@@ -25,6 +25,8 @@ abstract class ReturnBatchRepository {
 
   Future<ApiResult<void>> endReturnTrip(String batchId);
 
+  Future<ApiResult<String>> joinReturnWaiting(String userId, String batchId);
+
   Future<ApiResult<ReturnIntentModel>> getReturnIntent();
 
   Future<ApiResult<ReturnIntentModel>> setReturnIntent(ReturnIntentModel intent);

@@ -1,5 +1,5 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/admin_home/providers/admin_provider.dart';
@@ -98,20 +98,22 @@ class _D2dChannelState extends State<D2dChannel> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    final scheme = context.scheme;
+
     final fabPadding = d2dFabScrollPadding(context);
 
     return DashboardShell(
       title: 'D2D Channel',
       fab: FloatingActionButton.extended(
         onPressed: _leaveChannel,
-        backgroundColor: AppColors.acRed,
-        foregroundColor: AppColors.acWhite,
-        icon: const Icon(Icons.close_rounded),
+        backgroundColor: scheme.error,
+        foregroundColor: scheme.surface,
+        icon: Icon(Icons.close_rounded),
         label: const Text('Close channel'),
       ),
       child: Consumer<D2dChannelProvider>(
-        builder: (context, provider, child) {
+        builder: (context, provider, child) {    final scheme = context.scheme;
+
           if (provider.state == ViewState.loading) {
             return const LoadingIndicator(height: 280);
           }
@@ -134,7 +136,7 @@ class _D2dChannelState extends State<D2dChannel> {
             );
           }
 
-          final isLive = provider.commuters.isNotEmpty;
+          final isLive = provider.isChannelLive;
           final driverName = provider.driverName;
           final liveCommuterIds = provider.commuters
               .map((commuter) => commuter.id)
@@ -176,20 +178,8 @@ class _D2dChannelState extends State<D2dChannel> {
                 onToggleSort: provider.toggleSortOrder,
               ),
               const SizedBox(height: 16),
-              if (provider.alreadyInCommuters.isNotEmpty) ...[
-                D2dAlreadyInSection(
-                  commuters: provider.alreadyInCommuters,
-                  onCall: (commuter) {
-                    final mobile = commuter.mobileNumber;
-                    if (mobile != null && mobile.isNotEmpty) {
-                      calling(mobile);
-                    }
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
               Text(
-                'Live queue',
+                'Remaining',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -198,14 +188,14 @@ class _D2dChannelState extends State<D2dChannel> {
               if (provider.commuters.isEmpty)
                 const StatusMessage(
                   icon: Icons.hourglass_empty_rounded,
-                  title: 'Waiting for commuter data...',
-                  message: 'Live riders will appear here shortly.',
+                  title: 'No riders waiting pickup',
+                  message: 'Remaining commuters will appear here shortly.',
                 )
               else ...[
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
-                    '${provider.commuters.length} commuter${provider.commuters.length == 1 ? '' : 's'} on board',
+                    '${provider.commuters.length} commuter${provider.commuters.length == 1 ? '' : 's'} remaining',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -226,6 +216,30 @@ class _D2dChannelState extends State<D2dChannel> {
                     const SizedBox(height: 8),
                 ],
               ],
+              if (provider.waitingCommuters.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                D2dWaitingSection(
+                  commuters: provider.waitingCommuters,
+                  onCall: (commuter) {
+                    final mobile = commuter.mobileNumber;
+                    if (mobile != null && mobile.isNotEmpty) {
+                      calling(mobile);
+                    }
+                  },
+                ),
+              ],
+              if (provider.alreadyInCommuters.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                D2dAlreadyInSection(
+                  commuters: provider.alreadyInCommuters,
+                  onCall: (commuter) {
+                    final mobile = commuter.mobileNumber;
+                    if (mobile != null && mobile.isNotEmpty) {
+                      calling(mobile);
+                    }
+                  },
+                ),
+              ],
             ],
               ),
               if (canAdd)
@@ -235,8 +249,8 @@ class _D2dChannelState extends State<D2dChannel> {
                   child: FloatingActionButton(
                     heroTag: 'd2dAddCommuter',
                     tooltip: 'Add commuter',
-                    backgroundColor: AppColors.acYellowWarm,
-                    foregroundColor: AppColors.acBlack,
+                    backgroundColor: scheme.primary,
+                    foregroundColor: scheme.onSurface,
                     onPressed: () => D2dAddCommuterSheet.show(
                       context,
                       batchId: widget.batchId,
@@ -244,7 +258,7 @@ class _D2dChannelState extends State<D2dChannel> {
                       liveCommuterIds: liveCommuterIds,
                       alreadyInCommuterIds: alreadyInIds,
                     ),
-                    child: const Icon(Icons.person_add_rounded),
+                    child: Icon(Icons.person_add_rounded),
                   ),
                 ),
             ],

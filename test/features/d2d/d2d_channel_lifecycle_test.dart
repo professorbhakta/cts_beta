@@ -61,6 +61,40 @@ void main() {
       provider.disconnect();
       expect(provider.connectedBatchId, isNull);
     });
+
+    test('isChannelLive uses connection/trip flags, not remaining queue', () {
+      expect(provider.isChannelLive, isFalse);
+
+      provider.debugSetChannelLiveState(batchId: '7');
+      expect(provider.commuters, isEmpty);
+      expect(provider.isChannelLive, isTrue);
+
+      provider.debugSetChannelLiveState(
+        batchId: '7',
+        tripStatus: D2dTripStatus.active,
+      );
+      expect(provider.isChannelLive, isTrue);
+
+      provider.debugSetChannelLiveState(
+        batchId: '7',
+        connectionLost: true,
+        tripStatus: D2dTripStatus.active,
+      );
+      expect(provider.isChannelLive, isFalse);
+
+      provider.debugSetChannelLiveState(
+        batchId: '7',
+        tripStatus: D2dTripStatus.ended,
+        tripEnded: true,
+      );
+      expect(provider.isChannelLive, isFalse);
+
+      provider.debugSetChannelLiveState(
+        batchId: '7',
+        tripStatus: D2dTripStatus.none,
+      );
+      expect(provider.isChannelLive, isFalse);
+    });
   });
 
   group('ReturnBatchProvider lifecycle', () {

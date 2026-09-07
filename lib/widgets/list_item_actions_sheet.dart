@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Bottom sheet shown on long-press for edit/delete actions on list cards.
@@ -15,32 +15,35 @@ class ListItemActionsSheet {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.edit_outlined, color: AppColors.acYellowWarm),
-              title: const Text('Edit'),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                onEdit();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete_outline, color: AppColors.acRed),
-              title: Text(
-                'Delete',
-                style: TextStyle(color: AppColors.acRed),
+      builder: (sheetContext) {
+        final scheme = sheetContext.scheme;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.edit_outlined, color: scheme.primary),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  onEdit();
+                },
               ),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                onDelete();
-              },
-            ),
-          ],
-        ),
-      ),
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: scheme.error),
+                title: Text(
+                  'Delete',
+                  style: TextStyle(color: scheme.error),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  onDelete();
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

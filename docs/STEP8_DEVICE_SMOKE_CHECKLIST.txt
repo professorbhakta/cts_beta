@@ -1,0 +1,125 @@
+================================================================================
+CTS STEP 8 — REAL DEVICE SMOKE CHECKLIST (Morning D2D: WS + KM + Photo)
+Batch-01 lab | Admin: 7069036462 | Driver: 9876544111 | Password: password
+Open STEP8_DEVICE_SMOKE_CHECKLIST.csv in Excel for Pass/Fail columns.
+================================================================================
+
+HOW TO USE
+  [ ] = not tested   [P] = pass   [F] = fail   Notes: write in margin or CSV
+
+--------------------------------------------------------------------------------
+A. PRE-FLIGHT (before opening trip)
+--------------------------------------------------------------------------------
+[ ] A1  Backend containers up (nginx / Django / Redis / Postgres)
+[ ] A2  Phone and PC on same Wi-Fi
+[ ] A3  .env LAN IP matches PC (rebuild app if IP changed)
+[ ] A4  WEBSOCKET_URL reachable from phone (not localhost)
+[ ] A5  Emulator admin logged in — 7069036462 / password
+[ ] A6  Phone driver logged in — 9876544111 / password (Batch-01)
+[ ] A7  Batch-01 morning trip NOT already ended today
+
+--------------------------------------------------------------------------------
+P. PERMISSIONS (Android asks at runtime — NOT at install)
+--------------------------------------------------------------------------------
+[ ] P1  On splash: camera permission dialog appears
+[ ] P2  Phone / notification / location prompts if not yet granted
+[ ] P3  Settings > Apps > CTS > Permissions — Camera allowed
+
+--------------------------------------------------------------------------------
+B. WEBSOCKET CONNECT & STABILITY
+--------------------------------------------------------------------------------
+[ ] B1  Driver START TRIP — WS connects (loading → live screen)
+[ ] B2  WS stays open ≥ 2 min on live screen
+[ ] B3  Admin: Running Batches → D2D Channel — stays connected
+[ ] B4  If WS drops: Connection lost banner appears
+[ ] B5  Auto-reconnect after brief drop
+[ ] B6  Background → foreground: WS reconnects
+[ ] B7  Leave screen without STOP — trip stays active; re-enter reconnects
+[ ] B8  No unexpected sign-out (4401 / 4403)
+[ ] B9  After STOP: reconnect same day → 4001 / trip ended UI
+
+  WS failure notes (if any):
+  When closed: _______________________
+  Close code:  _______________________
+  Admin also dropped? Y / N
+
+--------------------------------------------------------------------------------
+C. START KM + PHOTO
+--------------------------------------------------------------------------------
+[ ] C1  Start-KM sheet opens (even if WS is flaky)
+[ ] C2  KM required — Confirm blocked if empty
+[ ] C3  Confirm with KM only (no photo) succeeds
+[ ] C4  Take photo — camera opens (not gallery)
+[ ] C5  Photo preview + Retake works
+[ ] C6  Confirm with KM + photo — upload succeeds
+[ ] C7  Close or Skip — no KM recorded; trip continues
+[ ] C8  After Close/Skip — sheet does not re-trap
+[ ] C9  Re-open after start KM recorded — sheet skipped
+
+--------------------------------------------------------------------------------
+D. LIVE TRIP — QR + BOARDING
+--------------------------------------------------------------------------------
+[ ] D1  Boarding QR visible on driver screen
+[ ] D2  Admin channel has NO QR
+[ ] D3  Commuter Coming ON → Scan → boards
+[ ] D4  Driver Already IN list grows
+[ ] D5  Admin channel shows same Already IN
+[ ] D6  One swipe green (REMOVE fallback) works
+[ ] D7  Scan without Coming ON → error (one try)
+
+--------------------------------------------------------------------------------
+E. END KM + STOP
+--------------------------------------------------------------------------------
+[ ] E1  STOP TRIP → end-KM sheet (if end KM not set)
+[ ] E2  End KM + optional photo Confirm succeeds
+[ ] E3  Close/Skip → "Stop anyway?" dialog
+[ ] E4  Stop anyway → trip ends; back to driver home
+[ ] E5  Admin: trip ended; LIVE tile clears
+[ ] E6  Driver cannot START same batch again today (4001)
+
+--------------------------------------------------------------------------------
+F. QUICK REGRESSION (optional ~5 min)
+--------------------------------------------------------------------------------
+[ ] F1  Camera denied → clear error message
+[ ] F2  Invalid KM → validation error
+[ ] F3  Airplane mode → offline banner; recover on restore
+[ ] F4  Admin ADD via + sheet (one commuter)
+
+--------------------------------------------------------------------------------
+G. SESSION LOG (fill when done)
+--------------------------------------------------------------------------------
+Date:           ___________________
+Tester:         ___________________
+Admin device:   ___________________
+Driver device:  ___________________
+Backend IP:     ___________________
+Batch:          Batch-01
+
+RESULT:  [ ] PASS   [ ] PARTIAL   [ ] FAIL
+
+Working:
+  KM entry:        ___________________
+  Photo capture:   ___________________
+  WS stability:    ___________________
+
+Blockers: ___________________
+
+--------------------------------------------------------------------------------
+SUGGESTED TEST ORDER
+  1. A (setup)
+  2. P (permissions on splash)
+  3. B1–B3 (connect both roles)
+  4. C (start KM + photo)
+  5. D1–D6 (QR + boarding + one swipe)
+  6. B4–B7 (stability)
+  7. E (end KM + STOP)
+  8. B9 (4001 after stop)
+
+PRODUCT LOCKS (not bugs):
+  - KM required on Confirm; photo optional
+  - Camera-only when photo taken
+  - Close/Skip on sheets; soft STOP without end KM
+  - Commuter scans (not driver)
+  - Leave screen ≠ end trip (only STOP ends trip)
+
+================================================================================

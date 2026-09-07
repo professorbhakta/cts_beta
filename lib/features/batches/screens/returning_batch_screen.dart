@@ -4,6 +4,8 @@ import 'package:cts/features/batches/models/batch_model.dart';
 import 'package:cts/features/batches/providers/batch_controller.dart';
 import 'package:cts/features/batches/providers/return_batch_provider.dart';
 import 'package:cts/features/batches/widgets/return_batch_picker_card.dart';
+import 'package:cts/theme/cts_colors.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
@@ -59,8 +61,12 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cts = context.cts;
+
     return DashboardShell(
       title: 'Select a Batch for Return Trip',
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer2<BatchProvider, ReturnBatchProvider>(
         builder: (context, batchProvider, returnProvider, child) {
           if (batchProvider.state == ViewState.loading &&
@@ -86,6 +92,7 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
 
           final batches = batchProvider.batches;
           final anyPoolExtras = _anyPoolExtras(returnProvider, batches);
+          final theme = Theme.of(context);
 
           return RefreshIndicator(
             onRefresh: _refresh,
@@ -97,15 +104,43 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
                   anyPoolExtras: anyPoolExtras,
                 );
 
+                final header = Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'RETURN TRIP',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Select a batch',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+
                 if (useList) {
                   return ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: batches.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    itemCount: batches.length + 1,
+                    separatorBuilder: (_, index) =>
+                        SizedBox(height: index == 0 ? 16 : 12),
                     itemBuilder: (context, index) {
+                      if (index == 0) return header;
                       return _buildCard(
                         context,
-                        batches[index],
+                        batches[index - 1],
                         returnProvider,
                         compact: true,
                       );
@@ -114,25 +149,36 @@ class ReturningBatchScreenState extends State<ReturningBatchScreen> {
                 }
 
                 final crossAxisCount = screenWidth > 600 ? 3 : 2;
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio:
-                        ReturnBatchPickerLayout.gridChildAspectRatio(
-                      anyPoolExtras: anyPoolExtras,
+                return CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(child: header),
+                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio:
+                              ReturnBatchPickerLayout.gridChildAspectRatio(
+                            anyPoolExtras: anyPoolExtras,
+                          ),
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            return _buildCard(
+                              context,
+                              batches[index],
+                              returnProvider,
+                            );
+                          },
+                          childCount: batches.length,
+                        ),
+                      ),
                     ),
-                  ),
-                  itemCount: batches.length,
-                  itemBuilder: (context, index) {
-                    return _buildCard(
-                      context,
-                      batches[index],
-                      returnProvider,
-                    );
-                  },
+                  ],
                 );
               },
             ),

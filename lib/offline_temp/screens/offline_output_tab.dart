@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +11,11 @@ class OfflineOutputTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
 
     return Consumer<OfflineTempProvider>(
       builder: (context, provider, _) {
+    final scheme = context.scheme;
+
         if (provider.errorMessage != null && !provider.isLoading) {
           return StatusMessage.error(
             title: 'Failed to load report',
@@ -41,7 +42,7 @@ class OfflineOutputTab extends StatelessWidget {
                     onPressed: text.isEmpty
                         ? null
                         : () => _copy(context, text),
-                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    icon: Icon(Icons.copy_rounded, size: 18),
                     label: const Text('Copy'),
                   ),
                   const SizedBox(width: 8),
@@ -51,7 +52,7 @@ class OfflineOutputTab extends StatelessWidget {
                         : () => SharePlus.instance.share(
                               ShareParams(text: text),
                             ),
-                    icon: const Icon(Icons.share_rounded, size: 18),
+                    icon: Icon(Icons.share_rounded, size: 18),
                     label: const Text('Share'),
                   ),
                 ],
@@ -63,7 +64,7 @@ class OfflineOutputTab extends StatelessWidget {
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.acBlack.withValues(alpha: 0.04),
+                  color: scheme.onSurface.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: scheme.outlineVariant),
                 ),
@@ -77,7 +78,7 @@ class OfflineOutputTab extends StatelessWidget {
                     : SingleChildScrollView(
                         child: SelectableText(
                           text,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 13,
                             height: 1.45,

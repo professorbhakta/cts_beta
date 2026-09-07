@@ -1,6 +1,6 @@
 > **Doc:** docs/INTEGRATION.md
-> **Updated:** 2026-08-14 21:55 IST
-> **Session:** DTODLOG on connect; driver STOP; ADD by user ID
+> **Updated:** 2026-08-25 21:40 IST
+> **Session:** backend/02 retired — pointer to backend/README
 
 # Integration — Full-Stack Overview
 
@@ -231,6 +231,6 @@ flowchart LR
 
 - [GLOSSARY.md](./GLOSSARY.md)
 - [LOCAL_DEV.md](./LOCAL_DEV.md)
-- [backend/02-data-model.md](./backend/02-data-model.md)
+- [backend/README.md](./backend/README.md) — pointers to LOCAL_DEV / API_CONTRACTS / feature READMEs
 - [features/D2D_E2E.md](./features/D2D_E2E.md)
 - [features/RETURN_BATCH_E2E.md](./features/RETURN_BATCH_E2E.md)

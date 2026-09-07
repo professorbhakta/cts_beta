@@ -1,5 +1,5 @@
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
-import 'package:cts/appManager/colors.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/providers/batch_controller.dart';
@@ -51,7 +51,8 @@ class _CommuterFormState extends State<CommuterForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    final scheme = context.scheme;
+
     final formProvider = context.watch<CommuterFormProvider>();
 
     return PopScope(
@@ -157,7 +158,7 @@ class _CommuterFormState extends State<CommuterForm> {
                         : "Create Commuter",
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     borderRadius: BorderRadius.circular(12),
-                    borderColor: AppColors.acYellowWarm,
+                    borderColor: scheme.primary,
                     fontSize: 16,
                     isLoading: _isSubmitting,
                     onPressed: _isSubmitting
@@ -247,8 +248,8 @@ class _CommuterFormState extends State<CommuterForm> {
                               }
                             }
                           },
-                    backgroundColor: AppColors.acYellowWarm,
-                    textColor: AppColors.acBlack,
+                    backgroundColor: scheme.primary,
+                    textColor: scheme.onSurface,
                   ),
                 ],
               ),
@@ -277,32 +278,32 @@ class _CommuterFormState extends State<CommuterForm> {
         labelText: label,
         hintText: hintText ?? 'Enter $label',
         prefixIcon: Icon(icon ?? Icons.edit_outlined),
-        prefixIconColor: AppColors.acYellowWarm,
+        prefixIconColor: scheme.primary,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+            color: scheme.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acYellowWarm, width: 2),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acRed, width: 1.5),
+          borderSide: BorderSide(color: scheme.error, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.acRed, width: 2),
+          borderSide: BorderSide(color: scheme.error, width: 2),
         ),
         filled: true,
         fillColor: scheme.surface,
@@ -323,13 +324,14 @@ class _CommuterFormState extends State<CommuterForm> {
   Widget _buildBatchDropdown() {
     final formProvider = context.read<CommuterFormProvider>();
     return Consumer<BatchProvider>(
-      builder: (context, batchProvider, child) {
+      builder: (context, batchProvider, child) {    final scheme = context.scheme;
+
         if (batchProvider.state == ViewState.loading) {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -343,13 +345,13 @@ class _CommuterFormState extends State<CommuterForm> {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.acRed, width: 1.5),
+              border: Border.all(color: scheme.error, width: 1.5),
               borderRadius: BorderRadius.circular(12),
               color: Theme.of(context).colorScheme.surface,
             ),
             child: Text(
               'Error loading batches: ${batchProvider.errorMessage}',
-              style: TextStyle(color: AppColors.acRed),
+              style: TextStyle(color: scheme.error),
             ),
           );
         }
@@ -395,13 +397,14 @@ class _CommuterFormState extends State<CommuterForm> {
   Widget _buildCabDropdown() {
     final formProvider = context.read<CommuterFormProvider>();
     return Consumer<CabProvider>(
-      builder: (context, cabProvider, child) {
+      builder: (context, cabProvider, child) {    final scheme = context.scheme;
+
         if (cabProvider.state == ViewState.loading) {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -415,13 +418,13 @@ class _CommuterFormState extends State<CommuterForm> {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.acRed, width: 1.5),
+              border: Border.all(color: scheme.error, width: 1.5),
               borderRadius: BorderRadius.circular(12),
               color: Theme.of(context).colorScheme.surface,
             ),
             child: Text(
               'Error loading cabs: ${cabProvider.errorMessage}',
-              style: TextStyle(color: AppColors.acRed),
+              style: TextStyle(color: scheme.error),
             ),
           );
         }
@@ -467,13 +470,14 @@ class _CommuterFormState extends State<CommuterForm> {
   Widget _buildPopDropdown() {
     final formProvider = context.read<CommuterFormProvider>();
     return Consumer<PopProvider>(
-      builder: (context, popProvider, child) {
+      builder: (context, popProvider, child) {    final scheme = context.scheme;
+
         if (popProvider.state == ViewState.loading) {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.acYellowWarm.withValues(alpha: 0.3),
+                color: scheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -487,13 +491,13 @@ class _CommuterFormState extends State<CommuterForm> {
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.acRed, width: 1.5),
+              border: Border.all(color: scheme.error, width: 1.5),
               borderRadius: BorderRadius.circular(12),
               color: Theme.of(context).colorScheme.surface,
             ),
             child: Text(
               'Error loading pick-up points: ${popProvider.errorMessage}',
-              style: TextStyle(color: AppColors.acRed),
+              style: TextStyle(color: scheme.error),
             ),
           );
         }

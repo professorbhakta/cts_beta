@@ -12,6 +12,9 @@ class ApiUrl {
   static String commuterUrl = "user/commuter";
   static String commuterDriverUrl = "user/driver/batch/";
   static String adminCommuterUrl = "user/admin/commuter/";
+  /// `PATCH …/isComing` — admin mark-all coming for org [adminCode].
+  static String adminCommuterIsComingUrl(String adminCode) =>
+      "user/admin/commuter/$adminCode/isComing";
 
   static String batchUrl = "cab/batch";
   static String adminBatchUrl = "cab/admin/batch/";
@@ -35,5 +38,18 @@ class ApiUrl {
   static const String returnBatchIntent = "d2d/return_batch/intent";
   static const String returnBatchIntentOptions =
       "d2d/return_batch/intent_options";
+
+  // Client pack — odometer (multipart start/end; JSON GETs)
+  static const String odometerStart = "d2d/odometer/start/";
+  static const String odometerEnd = "d2d/odometer/end/";
+  static String odometerBatch(String batchId) => "d2d/odometer/$batchId/";
+  static String odometerOrg(String adminCode) => "d2d/odometer/org/$adminCode/";
+  static String odometerPhoto(String batchId, String leg, String kind) =>
+      "d2d/odometer/photo/$batchId/$leg/$kind/";
+
+  // Client pack — QR boarding
+  static String boardingQr(String batchId) => "d2d/boarding_qr/$batchId/";
+  static const String boardingScan = "d2d/boarding_scan/";
+  static const String boardingUnboard = "d2d/boarding_unboard/";
 
 }

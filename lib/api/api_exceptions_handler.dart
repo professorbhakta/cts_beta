@@ -1,5 +1,6 @@
 import 'package:cts/api/api_response_contract.dart';
 import 'package:cts/api/api_result.dart';
+import 'package:cts/api/client_pack_error_messages.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
 
@@ -37,10 +38,15 @@ class ApiExceptionHandler {
         );
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
-        final userMessage = _getUserFriendlyMessage(statusCode, error.response);
+        final code = _codeFromResponse(error.response);
+        final rawMessage = _getUserFriendlyMessage(statusCode, error.response);
+        final userMessage = code != null
+            ? ClientPackErrorMessages.messageFor(code, fallback: rawMessage)
+            : rawMessage;
         return ApiFailure(
           type: _failureTypeFromStatus(statusCode),
           statusCode: statusCode,
+          code: code,
           message: userMessage,
         );
       case DioExceptionType.connectionError:
@@ -146,6 +152,13 @@ class ApiExceptionHandler {
     }
     // Fallback for non-map data or null response.
     return response?.statusMessage ?? 'An unknown error occurred.';
+  }
+
+  static String? _codeFromResponse(Response? response) {
+    if (response?.data is! Map) return null;
+    final data = Map<String, dynamic>.from(response!.data as Map);
+    final contract = ApiResponseContract.parse(data);
+    return contract.code;
   }
 }
 

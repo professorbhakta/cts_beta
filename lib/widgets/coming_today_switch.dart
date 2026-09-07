@@ -1,7 +1,7 @@
-import 'package:cts/appManager/colors.dart';
 import 'package:flutter/material.dart';
 
 /// Coming-today switch that keeps taps even inside [InkWell] / [Slidable].
+/// Colors come from [SwitchTheme] in AppTheme (no per-widget override).
 class ComingTodaySwitch extends StatelessWidget {
   const ComingTodaySwitch({
     super.key,
@@ -23,7 +23,6 @@ class ComingTodaySwitch extends StatelessWidget {
           child: Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: AppColors.acGreen,
           ),
         ),
       ),

@@ -92,6 +92,13 @@ class _FakeReturnBatchRepository implements ReturnBatchRepository {
       throw UnimplementedError();
 
   @override
+  Future<ApiResult<String>> joinReturnWaiting(
+    String userId,
+    String batchId,
+  ) =>
+      throw UnimplementedError();
+
+  @override
   Future<ApiResult<ReturnIntentModel>> getReturnIntent() =>
       throw UnimplementedError();
 

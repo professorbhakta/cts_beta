@@ -36,6 +36,7 @@ class ApiResponseContract {
     'removed',
     'ended',
     'already_confirmed',
+    'joined_waiting',
   };
 
   /// Lowercase tokens treated as explicit business failure.
@@ -52,6 +53,7 @@ class ApiResponseContract {
     'removed': 'Commuter removed from return list',
     'already_confirmed': 'Commuter is already confirmed',
     'ended': 'Return trip ended',
+    'joined_waiting': 'Joined return waiting line',
   };
 
   /// Parse a response body into a normalized contract.
@@ -122,6 +124,7 @@ class ApiResponseContract {
         ApiFailure(
           type: ApiFailureType.invalidRequest,
           message: contract.message,
+          code: contract.code,
         ),
       );
     }
@@ -144,6 +147,7 @@ class ApiResponseContract {
         ApiFailure(
           type: ApiFailureType.invalidRequest,
           message: contract.message,
+          code: contract.code,
         ),
       );
     }

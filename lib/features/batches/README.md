@@ -1,12 +1,25 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Phase 3 return waiting pool + join_waiting + Waiting line UI
 
 # Batches Feature — CRUD, Running, Return REST
 
 Feature owner for batch management, running batches, and evening return trips (REST only — no WebSocket).
 
-**Full API spec:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **E2E flow:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
+**Wire contracts:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **Lab/Docker:** [docs/LOCAL_DEV.md](../../../docs/LOCAL_DEV.md) · **E2E:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
+
+**Backend path:** `cts-docker/django/d2d_log/return_batch_views.py` + `return_batch_utils.py`.
+
+### Morning D2D vs evening return
+
+| | Live D2D | Return batch |
+|--|----------|--------------|
+| Transport | WebSocket | REST |
+| Redis | `d2d:live:{date}:{batch}` · `d2d:waiting:{date}:{batch}` (morning) | `{dd-mm-yyyy}_{batch_id}` confirmed · `d2d:return_waiting:{date}:{batch}` waiting |
+| UI refresh | Push broadcast | Pull-to-refresh / resume |
+| IDs | User IDs in DS / CList | User ID strings in Redis set |
+
+Morning STOP does **not** empty the evening Available pool. Return `view/` = `home[]` + `overflow[]` from current `isComing=True`; confirm sets `isComing=False` for that rider; remove sets `isComing=True` during an active return. **End return** clears Redis and sets `isComing=False` for home batch + cross-batch confirmed (riders must Mark Coming again for a later return).
 
 ---
 
@@ -57,8 +70,9 @@ Entry: Admin home or batch screen → Return Batches.
 |--------|---------|
 | `fetchStatusesForBatches(ids)` | `GET return_batch/status/{id}` — **max 10 concurrent** (P8); progressive UI updates |
 | `loadReturnTrip(batchId)` | Parallel `view/` + `get_commuter/` |
-| `confirmCommuter(userId, batchId)` | `POST add_commuter` |
-| `removeCommuter(userId, batchId)` | `POST remove_commuter` |
+| `confirmCommuter(userId, batchId)` | `POST add_commuter` (`action: confirm`) |
+| `joinReturnWaiting(userId, batchId)` | `POST add_commuter` (`action: join_waiting`) — commuter self-serve |
+| `removeCommuter(userId, batchId)` | `POST remove_commuter` — FCFS promotes waiting when seat opens |
 | `endReturnTrip(batchId)` | `POST end/{id}` |
 
 **ID rule:** Always pass **`userId.id`** as `commuter_id` in POST body.
@@ -90,7 +104,7 @@ Commuter home (`CommuterHomeProvider`) uses GET/POST intent + GET intent_options
 
 **ReturningBatchScreen:** `BatchProvider.fetchBatches()` + `ReturnBatchProvider.fetchStatusesForBatches()` — cards show return time, available count, **Seats left** (`remaining_capacity` / `total_capacity`), confirmed count, active dot, driver name. When GET status includes pool extras: **Home hold**, **Overflow in**, **Overflow open**. Fail closed (keys omitted) hides those three rows. Tap → `/returnCommuterScreen/$batchId`. **P8:** narrow screens (&lt;400px) or any pool extras → full-width list cards; wide screens → grid with taller aspect ratio (0.72 base, 0.52 with extras). No nested scroll inside cards.
 
-**ReturnCommuterListScreen (admin + driver):** capacity banner (seats remaining = `remaining_capacity`; extras line when `hasPoolExtras`); Available tab **Home** then **Overflow** (GET view `home[]` / `overflow[]`) from the current `isComing=true` org pool; Confirmed tab; search by name, mobile, batch, POP. Admin can add from Available and monitor Confirmed. Driver can confirm/remove/end. Confirmed riders are dropped from both Available sections. Overflow Confirm is disabled when `overflow_remaining == 0` (not Seats left). `loadReturnTrip` also GET status (extras). Old flat `commuters` is ignored.
+**ReturnCommuterListScreen (admin + driver):** capacity banner (seats remaining = `remaining_capacity`; extras line when `hasPoolExtras`); Available tab **Home** then **Overflow** (GET view `home[]` / `overflow[]`) from the current `isComing=true` org pool; Confirmed tab; search by name, mobile, batch, POP. Admin can add from Available and monitor Confirmed. Driver can confirm/remove/end. Confirmed riders are dropped from both Available sections. Overflow Confirm is disabled when `overflow_remaining == 0` (not Seats left). After **R7 T−15 cutoff**, status may set `cutoff_applied` and lower `home_hold` (unconfirmed holds released); banner shows “Holds released (T−15)”. `loadReturnTrip` also GET status (extras). Old flat `commuters` is ignored.
 
 ---
 
@@ -122,4 +136,4 @@ final status = context.read<ReturnBatchProvider>().statusForBatch(batchId);
 5. Overflow Confirm is off when Overflow open is 0. Seats left is still remaining/total.
 7. Picker **Seats left** is `remaining/total`, not Overflow open. Home hold `0` after no morning STOP is valid extras, not a bug.
 8. If GET status omits extras (fail closed), Home hold / Overflow rows are hidden; old counts still show.
-9. `Coming today` commuters appear even without a morning STOP log; confirming hides them until remove/end restores `isComing`.
+9. `Coming today` commuters appear even without a morning STOP log; confirming hides them until remove sets `isComing=true` again. **End return** sets `isComing=false` (same as morning STOP) — riders Mark Coming again for a later return.

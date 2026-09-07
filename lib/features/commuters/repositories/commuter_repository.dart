@@ -15,6 +15,10 @@ abstract class CommuterRepository {
 
   Future<ApiResult<void>> updateCommuterIsComing(int userId, bool isComing);
 
+  /// Sets `isComing=true` for every commuter under the session adminCode.
+  /// Success data is the backend `updated` count.
+  Future<ApiResult<int>> markAllComing();
+
   Future<ApiResult<void>> createCommuter(Map<String, dynamic> data);
 
   Future<ApiResult<void>> updateCommuter(int userId, Map<String, dynamic> userData, Map<String, dynamic> commuterData);

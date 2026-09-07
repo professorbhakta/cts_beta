@@ -32,6 +32,13 @@ class CommuterRepositoryImpl implements CommuterRepository {
   Future<ApiResult<List<CommuterModel>>> getCommuters() async {
     try {
       final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
+      if (adminCode.isEmpty || adminCode == '0') {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle(
+            'Admin org code missing. Sign out and sign in again.',
+          ),
+        );
+      }
       final response = await _apiService.getApi(
         "${ApiUrl.adminCommuterUrl}$adminCode",
       );
@@ -138,6 +145,44 @@ class CommuterRepositoryImpl implements CommuterRepository {
         );
       }
       return ApiResult.success(null);
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<int>> markAllComing() async {
+    try {
+      final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
+      if (adminCode.isEmpty || adminCode == '0') {
+        return ApiResult.failure(
+          ApiExceptionHandler.handle('Missing admin code.'),
+        );
+      }
+
+      final response = await _apiService.patchUrl(
+        ApiUrl.adminCommuterIsComingUrl(adminCode),
+        {'isComing': true},
+      );
+
+      final contract = ApiResponseContract.parse(
+        response,
+        failureMessage: 'Could not mark all commuters coming',
+      );
+
+      if (contract.isFailure) {
+        return ApiResult.failure(
+          ApiFailure(
+            type: ApiFailureType.invalidRequest,
+            message: contract.message,
+          ),
+        );
+      }
+
+      final updated = response is Map
+          ? int.tryParse(response['updated']?.toString() ?? '') ?? 0
+          : 0;
+      return ApiResult.success(updated);
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }

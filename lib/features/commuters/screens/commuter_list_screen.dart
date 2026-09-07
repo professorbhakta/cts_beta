@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -6,7 +6,9 @@ import 'package:cts/features/commuters/providers/commuter_controller.dart';
 import 'package:cts/features/commuters/providers/commuter_form_provider.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/utils/sort_utils.dart';
+import 'package:cts/widgets/catalog_list_chrome.dart';
 import 'package:cts/widgets/coming_today_switch.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
@@ -35,7 +37,6 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Call the correct method on the correct provider
       context.read<CommuterController>().fetchCommutersByBatch(widget.batchId);
     });
   }
@@ -78,8 +79,12 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
   Widget build(BuildContext context) {
     return DashboardShell(
       title: 'Batch: ${widget.batchName}',
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer<CommuterController>(
         builder: (context, provider, child) {
+          final cts = context.cts;
+
           if (provider.state == ViewState.loading &&
               provider.commuters.isEmpty) {
             return const LoadingIndicator();
@@ -101,23 +106,29 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
             );
           }
 
-          // Sort commuters A-Z by name, then by mobile
           final sortedCommuters =
               sortListAZMultiple<CommuterModel>(provider.commuters, [
-                (commuter) => commuter.userId?.username ?? '',
-                (commuter) => commuter.userId?.mobileNumber ?? '',
-              ]);
+            (commuter) => commuter.userId?.username ?? '',
+            (commuter) => commuter.userId?.mobileNumber ?? '',
+          ]);
 
           return RefreshIndicator(
             onRefresh: () => provider.fetchCommutersByBatch(widget.batchId),
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: sortedCommuters.length,
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              itemCount: sortedCommuters.length + 1,
+              separatorBuilder: (_, index) =>
+                  SizedBox(height: index == 0 ? 16 : 10),
               itemBuilder: (context, index) {
-                final commuter = sortedCommuters[index];
-                final initial =
-                    commuter.userId?.username?.substring(0, 1).toUpperCase() ??
-                    'C';
+                if (index == 0) {
+                  return CatalogPageTitle(
+                    title: 'Batch: ${widget.batchName}',
+                  );
+                }
+
+                final commuter = sortedCommuters[index - 1];
+                final mobile = commuter.userId?.mobileNumber;
+                final pop = commuter.popId?.pickUpPointName ?? 'No POP';
 
                 return Slidable(
                   key: ValueKey(commuter.userId?.id),
@@ -126,81 +137,37 @@ class _CommuterListScreenState extends State<CommuterListScreen> {
                     children: [
                       SlidableAction(
                         onPressed: (_) => _showEditDialog(commuter),
-                        backgroundColor: AppColors.acYellow,
+                        backgroundColor: cts.yellow,
+                        foregroundColor: cts.navy,
                         icon: Icons.edit,
-                        label: "EDIT",
+                        label: 'EDIT',
                       ),
                       SlidableAction(
-                        onPressed: (context) =>
-                            _makePhoneCall(commuter.userId?.mobileNumber),
-                        backgroundColor: AppColors.acGreen,
+                        onPressed: (_) => _makePhoneCall(mobile),
+                        backgroundColor: cts.navy,
+                        foregroundColor: Colors.white,
                         icon: Icons.call,
-                        label: "CALL",
+                        label: 'CALL',
                       ),
                     ],
                   ),
-                  child: Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: AppColors.acBlackLight,
-                        child: Text(
-                          initial,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        commuter.userId?.username ?? "No Name",
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.phone,
-                                  size: 16,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  commuter.userId?.mobileNumber ?? 'No Mobile',
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on,
-                                  size: 16,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    commuter.popId?.pickUpPointName ?? 'No POP',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      trailing: ComingTodaySwitch(
-                        value: commuter.isComing ?? false,
-                        onChanged: (value) =>
-                            _handleIsComingToggle(commuter, value),
-                      ),
+                  child: CatalogCard(
+                    title: commuter.userId?.username ?? 'No Name',
+                    trailing: ComingTodaySwitch(
+                      value: commuter.isComing ?? false,
+                      onChanged: (value) =>
+                          _handleIsComingToggle(commuter, value),
                     ),
+                    children: [
+                      CatalogField(
+                        label: 'Mobile',
+                        value: mobile ?? 'No Mobile',
+                      ),
+                      CatalogField(
+                        label: 'POP',
+                        value: pop,
+                      ),
+                    ],
                   ),
                 );
               },

@@ -1,6 +1,6 @@
 > **Doc:** docs/FEATURES.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-08-25 21:06 IST
+> **Session:** + client pack QR boarding / odometer on D2D
 
 # Feature catalog
 
@@ -23,7 +23,7 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `cabs` | Admin | CabScreen, CabForm | CabProvider | CabFormProvider | CabRepository |
 | `drivers` | Admin + Driver | DriverScreen, DriverForm, DriverHomePage | DriverProvider, DriverHomeProvider | DriverFormProvider | DriverRepository |
 | `commuters` | Admin + Commuter | CommuterScreen, CommuterForm, CommuterHomePage, CommuterListScreen, ReturnCommuterListScreen | CommuterController, CommuterHomeProvider | CommuterFormProvider | CommuterRepository |
-| `d2d` | Admin + Driver | D2dChannel, D2DLogScreen | D2dChannelProvider | — | D2dRepository (status) + WebSocket via provider |
+| `d2d` | Admin + Driver + Commuter | D2dChannel, D2DLogScreen, BoardingScanScreen | D2dChannelProvider | — | D2dRepository (status + odometer + boarding) + WebSocket via provider |
 | `profile` | All logged-in | ProfileScreen | ProfileProvider, SignInProvider (logout) | — | Session (AppManager / SessionRole) + AuthenticationRepository |
 | `offline_temp` | Admin (prototype) | OfflineHome + tabs + drill-downs | OfflineTempProvider | — | Local offline DB |
 
@@ -50,7 +50,8 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `/commuterScreen`, `/commuterForm` | CommuterScreen, CommuterForm | commuters |
 | `/commuterHomeScreen` | CommuterHomePage | commuters |
 | `/d2dChannel/:id` | D2dChannel | d2d |
-| `/d2dLog/:id` | D2DLogScreen | d2d |
+| `/d2dLog/:id` | D2DLogScreen (start/end KM + boarding QR) | d2d |
+| `/boardingScan` | BoardingScanScreen (commuter) | d2d |
 | `/profileScreen` | ProfileScreen | profile |
 | `/offlineTempHome` + children | Offline* screens | offline_temp |
 
@@ -101,6 +102,7 @@ UI-only navigation from dashboard does not bypass providers for CRUD screens (th
 |-------|----------|
 | Sorted list edit/delete | `CommuterListScreen` and `RouteScreen` pass the **model** into edit/delete, not the sorted/filtered index |
 | Coming-today switch | Admin `CommuterScreen` and nested `CommuterListScreen` use `ComingTodaySwitch` (taps not stolen by card/Slidable) → `updateCommuterIsComing` |
+| Mark all coming | Admin `CommuterScreen` AppBar action → confirm → `PATCH /user/admin/commuter/<adminCode>/isComing` (`markAllComing`); org-scoped only |
 | Commuter form | Email required; Address optional (empty create → email). Edit loads `GET /user/<id>` |
 | Form providers | App-scoped. Create entry points must `clearAll()` so `forUpdate` does not leak from the last edit |
 | Commuter form pop | Reloads the **current** list scope (`refreshCurrentList`): by-batch if opened from a batch list, otherwise the full admin list |

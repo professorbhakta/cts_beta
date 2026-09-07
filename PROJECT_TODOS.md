@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-08-22
-> **Session:** 26d intent done; next cutoff/no-show
+> **Updated:** 2026-09-01 10:20 IST
+> **Session:** Doc sync — test count 128; STEP 8 open
 
 # Project Todo & Progress
 
@@ -24,7 +24,7 @@
 - P0: START_HERE, FLOWS_BY_ROLE, CODE_MAP, UI_ARCHITECTURE
 - P1: ARCHITECTURE, ROUTING_AND_AUTH, FEATURES
 - P2: OFFLINE_AND_SYNC, BUILD_AND_RELEASE, TESTING, API_AND_ENV
-- P3: guides/ (Admin, Driver, Commuter)
+- P3: FLOWS_BY_ROLE + UI_ARCHITECTURE (operator journeys; no separate guides/)
 
 ### Optional follow-up
 
@@ -41,7 +41,7 @@
 
 ### Follow-ups
 6. [ ] Replace / harden deprecated or placeholder screens and TODOs in admin CRUD flows
-7. [~] Expand automated tests beyond default `widget_test.dart` — P1 added `test/api/api_response_contract_test.dart` + return batch repo tests (33 total)
+7. [~] Automated tests — real suite under `test/features/` + `test/api|core|…`; default `widget_test.dart` **removed** (add new client-pack tests under `test/features/d2d/`)
 8. [x] Auth security wave: TLS keep, session cookies cached, logout/401, D2D WS cookie (REST d2d permissions + `POST /user/` userType still open)
 9. [x] Phase 7: migrate **batches** (running + return)
 10. [x] Pending-sync badge in admin drawer
@@ -61,6 +61,7 @@
 19. [x] Slice 3 (R6): SyncManager.dispose() disposes ConnectivityService; unknown entity types do not retry forever
 20. [x] Admin nested batch commuter list Coming-today switch (`CommuterListScreen`)
 21. [x] Admin Coming switch persists (`ComingTodaySwitch` + PATCH `{status, isComing}`)
+21b. [x] Admin one-click Mark all coming — `PATCH /user/admin/commuter/<adminCode>/isComing` + `CommuterScreen` AppBar
 22. [x] Admin D2D ADD: user-ID lookup + no optimistic toast / no WS crash
 23. [x] Driver return ADD: confirm/remove; org-wide available pool; hide confirmed
 24. [x] Return allocation M1+M2 (`cts-docker`): CList attendance read + pure allocator; views not wired
@@ -82,7 +83,19 @@
 26p. [x] Removed HTML + Flutter wireframe galleries (`docs/wireframes/`, `lib/design/`, `WIREFRAME_GALLERY.md`)
 26q. [x] Safe DROP docs prune — CHANGELOG_SPRINTS, SENIOR_REVIEW, DESIGN_SYSTEM_REVIEW, SCREENSHOTS+assets, backend 05/06
 26d. [x] Commuter POST intent (skip/home/earlier) — cutoff/no-show still open
-26d-cutoff. [ ] Cutoff / no-show seat release (R7)
+26r. [x] Rebuilt-lab dummy org from seed XLSX — 80 PoPs (8/route), 10 drivers, 1500 commuters; API login 200
+26s. [x] Two-device smoke from live sessions — emulator Admin Dashboard + phone Driver home **PASS** (2026-08-23)
+26t. [x] Full-cycle smoke Batch-01 — driver live pickup×2 + STOP + return confirm×2 + End return **PASS** (2026-08-23); morning ended for today; 26d chips still skipped
+26d-cutoff. [x] Cutoff / no-show seat release (R7) — D3 = T−15 lazy; `cutoff_applied` on status
+26d-cutoff-tz. [x] C1 Django `TIME_ZONE=Asia/Kolkata` (env `DJANGO_TIME_ZONE`) for wall-clock T−15
+26d-discuss. [ ] Clarify admin return Confirm “API every time” (normal one POST vs heavy reload/double call) — then fix or skip
+26u-client. [x] Client pack BE + Flutter BUILD UI STEPS 1–7 (QR boarding + odometer) — [docs/client_req/](docs/client_req/README.md)
+26u-client-smoke. [ ] **STEP 8 device smoke** (user says **go**) — emu admin + phone driver
+26u-client-park. [ ] Parked UI: return-leg KM, admin org odometer list, unboard UI
+26u-ops-nginx. [x] nginx `client_max_body_size 8m` (odometer multipart)
+26u-ops-backup. [x] Postgres backup sidecar → `cts-docker/postgres/backups/`
+21c. [ ] Admin Mark all coming **per batch** (nested `CommuterListScreen`)
+26d-r7-tests. [ ] Optional: Django live lazy cutoff TestCase + Flutter `cutoff_applied` parse test
 
 ### Open backlog — API / networking
 
@@ -162,8 +175,8 @@ lib/
 - Production offline-first for batches remains wired via `OfflineFirstBatchRepository`
 
 ### Lint / env
-- [x] `flutter analyze` — 0 errors (7 pre-existing info/warnings)
-- [x] `flutter test` — 101 passed (P9)
+- [x] `flutter analyze` — 0 errors (1 warning + 5 info; 2026-09-01)
+- [x] `flutter test` — 128 passed (2026-09-01)
 
 ## Build fixes (2026-07-17)
 - [x] Fixed Windows assembleDebug blocker: Kotlin incremental cache crash across drives (Pub cache on C:, project on D:)

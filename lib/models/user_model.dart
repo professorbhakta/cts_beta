@@ -56,17 +56,23 @@ class UserModel {
 }
 
 class AdminCode {
+  /// subAdmin primary key (UUID string) — used as `ManagerKey.adminCode`.
+  String? id;
   AdminData? userId;
 
-  AdminCode({this.userId});
+  AdminCode({this.id, this.userId});
 
   AdminCode.fromJson(Map<String, dynamic> json) {
+    id = json['id']?.toString();
     userId =
-    json['userId'] != null ? AdminData.fromJson(json['userId']) : null;
+        json['userId'] != null ? AdminData.fromJson(json['userId']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    if (id != null) {
+      data['id'] = id;
+    }
     if (userId != null) {
       data['userId'] = userId!.toJson();
     }

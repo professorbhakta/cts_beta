@@ -133,6 +133,31 @@ class ReturnBatchRepositoryImpl implements ReturnBatchRepository {
   }
 
   @override
+  Future<ApiResult<String>> joinReturnWaiting(
+    String userId,
+    String batchId,
+  ) async {
+    try {
+      final response = await _apiService.postApi(
+        {
+          'commuter_id': userId,
+          'batch_id': batchId,
+          'action': 'join_waiting',
+        },
+        ApiUrl.returnBatchAddCommuter,
+      );
+      return ApiResponseContract.toStringResult(
+        response,
+        successMessage: 'Joined return waiting line',
+        failureMessage: 'Could not join return waiting line',
+        statusMessages: ApiResponseContract.returnBatchActionMessages,
+      );
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+  @override
   Future<ApiResult<void>> endReturnTrip(String batchId) async {
     try {
       final response =

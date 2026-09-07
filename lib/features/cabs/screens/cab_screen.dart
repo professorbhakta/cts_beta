@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -7,12 +7,12 @@ import 'package:cts/features/cabs/providers/cab_form_provider.dart';
 import 'package:cts/models/cab_model.dart';
 import 'package:cts/utils/cab_sort_options.dart';
 import 'package:cts/utils/sort_utils.dart';
+import 'package:cts/widgets/admin_search_sort_row.dart';
+import 'package:cts/widgets/catalog_list_chrome.dart';
 import 'package:cts/widgets/confirmation_dialog.dart';
+import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
 import 'package:cts/widgets/list_item_actions_sheet.dart';
-import 'package:cts/widgets/modern_list_card.dart';
-import 'package:cts/widgets/search_bar_widget.dart';
-import 'package:cts/widgets/skeleton_list.dart';
 import 'package:cts/widgets/sort_dropdown_widget.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +52,6 @@ class _CabScreenState extends State<CabScreen> {
   }
 
   List<CabModel> _getFilteredAndSortedCabs(List<CabModel> allCabs) {
-    // First filter by search query
     List<CabModel> filtered = _searchQuery.isEmpty
         ? allCabs
         : allCabs.where((cab) {
@@ -66,7 +65,6 @@ class _CabScreenState extends State<CabScreen> {
                 routeName.contains(_searchQuery);
           }).toList();
 
-    // Then sort according to selected sort option
     return sortCabList(filtered, _selectedSortOption);
   }
 
@@ -123,6 +121,11 @@ class _CabScreenState extends State<CabScreen> {
     ];
   }
 
+  void _openAddCab() {
+    context.read<CabFormProvider>().clearAll();
+    context.push(RouteName.cabForm);
+  }
+
   void _showEditDialog(CabModel cab) {
     final formProvider = context.read<CabFormProvider>();
     formProvider.forUpdate = true;
@@ -161,50 +164,12 @@ class _CabScreenState extends State<CabScreen> {
   Widget build(BuildContext context) {
     return DashboardShell(
       title: 'Cabs',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.add),
-          tooltip: 'Add Cab',
-          iconSize: 36,
-          onPressed: () {
-            context.read<CabFormProvider>().clearAll();
-            context.push(RouteName.cabForm);
-          },
-        ),
-      ],
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
       child: Consumer<CabProvider>(
         builder: (context, cc, child) {
-          // Show skeleton loader on initial load
           if (cc.state == ViewState.loading && cc.cabs.isEmpty) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'All Cabs',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Manage Cabs corridors and keep them updated.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const CabSkeletonList(itemCount: 8),
-                    ],
-                  ),
-                ),
-              ],
-            );
+            return const CatalogListSkeleton(title: 'Cabs', itemHeight: 110);
           }
 
           if (cc.state == ViewState.error) {
@@ -215,7 +180,6 @@ class _CabScreenState extends State<CabScreen> {
             );
           }
 
-          // Get filtered and sorted cabs
           final filteredCabs = _getFilteredAndSortedCabs(cc.cabs);
 
           if (cc.cabs.isEmpty) {
@@ -224,78 +188,57 @@ class _CabScreenState extends State<CabScreen> {
               title: 'No cabs found',
               message: 'Get started by creating your first cab.',
               actionLabel: 'Create Cab',
-              onAction: () {
-                context.read<CabFormProvider>().clearAll();
-                context.push(RouteName.cabForm);
-              },
+              onAction: _openAddCab,
             );
           }
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: SearchBarWidget(
-                      hintText: 'Search by registration, capacity, or route...',
-                      onSearchChanged: _onSearchChanged,
-                    ),
-                  ),
-                  SortDropdownWidget<CabSortOption>(
-                    options: _getSortOptions(),
-                    selectedValue: _selectedSortOption,
-                    onSortChanged: _onSortChanged,
-                    icon: Icons.sort,
-                    tooltip: 'Sort cabs',
-                  ),
-                ],
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: CatalogPageTitle(title: 'Cabs'),
+              ),
+              AdminSearchSortRow<CabSortOption>(
+                hintText: 'Search by registration, capacity, or route...',
+                onSearchChanged: _onSearchChanged,
+                sortOptions: _getSortOptions(),
+                selectedSort: _selectedSortOption,
+                onSortChanged: _onSortChanged,
+                sortTooltip: 'Sort cabs',
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: CatalogYellowAddButton(
+                  label: 'Add Cab',
+                  onPressed: _openAddCab,
+                ),
               ),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () => cc.fetchCabs(),
                   child: filteredCabs.isEmpty && _searchQuery.isNotEmpty
-                      ? const StatusMessage(
-                          icon: Icons.search_off,
-                          title: 'No cabs match your search',
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            StatusMessage(
+                              icon: Icons.search_off,
+                              title: 'No cabs match your search',
+                            ),
+                          ],
                         )
                       : CustomScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                              sliver: SliverToBoxAdapter(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'All Cabs',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Manage cabs and keep them updated.',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.7),
-                                          ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
-                              ),
-                            ),
                             _CabList(
                               cabs: filteredCabs,
                               onEdit: _showEditDialog,
                               onDelete: _showDeleteDialog,
+                            ),
+                            const SliverToBoxAdapter(
+                              child: CatalogFooterHint(
+                                'Swipe to edit or delete',
+                              ),
                             ),
                           ],
                         ),
@@ -322,85 +265,79 @@ class _CabList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       sliver: SliverList.separated(
         itemCount: cabs.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
-        final cab = cabs[index];
-        return Slidable(
-          key: ValueKey(cab.id),
-          startActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            dismissible: DismissiblePane(onDismissed: () => onDelete(cab)),
-            children: [
-              SlidableAction(
-                onPressed: (_) => onDelete(cab),
-                backgroundColor: AppColors.acRed,
-                foregroundColor: AppColors.acWhite,
-                icon: Icons.delete_rounded,
-                label: 'Delete',
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+          final cab = cabs[index];
+          return Slidable(
+            key: ValueKey(cab.id),
+            startActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              dismissible: DismissiblePane(onDismissed: () => onDelete(cab)),
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onDelete(cab),
+                  backgroundColor: scheme.error,
+                  foregroundColor: scheme.surface,
+                  icon: Icons.delete_rounded,
+                  label: 'Delete',
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-                flex: 1,
-              ),
-            ],
-          ),
-          endActionPane: ActionPane(
-            motion: const DrawerMotion(),
-            extentRatio: 0.25,
-            children: [
-              SlidableAction(
-                onPressed: (_) => onEdit(cab),
-                backgroundColor: AppColors.acYellowWarm,
-                foregroundColor: AppColors.acWhite,
-                icon: Icons.edit_rounded,
-                label: 'Edit',
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                flex: 1,
-              ),
-            ],
-          ),
-          child: ModernListCard(
-            title: cab.regNumber ?? 'N/A',
-            icon: Icons.directions_car_rounded,
-            iconColor: AppColors.acYellowWarm,
-            onLongPress: () => ListItemActionsSheet.show(
-              context,
-              onEdit: () => onEdit(cab),
-              onDelete: () => onDelete(cab),
+              ],
             ),
-            children: [
-              InfoRow(
-                icon: Icons.route_rounded,
-                label: 'Route:',
-                value: cab.routeId?.routeName ?? 'N/A',
-                iconColor: AppColors.acYellowWarm,
-              ),
-              InfoRow(
-                icon: Icons.people_rounded,
-                label: 'Capacity:',
-                value: '${cab.capacity} Seats',
-                iconColor: AppColors.acYellowWarm,
-              ),
-              if (cab.km != null && cab.km! > 0)
-                InfoRow(
-                  icon: Icons.speed_rounded,
-                  label: 'Distance:',
-                  value: '${cab.km} km',
-                  iconColor: AppColors.acYellowWarm,
+            endActionPane: ActionPane(
+              motion: const DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onEdit(cab),
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
+                  icon: Icons.edit_rounded,
+                  label: 'Edit',
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  flex: 1,
                 ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+            child: CatalogCard(
+              title: cab.regNumber ?? 'N/A',
+              onLongPress: () => ListItemActionsSheet.show(
+                context,
+                onEdit: () => onEdit(cab),
+                onDelete: () => onDelete(cab),
+              ),
+              children: [
+                CatalogField(
+                  label: 'Route',
+                  value: cab.routeId?.routeName ?? 'N/A',
+                ),
+                CatalogField(
+                  label: 'Capacity',
+                  value: '${cab.capacity} Seats',
+                ),
+                if (cab.km != null && cab.km! > 0)
+                  CatalogField(
+                    label: 'Distance',
+                    value: '${cab.km} km',
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
