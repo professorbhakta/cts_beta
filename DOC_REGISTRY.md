@@ -90,5 +90,4 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/README.md](docs/README.md) | 2026-09-08 15:18 IST | + docs/setup folder |
 | [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
 | [docs/backend/README.md](docs/backend/README.md) | 2026-08-25 21:50 IST | odo/boarding modules |
-| [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 15:40 IST | return QR/scan shells |
 | E2E | D2D_E2E · RETURN_BATCH_E2E | when flows change |
