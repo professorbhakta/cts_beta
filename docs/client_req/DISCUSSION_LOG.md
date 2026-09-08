@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-08-31 13:45 IST
-> **Session:** D2D Phase 3 shipped; STEP 8 next on go
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** Return QR UI prep pointer; STEP 8 still next on go
 
 # Client req — discussion log
 
@@ -18,14 +18,14 @@
 
 | Flag | Value |
 |------|--------|
-| **STATUS** | `MULTI_TRACK` — D2D Phase 1–3 shipped; STEP 8 next on **go** |
+| **STATUS** | `MULTI_TRACK` — D2D Phase 1–3 shipped; return QR **UI prep** stubbed; STEP 8 next on **go** |
 | **FOCUS** | **STEP 8** device smoke → [07-NEXT-AGENT-PROMPT.md](07-NEXT-AGENT-PROMPT.md) |
 | **FOCUS_DOC** | [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 · [LAB_SMOKE_ISSUES.txt](../LAB_SMOKE_ISSUES.txt) |
-| **LAST_CHAT** | 2026-08-31 13:45 IST |
-| **LAST_SUMMARY** | D2D Phase 3: return waiting Redis (`d2d:return_waiting:…`), `add_commuter` `action=join_waiting`, FCFS auto-confirm, End clears waiting + trip_end isComing; FE Waiting line on return screen + commuter join button. 128 Flutter tests pass. Uncommitted both repos. |
-| **NEXT_SUGGEST** | STEP 8 **go** · `docker restart C2S-Django` then device smoke · commit when asked · Q-26d |
-| **BLOCKED_ON** | User **go** for smoke; commit only if asked |
-| **LOCKED** | KM required; photo optional; Close+Skip; BoardingEvent SKIP; DTODLOG null cols |
+| **LAST_CHAT** | 2026-09-08 15:18 IST |
+| **LAST_SUMMARY** | Return QR boarding UI prep: `ReturnBoardingQrPanel`/`ReturnBoardingQrScreen` reuse morning widgets; `/returnBoardingQr` + `/returnBoardingScan` routes; live API off until Dock. Docs: [setup/RETURN_QR_UI_PREP.md](../setup/RETURN_QR_UI_PREP.md). STEP 8 still next on **go**. |
+| **NEXT_SUGGEST** | STEP 8 **go** · Dock green-flag for return QR live · Q-26d |
+| **BLOCKED_ON** | User **go** for smoke; Dock for return QR BE |
+| **LOCKED** | KM required; photo optional; Close+Skip; BoardingEvent SKIP; DTODLOG null cols; return QR same morning flow (no invented URLs) |
 | **SCHEMA_DIR** | DTODLOG nullable cols |
 
 ---

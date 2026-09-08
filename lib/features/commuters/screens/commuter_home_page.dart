@@ -561,6 +561,30 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             ),
           ),
         ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: InkWell(
+            // TODO(Dock): return scan shares morning BoardingScanScreen /
+            // POST /d2d/boarding_scan/ until a distinct contract is green-flagged.
+            // See docs/setup/RETURN_QR_UI_PREP.md — do not invent return-QR URLs.
+            onTap: busy
+                ? null
+                : () => context.push(RouteName.returnBoardingScan),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                'Scan return boarding QR',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.underline,
+                  decorationColor: cts.navy.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+          ),
+        ),
         if (provider.joinWaitingError != null) ...[
           const SizedBox(height: 6),
           Text(

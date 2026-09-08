@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-01 10:20 IST
-> **Session:** Doc sync — view/ waiting[] example; headers aligned to Phase 3
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** Pointer — return QR UI prep reuses morning boarding; await Dock
 
 # API Contracts — Backend ↔ Flutter
 
@@ -211,6 +211,8 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 | `not_boarded` | Unboard target not in CList |
 
 Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
+
+**Return-trip QR:** Flutter UI prep reuses these morning boarding helpers only — no invented return-QR URLs. Live enablement awaits Dock green-flag. See [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 

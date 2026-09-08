@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** Role UI routing — STAFF→commuter; SUPERVISOR allow-list
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** Return QR boarding UI prep — await Dock contract
 
 # PROMPT SCOPE — CTS
 
@@ -59,8 +59,10 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
-| 4 | Q-batch-coming | Mark all coming **per batch** | future | `CommuterListScreen` |
-| 5 | Q-r7-tests | Django lazy cutoff + Flutter `cutoff_applied` | future | BE tests |
+| 4 | Q-return-qr-dock | Return QR live API after Dock green-flag | pending | [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) |
+| 5 | Q-batch-coming | Mark all coming **per batch** | future | `CommuterListScreen` |
+| 6 | Q-r7-tests | Django lazy cutoff + Flutter `cutoff_applied` | future | BE tests |
+| — | Q-return-qr-ui | Return QR UI scaffolding (stub) | **done** | batches + ROUTING/FLOWS |
 | — | Q-d2d-phase3 | Return waiting pool + FCFS parity | **done** | batches README + API_CONTRACTS |
 | — | Q-d2d-phase1-2 | Morning cross-batch + waiting + FCFS | **done** | d2d README + API_CONTRACTS |
 | — | Q-docs-consol / story-split / nginx / backup | shipped | **done** | — |
@@ -71,6 +73,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Idea | Notes |
 |------|-------|
+| Return QR live wire | UI prep done; enable `useLiveMorningApi` only after Dock |
 | Return-leg KM / org odometer / unboard UI | After STEP 8 |
 | Batch-wise Mark all coming | Org-wide already shipped |
 | Wire CList into return pool (R2/R9) | Roadmap ahead of code |
@@ -82,6 +85,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-08 15:18 | Return QR UI prep: ReturnBoardingQrPanel/Screen + routes + role gates; stub until Dock; docs/setup/RETURN_QR_UI_PREP.md | `cts_beta` / `professor-cts` |
 | 2026-09-08 12:45 | Role UI: STAFF→commuter home; SUPERVISOR admin shell + AdminService allow-list; docs ROUTING_AND_AUTH | `cts_beta` / `professor-cts` |
 | 2026-09-01 10:20 | Doc header sync — API_CONTRACTS view/ waiting[] example; feature READMEs; FLOWS; PROJECT_TODOS 128 tests | `cts_beta` |
 | 2026-08-31 13:45 | D2D Phase 3 shipped — return waiting Redis + join_waiting + FCFS + FE waiting UI | both |

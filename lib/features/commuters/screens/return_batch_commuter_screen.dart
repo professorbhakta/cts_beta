@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cts/theme/cts_colors.dart';
+import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/providers/return_batch_provider.dart';
@@ -10,6 +11,7 @@ import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class ReturnCommuterListScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class ReturnCommuterListScreen extends StatefulWidget {
     this.canConfirmAvailable = true,
     this.canRemoveConfirmed = false,
     this.canEndTrip = false,
+    this.canShowBoardingQr = false,
   });
 
   final String batchId;
@@ -27,6 +30,10 @@ class ReturnCommuterListScreen extends StatefulWidget {
   final bool canConfirmAvailable;
   final bool canRemoveConfirmed;
   final bool canEndTrip;
+
+  /// Driver (primary) entry to return boarding QR show screen — UI prep.
+  /// Reuses morning [BoardingQrPanel] via [ReturnBoardingQrScreen].
+  final bool canShowBoardingQr;
 
   @override
   State<ReturnCommuterListScreen> createState() =>
@@ -326,36 +333,68 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                     ],
                   ),
                 ),
-                if (widget.canEndTrip &&
+                if ((widget.canShowBoardingQr || widget.canEndTrip) &&
                     !widget.readOnly &&
                     provider.state == ViewState.success)
                   SafeArea(
                     top: false,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: OutlinedButton(
-                          onPressed: provider.actionInProgress
-                              ? null
-                              : () => _endReturnTrip(provider),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: cts.navy,
-                            side: BorderSide(color: hairline, width: 1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (widget.canShowBoardingQr) ...[
+                            SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: Material(
+                                color: cts.yellow,
+                                child: InkWell(
+                                  onTap: () => context.push(
+                                    '${RouteName.returnBoardingQr}/${widget.batchId}',
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'BOARDING QR',
+                                      style:
+                                          theme.textTheme.titleSmall?.copyWith(
+                                        color: scheme.onPrimary,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            'END RETURN',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: cts.navy,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.8,
+                            if (widget.canEndTrip) const SizedBox(height: 8),
+                          ],
+                          if (widget.canEndTrip)
+                            SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: OutlinedButton(
+                                onPressed: provider.actionInProgress
+                                    ? null
+                                    : () => _endReturnTrip(provider),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: cts.navy,
+                                  side: BorderSide(color: hairline, width: 1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                child: Text(
+                                  'END RETURN',
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: cts.navy,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                        ],
                       ),
                     ),
                   ),

@@ -27,6 +27,7 @@ import 'package:cts/features/drivers/screens/driver_home_page.dart';
 import 'package:cts/features/drivers/screens/driver_screen.dart';
 import 'package:cts/features/batches/forms/batch_form.dart';
 import 'package:cts/features/batches/screens/batch_screen.dart';
+import 'package:cts/features/batches/screens/return_boarding_qr_screen.dart';
 import 'package:cts/features/commuters/screens/return_batch_commuter_screen.dart';
 import 'package:cts/features/batches/screens/returning_batch_screen.dart';
 import 'package:cts/features/batches/screens/running_batch_screen.dart';
@@ -104,6 +105,12 @@ GoRouter createAppRouter({
         path: RouteName.boardingScan,
         builder: (context, state) => const BoardingScanScreen(),
       ),
+      // Return-trip scan alias — same morning BoardingScanScreen / boarding_scan API.
+      // TODO(Dock): green-flag if return needs a distinct contract; do not invent URLs.
+      GoRoute(
+        path: RouteName.returnBoardingScan,
+        builder: (context, state) => const BoardingScanScreen(),
+      ),
       GoRoute(
         path: RouteName.routeScreen,
         builder: (context, state) => const RouteScreen(),
@@ -163,7 +170,18 @@ GoRouter createAppRouter({
             canConfirmAvailable: true,
             canRemoveConfirmed: true,
             canEndTrip: true,
+            canShowBoardingQr: true,
           );
+        },
+      ),
+      GoRoute(
+        path: '${RouteName.returnBoardingQr}/:batchId',
+        builder: (context, state) {
+          final batchId = state.pathParameters['batchId'];
+          if (batchId == null || batchId.isEmpty) {
+            return const DriverHomePage();
+          }
+          return ReturnBoardingQrScreen(batchId: batchId);
         },
       ),
       GoRoute(

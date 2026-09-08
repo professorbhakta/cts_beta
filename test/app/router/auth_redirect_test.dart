@@ -179,6 +179,63 @@ void main() {
         ),
         isNull,
       );
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.returnBoardingScan,
+          authReady: true,
+          loggedIn: true,
+          userType: 'STAFF',
+        ),
+        isNull,
+      );
+    });
+
+    test('driver may open return boarding QR show route', () {
+      expect(
+        resolveAuthRedirect(
+          location: '${RouteName.returnBoardingQr}/4',
+          authReady: true,
+          loggedIn: true,
+          userType: 'DRIVER',
+        ),
+        isNull,
+      );
+    });
+
+    test('supervisor may open return boarding QR show route', () {
+      expect(
+        resolveAuthRedirect(
+          location: '${RouteName.returnBoardingQr}/4',
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPERVISOR',
+        ),
+        isNull,
+      );
+    });
+
+    test('commuter blocked from return boarding QR show route', () {
+      expect(
+        resolveAuthRedirect(
+          location: '${RouteName.returnBoardingQr}/4',
+          authReady: true,
+          loggedIn: true,
+          userType: 'COMMUTER',
+        ),
+        RouteName.commuterHomeScreen,
+      );
+    });
+
+    test('driver blocked from return boarding scan alias', () {
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.returnBoardingScan,
+          authReady: true,
+          loggedIn: true,
+          userType: 'DRIVER',
+        ),
+        RouteName.driverHomeScreen,
+      );
     });
   });
 }

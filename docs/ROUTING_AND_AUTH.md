@@ -1,6 +1,6 @@
 > **Doc:** docs/ROUTING_AND_AUTH.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** Role homes + SUPERVISOR AdminService allow-list
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** Return boarding QR / scan route prefixes
 
 # Routing and authentication
 
@@ -115,8 +115,10 @@ Defined in `RouteName`:
 |-----|---------|
 | `public` | splash, signIn, signUp (redirects to sign-in), noInternet |
 | `adminOnlyPrefixes` | Dashboard, CRUD, running/return batches, D2D channel |
-| `driverOnlyPrefixes` | driver home, d2d log |
-| `commuterOnlyPrefixes` | commuter home, track cab, boarding scan |
+| `driverOnlyPrefixes` | driver home, d2d log, driver return list, **return boarding QR show** |
+| `commuterOnlyPrefixes` | commuter home, track cab, boarding scan, **return boarding scan alias** |
+
+Return QR UI prep (no new BE): [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 

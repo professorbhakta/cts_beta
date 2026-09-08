@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-09-01 10:20 IST
-> **Session:** Phase 1+2 morning waiting pool + scan join_waiting + Waiting line UI
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** Note return QR UI prep reuses BoardingQrPanel / BoardingScanScreen
 
 # D2D Feature — Live WebSocket
 
@@ -23,8 +23,8 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 | Error copy | `lib/api/client_pack_error_messages.dart` |
 | Camera + feedback helpers | `helpers/odometer_camera_helper.dart`, `helpers/client_pack_feedback.dart` |
 | Odometer sheet | `widgets/odometer_km_sheet.dart` — start/end KM + camera photo |
-| Driver boarding QR | `widgets/boarding_qr_panel.dart` — wakelock + auto-refresh |
-| Commuter scan | `screens/boarding_scan_screen.dart` — route `RouteName.boardingScan` |
+| Driver boarding QR | `widgets/boarding_qr_panel.dart` — wakelock + auto-refresh; also reused by return prep (`ReturnBoardingQrPanel`) |
+| Commuter scan | `screens/boarding_scan_screen.dart` — route `RouteName.boardingScan` (+ `returnBoardingScan` alias) |
 | Admin screen | `screens/d2d_channel.dart` (**no** QR) — **Remaining** first; **Already IN** collapsed |
 | Driver screen | `screens/d2d_log_screen.dart` — start KM → QR+CList → end KM → STOP |
 | Live widgets | `widgets/d2d_live_widgets.dart` — includes `D2dAlreadyInSection` |
@@ -42,7 +42,8 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 
 Camera: **ImageSource.camera only** when used. Odometer: **KM required**, **photo optional**. Sheet: **Close** (top) / **Skip** (bottom) — no swipe-dismiss; Confirm submits without photo OK. Soft STOP (BE does not block).
 
-Parked: return-leg KM UI, admin org odometer list, unboard UI.
+Parked: return-leg KM UI, admin org odometer list, unboard UI.  
+**Return QR UI prep** (batches feature): [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md) — wrappers only; await Dock before enabling live morning boarding APIs on return.
 
 Repo methods (unchanged): `submitOdometerStart`/`End`, `getOdometer`, `getBoardingQr`, `boardingScan`, `boardingUnboard`.
 

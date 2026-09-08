@@ -1,6 +1,6 @@
 > **Doc:** docs/UI_ARCHITECTURE.md
-> **Updated:** 2026-08-25 22:05 IST
-> **Session:** + /boardingScan; D2DLog QR+KM note
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** + returnBoardingQr / returnBoardingScan (UI prep)
 
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 
@@ -41,9 +41,11 @@ Every **registered** GoRouter destination plus **nested** `Navigator.push` scree
 | 19 | CommuterScreen / CommuterForm | `/commuterScreen`, `/commuterForm` | ADMIN | Drawer, dashboard, list actions |
 | 20 | D2dChannel | `/d2dChannel/:batchId` | ADMIN | Running batch card tap — **no** boarding QR |
 | 21 | D2DLogScreen | `/d2dLog/:batchId` | DRIVER | Driver home START TRIP — start/end KM sheets + boarding QR + CList |
-| 21b | BoardingScanScreen | `/boardingScan` | COMMUTER | Commuter home **Scan** — camera → `boardingScan` API |
+| 21b | BoardingScanScreen | `/boardingScan` | COMMUTER / STAFF | Commuter home **Scan** — camera → `boardingScan` API |
+| 21c | BoardingScanScreen (alias) | `/returnBoardingScan` | COMMUTER / STAFF | Return today → scan link (same morning screen) |
 | 22 | ReturnCommuterListScreen | `/returnCommuterScreen/:batchId` | ADMIN | Return batch picker row |
-| 23 | ReturnCommuterListScreen (confirm/remove) | `/driverReturnCommuter/:batchId` | DRIVER | Driver home RETURN LIST |
+| 23 | ReturnCommuterListScreen (confirm/remove) | `/driverReturnCommuter/:batchId` | DRIVER | Driver home RETURN LIST + **BOARDING QR** |
+| 23b | ReturnBoardingQrScreen | `/returnBoardingQr/:batchId` | DRIVER (+ admin-like) | Return QR show — wraps morning panel; stub until Dock |
 | 24 | OfflineHomeScreen | `/offlineTempHome` | ADMIN (drawer when enabled) | Drawer Offline Mode |
 | 25 | OfflineRoutePopsScreen | `/offlineRoutePops/:routeId` | ADMIN | Offline Routes tab row |
 | 26 | OfflineBatchCommutersScreen | `/offlineBatchCommuters/:batchId` | ADMIN | Offline Batches tab row |

@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-01 10:20 IST
-> **Session:** Phase 3 return waiting pool + join_waiting + Waiting line UI
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** Return QR boarding UI prep — reuse morning panel; await Dock
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -32,6 +32,9 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | Running batch screen | `screens/running_batch_screen.dart` |
 | Return batch picker | `screens/returning_batch_screen.dart` — list on narrow screens / pool extras; grid on wide |
 | Return picker card | `widgets/return_batch_picker_card.dart` — fixed-height tile, no nested scroll |
+| Return boarding QR panel | `widgets/return_boarding_qr_panel.dart` — thin wrap of morning `BoardingQrPanel`; live API off until Dock |
+| Return boarding QR screen | `screens/return_boarding_qr_screen.dart` — driver/admin-like show; cream board |
+| Return boarding role policy | `models/return_boarding_role_policy.dart` — show vs scan gates |
 | Return commuter UI | `../commuters/screens/return_batch_commuter_screen.dart` |
 | Return provider | `providers/return_batch_provider.dart` |
 | Running provider | `providers/running_batch_provider.dart` |
@@ -50,7 +53,11 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | `/returnBatchScreen` | `ReturningBatchScreen` — batch picker |
 | `/returnCommuterScreen/:batchId` | `ReturnCommuterListScreen` — admin add from Available and monitor Confirmed |
 | `/runningBatchScreen` | `RunningBatchScreen` — morning live DTODLOG snapshot only |
-| `/driverReturnCommuter/:batchId` | Driver return list (confirm/remove/end) |
+| `/driverReturnCommuter/:batchId` | Driver return list (confirm/remove/end) + **BOARDING QR** entry |
+| `/returnBoardingQr/:batchId` | Return boarding QR **show** (reuses morning panel; stub until Dock) |
+| `/returnBoardingScan` | Alias → morning `BoardingScanScreen` (STAFF/COMMUTER) |
+
+**Return QR prep:** UI only — [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md). Product: same flow as morning. No invented return-QR URLs; `useLiveMorningApi` stays false until Dock green-flags BE (`docs/API_CONTRACTS.md` client-pack boarding).
 
 **Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, **app resume** (via `AppLifecycleHost`), return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
 

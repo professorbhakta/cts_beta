@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** Role routing — STAFF→commuter; SUPERVISOR AdminService allow-list
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** Return QR boarding UI prep — await Dock; reuse morning widgets
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -133,6 +133,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 ### Open backlog (from PROJECT_TODOS)
 
 - **Client pack STEP 8** device smoke (user go)
+- **Return QR UI prep** shipped (stub); live API awaits Dock — [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md)
 - Parked UI: return-leg KM, admin org odometer list, unboard UI
 - **Decide next:** Confirm “API every time” (26d-discuss)
 - Batch-wise Mark all coming (`CommuterListScreen`)
@@ -176,10 +177,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-31 | D2D Phase 3 | Return waiting Redis + `join_waiting` + FCFS auto-confirm; FE Waiting line + commuter join; uncommitted both repos |
-| 2026-08-31 | D2D Phase 1+2 | Morning: cross-batch QR, trip-end isComing, waiting pool + FCFS, UI collapse/waiting line |
-| 2026-08-29 | Agent law + layout END sync | Five role cards; LIB_STRUCTURE + ARCHITECTURE aligned; STEP 8 on **go** |
-| 2026-08-25 | Rest / wrap | Docs complete; STEP 8 still blocked on **go** |
+| 2026-09-08 | Return QR UI prep | Wrappers + routes + role gates; stub until Dock; PR → professor-cts |
+| 2026-09-08 | Role routing | STAFF→commuter; SUPERVISOR AdminService allow-list |
+| 2026-08-31 | D2D Phase 3 | Return waiting Redis + `join_waiting` + FCFS auto-confirm; FE Waiting line + commuter join |
 
 ---
 
