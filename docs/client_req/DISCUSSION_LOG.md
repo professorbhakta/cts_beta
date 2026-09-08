@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-09-08 15:43 IST
-> **Session:** RCList = user-ID list on return trip log row; archive-on-end = BE/history
+> **Updated:** 2026-09-08 15:45 IST
+> **Session:** LOCKED — End archives RCList; FE no archive UI
 
 # Client req — discussion log
 
@@ -21,12 +21,12 @@
 | **STATUS** | `MULTI_TRACK` — return QR UI prep (visual; schema redesign); STEP 8 next on **go** |
 | **FOCUS** | **STEP 8** device smoke → [07-NEXT-AGENT-PROMPT.md](07-NEXT-AGENT-PROMPT.md) |
 | **FOCUS_DOC** | [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 · [LAB_SMOKE_ISSUES.txt](../LAB_SMOKE_ISSUES.txt) |
-| **LAST_CHAT** | 2026-09-08 15:43 IST |
-| **LAST_SUMMARY** | Return QR prep: UI same as morning; **RCList** = user-ID list on return trip log row (like CList, not row-per-rider); archive-on-end = BE/history only; live UI binds ID list. Docs: [setup/RETURN_QR_UI_PREP.md](../setup/RETURN_QR_UI_PREP.md). |
+| **LAST_CHAT** | 2026-09-08 15:45 IST |
+| **LAST_SUMMARY** | Return QR LOCKED: live RCList = ID list on return trip row; on End BE archives to history + trip keeps archive ID only; **FE live UI = ID list only — do not build archive UI**. Docs: [setup/RETURN_QR_UI_PREP.md](../setup/RETURN_QR_UI_PREP.md). |
 | **NEXT_SUGGEST** | STEP 8 **go** · Dock gap-list for return-log/RCList · Q-26d |
 | **BLOCKED_ON** | User **go** for smoke; Dock schema lock for return QR BE |
-| **LOCKED** | KM required; photo optional; Close+Skip; BoardingEvent SKIP; return QR UX=morning; RCList=user-ID list on return log row |
-| **SCHEMA_DIR** | Morning DTODLOG/CList morning-only; return trip log + RCList (user-ID list); archive-on-end BE/history only |
+| **LOCKED** | return QR UX=morning; live RCList=user-ID list on return log row; End→history archive (BE); FE no archive UI |
+| **SCHEMA_DIR** | Morning DTODLOG/CList morning-only; return trip log + live RCList ID list; End archives to history |
 
 ---
 

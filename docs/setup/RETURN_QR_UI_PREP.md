@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/RETURN_QR_UI_PREP.md
-> **Updated:** 2026-09-08 15:43 IST
-> **Session:** RCList = user-ID list on return trip log row; archive-on-end = BE/history
+> **Updated:** 2026-09-08 15:45 IST
+> **Session:** LOCKED — RCList ID list; End archives to history; FE no archive UI
 
 # Return-trip QR boarding — UI prep
 
@@ -16,12 +16,14 @@
 | Return | **New return trip log** + **RCList** |
 | Cleanup | Drop `return_*` off the wide morning DTODLOG table |
 
-### RCList (locked shape — discuss)
+### RCList + End (LOCKED)
 
-- **RCList** = **user-ID list on the return trip log row** (like morning **CList**).
-- **Not** a row-per-rider table / per-rider entity list for live boarding UI.
-- Live Flutter UI binds that **ID list**.
-- Possible future **archive-on-end** is **BE/history only** — live UI still binds the ID list (do not model archive as the live boarding source).
+- **Live RCList** = **user-ID list on the return trip log row** (like morning **CList**).
+- **Not** a row-per-rider table for live boarding UI.
+- **On End (BE):** archives RCList to a **history table**; the trip row keeps an **archive ID only**.
+- **FE live UI** only needs the **ID list** — **do not build archive UI** (history is BE-side).
+
+TODO(Dock): when gap-list lands in [API_CONTRACTS.md](../API_CONTRACTS.md), FE binds live ID list only; ignore archive payload for boarding screens.
 
 **UI can look the same as morning.** Variables / repository bindings **update when the schema locks** — not by flipping a switch onto morning `boarding_qr` / `boarding_scan` or inventing camelCase fields.
 
@@ -49,8 +51,9 @@ Pointer for wire names when ready: [docs/API_CONTRACTS.md](../API_CONTRACTS.md) 
 
 1. Publish return trip log + RCList as **user-ID list on log row** (+ boarding QR/scan) into [API_CONTRACTS.md](../API_CONTRACTS.md) — **gap-list**, approved snake_case only.
 2. Implement `ReturnBoardingRepository` against those paths — **not** morning DTODLOG `return_*` / morning boarding helpers for evening.
-3. Feed `ReturnBoardingQrViewModel.qrPayload` and scan → append to RCList ID list; live UI stays on that list (archive-on-end = BE/history only if added).
-4. Un-park journey rows in [FLOWS_BY_ROLE.md](../FLOWS_BY_ROLE.md).
+3. Feed `ReturnBoardingQrViewModel.qrPayload` and scan → append to live RCList ID list.
+4. **Do not** build FE archive/history UI — on End, BE archives; trip keeps archive ID only.
+5. Un-park journey rows in [FLOWS_BY_ROLE.md](../FLOWS_BY_ROLE.md).
 
 Until then: cream-board “Awaiting Dock …” stubs; no invented URLs or camelCase fields.
 

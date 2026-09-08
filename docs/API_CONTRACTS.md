@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-08 15:43 IST
-> **Session:** RCList = user-ID list on return trip log row; archive-on-end = BE/history
+> **Updated:** 2026-09-08 15:45 IST
+> **Session:** LOCKED — End archives RCList to history; FE no archive UI
 
 # API Contracts — Backend ↔ Flutter
 
@@ -212,7 +212,7 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 
 Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
 
-**Return-trip QR (discuss / schema redesign):** Flutter UI prep keeps **visual parity** with morning boarding but must **not** hard-wire to morning DTODLOG `return_*` columns or reuse morning `boarding_qr` / `boarding_scan` for evening. Direction: morning DTODLOG/CList stay morning-only; new **return trip log** + **RCList** (user-ID list **on the return trip log row**, like CList — not row-per-rider). Live UI binds that ID list; any archive-on-end is BE/history only. Wire names await Dock gap-list. See [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return-trip QR (discuss / schema redesign):** Flutter UI prep keeps **visual parity** with morning boarding but must **not** hard-wire to morning DTODLOG `return_*` columns or reuse morning `boarding_qr` / `boarding_scan` for evening. Direction: morning DTODLOG/CList stay morning-only; new **return trip log** + **RCList** (live **user-ID list on the return trip log row**, like CList — not row-per-rider). **On End (BE):** archive to history table; trip keeps archive ID only. **FE live UI binds ID list only — do not build archive UI.** Wire names await Dock gap-list. See [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 

@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-08 15:43 IST
-> **Session:** RCList = user-ID list on return trip log row (like CList)
+> **Updated:** 2026-09-08 15:45 IST
+> **Session:** LOCKED — End archives RCList; FE live UI = ID list only (no archive UI)
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -60,7 +60,7 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | `/returnBoardingQr/:batchId` | Return boarding QR **show** (visual prep; stub until Dock) |
 | `/returnBoardingScan` | Return boarding **scan** shell (not morning `BoardingScanScreen`) |
 
-**Return QR prep:** UI only — [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md). Same UX as morning; bind later to **return trip log + RCList** (user-ID list on log row, like CList — not row-per-rider; archive-on-end = BE/history only). Do **not** hard-wire to morning DTODLOG `return_*` or morning `boarding_qr` / `boarding_scan`.
+**Return QR prep:** UI only — [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md). Same UX as morning; bind later to **return trip log + live RCList** (user-ID list on log row, like CList). **On End:** BE archives to history; trip keeps archive ID only — **do not build FE archive UI**. Do **not** hard-wire to morning DTODLOG `return_*` or morning `boarding_qr` / `boarding_scan`.
 
 **Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, **app resume** (via `AppLifecycleHost`), return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
 

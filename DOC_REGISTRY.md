@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-08 15:43 IST
-> **Session:** RCList = user-ID list on return trip log row
+> **Updated:** 2026-09-08 15:45 IST
+> **Session:** LOCKED — End archives RCList; FE no archive UI
 
 # Documentation Registry
 
@@ -28,11 +28,11 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-08 15:43 IST | RCList = user-ID list on return log row |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-08 15:43 IST | RCList user-ID list lock |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-08 15:43 IST | RCList shape lock |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
 | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-31 13:45 IST | MIDDLE CONTEXT — Phase 3 done |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-08 15:43 IST | RCList user-ID list lock |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
@@ -75,8 +75,8 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-08 15:18 IST | returnBoardingQr / returnBoardingScan prefixes |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-08 12:45 IST | user types split |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-08 15:43 IST | RCList user-ID list lock |
-| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 15:43 IST | RCList = user-ID list on return trip log row |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
+| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 15:45 IST | LOCKED End→history; FE no archive UI |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-31 13:45 IST | return waiting Redis key |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 15:40 IST | Return QR visual / RCList |
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 15:40 IST | placeholders + scan shell |

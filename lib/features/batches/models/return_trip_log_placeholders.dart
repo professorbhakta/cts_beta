@@ -5,9 +5,10 @@
 /// - Return gets a **new return trip log** + **RCList**.
 /// - Drop `return_*` off the wide morning DTODLOG table.
 ///
-/// **RCList lock:** user-ID list **on the return trip log row** (like morning
-/// CList) — **not** a row-per-rider table. Live UI binds that ID list.
-/// Possible future archive-on-end is **BE/history only** — not a live UI model.
+/// **RCList lock (LOCKED):** live RCList = user-ID list **on the return trip
+/// log row** (like morning CList) — **not** row-per-rider.
+/// **On End (BE):** archives to a history table; trip keeps **archive ID only**.
+/// **FE live UI** binds the ID list only — **do not build archive UI**.
 ///
 /// **Do not** invent final camelCase API fields here. Wire names land only after
 /// Dock publishes the gap-list into [docs/API_CONTRACTS.md] and
@@ -29,10 +30,11 @@ class ReturnTripLogRef {
   final String batchId;
 }
 
-/// TODO(Dock): future **RCList** — user-ID list on the return trip log row
+/// TODO(Dock): future **RCList** — live user-ID list on the return trip log row
 /// (same shape idea as morning CList; **not** row-per-rider).
 ///
-/// Live UI binds the ID list. Archive-on-end (if any) is BE/history only.
+/// On End, BE archives to history and trip keeps archive ID only — **FE does
+/// not build archive UI**; live boarding binds the ID list only.
 /// Prep handle only — do not invent member DTOs or camelCase payload keys.
 class RclistRef {
   const RclistRef({required this.batchId});
@@ -65,9 +67,9 @@ class ReturnBoardingQrViewModel {
 
 /// TODO(Dock): repository surface for return boarding show/scan.
 ///
-/// Bind to return-trip-log + RCList (user-ID list on log row) when
-/// API_CONTRACTS gap-list lands. Live UI stays on the ID list; any
-/// archive-on-end is BE/history only.
+/// Bind to return-trip-log + live RCList (user-ID list on log row) when
+/// API_CONTRACTS gap-list lands. On End, BE archives to history (trip keeps
+/// archive ID only) — **do not build FE archive UI**.
 /// **Do not** call morning `GET /d2d/boarding_qr/` or `POST /d2d/boarding_scan/`
 /// for evening trips, and **do not** read morning DTODLOG `return_*` columns.
 abstract class ReturnBoardingRepository {
