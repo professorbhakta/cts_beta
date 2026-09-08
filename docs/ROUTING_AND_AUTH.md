@@ -1,6 +1,6 @@
 > **Doc:** docs/ROUTING_AND_AUTH.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-09-08 12:45 IST
+> **Session:** Role homes + SUPERVISOR AdminService allow-list
 
 # Routing and authentication
 
@@ -15,12 +15,49 @@ How users move through the app: **go_router**, **session**, and **role-based acc
 | File | Purpose |
 |------|---------|
 | `lib/app/router/app_router.dart` | `GoRouter` definition, redirects, builders |
-| `lib/app/router/route_names.dart` | Path constants, role prefix sets |
+| `lib/app/router/route_names.dart` | Path constants, role prefix sets, `homeForRole` / `isAdminLike` / `isCommuterLike` |
+| `lib/app/router/admin_service.dart` | `AdminService` enum + `AdminCapabilities` (dashboard / drawer / guards) |
 | `lib/app/router/auth_redirect.dart` | Pure `resolveAuthRedirect()` — unit tested |
 | `lib/app/router/session_auth_notifier.dart` | Login + role snapshot; optional server reconcile |
 | `lib/app/session_invalidation.dart` | Shared 401/4401 handler — snackbar + `/signIn` |
 | `lib/domain/usecases/get_initial_route_usecase.dart` | Post-splash destination |
 | `lib/data/repositories/session_repository_impl.dart` | Persisted session |
+
+---
+
+## User roles (homes)
+
+| `userType` | Home route | Admin shell? |
+|------------|------------|--------------|
+| `ADMIN` | `/adminHomeScreen` | Yes — **all** `AdminService` tiles |
+| `SUPERVISOR` | `/adminHomeScreen` (shared shell, filtered) | Yes — **allow-list only** |
+| `STAFF` | `/commuterHomeScreen` | No (same UX as COMMUTER) |
+| `DRIVER` | `/driverHomeScreen` | No |
+| `COMMUTER` | `/commuterHomeScreen` | No |
+
+**Decision:** No separate “supervisor home” screen — SUPERVISOR uses the admin dashboard with capability filtering. STAFF is **not** in `isAdminLike`.
+
+---
+
+## AdminService allow-list (Phase A)
+
+Central enum in `lib/app/router/admin_service.dart` (web-ready: same gates for future web layouts).
+
+| Enum value | Covers (routes) |
+|------------|-----------------|
+| `batch` | batch / running / return batch + forms |
+| `cab` | cab list + form |
+| `route` | route list + form |
+| `pop` | POP list + form |
+| `driver` | driver list + form |
+| `d2d` | `/d2dChannel/:batchId` (day-ops DTODLOG monitor) |
+| `commuter` | commuter list + form |
+
+- **ADMIN** → `AdminCapabilities.all`
+- **SUPERVISOR** → `AdminCapabilities.supervisorAllowList` = `{batch, cab, route, pop, driver, d2d, commuter}`
+- **Not included for SUPERVISOR:** offline temp drawer, org billing / org-delete / other full-admin-only tools (when added)
+
+Dashboard overview tiles, quick actions, drawer MANAGEMENT links, and `resolveAuthRedirect` all consult `AdminCapabilities`.
 
 ---
 
@@ -32,16 +69,16 @@ stateDiagram-v2
   Splash --> SignIn: not logged in
   Splash --> RoleHome: logged in
   SignIn --> RoleHome: login success
-  RoleHome --> Admin: ADMIN / SUPERVISOR / STAFF
+  RoleHome --> Admin: ADMIN / SUPERVISOR
   RoleHome --> Driver: DRIVER
-  RoleHome --> Commuter: COMMUTER
+  RoleHome --> Commuter: COMMUTER / STAFF
 ```
 
 1. **Splash** calls `SessionAuthNotifier.refresh(validateWithServer: true)` then `SplashProvider.determineInitialRoute()`.
 2. **GetInitialRouteUseCase** returns `signIn` or `RouteName.homeForRole(userType)`.
 3. Splash uses `context.go(route)`.
 
-**Sign-in success** (`SignInScreen`): refreshes session, then `context.go` via `RouteName.homeForRole` (`ADMIN`/`SUPERVISOR`/`STAFF` → admin home, `DRIVER`, `COMMUTER`).
+**Sign-in success** (`SignInScreen`): refreshes session, then `context.go` via `RouteName.homeForRole`.
 
 ---
 
@@ -56,12 +93,17 @@ Evaluated on navigation and when `SessionAuthNotifier` notifies (login/logout).
 | Location is `/signUp` | `/signIn` (public self-registration disabled) |
 | Not logged in + not public route | `/signIn` |
 | Logged in on `/signIn` | Role home |
-| Path in `adminOnlyPrefixes` + user not ADMIN/SUPERVISOR/STAFF | Role home |
-| Path in `driverOnlyPrefixes` + user not DRIVER (admin-like roles excluded) | Role home |
-| Path in `commuterOnlyPrefixes` + user not COMMUTER (admin-like roles excluded) | Role home |
+| Path in `adminOnlyPrefixes` + `!AdminCapabilities.canAccessAdminLocation` | Role home |
+| Path in `driverOnlyPrefixes` + user not DRIVER (admin-like excluded) | Role home |
+| Path in `commuterOnlyPrefixes` + user not commuter-like (admin-like excluded) | Role home |
 | Otherwise | Allow |
 
-**Note:** ADMIN can access admin routes and D2D **Channel**; ADMIN is redirected away from driver home and commuter home prefixes when hitting those URLs directly.
+**Notes:**
+- `isAdminLike` = `ADMIN` \| `SUPERVISOR` only.
+- `isCommuterLike` = `COMMUTER` \| `STAFF`.
+- SUPERVISOR blocked from a non-allow-listed admin path redirects to admin home.
+- STAFF blocked from admin paths redirects to commuter home.
+- ADMIN/SUPERVISOR may still open driver-only prefixes (monitor); they are redirected away from treating those as home.
 
 ---
 
@@ -74,7 +116,20 @@ Defined in `RouteName`:
 | `public` | splash, signIn, signUp (redirects to sign-in), noInternet |
 | `adminOnlyPrefixes` | Dashboard, CRUD, running/return batches, D2D channel |
 | `driverOnlyPrefixes` | driver home, d2d log |
-| `commuterOnlyPrefixes` | commuter home |
+| `commuterOnlyPrefixes` | commuter home, track cab, boarding scan |
+
+---
+
+## JWT login profile stub (role allowList)
+
+`AuthenticationRepositoryImpl._applyOptionalProfileStub` accepts optional `profile` keys by role:
+
+| Role | Profile keys applied |
+|------|----------------------|
+| `COMMUTER` / `STAFF` / `DRIVER` | `batchId`, `cabId`; `isComing` for commuter-like; nested `adminCode` |
+| `ADMIN` / `SUPERVISOR` | profile `id` → `adminCode` |
+
+Empty org arrays / null profile stubs remain valid Phase A login responses ([API_CONTRACTS.md](./API_CONTRACTS.md)).
 
 ---
 
@@ -142,5 +197,5 @@ Constants in `route_names.dart` only (use nested `Navigator`):
 ## Testing routing locally
 
 1. Run debug app
-2. Sign in as each role; verify drawer/admin CRUD blocked for driver/commuter
+2. Sign in as each role; verify STAFF → commuter home; SUPERVISOR → filtered admin shell; ADMIN → full tiles
 3. Deep link: `adb shell am start -a android.intent.action.VIEW -d "your-scheme://d2dLog/123"` (if intent filters configured) or use in-app START TRIP

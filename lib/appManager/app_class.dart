@@ -44,13 +44,16 @@ class SessionRole {
 
   static bool get isStaff => userType == 'STAFF';
 
-  /// ADMIN / SUPERVISOR / STAFF share admin-home surfaces in Phase A.
-  static bool get isAdminLike =>
-      isAdmin || isSupervisor || isStaff;
+  /// ADMIN (full) + SUPERVISOR (allow-listed) may use the admin shell.
+  /// STAFF is not admin-like — see [RouteName.isAdminLike].
+  static bool get isAdminLike => RouteName.isAdminLike(userType);
 
   static bool get isDriver => userType == 'DRIVER';
 
   static bool get isCommuter => userType == 'COMMUTER';
+
+  /// COMMUTER + STAFF share commuter home / prefixes.
+  static bool get isCommuterLike => RouteName.isCommuterLike(userType);
 
   static String get homeRoute => RouteName.homeForRole(userType);
 

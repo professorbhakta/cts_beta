@@ -15,13 +15,14 @@ class D2dChannelRolePolicy {
   const D2dChannelRolePolicy._();
 
   static bool can(String? role, D2dChannelAction action) {
+    final isAdminMonitor = role == 'ADMIN' || role == 'SUPERVISOR';
     switch (action) {
       case D2dChannelAction.connect:
       case D2dChannelAction.disconnect:
-        return role == 'ADMIN' || role == 'DRIVER';
+        return isAdminMonitor || role == 'DRIVER';
       case D2dChannelAction.addCommuter:
       case D2dChannelAction.removeFromQueue:
-        return role == 'ADMIN' || role == 'DRIVER';
+        return isAdminMonitor || role == 'DRIVER';
       case D2dChannelAction.confirmPickup:
       case D2dChannelAction.stopTrip:
         return role == 'DRIVER';

@@ -27,7 +27,7 @@ class ProfileProvider with ChangeNotifier {
     );
     _mobile = _display(manager.getString(ManagerKey.mobile));
     _roleLabel = SessionRole.roleLabel;
-    _showAssignment = SessionRole.isDriver || SessionRole.isCommuter;
+    _showAssignment = SessionRole.isDriver || SessionRole.isCommuterLike;
     _batchName = _display(manager.getString(ManagerKey.batchName));
     _batchTime = _display(manager.getString(ManagerKey.batchTime));
     _cabNumber = _display(manager.getString(ManagerKey.cabNumb));

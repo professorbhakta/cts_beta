@@ -45,12 +45,12 @@ void main() {
       expect(await useCase(), RouteName.adminHomeScreen);
     });
 
-    test('staff session routes to admin home', () async {
+    test('staff session routes to commuter home', () async {
       final useCase = GetInitialRouteUseCase(
         _FakeSessionRepository(loggedIn: true, userType: 'STAFF'),
       );
 
-      expect(await useCase(), RouteName.adminHomeScreen);
+      expect(await useCase(), RouteName.commuterHomeScreen);
     });
 
     test('unknown role falls back to signIn', () async {

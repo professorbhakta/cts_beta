@@ -1,5 +1,6 @@
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/controller_reset_util.dart';
+import 'package:cts/app/router/admin_service.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
@@ -19,7 +20,7 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: switch (SessionRole.userType) {
-        'COMMUTER' => const CommuterNavList(),
+        'COMMUTER' || 'STAFF' => const CommuterNavList(),
         'DRIVER' => const DriverNavList(),
         _ => const AdminNavList(),
       },
@@ -108,16 +109,18 @@ class AdminNavList extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
-    final isAdmin = SessionRole.isAdminLike;
+    final isAdminShell = SessionRole.isAdminLike;
     final homeRoute = SessionRole.homeRoute;
+    final managementItems =
+        AdminServiceCatalog.drawerItemsForRole(SessionRole.userType);
 
     return _DrawerShell(
       scrollable: true,
       children: [
         const _DrawerQuietHeader(),
         _DrawerNavTile(
-          icon: isAdmin ? Icons.dashboard_outlined : Icons.home_outlined,
-          title: isAdmin ? 'Dashboard' : 'Home',
+          icon: isAdminShell ? Icons.dashboard_outlined : Icons.home_outlined,
+          title: isAdminShell ? 'Dashboard' : 'Home',
           route: homeRoute,
           isSelected: currentRoute == homeRoute,
         ),
@@ -127,55 +130,28 @@ class AdminNavList extends StatelessWidget {
           route: RouteName.profileScreen,
           isSelected: currentRoute == RouteName.profileScreen,
         ),
-        if (isAdmin) ...[
+        if (isAdminShell) ...[
           _SyncStatusBanner(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Text(
-              'MANAGEMENT',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: scheme.onSurface.withValues(alpha: 0.5),
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.1,
+          if (managementItems.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Text(
+                'MANAGEMENT',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurface.withValues(alpha: 0.5),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
+                ),
               ),
             ),
-          ),
-          _DrawerNavTile(
-            icon: Icons.people_outline,
-            title: 'Commuters',
-            route: RouteName.commuterScreen,
-            isSelected: currentRoute == RouteName.commuterScreen,
-          ),
-          _DrawerNavTile(
-            icon: Icons.location_on_outlined,
-            title: 'Pick-up Points',
-            route: RouteName.popScreen,
-            isSelected: currentRoute == RouteName.popScreen,
-          ),
-          _DrawerNavTile(
-            icon: Icons.directions_bus_outlined,
-            title: 'Batches',
-            route: RouteName.batchScreen,
-            isSelected: currentRoute == RouteName.batchScreen,
-          ),
-          _DrawerNavTile(
-            icon: Icons.directions_car_outlined,
-            title: 'Cabs',
-            route: RouteName.cabScreen,
-            isSelected: currentRoute == RouteName.cabScreen,
-          ),
-          _DrawerNavTile(
-            icon: Icons.badge_outlined,
-            title: 'Drivers',
-            route: RouteName.driverScreen,
-            isSelected: currentRoute == RouteName.driverScreen,
-          ),
-          _DrawerNavTile(
-            icon: Icons.route_outlined,
-            title: 'Routes',
-            route: RouteName.routeScreen,
-            isSelected: currentRoute == RouteName.routeScreen,
-          ),
+            for (final item in managementItems)
+              _DrawerNavTile(
+                icon: item.icon,
+                title: item.title,
+                route: item.route,
+                isSelected: currentRoute == item.route,
+              ),
+          ],
           if (showOfflineDrawerTile()) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
