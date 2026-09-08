@@ -85,7 +85,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
 | [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 15:18 IST | + returnBoardingQr / returnBoardingScan |
-| [docs/README.md](docs/README.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
+| [docs/README.md](docs/README.md) | 2026-09-08 15:18 IST | + docs/setup folder |
 | [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
 | [docs/backend/README.md](docs/backend/README.md) | 2026-08-25 21:50 IST | odo/boarding modules |
 | [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 15:18 IST | return QR routes |
