@@ -9,14 +9,14 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-/// Driver boarding QR for an active trip (morning live; return via wrapper).
+/// Driver boarding QR for an active **morning** trip.
 ///
 /// Keep-awake while mounted. Auto-refreshes before [expiresIn].
 ///
-/// Return-trip UI reuses this widget through
-/// `ReturnBoardingQrPanel` (`lib/features/batches/widgets/`) — do not fork.
-/// Live network for return stays off until Dock green-flags BE
-/// (`docs/setup/RETURN_QR_UI_PREP.md`, `docs/API_CONTRACTS.md`).
+/// Return-trip UI uses separate wrappers under `lib/features/batches/`
+/// (`ReturnBoardingQrPanel`) — **visual parity only**. Do not hard-wire return
+/// FE to this panel’s morning `getBoardingQr` / DTODLOG path; return binds to
+/// future return trip log + RCList (`docs/setup/RETURN_QR_UI_PREP.md`).
 class BoardingQrPanel extends StatefulWidget {
   const BoardingQrPanel({
     super.key,

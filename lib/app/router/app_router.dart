@@ -28,6 +28,7 @@ import 'package:cts/features/drivers/screens/driver_screen.dart';
 import 'package:cts/features/batches/forms/batch_form.dart';
 import 'package:cts/features/batches/screens/batch_screen.dart';
 import 'package:cts/features/batches/screens/return_boarding_qr_screen.dart';
+import 'package:cts/features/batches/screens/return_boarding_scan_screen.dart';
 import 'package:cts/features/commuters/screens/return_batch_commuter_screen.dart';
 import 'package:cts/features/batches/screens/returning_batch_screen.dart';
 import 'package:cts/features/batches/screens/running_batch_screen.dart';
@@ -105,11 +106,11 @@ GoRouter createAppRouter({
         path: RouteName.boardingScan,
         builder: (context, state) => const BoardingScanScreen(),
       ),
-      // Return-trip scan alias — same morning BoardingScanScreen / boarding_scan API.
-      // TODO(Dock): green-flag if return needs a distinct contract; do not invent URLs.
+      // Return scan — visual prep only; does NOT call morning boarding_scan.
+      // TODO(Dock): bind ReturnBoardingRepository → return trip log / RCList.
       GoRoute(
         path: RouteName.returnBoardingScan,
-        builder: (context, state) => const BoardingScanScreen(),
+        builder: (context, state) => const ReturnBoardingScanScreen(),
       ),
       GoRoute(
         path: RouteName.routeScreen,

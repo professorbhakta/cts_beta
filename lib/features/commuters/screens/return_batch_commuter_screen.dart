@@ -32,7 +32,7 @@ class ReturnCommuterListScreen extends StatefulWidget {
   final bool canEndTrip;
 
   /// Driver (primary) entry to return boarding QR show screen — UI prep.
-  /// Reuses morning [BoardingQrPanel] via [ReturnBoardingQrScreen].
+  /// Visual parity with morning; binds later to return trip log / RCList.
   final bool canShowBoardingQr;
 
   @override

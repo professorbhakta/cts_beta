@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-08 15:18 IST
-> **Session:** Pointer — return QR UI prep reuses morning boarding; await Dock
+> **Updated:** 2026-09-08 15:40 IST
+> **Session:** Return QR — UI same; schema → return trip log + RCList (not DTODLOG return_*)
 
 # API Contracts — Backend ↔ Flutter
 
@@ -212,7 +212,7 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 
 Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
 
-**Return-trip QR:** Flutter UI prep reuses these morning boarding helpers only — no invented return-QR URLs. Live enablement awaits Dock green-flag. See [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return-trip QR (discuss / schema redesign):** Flutter UI prep keeps **visual parity** with morning boarding but must **not** hard-wire to morning DTODLOG `return_*` columns or reuse morning `boarding_qr` / `boarding_scan` for evening. Direction: morning DTODLOG/CList stay morning-only; new **return trip log** + **RCList**. Wire names await Dock gap-list. See [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 

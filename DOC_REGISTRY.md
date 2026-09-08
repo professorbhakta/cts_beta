@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-08 15:18 IST
-> **Session:** Return QR UI prep — docs/setup + routing/flows pointers
+> **Updated:** 2026-09-08 15:40 IST
+> **Session:** Return QR schema redesign note — return-log + RCList placeholders
 
 # Documentation Registry
 
@@ -28,16 +28,16 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-08 15:18 IST | Return QR UI prep pointer |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-08 15:18 IST | return QR UI prep changelog |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-08 15:18 IST | Return QR UI prep sync |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-08 15:40 IST | Return QR — not DTODLOG return_* |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-08 15:40 IST | return-log + RCList placeholders |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-08 15:40 IST | Schema redesign sync |
 | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-31 13:45 IST | MIDDLE CONTEXT — Phase 3 done |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-08-31 13:45 IST | pointer → STEP 8 |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-08 15:40 IST | return-log + RCList pointer |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
 | [docs/client_req/05-open-decisions.md](docs/client_req/05-open-decisions.md) | 2026-08-26 07:58 IST | + snapshot link |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 15:18 IST | Return QR UI prep journey rows |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 15:40 IST | Return QR visual prep / RCList |
 
 ---
 
@@ -75,18 +75,18 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-08 15:18 IST | returnBoardingQr / returnBoardingScan prefixes |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-08 12:45 IST | user types split |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-08 15:18 IST | return QR prep pointer (no new wire) |
-| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 15:18 IST | UI scaffolding; await Dock |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-08 15:40 IST | return QR schema redesign pointer |
+| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 15:40 IST | UI same; return-log + RCList; not DTODLOG return_* |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-31 13:45 IST | return waiting Redis key |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 15:18 IST | Return QR UI prep |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 15:18 IST | Return QR panel/screen routes |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-08 15:18 IST | Morning widgets reused by return prep |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 15:40 IST | Return QR visual / RCList |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 15:40 IST | placeholders + scan shell |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-08 15:40 IST | morning QR morning-only |
 | [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-08 15:18 IST | return QR UI prep note |
 | [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
 | [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
-| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 15:18 IST | + returnBoardingQr / returnBoardingScan |
+| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 15:40 IST | return scan shell (not morning alias) |
 | [docs/README.md](docs/README.md) | 2026-09-08 15:18 IST | + docs/setup folder |
 | [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
 | [docs/backend/README.md](docs/backend/README.md) | 2026-08-25 21:50 IST | odo/boarding modules |
-| [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 15:18 IST | return QR routes |
+| [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 15:40 IST | return QR/scan shells |
 | E2E | D2D_E2E · RETURN_BATCH_E2E | when flows change |

@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-09-08 15:18 IST
-> **Session:** Return QR UI prep pointer — await Dock; same morning flow
+> **Updated:** 2026-09-08 15:40 IST
+> **Session:** Return QR — visual prep; return-log + RCList (not morning DTODLOG return_*)
 
 # Flows by role
 
@@ -116,10 +116,10 @@ Back / leave screen = **disconnect only** — trip stays `isActive` until STOP.
 |------|--------|
 | 1 | Home → **RETURN LIST** → `/driverReturnCommuter/:batchId` |
 | 2 | Confirm / Remove riders; **Waiting line** visible when pool non-empty |
-| 3 | **BOARDING QR** → `/returnBoardingQr/:batchId` (UI prep — stub until Dock; reuses morning panel) |
+| 3 | **BOARDING QR** → `/returnBoardingQr/:batchId` (UI prep — stub; visual parity; binds later to return trip log / RCList) |
 | 4 | **End return** (driver FAB; admin monitors) — clears confirmed + waiting |
 
-**Return QR:** same product flow as morning when Dock green-flags BE. Prep doc: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return QR:** same UX as morning; **not** hard-wired to morning DTODLOG `return_*` or morning boarding APIs. Prep: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ```mermaid
 flowchart LR
@@ -151,7 +151,7 @@ flowchart LR
 |------|--------|
 | Return today | Home / Skip / Earlier… (intent chips — not seat confirm) |
 | Join return waiting | Link under Return today → `POST add_commuter` `action: join_waiting` (FCFS) |
-| Scan return boarding QR | Link → `/returnBoardingScan` (= morning `BoardingScanScreen`; await Dock) |
+| Scan return boarding QR | Link → `/returnBoardingScan` (`ReturnBoardingScanScreen` stub; future RCList) |
 | Pull to refresh | Reload profile + intent |
 | Track your Cab | Fleet Edge WebView (`trackingVehicleId`) |
 

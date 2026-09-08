@@ -1,3 +1,4 @@
+import 'package:cts/features/batches/models/return_trip_log_placeholders.dart';
 import 'package:cts/features/batches/widgets/return_boarding_qr_panel.dart';
 import 'package:cts/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,8 @@ void main() {
     );
 
     expect(find.textContaining('Awaiting Dock'), findsOneWidget);
-    expect(find.textContaining('BoardingQrPanel'), findsOneWidget);
-    // Stub must not mount live morning panel network chrome title alone.
+    expect(find.textContaining('RCList'), findsOneWidget);
+    expect(find.textContaining('DTODLOG'), findsOneWidget);
     expect(find.text('Refreshes in'), findsNothing);
   });
 
@@ -32,6 +33,26 @@ void main() {
     );
 
     expect(find.byType(SizedBox), findsWidgets);
+    expect(find.textContaining('Awaiting Dock'), findsNothing);
+  });
+
+  testWidgets('ReturnBoardingQrPanel shows QR face when viewModel has payload',
+      (tester) async {
+    const vm = ReturnBoardingQrViewModel(
+      tripLog: ReturnTripLogRef(batchId: '1'),
+      rclist: RclistRef(batchId: '1'),
+      qrPayload: 'test-return-qr-payload',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: const Scaffold(
+          body: ReturnBoardingQrPanel(batchId: '1', viewModel: vm),
+        ),
+      ),
+    );
+
     expect(find.textContaining('Awaiting Dock'), findsNothing);
   });
 }

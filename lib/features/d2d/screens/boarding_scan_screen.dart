@@ -7,9 +7,9 @@ import 'package:provider/provider.dart';
 
 /// Commuter scans the driver boarding QR → [D2dRepository.boardingScan].
 ///
-/// Also used for return-trip scan entry (`RouteName.returnBoardingScan` alias)
-/// — same morning screen/API until Dock green-flags a return contract.
-/// Do not invent parallel scan endpoints.
+/// **Morning-only.** Return scan uses `ReturnBoardingScanScreen` (visual prep
+/// for future return trip log / RCList) — do not route evening through this
+/// morning `boarding_scan` endpoint.
 class BoardingScanScreen extends StatefulWidget {
   const BoardingScanScreen({super.key});
 

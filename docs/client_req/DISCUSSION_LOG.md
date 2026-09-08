@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-09-08 15:18 IST
-> **Session:** Return QR UI prep pointer; STEP 8 still next on go
+> **Updated:** 2026-09-08 15:40 IST
+> **Session:** Return QR schema note — return-log + RCList; not DTODLOG return_*
 
 # Client req — discussion log
 
@@ -18,15 +18,15 @@
 
 | Flag | Value |
 |------|--------|
-| **STATUS** | `MULTI_TRACK` — D2D Phase 1–3 shipped; return QR **UI prep** stubbed; STEP 8 next on **go** |
+| **STATUS** | `MULTI_TRACK` — return QR UI prep (visual; schema redesign); STEP 8 next on **go** |
 | **FOCUS** | **STEP 8** device smoke → [07-NEXT-AGENT-PROMPT.md](07-NEXT-AGENT-PROMPT.md) |
 | **FOCUS_DOC** | [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 · [LAB_SMOKE_ISSUES.txt](../LAB_SMOKE_ISSUES.txt) |
-| **LAST_CHAT** | 2026-09-08 15:18 IST |
-| **LAST_SUMMARY** | Return QR boarding UI prep: `ReturnBoardingQrPanel`/`ReturnBoardingQrScreen` reuse morning widgets; `/returnBoardingQr` + `/returnBoardingScan` routes; live API off until Dock. Docs: [setup/RETURN_QR_UI_PREP.md](../setup/RETURN_QR_UI_PREP.md). STEP 8 still next on **go**. |
-| **NEXT_SUGGEST** | STEP 8 **go** · Dock green-flag for return QR live · Q-26d |
-| **BLOCKED_ON** | User **go** for smoke; Dock for return QR BE |
-| **LOCKED** | KM required; photo optional; Close+Skip; BoardingEvent SKIP; DTODLOG null cols; return QR same morning flow (no invented URLs) |
-| **SCHEMA_DIR** | DTODLOG nullable cols |
+| **LAST_CHAT** | 2026-09-08 15:40 IST |
+| **LAST_SUMMARY** | Return QR prep clarified: UI same as morning; **do not** hard-wire to DTODLOG `return_*` / morning boarding APIs. Placeholders for **return trip log + RCList**. Docs: [setup/RETURN_QR_UI_PREP.md](../setup/RETURN_QR_UI_PREP.md). |
+| **NEXT_SUGGEST** | STEP 8 **go** · Dock gap-list for return-log/RCList · Q-26d |
+| **BLOCKED_ON** | User **go** for smoke; Dock schema lock for return QR BE |
+| **LOCKED** | KM required; photo optional; Close+Skip; BoardingEvent SKIP; return QR UX=morning but bindings≠morning DTODLOG return_* |
+| **SCHEMA_DIR** | Morning DTODLOG/CList morning-only; new return trip log + RCList (discuss) |
 
 ---
 

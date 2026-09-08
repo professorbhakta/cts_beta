@@ -1,5 +1,6 @@
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/batches/models/return_boarding_role_policy.dart';
+import 'package:cts/features/batches/models/return_trip_log_placeholders.dart';
 import 'package:cts/features/batches/widgets/return_boarding_qr_panel.dart';
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/widgets/app_drawer.dart';
@@ -9,22 +10,22 @@ import 'package:flutter/material.dart';
 
 /// Driver/admin-like **show** screen for return-trip boarding QR.
 ///
-/// Reuses morning QR patterns via [ReturnBoardingQrPanel] → [BoardingQrPanel].
-/// Web-ready cream board layout (shared widget; not a mobile-only one-off).
+/// Visual parity with morning driver QR (cream board). Web-ready shared layout.
 ///
-/// Network: stubbed until Dock green-flags BE — see
-/// `docs/setup/RETURN_QR_UI_PREP.md` and `docs/API_CONTRACTS.md`.
+/// Network: stubbed. Binds later to **return trip log + RCList** — not morning
+/// DTODLOG `return_*` or morning `boarding_qr`. See
+/// `docs/setup/RETURN_QR_UI_PREP.md`.
 class ReturnBoardingQrScreen extends StatelessWidget {
   const ReturnBoardingQrScreen({
     super.key,
     required this.batchId,
-    this.useLiveMorningApi = false,
+    this.viewModel,
   });
 
   final String batchId;
 
-  /// Flip only after Dock confirms shared morning boarding APIs for return.
-  final bool useLiveMorningApi;
+  /// Optional prep binding (usually null until Dock gap-list).
+  final ReturnBoardingQrViewModel? viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +34,12 @@ class ReturnBoardingQrScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final role = SessionRole.userType;
     final allowed = ReturnBoardingRolePolicy.canShowQr(role);
+
+    // Placeholder refs — identity only until schema locks.
+    final trip = ReturnTripLogRef(batchId: batchId);
+    final rclist = RclistRef(batchId: batchId);
+    final model = viewModel ??
+        ReturnBoardingQrViewModel(tripLog: trip, rclist: rclist);
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
@@ -48,7 +55,8 @@ class ReturnBoardingQrScreen extends StatelessWidget {
               )
             : LayoutBuilder(
                 builder: (context, constraints) {
-                  final maxW = constraints.maxWidth >= 720 ? 520.0 : double.infinity;
+                  final maxW =
+                      constraints.maxWidth >= 720 ? 520.0 : double.infinity;
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                     children: [
@@ -78,14 +86,15 @@ class ReturnBoardingQrScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Commuters scan this code to board — same flow as morning.',
+                                'Commuters scan this code to board — same flow as morning. '
+                                'Bindings update when return-log / RCList schema locks.',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: cts.navy.withValues(alpha: 0.55),
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Batch #$batchId',
+                                'Batch #${trip.batchId}',
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   color: cts.navy.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w600,
@@ -95,7 +104,7 @@ class ReturnBoardingQrScreen extends StatelessWidget {
                               ReturnBoardingQrPanel(
                                 batchId: batchId,
                                 compact: true,
-                                useLiveMorningApi: useLiveMorningApi,
+                                viewModel: model,
                               ),
                             ],
                           ),

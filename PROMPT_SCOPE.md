@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-08 15:18 IST
-> **Session:** Return QR boarding UI prep — await Dock contract
+> **Updated:** 2026-09-08 15:40 IST
+> **Session:** Return QR — schema redesign (return-log + RCList); remove morning hard-wire
 
 # PROMPT SCOPE — CTS
 
@@ -59,7 +59,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
-| 4 | Q-return-qr-dock | Return QR live API after Dock green-flag | pending | [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) |
+| 4 | Q-return-qr-dock | Return QR wire after Dock gap-list (return-log + RCList) | pending | [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) |
 | 5 | Q-batch-coming | Mark all coming **per batch** | future | `CommuterListScreen` |
 | 6 | Q-r7-tests | Django lazy cutoff + Flutter `cutoff_applied` | future | BE tests |
 | — | Q-return-qr-ui | Return QR UI scaffolding (stub) | **done** | batches + ROUTING/FLOWS |
@@ -73,7 +73,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Idea | Notes |
 |------|-------|
-| Return QR live wire | UI prep done; enable `useLiveMorningApi` only after Dock |
+| Return QR live wire | UI prep done; bind return trip log + RCList only after Dock gap-list — **not** morning DTODLOG return_* |
 | Return-leg KM / org odometer / unboard UI | After STEP 8 |
 | Batch-wise Mark all coming | Org-wide already shipped |
 | Wire CList into return pool (R2/R9) | Roadmap ahead of code |
@@ -85,6 +85,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-08 15:40 | Return QR prep: drop morning hard-wire; placeholders ReturnTripLogRef/RclistRef; scan shell separate | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:18 | Return QR UI prep: ReturnBoardingQrPanel/Screen + routes + role gates; stub until Dock; docs/setup/RETURN_QR_UI_PREP.md | `cts_beta` / `professor-cts` |
 | 2026-09-08 12:45 | Role UI: STAFF→commuter home; SUPERVISOR admin shell + AdminService allow-list; docs ROUTING_AND_AUTH | `cts_beta` / `professor-cts` |
 | 2026-09-01 10:20 | Doc header sync — API_CONTRACTS view/ waiting[] example; feature READMEs; FLOWS; PROJECT_TODOS 128 tests | `cts_beta` |
