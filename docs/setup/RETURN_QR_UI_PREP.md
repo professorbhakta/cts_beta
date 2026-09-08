@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/RETURN_QR_UI_PREP.md
-> **Updated:** 2026-09-08 15:40 IST
-> **Session:** Schema redesign note — UI same; bind return-log + RCList (not DTODLOG return_*)
+> **Updated:** 2026-09-08 15:43 IST
+> **Session:** RCList = user-ID list on return trip log row; archive-on-end = BE/history
 
 # Return-trip QR boarding — UI prep
 
@@ -13,8 +13,15 @@
 | Layer | Direction |
 |-------|-----------|
 | Morning | `DTODLOG` + **CList** keep **morning-only** fields |
-| Return | **New return trip log** + **RCList** (like CList) |
+| Return | **New return trip log** + **RCList** |
 | Cleanup | Drop `return_*` off the wide morning DTODLOG table |
+
+### RCList (locked shape — discuss)
+
+- **RCList** = **user-ID list on the return trip log row** (like morning **CList**).
+- **Not** a row-per-rider table / per-rider entity list for live boarding UI.
+- Live Flutter UI binds that **ID list**.
+- Possible future **archive-on-end** is **BE/history only** — live UI still binds the ID list (do not model archive as the live boarding source).
 
 **UI can look the same as morning.** Variables / repository bindings **update when the schema locks** — not by flipping a switch onto morning `boarding_qr` / `boarding_scan` or inventing camelCase fields.
 
@@ -26,7 +33,7 @@ Pointer for wire names when ready: [docs/API_CONTRACTS.md](../API_CONTRACTS.md) 
 |---------|-------------------|--------------------|
 | Driver **show** QR | `BoardingQrPanel` on `/d2dLog/:batchId` | `ReturnBoardingQrPanel` / `ReturnBoardingQrScreen` — **visual parity**; stub until Dock |
 | Commuter **scan** | `BoardingScanScreen` `/boardingScan` | `ReturnBoardingScanScreen` `/returnBoardingScan` — **visual shell**; no morning scan call |
-| Live API | `GET …/boarding_qr/` · `POST …/boarding_scan/` | **Not used for return.** Future: `ReturnBoardingRepository` → return trip log + RCList |
+| Live API | `GET …/boarding_qr/` · `POST …/boarding_scan/` | **Not used for return.** Future: `ReturnBoardingRepository` → return trip log + RCList (user-ID list) |
 | Models | `boarding_models.dart` (morning) | `ReturnTripLogRef` · `RclistRef` · `ReturnBoardingQrViewModel` — placeholders, **no fabricated wire fields** |
 | Roles | DRIVER show; COMMUTER/STAFF scan | Same role split via `ReturnBoardingRolePolicy` |
 
@@ -40,9 +47,9 @@ Pointer for wire names when ready: [docs/API_CONTRACTS.md](../API_CONTRACTS.md) 
 
 ## Await Dock (checklist)
 
-1. Publish return trip log + RCList (+ boarding QR/scan) into [API_CONTRACTS.md](../API_CONTRACTS.md) — **gap-list**, approved snake_case only.
+1. Publish return trip log + RCList as **user-ID list on log row** (+ boarding QR/scan) into [API_CONTRACTS.md](../API_CONTRACTS.md) — **gap-list**, approved snake_case only.
 2. Implement `ReturnBoardingRepository` against those paths — **not** morning DTODLOG `return_*` / morning boarding helpers for evening.
-3. Feed `ReturnBoardingQrViewModel.qrPayload` and scan → RCList.
+3. Feed `ReturnBoardingQrViewModel.qrPayload` and scan → append to RCList ID list; live UI stays on that list (archive-on-end = BE/history only if added).
 4. Un-park journey rows in [FLOWS_BY_ROLE.md](../FLOWS_BY_ROLE.md).
 
 Until then: cream-board “Awaiting Dock …” stubs; no invented URLs or camelCase fields.

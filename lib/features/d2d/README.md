@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-09-08 15:40 IST
-> **Session:** Morning QR stays morning-only; return prep uses separate batches wrappers
+> **Updated:** 2026-09-08 15:43 IST
+> **Session:** RCList shape note — user-ID list on return trip log row
 
 # D2D Feature — Live WebSocket
 
@@ -43,7 +43,7 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 Camera: **ImageSource.camera only** when used. Odometer: **KM required**, **photo optional**. Sheet: **Close** (top) / **Skip** (bottom) — no swipe-dismiss; Confirm submits without photo OK. Soft STOP (BE does not block).
 
 Parked: return-leg KM UI, admin org odometer list, unboard UI.  
-**Return QR UI prep** (batches feature): [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md) — visual parity only; future **return trip log + RCList** (not morning DTODLOG `return_*`).
+**Return QR UI prep** (batches feature): [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md) — visual parity only; future **return trip log + RCList** (user-ID list on log row, like CList; not morning DTODLOG `return_*`).
 
 Repo methods (unchanged): `submitOdometerStart`/`End`, `getOdometer`, `getBoardingQr`, `boardingScan`, `boardingUnboard`.
 

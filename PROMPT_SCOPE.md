@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-08 15:40 IST
-> **Session:** Return QR — schema redesign (return-log + RCList); remove morning hard-wire
+> **Updated:** 2026-09-08 15:43 IST
+> **Session:** RCList = user-ID list on return trip log row; archive-on-end BE/history
 
 # PROMPT SCOPE — CTS
 
@@ -85,6 +85,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-08 15:43 | Return QR docs: RCList = user-ID list on return trip log row (like CList); archive-on-end = BE/history only | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:40 | Return QR prep: drop morning hard-wire; placeholders ReturnTripLogRef/RclistRef; scan shell separate | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:18 | Return QR UI prep: ReturnBoardingQrPanel/Screen + routes + role gates; stub until Dock; docs/setup/RETURN_QR_UI_PREP.md | `cts_beta` / `professor-cts` |
 | 2026-09-08 12:45 | Role UI: STAFF→commuter home; SUPERVISOR admin shell + AdminService allow-list; docs ROUTING_AND_AUTH | `cts_beta` / `professor-cts` |

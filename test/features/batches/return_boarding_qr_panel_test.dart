@@ -18,7 +18,7 @@ void main() {
 
     expect(find.textContaining('Awaiting Dock'), findsOneWidget);
     expect(find.textContaining('RCList'), findsOneWidget);
-    expect(find.textContaining('DTODLOG'), findsOneWidget);
+    expect(find.textContaining('user-ID list'), findsOneWidget);
     expect(find.text('Refreshes in'), findsNothing);
   });
 

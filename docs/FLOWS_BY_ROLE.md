@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-09-08 15:40 IST
-> **Session:** Return QR — visual prep; return-log + RCList (not morning DTODLOG return_*)
+> **Updated:** 2026-09-08 15:43 IST
+> **Session:** RCList = user-ID list on return trip log row
 
 # Flows by role
 
@@ -119,7 +119,7 @@ Back / leave screen = **disconnect only** — trip stays `isActive` until STOP.
 | 3 | **BOARDING QR** → `/returnBoardingQr/:batchId` (UI prep — stub; visual parity; binds later to return trip log / RCList) |
 | 4 | **End return** (driver FAB; admin monitors) — clears confirmed + waiting |
 
-**Return QR:** same UX as morning; **not** hard-wired to morning DTODLOG `return_*` or morning boarding APIs. Prep: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return QR:** same UX as morning; **RCList** = user-ID list on return trip log row (like CList; not row-per-rider; archive-on-end = BE/history). Prep: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ```mermaid
 flowchart LR

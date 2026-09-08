@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 ///
 /// TODO(Dock): when return trip log + **RCList** scan contract is in
 /// `docs/API_CONTRACTS.md` gap-list, wire [ReturnBoardingRepository.scanReturnBoarding].
+/// RCList = user-ID list on the return trip log row (like CList), not
+/// row-per-rider; live UI binds that ID list; archive-on-end = BE/history only.
 /// Do not invent camelCase fields. UI stays the same; variables update on schema lock.
 class ReturnBoardingScanScreen extends StatelessWidget {
   const ReturnBoardingScanScreen({super.key, this.batchId});
@@ -66,8 +68,9 @@ class ReturnBoardingScanScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Camera scan will board into the future RCList once Dock '
-                      'locks the return trip log contract. '
+                      'Camera scan will board into the future RCList '
+                      '(user-ID list on the return trip log row) once Dock '
+                      'locks the contract. '
                       'Morning BoardingScanScreen remains morning-only.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: cts.navy.withValues(alpha: 0.65),
@@ -117,7 +120,7 @@ class ReturnBoardingScanScreen extends StatelessWidget {
                                 const SizedBox(height: 8),
                                 Text(
                                   'TODO: ReturnBoardingRepository.scanReturnBoarding '
-                                  '→ return trip log / RCList. '
+                                  '→ RCList user-ID list on return trip log row. '
                                   'See docs/setup/RETURN_QR_UI_PREP.md.',
                                   textAlign: TextAlign.center,
                                   style: theme.textTheme.bodySmall?.copyWith(

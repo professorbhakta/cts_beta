@@ -12,8 +12,9 @@ import 'package:flutter/material.dart';
 ///
 /// Visual parity with morning driver QR (cream board). Web-ready shared layout.
 ///
-/// Network: stubbed. Binds later to **return trip log + RCList** — not morning
-/// DTODLOG `return_*` or morning `boarding_qr`. See
+/// Network: stubbed. Binds later to **return trip log + RCList** (user-ID list
+/// on the log row, like CList — not row-per-rider; archive-on-end = BE/history)
+/// — not morning DTODLOG `return_*` or morning `boarding_qr`. See
 /// `docs/setup/RETURN_QR_UI_PREP.md`.
 class ReturnBoardingQrScreen extends StatelessWidget {
   const ReturnBoardingQrScreen({
@@ -87,7 +88,8 @@ class ReturnBoardingQrScreen extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 'Commuters scan this code to board — same flow as morning. '
-                                'Bindings update when return-log / RCList schema locks.',
+                                'Bindings update when return-log / RCList schema locks '
+                                '(RCList = user-ID list on log row).',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: cts.navy.withValues(alpha: 0.55),
                                 ),

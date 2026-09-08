@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-08 15:40 IST
-> **Session:** Return QR prep — visual only; return-log + RCList placeholders (not DTODLOG return_*)
+> **Updated:** 2026-09-08 15:43 IST
+> **Session:** RCList = user-ID list on return trip log row (like CList)
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -36,7 +36,8 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | Return boarding QR screen | `screens/return_boarding_qr_screen.dart` — driver/admin-like show; cream board |
 | Return boarding scan screen | `screens/return_boarding_scan_screen.dart` — STAFF/COMMUTER stub shell |
 | Return boarding role policy | `models/return_boarding_role_policy.dart` — show vs scan gates |
-| Return trip log / RCList placeholders | `models/return_trip_log_placeholders.dart` — TODO(Dock); no fabricated wire fields |
+| Return trip log / RCList placeholders | `models/return_trip_log_placeholders.dart` — RCList = user-ID list on log row; TODO(Dock); no fabricated wire fields |
+
 | Return commuter UI | `../commuters/screens/return_batch_commuter_screen.dart` |
 | Return provider | `providers/return_batch_provider.dart` |
 | Running provider | `providers/running_batch_provider.dart` |
@@ -59,7 +60,7 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | `/returnBoardingQr/:batchId` | Return boarding QR **show** (visual prep; stub until Dock) |
 | `/returnBoardingScan` | Return boarding **scan** shell (not morning `BoardingScanScreen`) |
 
-**Return QR prep:** UI only — [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md). Same UX as morning; bind later to **return trip log + RCList**. Do **not** hard-wire to morning DTODLOG `return_*` or morning `boarding_qr` / `boarding_scan`.
+**Return QR prep:** UI only — [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md). Same UX as morning; bind later to **return trip log + RCList** (user-ID list on log row, like CList — not row-per-rider; archive-on-end = BE/history only). Do **not** hard-wire to morning DTODLOG `return_*` or morning `boarding_qr` / `boarding_scan`.
 
 **Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, **app resume** (via `AppLifecycleHost`), return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
 

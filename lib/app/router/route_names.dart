@@ -35,7 +35,8 @@ class RouteName {
   static const String returnBoardingQr = '/returnBoardingQr';
 
   /// Return boarding scan entry (visual prep). Not morning `/boardingScan`.
-  /// TODO(Dock): RCList scan contract — no invented camelCase fields.
+  /// TODO(Dock): RCList scan contract — user-ID list on return trip log row
+  /// (like CList); no invented camelCase fields.
   static const String returnBoardingScan = '/returnBoardingScan';
 
   static const String popForm = '/popForm';

@@ -11,8 +11,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 ///
 /// TODO(Dock): when return trip log + RCList contract lands (see
 /// `docs/setup/RETURN_QR_UI_PREP.md` + `docs/API_CONTRACTS.md` gap-list),
-/// feed [viewModel.qrPayload] from [ReturnBoardingRepository]. Do not invent
-/// camelCase wire fields.
+/// feed [viewModel.qrPayload] from [ReturnBoardingRepository].
+/// RCList = user-ID list on the return trip log row (like CList), not
+/// row-per-rider; live UI binds that ID list. Do not invent camelCase wire fields.
 class ReturnBoardingQrPanel extends StatelessWidget {
   const ReturnBoardingQrPanel({
     super.key,
@@ -201,7 +202,7 @@ class _ReturnQrAwaitingContractStub extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   'Same UX as morning. Binds to future return trip log + RCList '
-                  '— not morning DTODLOG return_* fields. '
+                  '(user-ID list on log row, like CList). '
                   'See docs/setup/RETURN_QR_UI_PREP.md.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(

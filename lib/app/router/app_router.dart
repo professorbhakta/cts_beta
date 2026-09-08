@@ -107,7 +107,8 @@ GoRouter createAppRouter({
         builder: (context, state) => const BoardingScanScreen(),
       ),
       // Return scan — visual prep only; does NOT call morning boarding_scan.
-      // TODO(Dock): bind ReturnBoardingRepository → return trip log / RCList.
+      // TODO(Dock): bind ReturnBoardingRepository → return trip log + RCList
+      // (user-ID list on log row, like CList; archive-on-end = BE/history only).
       GoRoute(
         path: RouteName.returnBoardingScan,
         builder: (context, state) => const ReturnBoardingScanScreen(),
