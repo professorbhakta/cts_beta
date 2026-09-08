@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-08 15:45 IST
-> **Session:** LOCKED — End archives RCList to history; FE no archive UI
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # PROMPT SCOPE — CTS
 
@@ -59,7 +59,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
-| 4 | Q-return-qr-dock | Return QR wire after Dock gap-list (return-log + RCList) | pending | [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) |
+| 4 | Q-return-qr-dock | Return QR Phase 2 wire (`?trip=return` + boarding_scan) | **done** | [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) · [GAP](docs/setup/RETURN_TRIP_API_GAP.md) |
 | 5 | Q-batch-coming | Mark all coming **per batch** | future | `CommuterListScreen` |
 | 6 | Q-r7-tests | Django lazy cutoff + Flutter `cutoff_applied` | future | BE tests |
 | — | Q-return-qr-ui | Return QR UI scaffolding (stub) | **done** | batches + ROUTING/FLOWS |
@@ -73,7 +73,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Idea | Notes |
 |------|-------|
-| Return QR live wire | UI prep done; bind return trip log + RCList only after Dock gap-list — **not** morning DTODLOG return_* |
+| Return QR live list sockets | Mint/scan wired; Redis+socket live RCList polish if Dock exposes push beyond REST |
 | Return-leg KM / org odometer / unboard UI | After STEP 8 |
 | Batch-wise Mark all coming | Org-wide already shipped |
 | Wire CList into return pool (R2/R9) | Roadmap ahead of code |
@@ -85,6 +85,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-08 23:50 | Return QR Phase 2 wired: GET boarding_qr?trip=return + POST boarding_scan; return_trip_id; cream nits | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:45 | Return QR LOCKED: End archives RCList→history; trip keeps archive ID; FE no archive UI | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:43 | Return QR docs: RCList = user-ID list on return trip log row (like CList); archive-on-end = BE/history only | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:40 | Return QR prep: drop morning hard-wire; placeholders ReturnTripLogRef/RclistRef; scan shell separate | `cts_beta` / `professor-cts` |

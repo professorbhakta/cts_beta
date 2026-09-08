@@ -33,7 +33,12 @@ abstract class D2dRepository {
   });
 
   // --- Boarding QR ---
-  Future<ApiResult<BoardingQrPayload>> getBoardingQr(String batchId);
+  /// Mint boarding QR. Pass [trip] = `return` for return leg
+  /// (`GET …/boarding_qr/<batch>/?trip=return`). Omit / `morning` for morning.
+  Future<ApiResult<BoardingQrPayload>> getBoardingQr(
+    String batchId, {
+    String? trip,
+  });
 
   Future<ApiResult<BoardingScanResult>> boardingScan(
     String token, {

@@ -1,58 +1,37 @@
-import 'package:cts/features/batches/models/return_trip_log_placeholders.dart';
+import 'package:cts/api/api_list.dart';
 import 'package:cts/features/batches/widgets/return_boarding_qr_panel.dart';
+import 'package:cts/features/d2d/widgets/boarding_qr_panel.dart';
 import 'package:cts/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('ReturnBoardingQrPanel stub shows await-Dock chrome by default',
+  testWidgets('ReturnBoardingQrPanel wraps BoardingQrPanel with trip=return',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light(),
         home: const Scaffold(
-          body: ReturnBoardingQrPanel(batchId: '1'),
+          body: ReturnBoardingQrPanel(batchId: '7', enabled: false),
         ),
       ),
     );
 
-    expect(find.textContaining('Awaiting Dock'), findsOneWidget);
-    expect(find.textContaining('RCList'), findsOneWidget);
-    expect(find.textContaining('user-ID list'), findsOneWidget);
-    expect(find.text('Refreshes in'), findsNothing);
+    final panel = tester.widget<BoardingQrPanel>(find.byType(BoardingQrPanel));
+    expect(panel.batchId, '7');
+    expect(panel.trip, ApiUrl.boardingTripReturn);
+    expect(panel.compact, isTrue);
   });
 
-  testWidgets('ReturnBoardingQrPanel disabled renders nothing', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light(),
-        home: const Scaffold(
-          body: ReturnBoardingQrPanel(batchId: '1', enabled: false),
-        ),
-      ),
+  test('ApiUrl.boardingQr appends trip=return query', () {
+    expect(
+      ApiUrl.boardingQr('12', trip: ApiUrl.boardingTripReturn),
+      'd2d/boarding_qr/12/?trip=return',
     );
-
-    expect(find.byType(SizedBox), findsWidgets);
-    expect(find.textContaining('Awaiting Dock'), findsNothing);
-  });
-
-  testWidgets('ReturnBoardingQrPanel shows QR face when viewModel has payload',
-      (tester) async {
-    const vm = ReturnBoardingQrViewModel(
-      tripLog: ReturnTripLogRef(batchId: '1'),
-      rclist: RclistRef(batchId: '1'),
-      qrPayload: 'test-return-qr-payload',
+    expect(ApiUrl.boardingQr('12'), 'd2d/boarding_qr/12/');
+    expect(
+      ApiUrl.boardingQr('12', trip: ApiUrl.boardingTripMorning),
+      'd2d/boarding_qr/12/?trip=morning',
     );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light(),
-        home: const Scaffold(
-          body: ReturnBoardingQrPanel(batchId: '1', viewModel: vm),
-        ),
-      ),
-    );
-
-    expect(find.textContaining('Awaiting Dock'), findsNothing);
   });
 }

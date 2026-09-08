@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-08 15:45 IST
-> **Session:** LOCKED — End archives RCList; FE live UI = ID list only
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -133,7 +133,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 ### Open backlog (from PROJECT_TODOS)
 
 - **Client pack STEP 8** device smoke (user go)
-- **Return QR UI prep** (visual); live **RCList** = ID list on return trip row; **On End** BE archives to history (trip keeps archive ID) — **FE no archive UI** — [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md)
+- **Return QR Phase 2 wired** — mint `?trip=return` + shared `boarding_scan`; live **RCList** = ID list on return trip row; **On End** BE archives — **FE no archive UI** — [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md)
 - Parked UI: return-leg KM, admin org odometer list, unboard UI
 - **Decide next:** Confirm “API every time” (26d-discuss)
 - Batch-wise Mark all coming (`CommuterListScreen`)
@@ -177,7 +177,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-08 | Return QR UI prep | LOCKED: live RCList ID list; End→history archive (BE); FE no archive UI; PR → professor-cts |
+| 2026-09-08 | Return QR Phase 2 | Wired GET boarding_qr?trip=return + POST boarding_scan; return_trip_id; PR #6 → professor-cts |
 | 2026-09-08 | Role routing | STAFF→commuter; SUPERVISOR AdminService allow-list |
 | 2026-08-31 | D2D Phase 3 | Return waiting Redis + `join_waiting` + FCFS auto-confirm; FE Waiting line + commuter join |
 

@@ -161,7 +161,33 @@ void main() {
       final result = await repo.getBoardingQr('1');
       expect(result.isSuccess, isTrue);
       expect(result.data!.token, 'abc');
+      expect(result.data!.returnTripId, isNull);
       expect(api.lastGetUrl, ApiUrl.boardingQr('1'));
+    });
+
+    test('getBoardingQr trip=return URL and return_trip_id', () async {
+      api.getResponse = {
+        'status': 'ok',
+        'token': 'ret-tok',
+        'qr_payload': 'ret-tok',
+        'expires_in': 120,
+        'batch_id': '4',
+        'd2d_id': 0,
+        'trip_date': '2026-09-08',
+        'return_trip_id': 17,
+      };
+      final result = await repo.getBoardingQr(
+        '4',
+        trip: ApiUrl.boardingTripReturn,
+      );
+      expect(result.isSuccess, isTrue);
+      expect(result.data!.token, 'ret-tok');
+      expect(result.data!.returnTripId, '17');
+      expect(
+        api.lastGetUrl,
+        ApiUrl.boardingQr('4', trip: ApiUrl.boardingTripReturn),
+      );
+      expect(api.lastGetUrl, contains('trip=return'));
     });
 
     test('boardingScan empty token fails locally', () async {

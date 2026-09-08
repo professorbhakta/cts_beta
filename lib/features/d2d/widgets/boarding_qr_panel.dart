@@ -9,20 +9,20 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-/// Driver boarding QR for an active **morning** trip.
+/// Driver boarding QR for an active trip (morning or return via [trip]).
 ///
 /// Keep-awake while mounted. Auto-refreshes before [expiresIn].
 ///
-/// Return-trip UI uses separate wrappers under `lib/features/batches/`
-/// (`ReturnBoardingQrPanel`) — **visual parity only**. Do not hard-wire return
-/// FE to this panel’s morning `getBoardingQr` / DTODLOG path; return binds to
-/// future return trip log + RCList (`docs/setup/RETURN_QR_UI_PREP.md`).
+/// Morning: omit [trip] or pass [ApiUrl.boardingTripMorning].
+/// Return: pass [ApiUrl.boardingTripReturn] → `?trip=return` (return trip log /
+/// RCList; not morning DTODLOG `return_*`).
 class BoardingQrPanel extends StatefulWidget {
   const BoardingQrPanel({
     super.key,
     required this.batchId,
     this.enabled = true,
     this.compact = false,
+    this.trip,
   });
 
   final String batchId;
@@ -32,6 +32,9 @@ class BoardingQrPanel extends StatefulWidget {
 
   /// Large high-contrast QR under batch/KM — minimal chrome.
   final bool compact;
+
+  /// Boarding leg query: `return` | `morning` | null (BE default = morning).
+  final String? trip;
 
   @override
   State<BoardingQrPanel> createState() => BoardingQrPanelState();
@@ -71,6 +74,8 @@ class BoardingQrPanelState extends State<BoardingQrPanel> {
       _loadQr();
     } else if (widget.enabled && widget.batchId != oldWidget.batchId) {
       _loadQr();
+    } else if (widget.enabled && widget.trip != oldWidget.trip) {
+      _loadQr();
     }
   }
 
@@ -100,7 +105,10 @@ class BoardingQrPanelState extends State<BoardingQrPanel> {
     });
     try {
       final repo = context.read<D2dRepository>();
-      final result = await repo.getBoardingQr(widget.batchId);
+      final result = await repo.getBoardingQr(
+        widget.batchId,
+        trip: widget.trip,
+      );
       if (!mounted) return;
       if (result.isFailure) {
         final failure = result.failure!;

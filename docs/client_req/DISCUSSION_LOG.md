@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-09-08 15:45 IST
-> **Session:** LOCKED — End archives RCList; FE no archive UI
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # Client req — discussion log
 
@@ -18,14 +18,14 @@
 
 | Flag | Value |
 |------|--------|
-| **STATUS** | `MULTI_TRACK` — return QR UI prep (visual; schema redesign); STEP 8 next on **go** |
+| **STATUS** | `MULTI_TRACK` — return QR Phase 2 wired; STEP 8 next on **go** |
 | **FOCUS** | **STEP 8** device smoke → [07-NEXT-AGENT-PROMPT.md](07-NEXT-AGENT-PROMPT.md) |
 | **FOCUS_DOC** | [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 · [LAB_SMOKE_ISSUES.txt](../LAB_SMOKE_ISSUES.txt) |
-| **LAST_CHAT** | 2026-09-08 15:45 IST |
-| **LAST_SUMMARY** | Return QR LOCKED: live RCList = ID list on return trip row; on End BE archives to history + trip keeps archive ID only; **FE live UI = ID list only — do not build archive UI**. Docs: [setup/RETURN_QR_UI_PREP.md](../setup/RETURN_QR_UI_PREP.md). |
-| **NEXT_SUGGEST** | STEP 8 **go** · Dock gap-list for return-log/RCList · Q-26d |
-| **BLOCKED_ON** | User **go** for smoke; Dock schema lock for return QR BE |
-| **LOCKED** | return QR UX=morning; live RCList=user-ID list on return log row; End→history archive (BE); FE no archive UI |
+| **LAST_CHAT** | 2026-09-08 23:50 IST |
+| **LAST_SUMMARY** | Return QR Phase 2: driver mint `GET boarding_qr/<batch>/?trip=return` (+ `return_trip_id`); commuter `POST boarding_scan` `{token}`; cream nits; archive UI stays BE-only. [RETURN_QR_UI_PREP](../setup/RETURN_QR_UI_PREP.md) · [GAP](../setup/RETURN_TRIP_API_GAP.md). |
+| **NEXT_SUGGEST** | STEP 8 **go** · Q-26d · Dock field mismatch ping if lab differs |
+| **BLOCKED_ON** | User **go** for smoke |
+| **LOCKED** | return QR UX=morning; mint `?trip=return`; shared boarding_scan; live RCList=user-ID list; End→history (BE); FE no archive UI |
 | **SCHEMA_DIR** | Morning DTODLOG/CList morning-only; return trip log + live RCList ID list; End archives to history |
 
 ---

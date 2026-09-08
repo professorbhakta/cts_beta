@@ -1,6 +1,5 @@
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/batches/models/return_boarding_role_policy.dart';
-import 'package:cts/features/batches/models/return_trip_log_placeholders.dart';
 import 'package:cts/features/batches/widgets/return_boarding_qr_panel.dart';
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/widgets/app_drawer.dart';
@@ -10,23 +9,15 @@ import 'package:flutter/material.dart';
 
 /// Driver/admin-like **show** screen for return-trip boarding QR.
 ///
-/// Visual parity with morning driver QR (cream board). Web-ready shared layout.
-///
-/// Network: stubbed. Binds later to **return trip log + RCList** (user-ID list
-/// on the log row, like CList — not row-per-rider; archive-on-end = BE/history)
-/// — not morning DTODLOG `return_*` or morning `boarding_qr`. See
-/// `docs/setup/RETURN_QR_UI_PREP.md`.
+/// Cream-board layout. Mints via `GET …/boarding_qr/<batch>/?trip=return`
+/// (return trip log / RCList) — not morning DTODLOG `return_*`.
 class ReturnBoardingQrScreen extends StatelessWidget {
   const ReturnBoardingQrScreen({
     super.key,
     required this.batchId,
-    this.viewModel,
   });
 
   final String batchId;
-
-  /// Optional prep binding (usually null until Dock gap-list).
-  final ReturnBoardingQrViewModel? viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +26,6 @@ class ReturnBoardingQrScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final role = SessionRole.userType;
     final allowed = ReturnBoardingRolePolicy.canShowQr(role);
-
-    // Placeholder refs — identity only until schema locks.
-    final trip = ReturnTripLogRef(batchId: batchId);
-    final rclist = RclistRef(batchId: batchId);
-    final model = viewModel ??
-        ReturnBoardingQrViewModel(tripLog: trip, rclist: rclist);
 
     return Scaffold(
       backgroundColor: scheme.surfaceContainerHighest,
@@ -87,16 +72,14 @@ class ReturnBoardingQrScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Commuters scan this code to board — same flow as morning. '
-                                'Bindings update when return-log / RCList schema locks '
-                                '(RCList = user-ID list on log row).',
+                                'Commuters scan this code to board — same flow as morning.',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: cts.navy.withValues(alpha: 0.55),
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Batch #${trip.batchId}',
+                                'Batch #$batchId',
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   color: cts.navy.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w600,
@@ -106,7 +89,6 @@ class ReturnBoardingQrScreen extends StatelessWidget {
                               ReturnBoardingQrPanel(
                                 batchId: batchId,
                                 compact: true,
-                                viewModel: model,
                               ),
                             ],
                           ),

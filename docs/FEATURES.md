@@ -1,6 +1,6 @@
 > **Doc:** docs/FEATURES.md
-> **Updated:** 2026-09-08 15:40 IST
-> **Session:** Return boarding QR/scan shells — schema → return-log + RCList
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # Feature catalog
 
@@ -44,8 +44,8 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `/returnBatchScreen` | ReturningBatchScreen | batches |
 | `/returnCommuterScreen/:batchId` | ReturnCommuterListScreen (admin) | batches / commuters |
 | `/driverReturnCommuter/:batchId` | ReturnCommuterListScreen (confirm/remove) | batches / commuters |
-| `/returnBoardingQr/:batchId` | ReturnBoardingQrScreen (show; stub until Dock) | batches |
-| `/returnBoardingScan` | ReturnBoardingScanScreen (scan stub; future RCList) | batches |
+| `/returnBoardingQr/:batchId` | ReturnBoardingQrScreen (show; `?trip=return`) | batches |
+| `/returnBoardingScan` | ReturnBoardingScanScreen → boarding_scan | batches |
 | `/cabScreen`, `/cabForm` | CabScreen, CabForm | cabs |
 | `/driverScreen`, `/driverForm` | DriverScreen, DriverForm | drivers |
 | `/driverHomeScreen` | DriverHomePage | drivers |

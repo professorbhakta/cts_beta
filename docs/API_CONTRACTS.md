@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-08 15:45 IST
-> **Session:** LOCKED — End archives RCList to history; FE no archive UI
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR — GET boarding_qr?trip=return + shared boarding_scan
 
 # API Contracts — Backend ↔ Flutter
 
@@ -191,8 +191,8 @@ Schema: nullable KM/photo columns on **`DTODLOG`**. Media on disk; photo URLs = 
 | `GET /d2d/odometer/<batch_id>/?date=` | DRIVER / ADMIN | `getOdometer` |
 | `GET /d2d/odometer/org/<admin_code>/?date=` | ADMIN | `getOdometerOrg` |
 | `GET /d2d/odometer/photo/…` | DRIVER / ADMIN | URL on snapshot (session cookie) |
-| `GET /d2d/boarding_qr/<batch_id>/` | DRIVER / ADMIN | `getBoardingQr` |
-| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` — body `{token, action?}` · `action`: **`board`** (default) or **`join_waiting`** |
+| `GET /d2d/boarding_qr/<batch_id>/` | DRIVER / ADMIN | `getBoardingQr` — optional `?trip=morning` \| `?trip=return` |
+| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` — body `{token, action?}` · `action`: **`board`** (default) or **`join_waiting`**; token carries leg |
 | `POST /d2d/boarding_unboard/` | DRIVER / ADMIN | `boardingUnboard` |
 
 Error body: `{ "status": "error", "code": "<code>", "message": "…" }`.  
@@ -212,7 +212,7 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 
 Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
 
-**Return-trip QR (discuss / schema redesign):** Flutter UI prep keeps **visual parity** with morning boarding but must **not** hard-wire to morning DTODLOG `return_*` columns or reuse morning `boarding_qr` / `boarding_scan` for evening. Direction: morning DTODLOG/CList stay morning-only; new **return trip log** + **RCList** (live **user-ID list on the return trip log row**, like CList — not row-per-rider). **On End (BE):** archive to history table; trip keeps archive ID only. **FE live UI binds ID list only — do not build archive UI.** Wire names await Dock gap-list. See [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return-trip QR (Phase 2 wired):** `GET …/boarding_qr/<batch>/?trip=return` mints token + `return_trip_id` (return trip log / RCList). `POST …/boarding_scan/` with that token boards return (leg in token). Live RCList = user-ID list on trip row; End archives BE-side — **no FE archive UI**. Contract: [setup/RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md) · UI: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 

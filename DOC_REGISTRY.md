@@ -1,6 +1,6 @@
 > **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-08 15:45 IST
-> **Session:** LOCKED — End archives RCList; FE no archive UI
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # Documentation Registry
 
@@ -28,16 +28,16 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
 | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-31 13:45 IST | MIDDLE CONTEXT — Phase 3 done |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
 | [docs/client_req/05-open-decisions.md](docs/client_req/05-open-decisions.md) | 2026-08-26 07:58 IST | + snapshot link |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 15:40 IST | Return QR visual prep / RCList |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 23:50 IST | Return QR Phase 2 mint/scan |
 
 ---
 
@@ -50,7 +50,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | REST + WS wire | `docs/API_CONTRACTS.md` |
 | Morning D2D + client pack UI | `lib/features/d2d/README.md` |
 | Return batch | `lib/features/batches/README.md` |
-| Return QR UI prep | `docs/setup/RETURN_QR_UI_PREP.md` |
+| Return QR UI / Phase 2 | `docs/setup/RETURN_QR_UI_PREP.md` · `docs/setup/RETURN_TRIP_API_GAP.md` |
 | Operator journeys (incl. QR/KM) | `docs/FLOWS_BY_ROLE.md` |
 | Schema / APIs inventory | `docs/client_req/DESIGN_SNAPSHOT.md` |
 | Product story + D1–D10 | `docs/client_req/05-open-decisions.md` |
@@ -75,16 +75,18 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-08 15:18 IST | returnBoardingQr / returnBoardingScan prefixes |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-08 12:45 IST | user types split |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-08 15:45 IST | End archives; FE no archive UI |
-| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 15:45 IST | LOCKED End→history; FE no archive UI |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-08 23:50 IST | Phase 2 return QR ?trip=return |
+| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 23:50 IST | Phase 2 wired |
+| [docs/setup/RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md) | 2026-09-08 23:50 IST | Dock green-flag contract |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-31 13:45 IST | return waiting Redis key |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 15:40 IST | Return QR visual / RCList |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 15:40 IST | placeholders + scan shell |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-08 15:40 IST | morning QR morning-only |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-08 15:18 IST | return QR UI prep note |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 23:50 IST | Return QR Phase 2 mint/scan |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-08 23:50 IST | getBoardingQr({trip}) |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-08 23:50 IST | return QR Phase 2 done |
 | [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
 | [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
-| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 15:40 IST | return scan shell (not morning alias) |
+| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 23:50 IST | return QR Phase 2 live |
+| [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 23:50 IST | return QR Phase 2 |
 | [docs/README.md](docs/README.md) | 2026-09-08 15:18 IST | + docs/setup folder |
 | [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
 | [docs/backend/README.md](docs/backend/README.md) | 2026-08-25 21:50 IST | odo/boarding modules |

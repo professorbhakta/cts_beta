@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-09-08 15:45 IST
-> **Session:** LOCKED — End archives RCList; FE no archive UI
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # Flows by role
 
@@ -40,7 +40,7 @@ sequenceDiagram
 | 8 | Driver | Before STOP: end-KM sheet (Close/Skip OK; skip sheet if endKm set) | Soft STOP if dismissed |
 | 9 | Driver | **STOP TRIP** | Trip ended; reconnect same day → 4001 |
 
-**Locks (do not reopen):** commuter scans (not driver); scan = boarded; soft STOP; KM required photo optional; Close/Skip on sheet (no swipe-dismiss); camera-only when photo taken; return-trip QR **BE** / return KM UI parked (Flutter **UI prep** only — [docs/setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md); await Dock contract).
+**Locks (do not reopen):** commuter scans (not driver); scan = boarded; soft STOP; KM required photo optional; Close/Skip on sheet (no swipe-dismiss); return QR Phase 2 wired (`?trip=return` + boarding_scan) — [docs/setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md); return KM UI parked.
 
 **Fail checks worth one try:** scan without Coming → error; expired QR → driver refresh; leave screen without STOP → trip still active.
 
@@ -119,7 +119,7 @@ Back / leave screen = **disconnect only** — trip stays `isActive` until STOP.
 | 3 | **BOARDING QR** → `/returnBoardingQr/:batchId` (UI prep — stub; visual parity; binds later to return trip log / RCList) |
 | 4 | **End return** (driver FAB; admin monitors) — clears confirmed + waiting |
 
-**Return QR:** same UX as morning; live **RCList** = user-ID list on return trip log row. On End, BE archives to history (trip keeps archive ID only) — **FE does not build archive UI**. Prep: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return QR (Phase 2):** same UX as morning; mint `GET …/boarding_qr/<batch>/?trip=return`; scan `POST …/boarding_scan/` (token leg=return). Live **RCList** = user-ID list on return trip log row. On End, BE archives — **FE no archive UI**. [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md).
 
 ```mermaid
 flowchart LR
@@ -151,7 +151,7 @@ flowchart LR
 |------|--------|
 | Return today | Home / Skip / Earlier… (intent chips — not seat confirm) |
 | Join return waiting | Link under Return today → `POST add_commuter` `action: join_waiting` (FCFS) |
-| Scan return boarding QR | Link → `/returnBoardingScan` (`ReturnBoardingScanScreen` stub; future RCList) |
+| Scan return boarding QR | Link → `/returnBoardingScan` → shared `POST boarding_scan` (token leg=return) |
 | Pull to refresh | Reload profile + intent |
 | Track your Cab | Fleet Edge WebView (`trackingVehicleId`) |
 

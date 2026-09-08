@@ -1,4 +1,7 @@
 // Boarding QR / scan API models.
+//
+// Wire fields are snake_case from BE. Return Phase 2 adds optional
+// `return_trip_id` on mint when `?trip=return` (see docs/setup/RETURN_TRIP_API_GAP.md).
 
 class BoardingQrPayload {
   const BoardingQrPayload({
@@ -8,6 +11,7 @@ class BoardingQrPayload {
     required this.batchId,
     required this.d2dId,
     required this.tripDate,
+    this.returnTripId,
   });
 
   final String token;
@@ -19,14 +23,23 @@ class BoardingQrPayload {
   final int d2dId;
   final String tripDate;
 
+  /// Present on return-leg mint (`?trip=return`) — binds to return trip log, not
+  /// morning DTODLOG `return_*`. Null for morning mint.
+  final String? returnTripId;
+
   factory BoardingQrPayload.fromJson(Map<String, dynamic> json) {
+    final returnTripRaw = json['return_trip_id'];
     return BoardingQrPayload(
       token: json['token']?.toString() ?? '',
-      qrPayload: json['qr_payload']?.toString() ?? json['token']?.toString() ?? '',
+      qrPayload:
+          json['qr_payload']?.toString() ?? json['token']?.toString() ?? '',
       expiresIn: int.tryParse(json['expires_in']?.toString() ?? '') ?? 0,
       batchId: json['batch_id']?.toString() ?? '',
       d2dId: int.tryParse(json['d2d_id']?.toString() ?? '') ?? 0,
       tripDate: json['trip_date']?.toString() ?? '',
+      returnTripId: returnTripRaw == null || returnTripRaw.toString().isEmpty
+          ? null
+          : returnTripRaw.toString(),
     );
   }
 }

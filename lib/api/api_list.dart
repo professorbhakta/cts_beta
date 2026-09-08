@@ -48,8 +48,22 @@ class ApiUrl {
       "d2d/odometer/photo/$batchId/$leg/$kind/";
 
   // Client pack — QR boarding
-  static String boardingQr(String batchId) => "d2d/boarding_qr/$batchId/";
+  /// Morning: omit [trip] or pass `morning`. Return: pass `return`
+  /// → `GET d2d/boarding_qr/<batchId>/?trip=return` (Dock Phase 2).
+  static String boardingQr(String batchId, {String? trip}) {
+    final base = "d2d/boarding_qr/$batchId/";
+    final leg = trip?.trim();
+    if (leg == null || leg.isEmpty) return base;
+    return "$base?trip=$leg";
+  }
+
   static const String boardingScan = "d2d/boarding_scan/";
   static const String boardingUnboard = "d2d/boarding_unboard/";
+
+  /// Query value for return-leg boarding QR mint.
+  static const String boardingTripReturn = 'return';
+
+  /// Query value for morning-leg boarding QR mint (optional; default on BE).
+  static const String boardingTripMorning = 'morning';
 
 }

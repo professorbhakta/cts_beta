@@ -565,9 +565,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
         Align(
           alignment: Alignment.centerLeft,
           child: InkWell(
-            // TODO(Dock): return scan → ReturnBoardingRepository / RCList
-            // (user-ID list on return trip log row). Do not invent camelCase fields.
-            // See docs/setup/RETURN_QR_UI_PREP.md.
+            // Return scan → POST boarding_scan (token carries leg=return).
             onTap: busy
                 ? null
                 : () => context.push(RouteName.returnBoardingScan),

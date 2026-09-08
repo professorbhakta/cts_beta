@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-09-08 15:18 IST
-> **Session:** Return QR UI prep shipped (stub); await Dock for live API
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Return QR Phase 2 wired (?trip=return + boarding_scan)
 
 # Project Todo & Progress
 
@@ -91,7 +91,7 @@
 26d-discuss. [ ] Clarify admin return Confirm “API every time” (normal one POST vs heavy reload/double call) — then fix or skip
 26u-client. [x] Client pack BE + Flutter BUILD UI STEPS 1–7 (QR boarding + odometer) — [docs/client_req/](docs/client_req/README.md)
 26u-client-smoke. [ ] **STEP 8 device smoke** (user says **go**) — emu admin + phone driver
-26u-return-qr-ui. [x] Return QR boarding **UI prep** — reuse morning panel/scan; stub live API; await Dock — [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md)
+26u-return-qr-ui. [x] Return QR boarding **Phase 2 wired** — `?trip=return` mint + shared `boarding_scan`; [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) · [GAP](docs/setup/RETURN_TRIP_API_GAP.md)
 26u-client-park. [ ] Parked UI: return-leg KM, admin org odometer list, unboard UI
 26u-ops-nginx. [x] nginx `client_max_body_size 8m` (odometer multipart)
 26u-ops-backup. [x] Postgres backup sidecar → `cts-docker/postgres/backups/`

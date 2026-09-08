@@ -349,7 +349,9 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                               height: 48,
                               child: Material(
                                 color: cts.yellow,
+                                borderRadius: BorderRadius.circular(4),
                                 child: InkWell(
+                                  borderRadius: BorderRadius.circular(4),
                                   onTap: () => context.push(
                                     '${RouteName.returnBoardingQr}/${widget.batchId}',
                                   ),
