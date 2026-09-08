@@ -42,6 +42,36 @@ void main() {
       );
     });
 
+    test('supervisor can connect, add, remove from queue, but not stop or confirm', () {
+      expect(
+        D2dChannelRolePolicy.can('SUPERVISOR', D2dChannelAction.connect),
+        isTrue,
+      );
+      expect(
+        D2dChannelRolePolicy.can('SUPERVISOR', D2dChannelAction.addCommuter),
+        isTrue,
+      );
+      expect(
+        D2dChannelRolePolicy.can('SUPERVISOR', D2dChannelAction.removeFromQueue),
+        isTrue,
+      );
+      expect(
+        D2dChannelRolePolicy.can('SUPERVISOR', D2dChannelAction.stopTrip),
+        isFalse,
+      );
+    });
+
+    test('staff cannot mutate live trip', () {
+      expect(
+        D2dChannelRolePolicy.can('STAFF', D2dChannelAction.connect),
+        isFalse,
+      );
+      expect(
+        D2dChannelRolePolicy.can('STAFF', D2dChannelAction.addCommuter),
+        isFalse,
+      );
+    });
+
     test('denial messages mention driver ownership for stop and confirm', () {
       expect(
         D2dChannelRolePolicy.denialMessage(D2dChannelAction.stopTrip),

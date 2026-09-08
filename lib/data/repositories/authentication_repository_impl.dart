@@ -2,6 +2,7 @@ import 'package:cts/api/api_exceptions_handler.dart';
 import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
+import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/domain/repositories/authentication_repository.dart';
@@ -112,7 +113,10 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   ) {
     switch (userType) {
       case 'COMMUTER':
+      case 'STAFF':
       case 'DRIVER':
+        // STAFF shares commuter home/UX — accept the same profile keys when
+        // the JWT stub includes assignment / isComing fields.
         final batch = profileData['batchId'];
         if (batch is Map) {
           AppManager.instance.setString(
@@ -139,7 +143,8 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
             cab['regNumber']?.toString() ?? '',
           );
         }
-        if (userType == 'COMMUTER' && profileData.containsKey('isComing')) {
+        if (RouteName.isCommuterLike(userType) &&
+            profileData.containsKey('isComing')) {
           AppManager.instance.setString(
             ManagerKey.isComing,
             profileData['isComing']?.toString() ?? 'false',
@@ -157,7 +162,6 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
         break;
       case 'ADMIN':
       case 'SUPERVISOR':
-      case 'STAFF':
         final id = profileData['id']?.toString();
         if (id != null && id.isNotEmpty) {
           AppManager.instance.setString(ManagerKey.adminCode, id);

@@ -1,6 +1,6 @@
 > **Doc:** docs/CODE_MAP.md
-> **Updated:** 2026-08-25 21:40 IST
-> **Session:** Guides retired — point to FLOWS_BY_ROLE
+> **Updated:** 2026-09-08 12:45 IST
+> **Session:** + AdminCapabilities / AdminService map
 
 # Code map
 
@@ -78,6 +78,7 @@ Import files directly (`package:cts/features/routes/screens/...`). Do not add ba
 | Path strings | `lib/app/router/route_names.dart` |
 | Route → widget | `lib/app/router/app_router.dart` |
 | Role → home | `RouteName.homeForRole(userType)` |
+| Admin capabilities | `lib/app/router/admin_service.dart` (`AdminService` / `AdminCapabilities`) |
 
 Session cookies: `lib/appManager/session_manager.dart`. Connectivity (cached): `lib/api/connectivity_service.dart`. Auth impl: `lib/data/repositories/authentication_repository_impl.dart`.
 

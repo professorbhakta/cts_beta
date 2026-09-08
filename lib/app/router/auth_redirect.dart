@@ -1,3 +1,4 @@
+import 'package:cts/app/router/admin_service.dart';
 import 'package:cts/app/router/route_names.dart';
 
 /// Pure redirect resolver for go_router — extracted for unit tests.
@@ -26,7 +27,7 @@ String? resolveAuthRedirect({
   }
 
   if (_matchesAny(location, RouteName.adminOnlyPrefixes) &&
-      !RouteName.isAdminLike(userType)) {
+      !AdminCapabilities.canAccessAdminLocation(userType, location)) {
     return RouteName.homeForRole(userType);
   }
 
@@ -37,7 +38,7 @@ String? resolveAuthRedirect({
   }
 
   if (_matchesAny(location, RouteName.commuterOnlyPrefixes) &&
-      userType != 'COMMUTER' &&
+      !RouteName.isCommuterLike(userType) &&
       !RouteName.isAdminLike(userType)) {
     return RouteName.homeForRole(userType);
   }

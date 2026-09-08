@@ -1,6 +1,7 @@
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/offline_temp/offline_auto_redirect.dart';
+import 'package:cts/app/router/admin_service.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/admin_home/providers/admin_provider.dart';
@@ -71,6 +72,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   }
 
   Widget _buildDashboard(BuildContext context, AdminProvider provider) {
+    final allowed = AdminCapabilities.forRole(SessionRole.userType);
+    final showRunning =
+        allowed.contains(AdminService.batch) ||
+        allowed.contains(AdminService.d2d);
+    final showOverview = allowed.isNotEmpty;
+    final showQuickActions = allowed.isNotEmpty;
+
     return RefreshIndicator(
       onRefresh: () => provider.loadDetailedDashboardData(),
       child: SingleChildScrollView(
@@ -84,12 +92,18 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               const SizedBox(height: 16),
             ],
             _buildGreetingSection(context),
-            const SizedBox(height: 28),
-            _buildRunningBatchesSection(context, provider),
-            const SizedBox(height: 28),
-            _buildOverviewSection(context, provider),
-            const SizedBox(height: 28),
-            _buildQuickActionsSection(context),
+            if (showRunning) ...[
+              const SizedBox(height: 28),
+              _buildRunningBatchesSection(context, provider, allowed),
+            ],
+            if (showOverview) ...[
+              const SizedBox(height: 28),
+              _buildOverviewSection(context, provider, allowed),
+            ],
+            if (showQuickActions) ...[
+              const SizedBox(height: 28),
+              _buildQuickActionsSection(context, allowed),
+            ],
           ],
         ),
       ),
@@ -196,7 +210,11 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     );
   }
 
-  Widget _buildOverviewSection(BuildContext context, AdminProvider provider) {
+  Widget _buildOverviewSection(
+    BuildContext context,
+    AdminProvider provider,
+    Set<AdminService> allowed,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -204,43 +222,49 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         const SizedBox(height: 12),
         LayoutBuilder(
           builder: (context, constraints) {
-            final cards = [
-              CompactStatCard(
-                title: 'Batches',
-                value: provider.batchCount.toString(),
-                subtitle: '${provider.runningBatchCount} active',
-                onTap: () => context.push(RouteName.batchScreen),
-              ),
-              CompactStatCard(
-                title: 'Commuters',
-                value: provider.commuterCount.toString(),
-                subtitle: '${provider.isComingCount} coming today',
-                onTap: () => context.push(RouteName.commuterScreen),
-              ),
-              CompactStatCard(
-                title: 'Routes',
-                value: provider.routeCount.toString(),
-                subtitle: 'Active',
-                onTap: () => context.push(RouteName.routeScreen),
-              ),
-              CompactStatCard(
-                title: 'Pick-up Points',
-                value: provider.popCount.toString(),
-                subtitle: 'Locations',
-                onTap: () => context.push(RouteName.popScreen),
-              ),
-              CompactStatCard(
-                title: 'Cabs',
-                value: provider.cabCount.toString(),
-                subtitle: 'Vehicles',
-                onTap: () => context.push(RouteName.cabScreen),
-              ),
-              CompactStatCard(
-                title: 'Drivers',
-                value: provider.driverCount.toString(),
-                subtitle: 'Active',
-                onTap: () => context.push(RouteName.driverScreen),
-              ),
+            final cards = <Widget>[
+              if (allowed.contains(AdminService.batch))
+                CompactStatCard(
+                  title: 'Batches',
+                  value: provider.batchCount.toString(),
+                  subtitle: '${provider.runningBatchCount} active',
+                  onTap: () => context.push(RouteName.batchScreen),
+                ),
+              if (allowed.contains(AdminService.commuter))
+                CompactStatCard(
+                  title: 'Commuters',
+                  value: provider.commuterCount.toString(),
+                  subtitle: '${provider.isComingCount} coming today',
+                  onTap: () => context.push(RouteName.commuterScreen),
+                ),
+              if (allowed.contains(AdminService.route))
+                CompactStatCard(
+                  title: 'Routes',
+                  value: provider.routeCount.toString(),
+                  subtitle: 'Active',
+                  onTap: () => context.push(RouteName.routeScreen),
+                ),
+              if (allowed.contains(AdminService.pop))
+                CompactStatCard(
+                  title: 'Pick-up Points',
+                  value: provider.popCount.toString(),
+                  subtitle: 'Locations',
+                  onTap: () => context.push(RouteName.popScreen),
+                ),
+              if (allowed.contains(AdminService.cab))
+                CompactStatCard(
+                  title: 'Cabs',
+                  value: provider.cabCount.toString(),
+                  subtitle: 'Vehicles',
+                  onTap: () => context.push(RouteName.cabScreen),
+                ),
+              if (allowed.contains(AdminService.driver))
+                CompactStatCard(
+                  title: 'Drivers',
+                  value: provider.driverCount.toString(),
+                  subtitle: 'Active',
+                  onTap: () => context.push(RouteName.driverScreen),
+                ),
             ];
 
             // Prefer 3-col board; fall back to 2-col on very narrow widths.
@@ -267,10 +291,14 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   Widget _buildRunningBatchesSection(
     BuildContext context,
     AdminProvider provider,
+    Set<AdminService> allowed,
   ) {
     final theme = Theme.of(context);
     final cts = context.cts;
     final hairline = cts.navy.withValues(alpha: 0.14);
+    final canOpenChannel = allowed.contains(AdminService.d2d);
+    final canOpenRunning = allowed.contains(AdminService.batch);
+    final canOpenReturn = allowed.contains(AdminService.batch);
     final batches = sortListAZ<RunningBatches>(
       provider.runningBatches,
       (batch) => batch.batchId?.batchName ?? '',
@@ -312,18 +340,20 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () =>
-                      context.push(RouteName.runningBatchScreen),
-                  child: Text(
-                    'View running batches',
-                    style: TextStyle(
-                      color: cts.navy,
-                      fontWeight: FontWeight.w600,
+                if (canOpenRunning) ...[
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () =>
+                        context.push(RouteName.runningBatchScreen),
+                    child: Text(
+                      'View running batches',
+                      style: TextStyle(
+                        color: cts.navy,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           )
@@ -342,63 +372,67 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               child: _RunningBatchDashboardTile(
                 batchName: batchName,
                 driverName: driverName.isEmpty ? null : driverName,
-                onTap: batchId == null
+                onTap: (!canOpenChannel || batchId == null)
                     ? null
                     : () => context.push('${RouteName.d2dChannel}/$batchId'),
               ),
             );
           }),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () =>
-                      context.push(RouteName.runningBatchScreen),
-                  style: TextButton.styleFrom(
-                    foregroundColor: cts.navy,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    'RUNNING BATCHES',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: cts.navy,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
+        if (canOpenRunning || canOpenReturn) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              if (canOpenRunning)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () =>
+                          context.push(RouteName.runningBatchScreen),
+                      style: TextButton.styleFrom(
+                        foregroundColor: cts.navy,
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'RUNNING BATCHES',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () =>
-                      context.push(RouteName.returnBatchScreen),
-                  style: TextButton.styleFrom(
-                    foregroundColor: cts.navy,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    'RETURN BATCHES',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: cts.navy,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
+              if (canOpenReturn)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () =>
+                          context.push(RouteName.returnBatchScreen),
+                      style: TextButton.styleFrom(
+                        foregroundColor: cts.navy,
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'RETURN BATCHES',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -439,7 +473,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     );
   }
 
-  Widget _buildQuickActionsSection(BuildContext context) {
+  Widget _buildQuickActionsSection(
+    BuildContext context,
+    Set<AdminService> allowed,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -450,15 +487,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             final width = constraints.maxWidth;
             final crossAxisCount = width >= 900 ? 4 : 2;
             final aspectRatio = crossAxisCount == 2 ? 3.1 : 2.8;
-
-            return GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: aspectRatio,
-              children: [
+            final actions = <Widget>[
+              if (allowed.contains(AdminService.batch))
                 QuickActionButton(
                   label: 'Add Batch',
                   emphasized: true,
@@ -467,6 +497,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     context.push(RouteName.batchForm);
                   },
                 ),
+              if (allowed.contains(AdminService.commuter))
                 QuickActionButton(
                   label: 'Add Commuter',
                   onTap: () {
@@ -474,6 +505,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     context.push(RouteName.commuterForm);
                   },
                 ),
+              if (allowed.contains(AdminService.driver))
                 QuickActionButton(
                   label: 'Add Driver',
                   onTap: () {
@@ -481,6 +513,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     context.push(RouteName.driverForm);
                   },
                 ),
+              if (allowed.contains(AdminService.cab))
                 QuickActionButton(
                   label: 'Add Cab',
                   onTap: () {
@@ -488,6 +521,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     context.push(RouteName.cabForm);
                   },
                 ),
+              if (allowed.contains(AdminService.route))
                 QuickActionButton(
                   label: 'Add Route',
                   onTap: () {
@@ -495,6 +529,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     context.push(RouteName.routeForm);
                   },
                 ),
+              if (allowed.contains(AdminService.pop))
                 QuickActionButton(
                   label: 'Add POP',
                   onTap: () {
@@ -502,7 +537,20 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     context.push(RouteName.popForm);
                   },
                 ),
-              ],
+            ];
+
+            if (actions.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            return GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: crossAxisCount,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: aspectRatio,
+              children: actions,
             );
           },
         ),

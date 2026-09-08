@@ -100,10 +100,79 @@ void main() {
       );
     });
 
-    test('staff may access admin CRUD', () {
+    test('supervisor may access allow-listed admin CRUD', () {
       expect(
         resolveAuthRedirect(
           location: RouteName.batchScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPERVISOR',
+        ),
+        isNull,
+      );
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.commuterScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPERVISOR',
+        ),
+        isNull,
+      );
+      expect(
+        resolveAuthRedirect(
+          location: '${RouteName.d2dChannel}/12',
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPERVISOR',
+        ),
+        isNull,
+      );
+    });
+
+    test('staff lands on commuter home and cannot open admin CRUD', () {
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.signIn,
+          authReady: true,
+          loggedIn: true,
+          userType: 'STAFF',
+        ),
+        RouteName.commuterHomeScreen,
+      );
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.batchScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'STAFF',
+        ),
+        RouteName.commuterHomeScreen,
+      );
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.adminHomeScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'STAFF',
+        ),
+        RouteName.commuterHomeScreen,
+      );
+    });
+
+    test('staff may access commuter home prefixes', () {
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.commuterHomeScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'STAFF',
+        ),
+        isNull,
+      );
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.boardingScan,
           authReady: true,
           loggedIn: true,
           userType: 'STAFF',

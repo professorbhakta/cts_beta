@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-09-01 10:20 IST
-> **Session:** Morning + return waiting line; commuter join_waiting journeys
+> **Updated:** 2026-09-08 12:45 IST
+> **Session:** Admin shell roles — SUPERVISOR allow-list; STAFF → commuter
 
 # Flows by role
 
@@ -49,6 +49,8 @@ sequenceDiagram
 ## Admin
 
 **Home:** `/adminHomeScreen` — Dashboard. Accounts are created here (CRUD); no public Sign Up.
+
+**Roles on this shell:** `ADMIN` (all tiles) and `SUPERVISOR` (allow-listed services only — see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) `AdminService`). `STAFF` uses **commuter** home, not this shell.
 
 ```mermaid
 flowchart TD

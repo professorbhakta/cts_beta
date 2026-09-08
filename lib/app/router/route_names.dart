@@ -101,21 +101,26 @@ class RouteName {
     switch (userType) {
       case 'ADMIN':
       case 'SUPERVISOR':
-      case 'STAFF':
-        // Phase A: no dedicated supervisor/staff homes — land on admin home.
+        // SUPERVISOR uses the shared admin shell (filtered capabilities).
         return adminHomeScreen;
+      case 'STAFF':
+      case 'COMMUTER':
+        // STAFF shares commuter home/UX (not admin CRUD).
+        return commuterHomeScreen;
       case 'DRIVER':
         return driverHomeScreen;
-      case 'COMMUTER':
-        return commuterHomeScreen;
       default:
         return signIn;
     }
   }
 
-  /// Roles allowed on admin-only route prefixes.
+  /// Roles that land on / may open the admin shell.
+  /// ADMIN = full services; SUPERVISOR = allow-listed services only.
+  /// STAFF is not admin-like (commuter home).
   static bool isAdminLike(String? userType) =>
-      userType == 'ADMIN' ||
-      userType == 'SUPERVISOR' ||
-      userType == 'STAFF';
+      userType == 'ADMIN' || userType == 'SUPERVISOR';
+
+  /// Roles that use commuter home + commuter-only prefixes.
+  static bool isCommuterLike(String? userType) =>
+      userType == 'COMMUTER' || userType == 'STAFF';
 }

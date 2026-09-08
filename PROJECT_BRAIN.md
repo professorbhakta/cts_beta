@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-08-31 13:45 IST
-> **Session:** D2D Phase 3 shipped; STEP 8 next on go
+> **Updated:** 2026-09-08 12:45 IST
+> **Session:** Role routing — STAFF→commuter; SUPERVISOR AdminService allow-list
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -10,7 +10,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 1. What this is (30 sec)
 
-**CTS (Commuter Transport System)** — cross-platform Flutter app (iOS/Android) for **Admin**, **Driver**, and **Commuter** roles. Manages morning D2D live trips (WebSocket), evening return batches (REST), routes, POPs, cabs, drivers, and commuters.
+**CTS (Commuter Transport System)** — cross-platform Flutter app (iOS/Android) for **Admin**, **Supervisor** (filtered admin shell), **Staff** (commuter UX), **Driver**, and **Commuter** roles. Manages morning D2D live trips (WebSocket), evening return batches (REST), routes, POPs, cabs, drivers, and commuters. Role homes + `AdminService` allow-list: [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md).
 
 | Repo | Path | Role |
 |------|------|------|

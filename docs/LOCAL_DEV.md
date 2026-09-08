@@ -1,6 +1,6 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-08-25 21:36 IST
-> **Session:** Canonical Docker/stack doc (merged former backend/01)
+> **Updated:** 2026-09-08 12:45 IST
+> **Session:** + role homes pointer → ROUTING_AND_AUTH
 
 # Local Development Setup
 
@@ -186,6 +186,8 @@ Copy from `.env.example`. Key vars: `SECRET_KEY`, `DB_HOST=postgres`, `DB_NAME`,
 | Dummy QA | `7069036462` / `password` | `seed/load_cts_dummy.py` |
 
 QA logins (password `password`): Driver 1 `9876544111`, UG1 `9876556701`. Phone cold-start of a stale APK can crash; reinstall with `flutter run -d 5f36af49`.
+
+**User roles / post-login homes:** see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) (`ADMIN` full admin shell; `SUPERVISOR` filtered `AdminService` allow-list; `STAFF` → commuter home; JWT profile stub allowList on login).
 
 ## Troubleshooting
 

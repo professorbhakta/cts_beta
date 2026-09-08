@@ -1,6 +1,6 @@
 > **Doc:** docs/FEATURES.md
-> **Updated:** 2026-08-25 21:06 IST
-> **Session:** + client pack QR boarding / odometer on D2D
+> **Updated:** 2026-09-08 12:45 IST
+> **Session:** admin_home role note — Supervisor filtered shell
 
 # Feature catalog
 
@@ -16,7 +16,7 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 |----------------|------|--------------|---------------|---------------|--------------|
 | `splash` | All | SplashScreen | SplashProvider | — | via GetInitialRouteUseCase |
 | `auth` | All | SignIn (`/signUp` redirects here) | SignInProvider | — | AuthenticationRepository |
-| `admin_home` | Admin | AdminMainScreen | AdminProvider | — | Multiple (counts) |
+| `admin_home` | Admin + Supervisor (filtered) | AdminMainScreen | AdminProvider | — | Multiple (counts) |
 | `routes` | Admin | RouteScreen, RouteForm | RouteController | RouteFormProvider | RouteRepository |
 | `pops` | Admin | PopScreen, PopForm | PopProvider | PopFormProvider | PopRepository |
 | `batches` | Admin + Driver (return list) | Batch, BatchForm, Running, Returning, ReturnCommuterListScreen | BatchProvider, RunningBatchProvider, ReturnBatchProvider | BatchFormProvider | BatchRepository (offline-first), RunningBatchRepository, ReturnBatchRepository |
