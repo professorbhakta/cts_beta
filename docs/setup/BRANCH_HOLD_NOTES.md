@@ -41,9 +41,9 @@ Remote list: [cts_beta/branches](https://github.com/professorbhakta/cts_beta/bra
 | Branch | Role |
 |--------|------|
 | `main` | VPS / release only (hold until lab migrate OK) |
-| `professor-dock` | PC lab day tip (sync hub) @ `6311e9a` |
-| `gb-dock` | Cloud Cursor lane @ `6311e9a` |
-| `p-gb-merger` | Integrate desk @ `6311e9a` |
+| `professor-dock` | PC lab day tip (sync hub) @ `46c413e` |
+| `gb-dock` | Cloud Cursor lane @ `46c413e` |
+| `p-gb-merger` | Integrate desk @ `46c413e` |
 
 **Cleared into day tip + deleted (2026-09-09):**
 - `cursor/phase-a-jwt-login-9a34` — JWT Phase A (already at tip)

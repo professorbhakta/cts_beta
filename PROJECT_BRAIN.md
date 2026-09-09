@@ -95,7 +95,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 | Repo | Branch | Tip |
 |------|--------|-----|
 | `D:\cts_beta` | `professor-cts` | Day FE tip (keep-5 remotes) |
-| `D:\cts-docker` | `professor-dock` | Day BE tip `6311e9a` (keep-4 remotes; `main` held) |
+| `D:\cts-docker` | `professor-dock` | Day BE tip `46c413e` (keep-4 remotes; `main` held) |
 
 ---
 

@@ -9,7 +9,7 @@
 ## Live now (code)
 | Piece | Branch / PR | Notes |
 |-------|-------------|--------|
-| Backend tip | `professor-dock` / `gb-dock` / `p-gb-merger` @ `6311e9a` | Pushed; remotes = **4 lanes only** |
+| Backend tip | `professor-dock` / `gb-dock` / `p-gb-merger` @ `46c413e` | Pushed; remotes = **4 lanes only** (+ day-lane hooks) |
 | JWT Phase A | in tip | Lab smoked earlier; hardening deferred |
 | Org schema | in tip | Migrations present; **lab migrate + smoke still open** |
 | Return trip log | in tip | Tables, QR `?trip=return`, archives, DTODLOG `return_*` stripped |
@@ -20,9 +20,9 @@
 | Lane | Role | Status |
 |------|------|--------|
 | `main` | VPS / release only | **Hold** — do not FF until lab migrate OK (`ef632cd`) |
-| `professor-dock` | PC lab day tip | = tip `6311e9a` |
-| `gb-dock` | Cloud Cursor | = tip `6311e9a` |
-| `p-gb-merger` | Integrate desk → later PR to main | = tip `6311e9a` |
+| `professor-dock` | PC lab day tip | = tip `46c413e` |
+| `gb-dock` | Cloud Cursor | = tip `46c413e` |
+| `p-gb-merger` | Integrate desk → later PR to main | = tip `46c413e` |
 
 **Cleared + deleted:** `cursor/phase-a-jwt-login-9a34`, `feat/return-trip-log`, `cursor/cts-schema-org-migrate-d32b`.
 
