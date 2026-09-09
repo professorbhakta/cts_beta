@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-09-09 19:10 IST
-> **Session:** Lab migrate + API probe PASS
+> **Updated:** 2026-09-09 19:50 IST
+> **Session:** SUPER_ADMIN web portal + FE schema v3 harden
 ================================================================================
 QUICK START (minimal) — FE match BE tip
 ================================================================================
@@ -84,10 +84,10 @@ MIDDLE CONTEXT
 ================================================================================
 
 Current focus:
-  - **Done:** Q-fe-match-be + lab migrate (already applied) + light API probe PASS
-  - **Next:** Device smoke JWT/bootstrap/return QR (`flutter run`) · STEP 8 on **go**
-  - Phase B org rows still empty; SUPERVISOR/STAFF not seeded
-  - BE tip professor-dock `46c413e`; FE tip professor-cts
+  - **Done:** lab migrate + API probe + SUPER_ADMIN web=/void/ + FE null-safe + SQLite v3
+  - **Next:** Device smoke JWT/bootstrap/return QR · STEP 8 on **go**
+  - Phase B org fill still empty on wire; junction tables ready in FE SQLite
+  - BE tip professor-dock; FE tip professor-cts
 
 Story split (stable):
   - 05 = product story/locks · FLOWS = journeys · 07 = smoke · DISCUSSION_LOG = pointer

@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 19:10 IST
-> **Session:** Lab migrate + API probe PASS — next device smoke / STEP 8 on go
+> **Updated:** 2026-09-09 19:55 IST
+> **Session:** Store id com.example.ctsBeta + package permissions (after SUPER_ADMIN)
 
 # PROMPT SCOPE — CTS
 
@@ -60,16 +60,16 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | FE match vs BE tip; close FE gaps |
-| P2 | Role / surface? | yes | FE tip professor-cts; read BE tip contracts |
-| P3 | Non-negotiables? | yes | Provider; no day-push main; cream tip |
-| P4 | Both ends? | yes | FE_FIX only; BE read/compare |
-| P5 | R10 isComing? | yes | Return confirm ≠ isComing |
-| P6 | Git branch? | yes | cursor/fe-match-be-tip-e750 → professor-cts |
-| P7 | Docs policy? | yes | DISCUSSION_STATUS + brain/scope/registry |
-| P8 | Out of scope? | yes | No STEP 8; no VPS main; no BE edits |
+| P1 | Goal clear? | yes | Permissions for packages + one store id + safe cleanup |
+| P2 | Role / surface? | yes | Android/iOS manifests + app_class permissions |
+| P3 | Non-negotiables? | yes | Provider; no day-push main; no new md files |
+| P4 | Both ends? | n/a | FE platform only |
+| P5 | R10 isComing? | n/a | Not this task |
+| P6 | Git branch? | yes | `professor-cts` |
+| P7 | Docs policy? | yes | brain/scope/registry/BUILD_AND_RELEASE |
+| P8 | Out of scope? | yes | No STEP 8; no FCM wire; no real domain store id yet |
 
-**This prompt:** FE match vs BE tip — [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt).
+**This prompt:** Unify store id; lock package permissions; confirm cleanup safe.
 
 ---
 
@@ -111,6 +111,9 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 19:50 | SUPER_ADMIN web /void/; FE null-safe + return_trip_id vars; SQLite v3; stale return_* docs scrubbed | both |
+| 2026-09-09 19:55 | Store id → `com.example.ctsBeta` both platforms; perms/queries; cleanup verified unused | `cts_beta` |
+| 2026-09-09 19:30 | Platform audit: iOS Info.plist location+ATS+url schemes; Android tel/https queries; debug APK OK | `cts_beta` |
 | 2026-09-09 19:10 | Lab migrate confirmed applied; API probe login/refresh/bootstrap/return QR+scan PASS | both |
 | 2026-09-09 18:55 | FE match re-verify vs dock source: merge e750; FE_FIX return scan no boarding_scan join_waiting; migrate DEFER (Docker down) | `cts_beta` |
 | 2026-09-09 18:10 | FE match: gap table; FE_FIX flat/nested profile + bootstrap soft-fail; 166 tests | `cts_beta` |

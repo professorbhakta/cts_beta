@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-09 19:10 IST
-> **Session:** Lab migrate confirmed + JWT/bootstrap/return QR probe PASS
+> **Updated:** 2026-09-09 19:50 IST
+> **Session:** SUPER_ADMIN web portal + FE null-safe + SQLite v3
 
 # Dock / CTS discussion status (single path)
 
@@ -78,10 +78,16 @@ Local re-verify vs live `professor-dock` source (`46c413e`): login/refresh/boots
 - Morning QR without active D2D → `trip_not_active` (expected; not a migrate fail).
 - STEP 8 not run.
 
+## SUPER_ADMIN + FE harden (2026-09-09 19:50)
+- No Flutter web admin app yet → **Django `/void/`** is the web portal for org/schema ops.
+- Lab **SUPER_ADMIN** `9000000000` / `password` (`is_staff` + `is_superuser`); FE treats like ADMIN (full shell).
+- FE: null/empty wire fields tolerated; `return_trip_id`/`trip` stored on scan+odometer; SQLite schema **v3**.
+- Stale DTODLOG `return_*` docs scrubbed.
+
 ## Next
 - Device smoke JWT + admin-bootstrap + return QR (`flutter run`) when ready
 - Client pack STEP 8 (only on **go**)
-- Phase B org rows / SUPERVISOR+STAFF seed if needed
+- Phase B org rows / fill bootstrap `organizations` from DB
 - Client lock: return / evening trip **same QR boarding as morning** — see `CLIENT_RETURN_QR_NOTE.md`
 
 ## Rule

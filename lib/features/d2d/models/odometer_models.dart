@@ -67,6 +67,7 @@ class OdometerSnapshot {
     required this.batchId,
     required this.tripDate,
     this.d2dId,
+    this.returnTripId,
     required this.morning,
     required this.returnLeg,
     this.gapKm,
@@ -76,16 +77,28 @@ class OdometerSnapshot {
   final String batchId;
   final String tripDate;
   final int? d2dId;
+
+  /// Present when return leg is bound to [ReturnTripLog]; keep for later UI.
+  final String? returnTripId;
   final OdometerLegSnapshot morning;
   final OdometerLegSnapshot returnLeg;
   final int? gapKm;
   final bool complete;
 
   factory OdometerSnapshot.fromJson(Map<String, dynamic> json) {
+    final returnTripRaw = json['return_trip_id'];
+    String? returnTripId;
+    if (returnTripRaw != null) {
+      final text = returnTripRaw.toString().trim();
+      if (text.isNotEmpty && text.toLowerCase() != 'null') {
+        returnTripId = text;
+      }
+    }
     return OdometerSnapshot(
       batchId: json['batch_id']?.toString() ?? '',
       tripDate: json['trip_date']?.toString() ?? '',
       d2dId: OdometerLegSnapshot._asInt(json['d2d_id']),
+      returnTripId: returnTripId,
       morning: OdometerLegSnapshot.fromJson(
         json['morning'] is Map
             ? Map<String, dynamic>.from(json['morning'] as Map)

@@ -1,18 +1,26 @@
-CTS SQLite — exact table + column names (discuss-only)
-Updated: 2026-09-09
-Status: FE Phase A bootstrap tables on professor-cts (schema v2); Phase B orgs after lab migrate
+CTS SQLite — exact table + column names
+Updated: 2026-09-09 19:50 IST
+Status: FE schema v3 — org junction tables + organization_id on bootstrap entities
 Prefer snake_case in SQLite; map from API camelCase on sync.
-See also: SCHEMA_FINAL_DRAFT.txt, LOGIN_JSON_FIELDS.txt, JWT_LOGIN_IMPLEMENTATION_NOTES.txt
+Null/empty wire fields (routeCode, area, acType, organizations[]) are valid Phase A —
+store NULL, do not crash.
 
 auth_session (or tokens in secure storage + sqlite for rest):
 access_token, refresh_token, user_id, user_type, admin_code, default_organization_id, updated_at
 
 organization: id TEXT PK, org_name, is_active, created_at, updated_at
-sub_admin: id TEXT PK, user_id INTEGER
-sub_admin_organization: id INTEGER PK, sub_admin_id, organization_id, is_active; UNIQUE(sub_admin_id, organization_id)
-supervisor: id INTEGER PK, user_id, organization_id, is_active; UNIQUE(user_id, organization_id)
+sub_admin_organization: id INTEGER PK, sub_admin_id TEXT, organization_id TEXT, is_active; UNIQUE(sub_admin_id, organization_id)
+supervisor: id INTEGER PK, user_id INTEGER, organization_id TEXT, is_active; UNIQUE(user_id, organization_id)
 user (or app_user): id INTEGER PK, username, mobile_number, email, user_type, has_paid NULL, device_id — NO password
-commuter / routes / pick_up_points / batch / cab / driver / dtodlog: mirror SCHEMA_FINAL_DRAFT (snake_case)
 
-ROLE fill on sync: ADMIN full org-scoped; SUPERVISOR allow-list by organization_id; DRIVER assignment subset; COMMUTER/STAFF own row + summary
-Login seeds auth_session only; full rows from later bootstrap/home.
+route: id, route_name, route_code NULL, is_active, admin_code, organization_id NULL
+pick_up_point: id, pick_up_point_name, route_id, lat, longitude, in_line, area NULL, is_active, admin_code, organization_id NULL
+batch: id TEXT, batch_name, batch_time, end_time, start_date, end_date, is_active, admin_code, organization_id NULL
+cab: id, reg_number, capacity, route_id, ac_type NULL, tracking_vehicle_id, is_active, admin_code, organization_id NULL
+driver: driver_id, user_id, username, mobile_number, batch_id, cab_id, is_active, admin_code, organization_id NULL
+commuter: commuter_id, user_id, username, mobile_number, user_type, batch_id, pop_id, cab_id, is_coming, has_paid, is_active, admin_code, organization_id NULL
+bootstrap_meta: id=1, status, generated_at, admin_code, trip_date, active_morning/return_batch_ids JSON, enums JSON, updated_at
+
+ROLE fill on sync: ADMIN/SUPER_ADMIN full; SUPERVISOR allow-list; DRIVER assignment; COMMUTER/STAFF own row
+Login seeds session only; full rows from admin-bootstrap. Junction tables fill in Phase B when wire has orgs.
+Web org portal: Django /void/ as SUPER_ADMIN (is_staff) until dedicated Flutter web ships.

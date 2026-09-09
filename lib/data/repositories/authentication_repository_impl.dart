@@ -71,7 +71,10 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       // Soft-fail: bootstrap errors must not block JWT login.
       final role = parsed.user.userType;
       final bootstrap = _bootstrapRepository;
-      if ((role == 'ADMIN' || role == 'SUPERVISOR') && bootstrap != null) {
+      if ((role == 'ADMIN' ||
+              role == 'SUPER_ADMIN' ||
+              role == 'SUPERVISOR') &&
+          bootstrap != null) {
         final luggage = await bootstrap.sync();
         if (luggage.isFailure) {
           debugPrint(
@@ -158,6 +161,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
         }
         break;
       case 'ADMIN':
+      case 'SUPER_ADMIN':
       case 'SUPERVISOR':
         // Prefer explicit Phase A+ keys; fall back to legacy profile.id.
         // Envelope adminCode (already stored) wins unless empty/'0'.
@@ -214,15 +218,19 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
 
   void _setIfNonEmpty(String key, dynamic value) {
     final text = value?.toString().trim();
-    if (text != null && text.isNotEmpty) {
-      AppManager.instance.setString(key, text);
-    }
+    if (text == null || text.isEmpty) return;
+    final lower = text.toLowerCase();
+    if (lower == 'null' || lower == 'none') return;
+    AppManager.instance.setString(key, text);
   }
 
   String? _firstNonEmptyString(List<dynamic> values) {
     for (final value in values) {
       final text = value?.toString().trim();
-      if (text != null && text.isNotEmpty) return text;
+      if (text == null || text.isEmpty) continue;
+      final lower = text.toLowerCase();
+      if (lower == 'null' || lower == 'none') continue;
+      return text;
     }
     return null;
   }

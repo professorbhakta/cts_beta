@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 19:10 IST
-> **Session:** Lab migrate OK + JWT/bootstrap/return QR API probe PASS
+> **Updated:** 2026-09-09 19:55 IST
+> **Session:** Store id `com.example.ctsBeta` + perms (after SUPER_ADMIN / platform audit)
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -104,18 +104,16 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ## 5. Current focus
 
-**Session (2026-09-09):** Lab migrate on `professor-dock` confirmed applied; light API probe PASS (login/refresh/bootstrap/return QR mint+scan).
+**Session (2026-09-09):** SUPER_ADMIN web portal (Django `/void/`) + FE null-safe + SQLite v3. Also: platform Android/iOS audit OK; lab migrate + API probe PASS.
 
 | Piece | Detail |
 |-------|--------|
-| FE tip | `professor-cts` — JWT + cream + bootstrap + return QR + match FE_FIX |
-| BE tip | `professor-dock` `46c413e` — org + return-trip migrations **applied** on lab |
+| FE tip | `professor-cts` — JWT + bootstrap + return QR + schema v3 + SUPER_ADMIN shell + **store id `com.example.ctsBeta`** |
+| BE tip | `professor-dock` `46c413e` — SUPER_ADMIN type; lab `9000000000` for `/void/` |
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
 | Day sync | pull on start / push on stop for professor-cts |
 
-**Next chat:** Device smoke JWT + bootstrap + return QR (`flutter run`) when ready. STEP 8 only on **go**. Phase B org rows still empty.
-
-**Also open:** Phase B orgs · return-leg KM parked · STEP 8
+**Next chat:** Device smoke JWT + bootstrap + return QR (`flutter run`) when ready. STEP 8 only on **go**. Phase B org fill still open.
 
 | Repo | Branch | Tip |
 |------|--------|-----|
@@ -188,9 +186,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-09 | Lab migrate + probe | Migrate already applied; login/refresh/bootstrap/return QR+scan PASS |
-| 2026-09-09 | FE match re-verify | Merged e750; return scan `allowJoinWaiting: false`; Docker down → migrate DEFER |
-| 2026-09-09 | FE match BE tip | Gap table; FE_FIX profile stubs + bootstrap soft-fail; 166 tests |
+| 2026-09-09 | Store id + package perms | Kept `com.example.ctsBeta`; dropped `cts_beta`; share/network queries; unused asset cleanup OK |
+| 2026-09-09 | SUPER_ADMIN + FE harden | Web=/void/; null-safe wire; SQLite v3; return_trip_id stored |
+| 2026-09-09 | Android/iOS platform audit | iOS location+ATS+url schemes; Android tel/https queries; debug APK OK |
 
 ---
 

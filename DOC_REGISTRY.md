@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 19:10 IST
-> **Session:** Lab migrate + API probe PASS
+> **Updated:** 2026-09-09 19:55 IST
+> **Session:** Store id unify + package permissions (after SUPER_ADMIN)
 
 # Documentation Registry
 
@@ -28,13 +28,13 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 19:10 IST | lab migrate + API probe PASS |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 19:10 IST | §5 migrate OK; next device smoke |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 19:10 IST | Q-lab-migrate done |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 19:10 IST | lab probe END |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 19:50 IST | SUPER_ADMIN + schema v3 |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 19:55 IST | store id `com.example.ctsBeta` |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 19:55 IST | store id + perms change log |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 19:55 IST | store id END |
 | [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 19:10 IST | lab migrate OK; device smoke next |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
-| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
+| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-09-09 19:50 IST | DTODLOG return_* scrubbed |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
 | [docs/client_req/05-open-decisions.md](docs/client_req/05-open-decisions.md) | 2026-08-26 07:58 IST | + snapshot link |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 23:50 IST | Return QR Phase 2 mint/scan |
@@ -95,6 +95,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-08 23:50 IST | return QR Phase 2 done |
 | [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
 | [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
+| [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-09-09 19:55 IST | one store id `com.example.ctsBeta` both platforms |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 23:50 IST | return QR Phase 2 live |
 | [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 23:50 IST | return QR Phase 2 |
 | [docs/README.md](docs/README.md) | 2026-09-08 15:18 IST | + docs/setup folder |

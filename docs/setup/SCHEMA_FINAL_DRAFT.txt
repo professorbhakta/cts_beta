@@ -1,14 +1,14 @@
 CTS SCHEMA — FINAL DRAFT (saved)
 ================================
-Updated: 2026-09-06
-Status: FINAL DRAFT SAVED — no code/migrations until "green flag go"
-Target path when PC online: D:\cts_beta\docs\setup\SCHEMA_FINAL_DRAFT.txt
+Updated: 2026-09-09 19:50 IST
+Status: Tip aligned — org schema + ReturnTripLog shipped; DTODLOG return_* stripped
+Target path: D:\cts_beta\docs\setup\SCHEMA_FINAL_DRAFT.txt
 
 ------------------------------------------------------------------------
 LOCKED DECISIONS
 ------------------------------------------------------------------------
 - userType string + backend enums; API exposes allowed values; no UserType table
-- userType: ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
+- userType: ADMIN | SUPER_ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
 - No personType on Commuter (rider kind = User.userType COMMUTER or STAFF)
 - Fees on Commuter; hasPaid on User (often null initially)
 - Import keys: externalPersonId AND registrationNo on Commuter
@@ -22,6 +22,7 @@ LOCKED DECISIONS
 - SUPERVISOR allow-list: Batch, Cab, Route, PoP, day-ops (DTODLOG), Commuter
 - Soft isActive / exit fields as listed
 - Enums also: acType AC|NON_AC; exitKind LEFT|CANCELLED|null; startedBy ADMIN|SUPERVISOR|DRIVER; regStatus Active(+)
+- Web org portal: Django /void/ as SUPER_ADMIN (staff) until Flutter web ships
 
 ------------------------------------------------------------------------
 1) User
@@ -91,21 +92,20 @@ adminCode, organizationId, acType, isActive
 userId, adminCode, organizationId, batchId, cabId, isActive
 
 ------------------------------------------------------------------------
-12) DTODLOG
+12) DTODLOG (morning only)
 ------------------------------------------------------------------------
 batchId, tripDate, CList, isActive
-startTime, endTime, return_start_time, return_end_time
+startTime, endTime
 morning_start_km, morning_end_km, morning_start_photo, morning_end_photo
 morning_start_recorded_at, morning_end_recorded_at
-return_start_km, return_end_km, return_start_photo, return_end_photo
-return_start_recorded_at, return_end_recorded_at
 cabId, driverUserId, startedBy, organizationId, adminCode
 unique (batchId, tripDate)
+NOTE: return_* odometer columns REMOVED — live on ReturnTripLog only.
 
 ------------------------------------------------------------------------
-RETURN TRIP SPLIT (draft 2026-09-08) — see RETURN_TRIP_COLUMNS_DRAFT.md
+RETURN TRIP (shipped 2026-09-09) — see RETURN_TRIP_COLUMNS_DRAFT.md
 ------------------------------------------------------------------------
-New: ReturnTripLog (return start/end/km/photo + RCList mirror + boardArchiveId)
-New: ReturnBoardArchive (userIds snapshot on End)
-Later: strip return_* from morning DTODLOG
+ReturnTripLog: RCList, batchId, tripDate, start/end time, isActive,
+  start_km/end_km/photos/recorded_at (no return_ prefix)
+ReturnBoardArchive / GoingBoardArchive on End (BE only; no FE archive UI)
 Live boarded IDs: Redis + sockets (not HTTPS polling)

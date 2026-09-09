@@ -48,6 +48,19 @@ class AppDatabase {
             await db.execute(script);
           }
         }
+        if (oldVersion < 3) {
+          // New junction tables (IF NOT EXISTS via try — CREATE TABLE is fine).
+          await db.execute(DatabaseSchema.createSubAdminOrganizationTable);
+          await db.execute(DatabaseSchema.createSupervisorTable);
+          for (final script in DatabaseSchema.v3AlterScripts) {
+            try {
+              await db.execute(script);
+            } on DatabaseException catch (e) {
+              // Column already present on fresh v3 installs / re-runs.
+              if (!e.toString().contains('duplicate column')) rethrow;
+            }
+          }
+        }
       },
     );
   }

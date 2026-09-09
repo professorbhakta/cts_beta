@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DESIGN_SNAPSHOT.md
-> **Updated:** 2026-08-26 07:58 IST
-> **Session:** Option B — thin design snapshot replacing deleted 00–04 / 06
+> **Updated:** 2026-09-09 19:50 IST
+> **Session:** DTODLOG return_* removed; return odo on ReturnTripLog
 
 # Client pack — design snapshot
 
@@ -38,17 +38,17 @@
 
 ---
 
-## 3. Schema — `DTODLOG` additive columns
+## 3. Schema — `DTODLOG` morning columns + return on `ReturnTripLog`
 
-Existing unchanged: `CList`, `batchId`, `tripDate`, `startTime`, `endTime`, `isActive`, unused `return_*_time`.
+**DTODLOG (morning only):** `CList`, `batchId`, `tripDate`, `startTime`, `endTime`, `isActive`, morning odometer columns, `organizationId`, `adminCode`.
 
-| New column (all null/blank OK) | Use |
-|--------------------------------|-----|
+| Column (null OK) | Use |
+|------------------|-----|
 | `morning_start_km` / `morning_end_km` | Morning odometer |
 | `morning_start_photo` / `morning_end_photo` | Optional FileFields |
 | `morning_start_recorded_at` / `morning_end_recorded_at` | Timestamps |
-| `return_start_km` / `return_end_km` | Return leg (API ready; Flutter UI parked) |
-| `return_*_photo` / `return_*_recorded_at` | Same |
+
+**Return leg:** lives on `return_trip_log` (`start_km` / `end_km` / photos / `RCList`) — **not** on DTODLOG. DTODLOG `return_*` columns were removed (2026-09-09).
 
 **Submit rules:** KM **required** on Confirm; photo **optional**. Close/Skip = no write.
 
@@ -84,7 +84,8 @@ All under `/d2d/`, session cookie. Detail + errors: API_CONTRACTS.
 DTODLOG + Redis live     ← remaining queue + Already IN (CList)
 Redis waiting (Phase 2)  ← morning FCFS pool; flushed on STOP
 Redis return waiting     ← evening FCFS pool (`d2d:return_waiting:…`); flushed on End return
-DTODLOG odo columns      ← morning/return KM + optional photo paths
+DTODLOG odo columns      ← morning KM + optional photo paths
+ReturnTripLog            ← return KM + photos + RCList
 Media files              ← photo bytes (auth URL on GET odometer)
 Signed QR token          ← issued by boarding_qr; consumed by boarding_scan
 ```

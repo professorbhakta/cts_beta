@@ -135,10 +135,10 @@ class BootstrapOrganization {
   factory BootstrapOrganization.fromJson(Map<String, dynamic> json) {
     return BootstrapOrganization(
       id: json['id']?.toString() ?? '',
-      orgName: (json['orgName'] ?? json['organizationName'])?.toString(),
-      isActive: json['isActive'] != false,
-      createdAt: json['createdAt']?.toString(),
-      updatedAt: json['updatedAt']?.toString(),
+      orgName: _nullableString(json['orgName'] ?? json['organizationName']),
+      isActive: _asBool(json['isActive'], defaultValue: true),
+      createdAt: _nullableString(json['createdAt']),
+      updatedAt: _nullableString(json['updatedAt']),
     );
   }
 }
@@ -149,19 +149,24 @@ class BootstrapRoute {
     this.routeName,
     this.routeCode,
     this.isActive = true,
+    this.organizationId,
   });
 
   final int id;
   final String? routeName;
   final String? routeCode;
   final bool isActive;
+  final String? organizationId;
 
   factory BootstrapRoute.fromJson(Map<String, dynamic> json) {
     return BootstrapRoute(
       id: _asInt(json['id']) ?? 0,
-      routeName: json['routeName']?.toString(),
-      routeCode: json['routeCode']?.toString(),
-      isActive: json['isActive'] != false,
+      routeName: _nullableString(json['routeName']),
+      routeCode: _nullableString(json['routeCode']),
+      isActive: _asBool(json['isActive'], defaultValue: true),
+      organizationId: _nullableString(
+        json['organizationId'] ?? json['organization_id'],
+      ),
     );
   }
 }
@@ -176,6 +181,7 @@ class BootstrapPickUpPoint {
     this.inLine,
     this.area,
     this.isActive = true,
+    this.organizationId,
   });
 
   final int id;
@@ -186,17 +192,21 @@ class BootstrapPickUpPoint {
   final int? inLine;
   final String? area;
   final bool isActive;
+  final String? organizationId;
 
   factory BootstrapPickUpPoint.fromJson(Map<String, dynamic> json) {
     return BootstrapPickUpPoint(
       id: _asInt(json['id']) ?? 0,
-      pickUpPointName: json['pickUpPointName']?.toString(),
+      pickUpPointName: _nullableString(json['pickUpPointName']),
       routeId: _asInt(json['routeId']),
       lat: _asDouble(json['lat']),
       longitude: _asDouble(json['longitude']),
       inLine: _asInt(json['inLine']),
-      area: json['area']?.toString(),
-      isActive: json['isActive'] != false,
+      area: _nullableString(json['area']),
+      isActive: _asBool(json['isActive'], defaultValue: true),
+      organizationId: _nullableString(
+        json['organizationId'] ?? json['organization_id'],
+      ),
     );
   }
 }
@@ -210,6 +220,7 @@ class BootstrapBatch {
     this.startDate,
     this.endDate,
     this.isActive = true,
+    this.organizationId,
   });
 
   final String id;
@@ -219,16 +230,20 @@ class BootstrapBatch {
   final String? startDate;
   final String? endDate;
   final bool isActive;
+  final String? organizationId;
 
   factory BootstrapBatch.fromJson(Map<String, dynamic> json) {
     return BootstrapBatch(
       id: json['id']?.toString() ?? '',
-      batchName: json['batchName']?.toString(),
-      batchTime: json['batchTime']?.toString(),
-      endTime: (json['endTime'] ?? json['end_time'])?.toString(),
-      startDate: json['startDate']?.toString(),
-      endDate: json['endDate']?.toString(),
-      isActive: json['isActive'] != false,
+      batchName: _nullableString(json['batchName']),
+      batchTime: _nullableString(json['batchTime']),
+      endTime: _nullableString(json['endTime'] ?? json['end_time']),
+      startDate: _nullableString(json['startDate']),
+      endDate: _nullableString(json['endDate']),
+      isActive: _asBool(json['isActive'], defaultValue: true),
+      organizationId: _nullableString(
+        json['organizationId'] ?? json['organization_id'],
+      ),
     );
   }
 }
@@ -242,6 +257,7 @@ class BootstrapCab {
     this.acType,
     this.trackingVehicleId,
     this.isActive = true,
+    this.organizationId,
   });
 
   final int id;
@@ -251,16 +267,20 @@ class BootstrapCab {
   final String? acType;
   final String? trackingVehicleId;
   final bool isActive;
+  final String? organizationId;
 
   factory BootstrapCab.fromJson(Map<String, dynamic> json) {
     return BootstrapCab(
       id: _asInt(json['id']) ?? 0,
-      regNumber: json['regNumber']?.toString(),
+      regNumber: _nullableString(json['regNumber']),
       capacity: _asInt(json['capacity']),
       routeId: _asInt(json['routeId']),
-      acType: json['acType']?.toString(),
-      trackingVehicleId: json['trackingVehicleId']?.toString(),
-      isActive: json['isActive'] != false,
+      acType: _nullableString(json['acType']),
+      trackingVehicleId: _nullableString(json['trackingVehicleId']),
+      isActive: _asBool(json['isActive'], defaultValue: true),
+      organizationId: _nullableString(
+        json['organizationId'] ?? json['organization_id'],
+      ),
     );
   }
 }
@@ -274,6 +294,7 @@ class BootstrapDriver {
     this.batchId,
     this.cabId,
     this.isActive = true,
+    this.organizationId,
   });
 
   final int driverId;
@@ -283,16 +304,20 @@ class BootstrapDriver {
   final String? batchId;
   final int? cabId;
   final bool isActive;
+  final String? organizationId;
 
   factory BootstrapDriver.fromJson(Map<String, dynamic> json) {
     return BootstrapDriver(
       driverId: _asInt(json['driverId'] ?? json['id']) ?? 0,
       userId: _asInt(json['userId']),
-      username: json['username']?.toString(),
-      mobileNumber: json['mobileNumber']?.toString(),
-      batchId: json['batchId']?.toString(),
+      username: _nullableString(json['username']),
+      mobileNumber: _nullableString(json['mobileNumber']),
+      batchId: _nullableString(json['batchId']),
       cabId: _asInt(json['cabId']),
-      isActive: json['isActive'] != false,
+      isActive: _asBool(json['isActive'], defaultValue: true),
+      organizationId: _nullableString(
+        json['organizationId'] ?? json['organization_id'],
+      ),
     );
   }
 }
@@ -310,6 +335,7 @@ class BootstrapCommuter {
     this.isComing = false,
     this.hasPaid,
     this.isActive = true,
+    this.organizationId,
   });
 
   final int commuterId;
@@ -323,20 +349,24 @@ class BootstrapCommuter {
   final bool isComing;
   final bool? hasPaid;
   final bool isActive;
+  final String? organizationId;
 
   factory BootstrapCommuter.fromJson(Map<String, dynamic> json) {
     return BootstrapCommuter(
       commuterId: _asInt(json['commuterId'] ?? json['id']) ?? 0,
       userId: _asInt(json['userId']),
-      username: json['username']?.toString(),
-      mobileNumber: json['mobileNumber']?.toString(),
-      userType: json['userType']?.toString(),
-      batchId: json['batchId']?.toString(),
+      username: _nullableString(json['username']),
+      mobileNumber: _nullableString(json['mobileNumber']),
+      userType: _nullableString(json['userType']),
+      batchId: _nullableString(json['batchId']),
       popId: _asInt(json['popId']),
       cabId: _asInt(json['cabId']),
       isComing: json['isComing'] == true,
       hasPaid: json['hasPaid'] == null ? null : json['hasPaid'] == true,
-      isActive: json['isActive'] != false,
+      isActive: _asBool(json['isActive'], defaultValue: true),
+      organizationId: _nullableString(
+        json['organizationId'] ?? json['organization_id'],
+      ),
     );
   }
 }
@@ -345,12 +375,35 @@ int? _asInt(dynamic value) {
   if (value == null) return null;
   if (value is int) return value;
   if (value is num) return value.toInt();
-  return int.tryParse(value.toString());
+  final text = value.toString().trim();
+  if (text.isEmpty || text.toLowerCase() == 'null') return null;
+  return int.tryParse(text);
 }
 
 double? _asDouble(dynamic value) {
   if (value == null) return null;
   if (value is double) return value;
   if (value is num) return value.toDouble();
-  return double.tryParse(value.toString());
+  final text = value.toString().trim();
+  if (text.isEmpty || text.toLowerCase() == 'null') return null;
+  return double.tryParse(text);
+}
+
+String? _nullableString(dynamic value) {
+  if (value == null) return null;
+  final text = value.toString().trim();
+  if (text.isEmpty || text.toLowerCase() == 'null' || text == 'None') {
+    return null;
+  }
+  return text;
+}
+
+bool _asBool(dynamic value, {required bool defaultValue}) {
+  if (value == null) return defaultValue;
+  if (value is bool) return value;
+  final text = value.toString().trim().toLowerCase();
+  if (text.isEmpty || text == 'null') return defaultValue;
+  if (text == 'true' || text == '1') return true;
+  if (text == 'false' || text == '0') return false;
+  return defaultValue;
 }

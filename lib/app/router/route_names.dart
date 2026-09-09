@@ -112,8 +112,9 @@ class RouteName {
   static String homeForRole(String? userType) {
     switch (userType) {
       case 'ADMIN':
+      case 'SUPER_ADMIN':
       case 'SUPERVISOR':
-        // SUPERVISOR uses the shared admin shell (filtered capabilities).
+        // SUPER_ADMIN / ADMIN / SUPERVISOR share admin shell (capabilities differ).
         return adminHomeScreen;
       case 'STAFF':
       case 'COMMUTER':
@@ -127,10 +128,12 @@ class RouteName {
   }
 
   /// Roles that land on / may open the admin shell.
-  /// ADMIN = full services; SUPERVISOR = allow-listed services only.
+  /// ADMIN + SUPER_ADMIN = full services; SUPERVISOR = allow-listed only.
   /// STAFF is not admin-like (commuter home).
   static bool isAdminLike(String? userType) =>
-      userType == 'ADMIN' || userType == 'SUPERVISOR';
+      userType == 'ADMIN' ||
+      userType == 'SUPER_ADMIN' ||
+      userType == 'SUPERVISOR';
 
   /// Roles that use commuter home + commuter-only prefixes.
   static bool isCommuterLike(String? userType) =>

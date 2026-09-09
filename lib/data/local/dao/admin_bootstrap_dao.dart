@@ -22,6 +22,8 @@ class AdminBootstrapDao {
 
     await db.transaction((txn) async {
       await txn.delete(DatabaseSchema.organizationTable);
+      await txn.delete(DatabaseSchema.subAdminOrganizationTable);
+      await txn.delete(DatabaseSchema.supervisorTable);
       await txn.delete(DatabaseSchema.routeTable);
       await txn.delete(DatabaseSchema.pickUpPointTable);
       await txn.delete(DatabaseSchema.batchTable);
@@ -54,6 +56,7 @@ class AdminBootstrapDao {
             'route_code': route.routeCode,
             'is_active': route.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': route.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -73,6 +76,7 @@ class AdminBootstrapDao {
             'area': pop.area,
             'is_active': pop.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': pop.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -91,6 +95,7 @@ class AdminBootstrapDao {
             'end_date': batch.endDate,
             'is_active': batch.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': batch.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -109,6 +114,7 @@ class AdminBootstrapDao {
             'tracking_vehicle_id': cab.trackingVehicleId,
             'is_active': cab.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': cab.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -127,6 +133,7 @@ class AdminBootstrapDao {
             'cab_id': driver.cabId,
             'is_active': driver.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': driver.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -151,6 +158,7 @@ class AdminBootstrapDao {
                 : (commuter.hasPaid! ? 1 : 0),
             'is_active': commuter.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': commuter.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );

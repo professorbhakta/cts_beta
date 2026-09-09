@@ -44,6 +44,7 @@ class AdminCapabilities {
   static Set<AdminService> forRole(String? userType) {
     switch (userType) {
       case 'ADMIN':
+      case 'SUPER_ADMIN':
         return all;
       case 'SUPERVISOR':
         return supervisorAllowList;
@@ -74,8 +75,8 @@ class AdminCapabilities {
     if (!_isAdminHome(location)) {
       final service = serviceForLocation(location);
       if (service == null) {
-        // Unknown admin prefix — ADMIN only (fail closed for non-admin).
-        return userType == 'ADMIN';
+        // Unknown admin prefix — full admins only (fail closed).
+        return userType == 'ADMIN' || userType == 'SUPER_ADMIN';
       }
       return canAccessService(userType, service);
     }
