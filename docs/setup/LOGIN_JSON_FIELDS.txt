@@ -1,0 +1,13 @@
+﻿CTS LOGIN JSON — exact camelCase field names (discuss-only / Phase A+)
+Updated: 2026-09-06
+Do NOT invent snake_case on the wire.
+
+ROOT: access, refresh, user, adminCode, organizations, supervisorOrgs, profile
+user: id(number), username, mobileNumber, email, userType, hasPaid, deviceId
+org item: id(string), orgName, isActive
+ADMIN profile: subAdminId, defaultOrganizationId, organizationCount, canManageOrgs(true)
+SUPERVISOR profile: supervisorId, defaultOrganizationId, organizationCount, canManageOrgs(false), allowList[]
+DRIVER profile: driverId, organizationId, batchId, cabId, batchName, cabRegNumber
+COMMUTER profile: commuterId, organizationId, batchId, popId, cabId, isComing, busPassNo, validFrom, validTo, batchName, popName
+STAFF profile: COMMUTER + designation, employeeType
+Phase A: organizations/supervisorOrgs/rich profile MAY be empty.

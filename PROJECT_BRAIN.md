@@ -28,7 +28,8 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 - **Quality:** `flutter analyze`, `flutter pub get`, `flutter test` after code changes
 - **Pre-push device smoke (required):** both lab devices — emulator admin + phone driver — manual login via `flutter run`; see [docs/TESTING.md](docs/TESTING.md) § Pre-push gate. Unit tests alone are not enough before `git push`.
 - **End-of-session doc sync** via [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) + [DOC_REGISTRY.md](DOC_REGISTRY.md)
-- **Git:** feature / `beta-ver` only — **do not merge or push to `main`**
+- **Git:** keep remotes `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — **do not day-work or push to `main`**
+- **This machine day sync:** FE → [`professor-cts`](https://github.com/professorbhakta/cts_beta/tree/professor-cts) · BE → [`professor-dock`](https://github.com/professorbhakta/cts-docker/tree/professor-dock) — pull on start, push on stop
 
 ---
 
@@ -81,19 +82,20 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ## 5. Current focus
 
-**Session (2026-09-09):** Admin bootstrap FE wired on `feat/admin-bootstrap` — login → `GET /user/admin-bootstrap/` → SQLite v2 (snake_case). JWT passport remains. BE endpoint may still lag.
+**Session (2026-09-09):** FE remotes cleared to **5 keepers**. Merged admin-bootstrap + return QR Phase 2 (+ `AGENTS.md`) into [`professor-cts`](https://github.com/professorbhakta/cts_beta/tree/professor-cts). Navy redesign lineage absorbed without applying navy UI (cream kept).
 
 | Piece | Detail |
 |-------|--------|
-| Admin bootstrap FE | Branch `feat/admin-bootstrap`. Feature `lib/features/admin_bootstrap/` (Provider; no screens). Schema v2 tables + DAO. Draft: [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) |
-| JWT FE | Secure storage + Bearer + refresh-on-401 (merged lineage on professor-cts) |
-| Setup drafts | [docs/setup/](docs/setup/) — ADMIN_BOOTSTRAP_DRAFT, SQLITE_TABLES_COLUMNS, SCHEMA_FINAL_DRAFT |
+| FE tip | `professor-cts` — JWT + cream + role UI + admin-bootstrap + return QR Phase 2 |
+| Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
+| Day sync | pull on start / push on stop for professor-cts |
 
-**Also open:** BE `GET /user/admin-bootstrap/` implement + device smoke · schema Phase B orgs · STEP 8
+**Also open:** Push/delete extras · FF `gb-f&d` + `p&gb-merger` · BE branch clear (cts-docker) · lab migrate · STEP 8
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | `feat/admin-bootstrap` | FE bootstrap sync after ADMIN/SUPERVISOR login |
+| `D:\cts_beta` | `professor-cts` | Day FE tip after keep-5 clear |
+| `D:\cts-docker` | `professor-dock` | Local = JWT tip (push pending) |
 
 ---
 

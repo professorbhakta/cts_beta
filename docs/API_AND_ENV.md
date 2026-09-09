@@ -1,6 +1,6 @@
 > **Doc:** docs/API_AND_ENV.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-09-07 11:15 IST
+> **Session:** JWT Bearer + secure storage; header catch-up
 
 # API and environment
 

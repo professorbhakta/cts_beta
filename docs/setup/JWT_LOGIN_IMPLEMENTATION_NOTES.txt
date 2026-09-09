@@ -1,0 +1,112 @@
+CTS JWT + Login — FROZEN TARGET (phased build)
+==============================================
+Updated: 2026-09-08
+Status: CONTRACT FROZEN as target shape
+Build: PHASED — not all fields day-one until schema exists
+Phase A IMPLEMENTED on lab — hardening deferred 2026-09-08 (see end)
+Target path: D:\cts_beta\docs\setup\JWT_LOGIN_IMPLEMENTATION_NOTES.txt
+
+------------------------------------------------------------------------
+FROZEN DECISIONS
+------------------------------------------------------------------------
+- App auth = JWT (simplejwt); Flutter Authorization: Bearer <access>
+- CSRF = Django admin/web only (not Flutter)
+- Prod HTTPS; lab HTTP OK for debug
+- Login = passport only (NOT full tables)
+- After login: branch on userType → role sync APIs later (/user/admin-bootstrap/ etc.)
+- Wire JSON = camelCase; SQLite = snake_case (F&D aligned)
+- admin-bootstrap JSON = NOT part of this freeze (separate later)
+
+------------------------------------------------------------------------
+PHASED BUILD (honest)
+------------------------------------------------------------------------
+Phase A (first green flag — JWT works with TODAY's DB):
+  REQUIRED in login response:
+    access, refresh, user { id, username, mobileNumber, email, userType, hasPaid, deviceId }
+  OPTIONAL / best-effort if already available:
+    adminCode (from existing subAdmin)
+    profile stubs for DRIVER/COMMUTER if rows exist today
+  MAY be empty arrays / null until schema lands:
+    organizations, supervisorOrgs, rich ADMIN/SUPERVISOR profile fields
+
+Phase B (after Organization / Supervisor / SubAdminOrganization schema):
+  Fill organizations, supervisorOrgs, full role profiles as in § envelopes below
+
+------------------------------------------------------------------------
+LOGIN ENVELOPE (target)
+------------------------------------------------------------------------
+{
+  "access": "<jwt>",
+  "refresh": "<jwt>",
+  "user": {
+    "id", "username", "mobileNumber", "email",
+    "userType", "hasPaid", "deviceId"
+  },
+  "adminCode": "<uuid>|null",
+  "organizations": [ { "id", "orgName", "isActive" } ],
+  "supervisorOrgs": [ { "id", "orgName", "isActive" } ],
+  "profile": { }
+}
+
+userType: ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
+
+ADMIN profile: subAdminId, defaultOrganizationId, organizationCount, canManageOrgs
+SUPERVISOR profile: supervisorId, defaultOrganizationId, organizationCount, canManageOrgs, allowList
+DRIVER profile: driverId, organizationId, batchId, cabId, batchName, cabRegNumber
+COMMUTER profile: commuterId, organizationId, batchId, popId, cabId, isComing,
+  busPassNo, validFrom, validTo, batchName, popName
+STAFF profile: COMMUTER fields + designation, employeeType
+
+------------------------------------------------------------------------
+BACKEND STEPS (when green flag)
+------------------------------------------------------------------------
+1. Read current login implementation first (don't assume)
+2. Add djangorestframework-simplejwt
+3. Settings: JWTAuthentication, AUTH_HEADER_TYPES Bearer, lifetimes TBD at implement
+4. Custom login: mobileNumber + password → envelope (Phase A fields first)
+5. Refresh: POST /user/token/refresh/
+6. Keep JWT beside old auth until Flutter flips
+
+------------------------------------------------------------------------
+FLUTTER STEPS (F&D — when green flag)
+------------------------------------------------------------------------
+1. Secure store access + refresh
+2. Bearer interceptor; refresh once on 401 then logout
+3. Route on userType
+4. Tolerate empty organizations/supervisorOrgs in Phase A
+5. Heavy tables only via later sync APIs
+
+------------------------------------------------------------------------
+NOT FROZEN HERE
+------------------------------------------------------------------------
+- Token lifetime numbers
+- admin-bootstrap / driver-home / commuter-home bodies
+- Schema migrations
+
+------------------------------------------------------------------------
+8) CONTRACT FROZEN (phased) — user agreed 2026-09-06
+------------------------------------------------------------------------
+Frozen: JWT Bearer for app; CSRF web only; login passport shape; camelCase;
+branch on userType; NO fat tables in login.
+
+Phase A (first green flag):
+  REQUIRED: access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}
+  Best-effort: adminCode + existing driver/commuter profile stubs
+  MAY be empty: organizations, supervisorOrgs, rich admin profile (until schema exists)
+  Flutter MUST tolerate empty org arrays.
+
+Phase B: fill orgs + full profiles after Organization/Supervisor/SubAdminOrganization land.
+
+NOT frozen: token lifetimes, admin-bootstrap JSON, schema migrations.
+Phase A IMPLEMENTED on lab — hardening deferred 2026-09-08 (see end).
+
+------------------------------------------------------------------------
+SENIOR REVIEW DEFERRED 2026-09-08 (BHAKTA)
+------------------------------------------------------------------------
+Verified findings; NO code change for now (small audience + easier smoke):
+- Dual session login() + JWT on every Flutter login — keep bridge
+- Access 12h / refresh 7d, ROTATE_REFRESH_TOKENS False, no blacklist — keep
+- build_profile STAFF not explicit; STUDENT leftover — keep for now
+- Silent print on session login errors; serailizer typo; logout session-only — keep
+- Cleanup commit 076abd7 (gitignore/pyc/xlsx) optional push to PR #1 later
+Revisit before VPS/prod or wider rollout. Details: docs/setup/DISCUSSION_STATUS.md

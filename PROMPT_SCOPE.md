@@ -39,16 +39,16 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | JWT Phase A + cream on professor-cts; docs/setup is restart path |
-| P2 | Role / surface? | yes | Extend return_batch + batches UI; mirror morning Phase 2 |
-| P3 | Non-negotiables? | yes | No new REST unless needed; Provider; locked Q1–Q4 product |
-| P4 | Both ends? | yes | `cts-docker` return pool + `cts_beta` return screens |
+| P1 | Goal clear? | yes | Clear cts_beta remotes to 5 keepers; merge extras → professor-cts |
+| P2 | Role / surface? | yes | FE tip professor-cts; keep main / gb-f&d / p&gb-merger / beta-ver |
+| P3 | Non-negotiables? | yes | No day-push main; cream kept over navy; Provider |
+| P4 | Both ends? | yes | FE clear first; cts-docker clear next |
 | P5 | R10 isComing? | yes | Return confirm ≠ isComing; End clears via trip_end scope |
-| P6 | Git branch? | yes | FE lanes: professor-cts / gb-f&d / p&gb-merger; keep beta-ver; never day-work on main |
-| P7 | Docs policy? | yes | Update API_CONTRACTS + batches README; handoff in D2D_PHASE3_CONTINUE_PROMPT |
-| P8 | Out of scope? | yes | Do not redo morning Phase 1+2; STEP 8 only on **go** |
+| P6 | Git branch? | yes | Keep only 5 FE remotes after delete |
+| P7 | Docs policy? | yes | BRANCH_HOLD_NOTES + brain/scope/registry |
+| P8 | Out of scope? | yes | No VPS main; STEP 8 only on **go** |
 
-**This prompt:** Admin bootstrap FE + JWT luggage sync — start [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) · [JWT notes](docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt).
+**This prompt:** FE keep-5 branch clear — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md).
 
 ---
 
@@ -57,8 +57,9 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
 | 0 | Q-jwt-phase-a | JWT Phase A FE smoke (`flutter run`) + docs header sync | **active** | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
-| 0a | Q-admin-bootstrap | FE admin-bootstrap wired; BE endpoint + device smoke | **active** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
-| 0b | Q-docs-setup | Keep `docs/setup` + brain/scope/registry labels current | **active** | DOC_REGISTRY · setup/README |
+| 0a | Q-admin-bootstrap | FE admin-bootstrap on professor-cts; lab smoke | **active** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
+| 0b | Q-docs-setup | Keep-5 branch map + brain/scope/registry | **active** | [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
+| 0c | Q-be-branch-clear | Mirror keep-5 clear on cts-docker | **next** | BRANCH_HOLD_NOTES |
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
@@ -88,6 +89,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 09:50 | FE keep-5: merge admin-bootstrap + return-qr + AGENTS into professor-cts; navy ours-merge; delete extras | `cts_beta` |
 | 2026-09-08 23:50 | Return QR Phase 2 wired: GET boarding_qr?trip=return + POST boarding_scan; return_trip_id; cream nits | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:45 | Return QR LOCKED: End archives RCList→history; trip keeps archive ID; FE no archive UI | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:43 | Return QR docs: RCList = user-ID list on return trip log row (like CList); archive-on-end = BE/history only | `cts_beta` / `professor-cts` |

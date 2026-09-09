@@ -1,0 +1,7 @@
+﻿CTS User roles — FINAL DRAFT
+Updated: 2026-09-06
+userType: ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
+SUPERVISOR allow-list: Batch, Cab, Route, PoP, DTODLOG day-ops, Commuter
+Org: Organization + SubAdminOrganization (separate from subAdmin)
+adminCode kept; organizationId added
+hasPaid on User; no personType; no UserType table
