@@ -322,7 +322,7 @@ class FeatureListWireframe extends StatelessWidget {
           const SizedBox(height: 8),
           SearchBarWidget(hintText: 'Search…', onSearchChanged: _noop),
           const Expanded(
-            child: /* Consumer: loading SkeletonList | error StatusMessage | list ModernListCard + Slidable */,
+            child: /* Consumer: loading CatalogListSkeleton | error StatusMessage | list ModernListCard + Slidable */,
           ),
         ],
       ),

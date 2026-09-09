@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify — return scan disables boarding_scan join_waiting
+> **Updated:** 2026-09-09 20:15 IST
+> **Session:** returnTripLogId naming + return scan allowJoinWaiting false
 
 # Batches Feature — CRUD, Running, Return REST
 

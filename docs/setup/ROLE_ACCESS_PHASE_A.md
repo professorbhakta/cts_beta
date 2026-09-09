@@ -1,16 +1,18 @@
 ﻿> **Doc:** docs/setup/ROLE_ACCESS_PHASE_A.md
-> **Updated:** 2026-09-08
-> **Session:** PR #5 role UI — no separate Supervisor screen
+> **Updated:** 2026-09-09 20:15 IST
+> **Session:** + SUPER_ADMIN (full shell + web /void/)
 > **Owner:** F&D (+ Sat docs eye)
 
 # Role access (Phase A UI)
 
 ## Decision
-**No separate Supervisor app/screen.** SUPERVISOR uses the **shared admin shell** with capability filtering.
+**No separate Supervisor app/screen.** SUPERVISOR uses the **shared admin shell** with capability filtering.  
+**No separate Flutter web admin yet** — SUPER_ADMIN uses Django `/void/` for web org/schema ops.
 
 | userType | Home | Notes |
-|----------|------|--------|
+|----------|------|-------|
 | ADMIN | Admin home | Full `AdminService` catalog |
+| SUPER_ADMIN | Admin home | Same full catalog as ADMIN; **web** = Django `/void/` |
 | SUPERVISOR | Admin home (filtered) | Allow-list only |
 | STAFF | Commuter home | Same UX as COMMUTER; **not** admin-like |
 | COMMUTER | Commuter home | Unchanged |

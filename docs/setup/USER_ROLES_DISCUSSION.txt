@@ -1,6 +1,9 @@
 ﻿CTS User roles — FINAL DRAFT
-Updated: 2026-09-06
-userType: ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
+Updated: 2026-09-09 20:15 IST
+userType: ADMIN | SUPER_ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
+ADMIN / SUPER_ADMIN: full AdminService catalog (mobile shell)
+SUPER_ADMIN web portal: Django /void/ (is_staff + is_superuser) until Flutter web ships
+Lab SUPER_ADMIN: 9000000000 / password
 SUPERVISOR allow-list: Batch, Cab, Route, PoP, DTODLOG day-ops, Commuter
 Org: Organization + SubAdminOrganization (separate from subAdmin)
 adminCode kept; organizationId added

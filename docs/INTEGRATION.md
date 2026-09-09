@@ -1,6 +1,6 @@
 > **Doc:** docs/INTEGRATION.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** Role homes — STAFF commuter; SUPERVISOR allow-list pointer
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** + SUPER_ADMIN (full shell; web /void/)
 
 # Integration — Full-Stack Overview
 
@@ -53,6 +53,7 @@ Separate git repos. Backend runs via Docker Desktop; Flutter connects over LAN H
 ## User types
 
 - `ADMIN` — full admin shell + all `AdminService` tiles / routes
+- `SUPER_ADMIN` — same full shell as ADMIN on mobile; **web portal** = Django `/void/` (`is_staff` + `is_superuser`) until Flutter web ships
 - `SUPERVISOR` — same admin shell home; Phase A allow-list only (`batch`, `cab`, `route`, `pop`, `driver`, `d2d`, `commuter`) — see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md)
 - `STAFF` — **commuter home/UX** (not admin-like; no admin CRUD)
 - `DRIVER` — runs live D2D log; confirms pickups

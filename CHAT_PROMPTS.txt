@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-09-09 19:50 IST
-> **Session:** SUPER_ADMIN web portal + FE schema v3 harden
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg
 ================================================================================
 QUICK START (minimal) — FE match BE tip
 ================================================================================
@@ -85,9 +85,10 @@ MIDDLE CONTEXT
 
 Current focus:
   - **Done:** lab migrate + API probe + SUPER_ADMIN web=/void/ + FE null-safe + SQLite v3
+    + Dart names `returnTripLogId`/`tripLeg` + docs owners synced (2026-09-09 20:30)
   - **Next:** Device smoke JWT/bootstrap/return QR · STEP 8 on **go**
   - Phase B org fill still empty on wire; junction tables ready in FE SQLite
-  - BE tip professor-dock; FE tip professor-cts
+  - BE tip professor-dock `98ebc66`; FE tip professor-cts `0524868`
 
 Story split (stable):
   - 05 = product story/locks · FLOWS = journeys · 07 = smoke · DISCUSSION_LOG = pointer

@@ -1,6 +1,6 @@
 > **Doc:** docs/BUILD_AND_RELEASE.md
-> **Updated:** 2026-08-14 19:55 IST
-> **Session:** Auth security wave — release has no cleartext
+> **Updated:** 2026-09-09 20:10 IST
+> **Session:** Store id → tech.abhimaarg.cts (domain abhimaarg.tech)
 
 # Build and release
 
@@ -82,10 +82,12 @@ Before store release:
 
 ## iOS checklist
 
-- Open `ios/Runner.xcworkspace` in Xcode
-- Set team / bundle id
-- Configure ATS if using non-HTTPS API (dev only; production should use HTTPS/WSS)
-- `flutter build ios` or archive via Xcode
+- Open `ios/Runner.xcworkspace` in Xcode (Flutter 3.44+ uses Swift Package Manager; no `Podfile` required)
+- Set team / signing; **store id (both platforms):** `tech.abhimaarg.cts` (from domain `abhimaarg.tech`)
+- `Info.plist` must include `NSCameraUsageDescription` + `NSLocationWhenInUseUsageDescription` (permission_handler SPM auto-enables from these keys)
+- Lab HTTP: `NSAllowsLocalNetworking` is set; production `.env` should still use HTTPS/WSS
+- `LSApplicationQueriesSchemes`: `tel`, `https`, `http` for `url_launcher`
+- `flutter build ios` or archive via Xcode (macOS only)
 
 ---
 

@@ -72,7 +72,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.cts.app</string>
+			<string>tech.abhimaarg.cts</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>cts</string>
@@ -81,7 +81,24 @@
 	</array>
 	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
+	<!-- Camera: odometer photo + boarding QR (mobile_scanner / image_picker) -->
 	<key>NSCameraUsageDescription</key>
 	<string>CTS needs the camera to photograph the odometer and scan boarding QR codes.</string>
+	<!-- Location: requested at splash (permission_handler); SPM enables Permission.location from this key -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CTS uses your location while the app is open to support trip and pickup features.</string>
+	<!-- url_launcher: tel: dialer + https/http tracking links (iOS 9+ canLaunchUrl) -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>https</string>
+		<string>http</string>
+	</array>
+	<!-- LAN Docker HTTP/WS for lab (parity with Android debug cleartext). Production should use https/wss. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

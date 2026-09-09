@@ -165,34 +165,43 @@ class AppManager {
     AppClass.userType = 0;
   }
 
+  /// Runtime permissions used by packages/UI on each platform.
+  ///
+  /// Android: phone, notifications, location, camera.
+  /// iOS: notifications, location, camera (phone has no equivalent prompt).
   Future getPermissions() async {
+    final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
     if (kDebugMode) {
+      if (isAndroid) {
+        debugPrint(
+          'Permission.phone.isGranted ${await Permission.phone.isGranted}',
+        );
+      }
       debugPrint(
-        "await Permission.phone.isGranted ${await Permission.phone.isGranted}",
+        'Permission.notification.isGranted ${await Permission.notification.isGranted}',
       );
       debugPrint(
-        "await Permission.notification.isGranted ${await Permission.notification.isGranted}",
+        'Permission.location.isGranted ${await Permission.location.isGranted}',
       );
       debugPrint(
-        "await Permission.location.isGranted ${await Permission.location.isGranted}",
-      );
-      debugPrint(
-        "await Permission.camera.isGranted ${await Permission.camera.isGranted}",
+        'Permission.camera.isGranted ${await Permission.camera.isGranted}',
       );
     }
 
-    if (!await Permission.phone.isGranted) {
+    // READ_PHONE_STATE / device_info — Android only.
+    if (isAndroid && !await Permission.phone.isGranted) {
       await Permission.phone.request();
     }
+    // firebase_messaging (held) + OS alerts — both platforms.
     if (!await Permission.notification.isGranted) {
       await Permission.notification.request();
     }
-
+    // When-in-use location — both (Info.plist + Android manifest).
     if (!await Permission.location.isGranted) {
       await Permission.location.request();
     }
-
-    // Client pack: odometer photo + boarding QR scan (camera only).
+    // image_picker + mobile_scanner (odometer + boarding QR) — both.
     if (!await Permission.camera.isGranted) {
       await Permission.camera.request();
     }

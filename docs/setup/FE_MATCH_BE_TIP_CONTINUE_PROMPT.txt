@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
-> **Updated:** 2026-09-09 10:20 IST
-> **Session:** FE match pass — hardened for agent flow (no blockers)
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg + SQLite v3
 ================================================================================
 COPY FROM HERE → paste as new chat START (FE match BE tip)
 ================================================================================
@@ -47,21 +47,24 @@ Backend tip (`professor-dock`) includes (vs older `main`):
    (access, refresh, user, adminCode, organizations[], supervisorOrgs[], profile).
 
 2) **Org schema migrations** — Organization, SubAdminOrganization, Supervisor;
-   organizationId on resources; adminCode kept. (Lab migrate may still be pending.)
+   organizationId on resources; adminCode kept. (Lab migrate **applied**; org **rows** may be 0.)
 
-3) **Admin bootstrap** — GET /user/admin-bootstrap/ (ADMIN/SUPERVISOR, Bearer).
+3) **Admin bootstrap** — GET /user/admin-bootstrap/ (ADMIN / SUPER_ADMIN / SUPERVISOR, Bearer).
 
 4) **Return trip log** — ReturnTripLog + going/return board archives;
    DTODLOG return_* odometer fields moved onto ReturnTripLog;
    GET boarding_qr/?trip=return + scan via token; End archives RCList (no FE archive UI).
 
-5) **Settings / deps / gitignore** hygiene for JWT lab.
+5) **SUPER_ADMIN** — userType for Django `/void/` web portal (is_staff + is_superuser);
+   mobile shell = full ADMIN catalog.
 
-FE tip already merged: JWT + cream UI + role homes + admin_bootstrap feature +
-return QR Phase 2 + AGENTS.md. Remotes keep-5 only.
+6) **Settings / deps / gitignore** hygiene for JWT lab.
 
-Draft lag OK: ADMIN_BOOTSTRAP_DRAFT / SCHEMA_FINAL_DRAFT headers may still say
-"pre-migrate". Prefer **API_CONTRACTS + code on tip** as wire truth; use drafts as shape hints.
+FE tip already merged: JWT + cream UI + role homes + SUPER_ADMIN shell + admin_bootstrap
++ return QR Phase 2 + SQLite schema v3 + Dart `returnTripLogId`/`tripLeg` + AGENTS.md.
+Remotes keep-5 only.
+
+Draft lag OK: prefer **API_CONTRACTS + code on tip** as wire truth; use drafts as shape hints.
 
 ---
 
@@ -93,14 +96,15 @@ Produce a **match report**, then **close FE gaps** against BE tip contracts/code
 ### Auth / login JSON
 [ ] ApiUrl + Dio: Bearer on non-login/refresh; refresh-on-401 once then /signIn
 [ ] Login parse keys exactly per LOGIN_JSON_FIELDS.txt (camelCase wire only)
-[ ] userType homes: ADMIN / SUPERVISOR / DRIVER / COMMUTER / STAFF
-    (STAFF → commuter UX; SUPERVISOR → admin shell + AdminService allow-list)
+[ ] userType homes: ADMIN / SUPER_ADMIN / SUPERVISOR / DRIVER / COMMUTER / STAFF
+    (STAFF → commuter UX; SUPERVISOR → admin shell + AdminService allow-list;
+     SUPER_ADMIN → full shell; web org ops → Django /void/)
 [ ] Empty organizations[] / supervisorOrgs[] / stub profile still valid (Phase A)
 
 ### Admin bootstrap → SQLite
-[ ] After ADMIN/SUPERVISOR JWT login, GET /user/admin-bootstrap/ runs
+[ ] After ADMIN / SUPER_ADMIN / SUPERVISOR JWT login, GET /user/admin-bootstrap/ soft-runs
 [ ] Response shape vs ADMIN_BOOTSTRAP_DRAFT.md + API_CONTRACTS § Auth — Admin bootstrap
-[ ] camelCase → snake_case SQLite schema v2 (SQLITE_TABLES_COLUMNS.txt)
+[ ] camelCase → snake_case SQLite schema **v3** (SQLITE_TABLES_COLUMNS.txt)
 [ ] No UI screens required for bootstrap; Provider/repository only
 [ ] 403 path for non-admin roles is safe (no crash)
 [ ] Existing `lib/data/local/` SQLite DAO path is OK (legacy local DB) — do not
@@ -108,14 +112,16 @@ Produce a **match report**, then **close FE gaps** against BE tip contracts/code
 
 ### Org schema awareness (Phase A vs B)
 [ ] FE tolerates null/missing routeCode, acType, area, organizations[]
-[ ] Do **not** require org rows for login/bootstrap until lab migrate + Phase B
+[ ] Do **not** require org rows for login/bootstrap until Phase B fill
 [ ] If BE already returns org fields after migrate: map into SQLite organization /
     sub_admin_organization / supervisor tables without inventing wire keys
 
 ### Return QR / return trip log
 [ ] ApiUrl.boardingQr(batchId, trip: 'return') → ?trip=return
-[ ] Mint response: handle return_trip_id; live RCList = user-ID list
+[ ] Mint: wire `return_trip_id` → Dart `returnTripLogId`; wire `trip` → Dart `tripLeg`
+[ ] Scan/odometer store `returnTripLogId` + `tripLeg` for later consumers
 [ ] Scan uses same boarding_scan; leg is in token (no extra FE body field)
+[ ] Return scan: `allowJoinWaiting: false` (waiting = return_batch/add_commuter)
 [ ] End trip: no FE archive UI; archives are BE-only
 [ ] Odometer return leg uses ReturnTripLog fields (not old DTODLOG return_*)
 [ ] Contracts: RETURN_TRIP_API_GAP.md · RETURN_QR_UI_PREP.md · batches README
@@ -127,6 +133,7 @@ Produce a **match report**, then **close FE gaps** against BE tip contracts/code
 ### Routing / roles
 [ ] ROUTING_AND_AUTH.md homes + AdminService allow-list still match code
 [ ] Return boarding QR/scan routes gated correctly by role
+[ ] isAdminLike includes ADMIN | SUPER_ADMIN | SUPERVISOR
 
 ---
 
@@ -161,10 +168,10 @@ Produce a **match report**, then **close FE gaps** against BE tip contracts/code
 2. FE_FIX commits on professor-cts (push day lane per push policy above)
 3. Doc headers + API_CONTRACTS / feature README touch-ups for real deltas
 4. Update CHAT_PROMPTS MIDDLE CONTEXT
-5. Pasteable next START (lab migrate smoke or STEP 8 on go)
+5. Pasteable next START (device smoke or STEP 8 on go)
 
 ================================================================================
 END COPY
 ================================================================================
 
-After paste: fill PROMPT_SCOPE §1 for this chat; keep §2 — Q-fe-match-be **active**.
+After paste: fill PROMPT_SCOPE §1 for this chat; keep §2 — Q-fe-match-be **done**.

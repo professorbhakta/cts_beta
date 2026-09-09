@@ -1,7 +1,8 @@
 ﻿# Branch notes — keep-5 remotes (docs-first)
 
-Updated: 2026-09-09
+Updated: 2026-09-09 20:30 IST
 Owner: F&D
+Session: tip SHAs — FE `0524868` · BE `98ebc66`
 
 ## This-machine auto-sync (locked)
 
@@ -22,7 +23,7 @@ Still never auto-push `main`. No force-push.
 | Branch | Role |
 |--------|------|
 | `main` | Default / do not day-work |
-| `professor-cts` | PC day tip (sync hub) |
+| `professor-cts` | PC day tip (sync hub) @ `0524868` |
 | `gb-f&d` | Cloud Cursor lane |
 | `p&gb-merger` | Integrate desk |
 | `beta-ver` | **Dormant** recovery — do not day-work; local checkout drift OK; tip is `professor-cts` |
@@ -40,10 +41,10 @@ Remote list: [cts_beta/branches](https://github.com/professorbhakta/cts_beta/bra
 
 | Branch | Role |
 |--------|------|
-| `main` | VPS / release only (hold until lab migrate OK) |
-| `professor-dock` | PC lab day tip (sync hub) @ `46c413e` |
-| `gb-dock` | Cloud Cursor lane @ `46c413e` |
-| `p-gb-merger` | Integrate desk @ `46c413e` |
+| `main` | VPS / release only (hold until fuller device smoke OK) |
+| `professor-dock` | PC lab day tip (sync hub) @ `98ebc66` (SUPER_ADMIN) |
+| `gb-dock` | Cloud Cursor lane — align when asked |
+| `p-gb-merger` | Integrate desk — align when asked |
 
 **Cleared into day tip + deleted (2026-09-09):**
 - `cursor/phase-a-jwt-login-9a34` — JWT Phase A (already at tip)

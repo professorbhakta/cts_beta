@@ -1,4 +1,4 @@
-package com.example.cts_beta
+package tech.abhimaarg.cts
 
 import io.flutter.embedding.android.FlutterActivity
 

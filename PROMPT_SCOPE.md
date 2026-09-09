@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 19:55 IST
-> **Session:** Store id com.example.ctsBeta + package permissions (after SUPER_ADMIN)
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg owners
 
 # PROMPT SCOPE — CTS
 
@@ -60,16 +60,16 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | Permissions for packages + one store id + safe cleanup |
-| P2 | Role / surface? | yes | Android/iOS manifests + app_class permissions |
-| P3 | Non-negotiables? | yes | Provider; no day-push main; no new md files |
-| P4 | Both ends? | n/a | FE platform only |
+| P1 | Goal clear? | yes | Sync docs/md owners for SUPER_ADMIN + returnTripLogId/tripLeg + v3 |
+| P2 | Role / surface? | yes | Docs only (no code) |
+| P3 | Non-negotiables? | yes | No new md files; update owners only |
+| P4 | Both ends? | yes | FE docs + BE tip SHA note |
 | P5 | R10 isComing? | n/a | Not this task |
 | P6 | Git branch? | yes | `professor-cts` |
-| P7 | Docs policy? | yes | brain/scope/registry/BUILD_AND_RELEASE |
-| P8 | Out of scope? | yes | No STEP 8; no FCM wire; no real domain store id yet |
+| P7 | Docs policy? | yes | brain/scope/registry/DISCUSSION_* |
+| P8 | Out of scope? | yes | No STEP 8; no code FE_FIX |
 
-**This prompt:** Unify store id; lock package permissions; confirm cleanup safe.
+**This prompt:** Update docs that need SUPER_ADMIN / clearer Dart names / tip SHAs.
 
 ---
 
@@ -111,8 +111,9 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 20:30 | Docs sync: SUPER_ADMIN + `returnTripLogId`/`tripLeg` + SQLite v3 owners; tip SHAs | `cts_beta` |
+| 2026-09-09 20:10 | Store id → `tech.abhimaarg.cts` (domain abhimaarg.tech) both platforms | `cts_beta` |
 | 2026-09-09 19:50 | SUPER_ADMIN web /void/; FE null-safe + return_trip_id vars; SQLite v3; stale return_* docs scrubbed | both |
-| 2026-09-09 19:55 | Store id → `com.example.ctsBeta` both platforms; perms/queries; cleanup verified unused | `cts_beta` |
 | 2026-09-09 19:30 | Platform audit: iOS Info.plist location+ATS+url schemes; Android tel/https queries; debug APK OK | `cts_beta` |
 | 2026-09-09 19:10 | Lab migrate confirmed applied; API probe login/refresh/bootstrap/return QR+scan PASS | both |
 | 2026-09-09 18:55 | FE match re-verify vs dock source: merge e750; FE_FIX return scan no boarding_scan join_waiting; migrate DEFER (Docker down) | `cts_beta` |

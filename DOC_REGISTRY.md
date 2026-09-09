@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 19:55 IST
-> **Session:** Store id unify + package permissions (after SUPER_ADMIN)
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** Docs sync SUPER_ADMIN + returnTripLogId/tripLeg
 
 # Documentation Registry
 
@@ -28,16 +28,16 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 19:50 IST | SUPER_ADMIN + schema v3 |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 19:55 IST | store id `com.example.ctsBeta` |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 19:55 IST | store id + perms change log |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 19:55 IST | store id END |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 19:10 IST | lab migrate OK; device smoke next |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 20:30 IST | docs sync MIDDLE |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 20:30 IST | tip SHAs + Dart names |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 20:30 IST | docs sync log |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 20:30 IST | this sync |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 20:30 IST | naming + SUPER_ADMIN pointer |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-09-09 19:50 IST | DTODLOG return_* scrubbed |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
 | [docs/client_req/05-open-decisions.md](docs/client_req/05-open-decisions.md) | 2026-08-26 07:58 IST | + snapshot link |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 23:50 IST | Return QR Phase 2 mint/scan |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-09 20:30 IST | SUPER_ADMIN + returnTripLogId note |
 
 ---
 
@@ -73,29 +73,33 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 08:20 IST | FE wired (now on professor-cts) |
-| [docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | 2026-09-09 10:10 IST | FE match vs BE tip — next chat START |
-| [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 10:05 IST | FE keep-5 + BE keep-4 remotes |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 19:10 IST | lab migrate + API probe PASS |
-| [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 10:10 IST | Index FE match continue prompt |
+| [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 20:15 IST | SUPER_ADMIN + SQLite v3 |
+| [docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | 2026-09-09 20:30 IST | checklist: SUPER_ADMIN + returnTripLogId |
+| [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 20:30 IST | tip SHAs FE `0524868` / BE `98ebc66` |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 20:30 IST | tip `98ebc66` / FE `0524868` |
+| [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 20:30 IST | SUPER_ADMIN + bootstrap index |
 | [docs/setup/CLIENT_RETURN_QR_NOTE.md](docs/setup/CLIENT_RETURN_QR_NOTE.md) | 2026-09-08 20:20 IST | Client: return QR = morning boarding |
-| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 23:50 IST | Phase 2 wired |
-| [docs/setup/RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md) | 2026-09-08 23:50 IST | Dock green-flag contract |
+| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-09 20:10 IST | returnTripLogId / tripLeg |
+| [docs/setup/RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md) | 2026-09-09 20:15 IST | FE agent name map |
+| [docs/setup/ROLE_ACCESS_PHASE_A.md](docs/setup/ROLE_ACCESS_PHASE_A.md) | 2026-09-09 20:15 IST | SUPER_ADMIN + /void/ |
+| [docs/setup/LOGIN_JSON_FIELDS.txt](docs/setup/LOGIN_JSON_FIELDS.txt) | 2026-09-09 20:15 IST | SUPER_ADMIN profile |
+| [docs/setup/SQLITE_TABLES_COLUMNS.txt](docs/setup/SQLITE_TABLES_COLUMNS.txt) | 2026-09-09 19:50 IST | schema v3 |
+| [docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt](docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt) | 2026-09-09 20:15 IST | SUPER_ADMIN userType |
 | [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-29 10:02 IST | Target tree aligned to disk; folder law |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-29 10:03 IST | Layer mermaid flow names; no folder jargon |
-| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-09-08 12:45 IST | role homes pointer → ROUTING_AND_AUTH |
-| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-08 15:18 IST | returnBoardingQr / returnBoardingScan prefixes |
-| [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-08 12:45 IST | user types split |
+| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-09-09 20:30 IST | SUPER_ADMIN QA login |
+| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-09 19:50 IST | SUPER_ADMIN + /void/ |
+| [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-09 20:30 IST | SUPER_ADMIN role line |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-09 18:10 IST | Login profile stub + bootstrap soft-fail |
-| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-31 13:45 IST | return waiting Redis key |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 23:50 IST | Return QR Phase 2 mint/scan |
-| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-08 23:50 IST | getBoardingQr({trip}) |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-09 20:15 IST | SUPER_ADMIN + returnTripLogId |
+| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-09-09 19:50 IST | DTODLOG return_* scrubbed |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-09 20:30 IST | SUPER_ADMIN + returnTripLogId |
+| [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-09 20:15 IST | returnTripLogId naming |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-09 20:15 IST | returnTripLogId / tripLeg |
 | [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-08 23:50 IST | return QR Phase 2 done |
 | [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
 | [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
-| [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-09-09 19:55 IST | one store id `com.example.ctsBeta` both platforms |
+| [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-09-09 20:10 IST | store id `tech.abhimaarg.cts` |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 23:50 IST | return QR Phase 2 live |
 | [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 23:50 IST | return QR Phase 2 |
 | [docs/README.md](docs/README.md) | 2026-09-08 15:18 IST | + docs/setup folder |

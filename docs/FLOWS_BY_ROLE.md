@@ -1,6 +1,6 @@
 > **Doc:** docs/FLOWS_BY_ROLE.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** SUPER_ADMIN shell note + returnTripLogId agent name
 
 # Flows by role
 
@@ -50,7 +50,7 @@ sequenceDiagram
 
 **Home:** `/adminHomeScreen` — Dashboard. Accounts are created here (CRUD); no public Sign Up.
 
-**Roles on this shell:** `ADMIN` (all tiles) and `SUPERVISOR` (allow-listed services only — see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) `AdminService`). `STAFF` uses **commuter** home, not this shell.
+**Roles on this shell:** `ADMIN` / `SUPER_ADMIN` (all tiles) and `SUPERVISOR` (allow-listed services only — see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) `AdminService`). `STAFF` uses **commuter** home, not this shell. Web org ops for SUPER_ADMIN: Django `/void/` (no Flutter web admin yet).
 
 ```mermaid
 flowchart TD
@@ -119,7 +119,7 @@ Back / leave screen = **disconnect only** — trip stays `isActive` until STOP.
 | 3 | **BOARDING QR** → `/returnBoardingQr/:batchId` (UI prep — stub; visual parity; binds later to return trip log / RCList) |
 | 4 | **End return** (driver FAB; admin monitors) — clears confirmed + waiting |
 
-**Return QR (Phase 2):** same UX as morning; mint `GET …/boarding_qr/<batch>/?trip=return`; scan `POST …/boarding_scan/` (token leg=return). Live **RCList** = user-ID list on return trip log row. On End, BE archives — **FE no archive UI**. [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md).
+**Return QR (Phase 2):** same UX as morning; mint `GET …/boarding_qr/<batch>/?trip=return`; scan `POST …/boarding_scan/` (token leg=return; **no** `join_waiting` on this path). Live **RCList** = user-ID list on return trip log row. FE Dart: `returnTripLogId` ← `return_trip_id`, `tripLeg` ← `trip`. On End, BE archives — **FE no archive UI**. [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md).
 
 ```mermaid
 flowchart LR

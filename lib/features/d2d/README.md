@@ -1,6 +1,6 @@
 > **Doc:** lib/features/d2d/README.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Boarding QR trip= query for return Phase 2
+> **Updated:** 2026-09-09 20:15 IST
+> **Session:** returnTripLogId / tripLeg agent names; return scan no join_waiting
 
 # D2D Feature — Live WebSocket
 
@@ -19,12 +19,12 @@ Feature owner for morning door-to-door live trips (Flutter UI + consumer notes).
 | Role policy | `models/d2d_channel_role_policy.dart` |
 | Provider | `providers/d2d_channel_provider.dart` |
 | Status + client pack API | `repositories/d2d_repository.dart` (+ impl) |
-| Odometer / boarding models | `models/odometer_models.dart`, `models/boarding_models.dart` |
+| Odometer / boarding models | `models/odometer_models.dart`, `models/boarding_models.dart` — Dart `returnTripLogId`←`return_trip_id`, `tripLeg`←`trip` |
 | Error copy | `lib/api/client_pack_error_messages.dart` |
 | Camera + feedback helpers | `helpers/odometer_camera_helper.dart`, `helpers/client_pack_feedback.dart` |
 | Odometer sheet | `widgets/odometer_km_sheet.dart` — start/end KM + camera photo |
-| Driver boarding QR | `widgets/boarding_qr_panel.dart` — wakelock + auto-refresh; optional `trip` (`return` \| `morning`) |
-| Commuter scan | `screens/boarding_scan_screen.dart` — `RouteName.boardingScan` (+ return title via batches wrapper) |
+| Driver boarding QR | `widgets/boarding_qr_panel.dart` — wakelock + auto-refresh; optional `trip` query (`return` \| `morning`) |
+| Commuter scan | `screens/boarding_scan_screen.dart` — morning may `join_waiting`; return wrapper sets `allowJoinWaiting: false` |
 | Admin screen | `screens/d2d_channel.dart` (**no** QR) — **Remaining** first; **Already IN** collapsed |
 | Driver screen | `screens/d2d_log_screen.dart` — start KM → QR+CList → end KM → STOP |
 | Live widgets | `widgets/d2d_live_widgets.dart` — includes `D2dAlreadyInSection` |

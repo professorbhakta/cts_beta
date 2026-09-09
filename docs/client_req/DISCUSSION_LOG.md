@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-09-09 19:10 IST
-> **Session:** Lab migrate OK — device smoke / STEP 8 next
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId naming
 
 # Client req — discussion log
 
@@ -18,11 +18,11 @@
 
 | Flag | Value |
 |------|--------|
-| **STATUS** | `MULTI_TRACK` — lab migrate **done**; STEP 8 waits on **go** |
+| **STATUS** | `MULTI_TRACK` — lab migrate **done**; docs owners synced; STEP 8 waits on **go** |
 | **FOCUS** | Device smoke JWT/bootstrap/return QR → STEP 8 on go |
 | **FOCUS_DOC** | [DISCUSSION_STATUS](../setup/DISCUSSION_STATUS.md) · [TESTING.md](../TESTING.md) |
-| **LAST_CHAT** | 2026-09-09 19:10 IST |
-| **LAST_SUMMARY** | Lab migrate already applied on professor-dock. API probe: admin login/refresh/bootstrap OK; driver return QR mint+commuter scan OK (`return_trip_id`, RCList). |
+| **LAST_CHAT** | 2026-09-09 20:30 IST |
+| **LAST_SUMMARY** | Docs synced for SUPER_ADMIN (web=/void/), Dart `returnTripLogId`/`tripLeg`, SQLite v3. Lab API probe earlier PASS; FE tip `0524868`, BE tip `98ebc66`. |
 | **NEXT_SUGGEST** | `flutter run` device smoke · STEP 8 only on **go** · Phase B org fill optional |
 | **BLOCKED_ON** | STEP 8 needs **go**; device smoke needs human on emulator/phone |
 | **LOCKED** | return QR UX=morning; mint `?trip=return`; shared boarding_scan board-only on return; live RCList=user-ID list; End→history (BE); FE no archive UI |

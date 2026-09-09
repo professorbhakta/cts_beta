@@ -1,7 +1,6 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** + role homes pointer → ROUTING_AND_AUTH
-
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** + SUPER_ADMIN QA login for /void/
 # Local Development Setup
 
 ## Flutter `.env` (`D:\cts_beta\.env`)
@@ -185,10 +184,9 @@ Copy from `.env.example`. Key vars: `SECRET_KEY`, `DB_HOST=postgres`, `DB_NAME`,
 | Dump (Parul) | `9898927941` | Original `postgres/dumps20.sql` |
 | Dummy QA | `7069036462` / `password` | `seed/load_cts_dummy.py` |
 
-QA logins (password `password`): Driver 1 `9876544111`, UG1 `9876556701`. Phone cold-start of a stale APK can crash; reinstall with `flutter run -d 5f36af49`.
+QA logins (password `password`): Admin `7069036462`, Driver 1 `9876544111`, UG1 `9876556701`, SUPER_ADMIN (Django `/void/` + mobile full shell) `9000000000`. Phone cold-start of a stale APK can crash; reinstall with `flutter run -d 5f36af49`.
 
-**User roles / post-login homes:** see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) (`ADMIN` full admin shell; `SUPERVISOR` filtered `AdminService` allow-list; `STAFF` → commuter home; JWT profile stub allowList on login).
-
+**User roles / post-login homes:** see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) (`ADMIN` / `SUPER_ADMIN` full admin shell; `SUPERVISOR` filtered `AdminService` allow-list; `STAFF` → commuter home; web org ops → `/void/` as SUPER_ADMIN).
 ## Troubleshooting
 
 | Symptom | Check |

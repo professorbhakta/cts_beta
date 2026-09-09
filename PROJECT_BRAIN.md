@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 19:55 IST
-> **Session:** Store id `com.example.ctsBeta` + perms (after SUPER_ADMIN / platform audit)
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg owners
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -10,7 +10,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 1. What this is (30 sec)
 
-**CTS (Commuter Transport System)** — cross-platform Flutter app (iOS/Android) for **Admin**, **Supervisor** (filtered admin shell), **Staff** (commuter UX), **Driver**, and **Commuter** roles. Manages morning D2D live trips (WebSocket), evening return batches (REST), routes, POPs, cabs, drivers, and commuters. Role homes + `AdminService` allow-list: [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md).
+**CTS (Commuter Transport System)** — cross-platform Flutter app (iOS/Android) for **Admin**, **Super Admin** (full shell; web org ops via Django `/void/`), **Supervisor** (filtered admin shell), **Staff** (commuter UX), **Driver**, and **Commuter** roles. Manages morning D2D live trips (WebSocket), evening return batches (REST), routes, POPs, cabs, drivers, and commuters. Role homes + `AdminService` allow-list: [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md).
 
 | Repo | Path | Role |
 |------|------|------|
@@ -104,12 +104,13 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ## 5. Current focus
 
-**Session (2026-09-09):** SUPER_ADMIN web portal (Django `/void/`) + FE null-safe + SQLite v3. Also: platform Android/iOS audit OK; lab migrate + API probe PASS.
+**Session (2026-09-09):** Docs owners synced for SUPER_ADMIN + Dart `returnTripLogId`/`tripLeg` + SQLite v3. Code already on tip; device smoke still open.
 
 | Piece | Detail |
 |-------|--------|
-| FE tip | `professor-cts` — JWT + bootstrap + return QR + schema v3 + SUPER_ADMIN shell + **store id `com.example.ctsBeta`** |
-| BE tip | `professor-dock` `46c413e` — SUPER_ADMIN type; lab `9000000000` for `/void/` |
+| FE tip | `professor-cts` `0524868` — JWT + bootstrap + return QR + schema v3 + SUPER_ADMIN shell + store id `tech.abhimaarg.cts` |
+| BE tip | `professor-dock` `98ebc66` — SUPER_ADMIN; lab `9000000000` for `/void/` |
+| Agent names | Dart `returnTripLogId` ← wire `return_trip_id`; `tripLeg` ← wire `trip` |
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
 | Day sync | pull on start / push on stop for professor-cts |
 
@@ -117,8 +118,8 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | `professor-cts` | Day FE tip (keep-5 remotes) |
-| `D:\cts-docker` | `professor-dock` | Day BE tip `46c413e` (keep-4 remotes; `main` held) |
+| `D:\cts_beta` | `professor-cts` | Day FE tip `0524868` (keep-5 remotes) |
+| `D:\cts-docker` | `professor-dock` | Day BE tip `98ebc66` (keep-4 remotes; `main` held) |
 
 ---
 
@@ -141,8 +142,8 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 - **JWT Phase A** device `flutter run` smoke + Admin password reset
 - **Client pack STEP 8** device smoke (user go)
-- Schema / SQLite role tables — discuss-only until green flag ([docs/setup/](docs/setup/))
-- **Return QR Phase 2 wired** — mint `?trip=return` + shared `boarding_scan`; live **RCList** = ID list on return trip row; **On End** BE archives — **FE no archive UI** — [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md)
+- Phase B: fill login/bootstrap `organizations` from DB (SQLite v3 tables ready)
+- **Return QR Phase 2 wired** — mint `?trip=return` + shared `boarding_scan`; Dart `returnTripLogId`/`tripLeg`; **FE no archive UI** — [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) · [GAP](docs/setup/RETURN_TRIP_API_GAP.md)
 - Parked UI: return-leg KM, admin org odometer list, unboard UI
 - **Decide next:** Confirm “API every time” (26d-discuss)
 - Batch-wise Mark all coming (`CommuterListScreen`)
@@ -179,6 +180,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | **Batch** | Scheduled route run (morning or evening) with assigned driver/cab |
 | **isComing** | Commuter flagged as riding today (queue eligibility; not return intent) |
 | **Return batch** | Evening REST-only trip — confirm/remove commuters, end trip |
+| **returnTripLogId** | Dart name for wire `return_trip_id` (ReturnTripLog PK / RCList row) |
+| **tripLeg** | Dart name for wire `trip` (`morning` \| `return`) |
+| **SUPER_ADMIN** | Full mobile admin shell; web org portal = Django `/void/` |
 
 ---
 
@@ -186,9 +190,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-09 | Store id + package perms | Kept `com.example.ctsBeta`; dropped `cts_beta`; share/network queries; unused asset cleanup OK |
-| 2026-09-09 | SUPER_ADMIN + FE harden | Web=/void/; null-safe wire; SQLite v3; return_trip_id stored |
-| 2026-09-09 | Android/iOS platform audit | iOS location+ATS+url schemes; Android tel/https queries; debug APK OK |
+| 2026-09-09 | Docs sync | Owners updated: SUPER_ADMIN, `returnTripLogId`/`tripLeg`, SQLite v3, tip SHAs |
+| 2026-09-09 | Store id domain | `tech.abhimaarg.cts` from `abhimaarg.tech` (Android+iOS+linux) |
+| 2026-09-09 | SUPER_ADMIN + FE harden | Web=/void/; null-safe wire; SQLite v3; clearer Dart names |
 
 ---
 

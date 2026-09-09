@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-09 19:50 IST
-> **Session:** SUPER_ADMIN web portal + FE null-safe + SQLite v3
+> **Updated:** 2026-09-09 20:30 IST
+> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg + tip SHAs
 
 # Dock / CTS discussion status (single path)
 
@@ -9,20 +9,20 @@
 ## Live now (code)
 | Piece | Branch / PR | Notes |
 |-------|-------------|--------|
-| Backend tip | `professor-dock` / `gb-dock` / `p-gb-merger` @ `46c413e` | Pushed; remotes = **4 lanes only** (+ day-lane hooks) |
-| JWT Phase A | in tip | Lab smoked earlier; hardening deferred |
-| Org schema | in tip | Migrations **applied** on lab; `Organization` table empty (Phase B fill still open) |
-| Return trip log | in tip | Tables applied; QR `?trip=return` probed OK (`return_trip_id`) |
-| Admin bootstrap BE | in tip (`admin_bootstrap.py`) | `GET /user/admin-bootstrap/` |
-| Flutter tip | `professor-cts` (= `gb-f&d` / `p&gb-merger`) | Admin-bootstrap + return QR Phase 2 merged; remotes = **5 lanes only** |
+| Backend tip | `professor-dock` / `gb-dock` / `p-gb-merger` @ `98ebc66` | SUPER_ADMIN; remotes = **4 lanes only** |
+| JWT Phase A | in tip | Lab API probed; hardening deferred |
+| Org schema | in tip | Migrations **applied** on lab; `Organization` rows still 0 (Phase B) |
+| Return trip log | in tip | Tables applied; QR `?trip=return` probed OK (wire `return_trip_id`) |
+| Admin bootstrap BE | in tip | `GET /user/admin-bootstrap/` — ADMIN / SUPER_ADMIN / SUPERVISOR |
+| Flutter tip | `professor-cts` @ `0524868` | SUPER_ADMIN shell; SQLite v3; Dart `returnTripLogId`/`tripLeg`; keep-5 remotes |
 
 ## Backend git lanes (cts-docker)
 | Lane | Role | Status |
 |------|------|--------|
-| `main` | VPS / release only | **Hold** — do not FF until lab migrate OK (`ef632cd`) |
-| `professor-dock` | PC lab day tip | = tip `46c413e` |
-| `gb-dock` | Cloud Cursor | = tip `46c413e` |
-| `p-gb-merger` | Integrate desk → later PR to main | = tip `46c413e` |
+| `main` | VPS / release only | **Hold** — do not FF until fuller device smoke OK |
+| `professor-dock` | PC lab day tip | = tip `98ebc66` |
+| `gb-dock` | Cloud Cursor | align when asked |
+| `p-gb-merger` | Integrate desk → later PR to main | align when asked |
 
 **Cleared + deleted:** `cursor/phase-a-jwt-login-9a34`, `feat/return-trip-log`, `cursor/cts-schema-org-migrate-d32b`.
 
@@ -42,10 +42,11 @@ Branch map: [BRANCH_HOLD_NOTES.md](./BRANCH_HOLD_NOTES.md)
 ## Endpoints (Phase A + bootstrap)
 - `POST /user/login` `{mobileNumber,password}` → access, refresh, user, adminCode, organizations[], supervisorOrgs[], profile
 - `POST /user/refresh` `{refresh}` → `{access}`
-- `GET /user/admin-bootstrap/` — Admin/Supervisor one-shot sync (Bearer)
+- `GET /user/admin-bootstrap/` — ADMIN / SUPER_ADMIN / SUPERVISOR one-shot sync (Bearer)
 - Header: `Authorization: Bearer <access>`
 - CSRF: web/admin only; Flutter uses JWT
 - Lab host: `http://127.0.0.1/` — phone/emulator: confirm current LAN IP
+- Lab SUPER_ADMIN (web `/void/`): `9000000000` / `password`
 
 ## Senior review (2026-09-08) — DEFERRED
 Verified on branch; BHAKTA chose keep current behavior for small audience + easy smoke:
@@ -69,7 +70,7 @@ Verified on branch; BHAKTA chose keep current behavior for small audience + easy
 
 ## FE match (2026-09-09)
 Cloud: gap table + FE_FIX (flat/nested profile, bootstrap soft-fail) — merged to `professor-cts` via `cursor/fe-match-be-tip-e750`.
-Local re-verify vs live `professor-dock` source (`46c413e`): login/refresh/bootstrap/return QR mint+scan **MATCH**. Extra **FE_FIX**: return scan disables `boarding_scan` `join_waiting` (BE return path boards only; waiting = `return_batch/add_commuter`).
+Local re-verify vs live `professor-dock` source (then `46c413e`; tip now `98ebc66` + SUPER_ADMIN): login/refresh/bootstrap/return QR mint+scan **MATCH**. Extra **FE_FIX**: return scan disables `boarding_scan` `join_waiting` (BE return path boards only; waiting = `return_batch/add_commuter`).
 
 ## Lab migrate + API probe (2026-09-09 19:10)
 - `migrate --plan` → **No planned migration operations** (org + return-trip already applied via tip/entrypoint).
@@ -81,7 +82,7 @@ Local re-verify vs live `professor-dock` source (`46c413e`): login/refresh/boots
 ## SUPER_ADMIN + FE harden (2026-09-09 19:50)
 - No Flutter web admin app yet → **Django `/void/`** is the web portal for org/schema ops.
 - Lab **SUPER_ADMIN** `9000000000` / `password` (`is_staff` + `is_superuser`); FE treats like ADMIN (full shell).
-- FE: null/empty wire fields tolerated; `return_trip_id`/`trip` stored on scan+odometer; SQLite schema **v3**.
+- FE: null/empty wire fields tolerated; Dart **`returnTripLogId`** ← `return_trip_id`, **`tripLeg`** ← `trip` on mint/scan/odometer; SQLite schema **v3**.
 - Stale DTODLOG `return_*` docs scrubbed.
 
 ## Next
@@ -100,11 +101,11 @@ After every discussion or implementation: bump **Updated** + **Session** on touc
 - Live: RCList user-ID list on trip.
 - On End: archive table; trip keeps archive ID pointer.
 
-### Column draft / DTODLOG return_*
-- See `docs/setup/RETURN_TRIP_COLUMNS_DRAFT.md` — **done** and merged into tip.
+### Column draft / return odometer
+- Return odo on `ReturnTripLog` — see `RETURN_TRIP_COLUMNS_DRAFT.md` (**done**). DTODLOG `return_*` **removed**.
 
 ### Admin bootstrap
-- Draft: `docs/setup/ADMIN_BOOTSTRAP_DRAFT.md` — **BE + FE on day tips**.
+- Draft: `docs/setup/ADMIN_BOOTSTRAP_DRAFT.md` — **BE + FE on day tips** (SUPER_ADMIN included; SQLite v3).
 
 ## BHAKTA decisions (2026-09-09)
 - Schema local: **green flag go** — Organization, SubAdminOrganization, Supervisor + organizationId (keep adminCode).

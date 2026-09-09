@@ -101,11 +101,11 @@ Evaluated on navigation and when `SessionAuthNotifier` notifies (login/logout).
 | Otherwise | Allow |
 
 **Notes:**
-- `isAdminLike` = `ADMIN` \| `SUPERVISOR` only.
+- `isAdminLike` = `ADMIN` \| `SUPER_ADMIN` \| `SUPERVISOR`.
 - `isCommuterLike` = `COMMUTER` \| `STAFF`.
 - SUPERVISOR blocked from a non-allow-listed admin path redirects to admin home.
 - STAFF blocked from admin paths redirects to commuter home.
-- ADMIN/SUPERVISOR may still open driver-only prefixes (monitor); they are redirected away from treating those as home.
+- ADMIN / SUPER_ADMIN / SUPERVISOR may still open driver-only prefixes (monitor); they are redirected away from treating those as home.
 
 ---
 
@@ -131,7 +131,7 @@ Return QR UI prep (no new BE): [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI
 | Role | Profile keys applied |
 |------|----------------------|
 | `COMMUTER` / `STAFF` / `DRIVER` | `batchId`, `cabId`; `isComing` for commuter-like; nested `adminCode` |
-| `ADMIN` / `SUPERVISOR` | profile `id` → `adminCode` |
+| `ADMIN` / `SUPER_ADMIN` / `SUPERVISOR` | `subAdminId` / `supervisorId` / profile `id` → `adminCode` when envelope empty |
 
 Empty org arrays / null profile stubs remain valid Phase A login responses ([API_CONTRACTS.md](./API_CONTRACTS.md)).
 
@@ -169,7 +169,7 @@ Fallback builders redirect to safe screens if params missing (e.g. empty batchId
 `SessionAuthNotifier`:
 
 - `loggedIn` — `isLogin` **and** a non-empty JWT `access` token in `SessionManager` (FlutterSecureStorage)
-- `userType` — `ADMIN` | `SUPERVISOR` | `STAFF` | `DRIVER` | `COMMUTER` (from login `user.userType`; reconciled with `GET /user/<id>` on startup via `refreshSessionFromServer()`)
+- `userType` — `ADMIN` | `SUPER_ADMIN` | `SUPERVISOR` | `STAFF` | `DRIVER` | `COMMUTER` (from login `user.userType`; reconciled with `GET /user/<id>` on startup via `refreshSessionFromServer()`)
 - `ready` — first refresh completed
 
 Router `refreshListenable: authNotifier` re-runs redirects when session changes. HTTP **401** (after failed JWT refresh) and D2D WS **4401/4403** call `createSessionInvalidatedHandler`: clear local session, error snackbar, explicit `context.go(/signIn)`.

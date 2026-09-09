@@ -1,17 +1,19 @@
 > **Doc:** docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
-> **Updated:** 2026-09-09
-> **Session:** Admin bootstrap JSON draft (Phase A = today’s DB; Phase B = org schema)
+> **Updated:** 2026-09-09 20:15 IST
+> **Session:** + SUPER_ADMIN; SQLite schema v3; null fields OK
 
 # GET /user/admin-bootstrap/ — draft body
 
 **Auth:** `Authorization: Bearer <access>`  
-**Who:** `userType` ADMIN or SUPERVISOR only (403 others)  
+**Who:** `userType` ADMIN, SUPER_ADMIN, or SUPERVISOR only (403 others)  
 **Idea:** login = passport; this call = luggage (one sync for Admin app)
 
-Scope today (Phase A on tip — org **migrations exist** on `professor-dock`; lab migrate may still be pending):
+Scope today (Phase A on tip — org **migrations applied** on lab; org **rows may still be empty**):
 - Filter by caller’s `adminCode` (subAdmin id) like existing APIs
-- `organizations` / rich org fields may be `[]` until migrate + Phase B fill
+- `organizations` / rich org fields may be `[]` until Phase B fill
+- `routeCode` / `area` / `acType` / `organizationId` may be **null** — FE stores NULL, does not crash
 - SUPERVISOR: same shape; only orgs/batches they may touch (when Supervisor rows exist; else same as admin for dummy)
+- SUPER_ADMIN: same luggage as ADMIN; web org ops also via Django `/void/`
 
 ---
 
@@ -24,7 +26,7 @@ Scope today (Phase A on tip — org **migrations exist** on `professor-dock`; la
   "adminCode": "<uuid>|null",
   "organizations": [],
   "enums": {
-    "userType": ["ADMIN", "SUPERVISOR", "DRIVER", "COMMUTER", "STAFF"],
+    "userType": ["ADMIN", "SUPER_ADMIN", "SUPERVISOR", "DRIVER", "COMMUTER", "STAFF"],
     "acType": ["AC", "NON_AC"]
   },
   "routes": [
@@ -118,9 +120,8 @@ Scope today (Phase A on tip — org **migrations exist** on `professor-dock`; la
 - Tell F&D keys for device tables
 
 ## FE wired (2026-09-09 IST)
-- Branch: `feat/admin-bootstrap`
 - Feature: `lib/features/admin_bootstrap/` (models + repositories + providers; **no screens**)
 - Endpoint const: `ApiUrl.adminBootstrapUrl` = `user/admin-bootstrap/`
-- Flow: JWT login (ADMIN/SUPERVISOR) → `AdminBootstrapRepository.sync()` → SQLite snake_case tables (schema v2)
-- Empty `organizations` / nulls tolerated Phase A
+- Flow: JWT login (ADMIN / SUPER_ADMIN / SUPERVISOR) → soft-fail `AdminBootstrapRepository.sync()` → SQLite snake_case (**schema v3**)
+- Empty `organizations` / null `routeCode`/`area`/`acType`/`organizationId` tolerated Phase A
 - Logout clears bootstrap tables via `AppDatabase.clearAll()`

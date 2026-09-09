@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify vs dock — return scan join_waiting morning-only
+> **Updated:** 2026-09-09 20:15 IST
+> **Session:** SUPER_ADMIN + returnTripLogId/tripLeg + SQLite v3 docs
 
 # API Contracts — Backend ↔ Flutter
 
@@ -33,7 +33,7 @@ Wire keys are **camelCase only**. CSRF is **not** used for Flutter JWT calls.
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `POST /user/login` body `{mobileNumber, password}` | `ApiUrl.loginUrl` | Response: `{access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}, adminCode, organizations[], supervisorOrgs[], profile}`. Access + refresh stored in FlutterSecureStorage. Empty org arrays / null profile stubs are valid. Profile assignment ids may be **flat** or nested maps; ADMIN/SUPERVISOR prefer `subAdminId`/`supervisorId` when envelope `adminCode` empty. ADMIN/SUPERVISOR then soft-call bootstrap (login still succeeds if luggage fails). |
+| `POST /user/login` body `{mobileNumber, password}` | `ApiUrl.loginUrl` | Response: `{access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}, adminCode, organizations[], supervisorOrgs[], profile}`. Access + refresh stored in FlutterSecureStorage. Empty org arrays / null profile stubs are valid. Profile assignment ids may be **flat** or nested maps; ADMIN/SUPER_ADMIN/SUPERVISOR prefer `subAdminId`/`supervisorId` when envelope `adminCode` empty. ADMIN/SUPER_ADMIN/SUPERVISOR then soft-call bootstrap (login still succeeds if luggage fails). `userType` includes **SUPER_ADMIN**. |
 | `POST /user/refresh` body `{refresh}` → `{access}` | `ApiUrl.refreshUrl` | Dio interceptor: on **401**, one refresh attempt then retry original; if refresh fails → clear tokens + go `/signIn` |
 | Later APIs | Dio interceptor | `Authorization: Bearer <access>` on non-login/refresh requests |
 | `POST /user/logout` | `ApiUrl.logoutUrl` | Client always clears JWT + prefs, even if POST fails |
@@ -344,8 +344,8 @@ Redis return waiting key: `d2d:return_waiting:{YYYY-MM-DD}:{batch_id}` — flush
 |--------|------|------|---------|
 | GET | /user/admin-bootstrap/ | Bearer access | status, generatedAt, adminCode, organizations[], enums, routes[], pickUpPoints[], batches[], cabs[], drivers[], commuters[], today |
 
-- ADMIN or SUPERVISOR only (403 otherwise).
+- ADMIN, SUPER_ADMIN, or SUPERVISOR only (403 otherwise).
 - Scoped by caller's subAdmin adminCode when present.
-- Phase A: organizations may be []; routeCode / acType / area may be null until schema migrate.
-- FE maps camelCase → snake_case SQLite (schema v2) after JWT login.
+- Phase A: organizations may be []; routeCode / acType / area / organizationId may be null — FE tolerates.
+- FE maps camelCase → snake_case SQLite (**schema v3**: org junction tables + `organization_id`) after JWT login.
 
