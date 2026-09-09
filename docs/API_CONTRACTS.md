@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-09 09:50 IST
-> **Session:** Admin bootstrap + return QR Phase 2 on professor-cts
+> **Updated:** 2026-09-09 10:10 IST
+> **Session:** FE match prompt — bootstrap note points at professor-cts
 
 # API Contracts — Backend ↔ Flutter
 
@@ -338,7 +338,7 @@ Redis return waiting key: `d2d:return_waiting:{YYYY-MM-DD}:{batch_id}` — flush
 ## Auth — Admin bootstrap (2026-09-09)
 
 > Detail: [setup/ADMIN_BOOTSTRAP_DRAFT.md](./setup/ADMIN_BOOTSTRAP_DRAFT.md)
-> FE: wired on branch `feat/admin-bootstrap` (`lib/features/admin_bootstrap/`) — no UI screens.
+> FE: wired on `professor-cts` (`lib/features/admin_bootstrap/`) — no UI screens.
 
 | Method | Path | Auth | Success |
 |--------|------|------|---------|

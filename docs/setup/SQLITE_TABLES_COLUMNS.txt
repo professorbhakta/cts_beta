@@ -1,6 +1,6 @@
 CTS SQLite — exact table + column names (discuss-only)
 Updated: 2026-09-09
-Status: FE Phase A bootstrap tables on feat/admin-bootstrap (schema v2); Phase B orgs still discuss
+Status: FE Phase A bootstrap tables on professor-cts (schema v2); Phase B orgs after lab migrate
 Prefer snake_case in SQLite; map from API camelCase on sync.
 See also: SCHEMA_FINAL_DRAFT.txt, LOGIN_JSON_FIELDS.txt, JWT_LOGIN_IMPLEMENTATION_NOTES.txt
 

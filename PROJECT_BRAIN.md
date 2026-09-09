@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 10:05 IST
-> **Session:** Keep-lane tidy — docs + day-lane hooks on professor tips
+> **Updated:** 2026-09-09 10:10 IST
+> **Session:** FE match-BE-tip continue prompt ready
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -90,7 +90,9 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
 | Day sync | pull on start / push on stop for professor-cts |
 
-**Also open:** Lab migrate on BE tip · device smoke · STEP 8 · Phase B orgs
+**Next chat:** [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) — verify/fix FE vs BE tip.
+
+**Also open:** Lab migrate on BE tip · FE match pass · device smoke · STEP 8 · Phase B orgs
 
 | Repo | Branch | Tip |
 |------|--------|-----|

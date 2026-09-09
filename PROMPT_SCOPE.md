@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 10:05 IST
-> **Session:** Keep-lane tidy — docs + day-lane hooks pushed
+> **Updated:** 2026-09-09 10:10 IST
+> **Session:** FE match-BE-tip continue prompt ready
 
 # PROMPT SCOPE — CTS
 
@@ -48,7 +48,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 | P7 | Docs policy? | yes | BRANCH_HOLD_NOTES + brain/scope/registry |
 | P8 | Out of scope? | yes | No VPS main; STEP 8 only on **go** |
 
-**This prompt:** FE keep-5 branch clear — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md).
+**This prompt:** Prepare / run FE match vs BE tip — [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt).
 
 ---
 
@@ -56,10 +56,10 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
-| 0 | Q-jwt-phase-a | JWT Phase A FE smoke (`flutter run`) + docs header sync | **active** | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
-| 0a | Q-admin-bootstrap | FE admin-bootstrap on professor-cts; lab smoke | **active** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
-| 0b | Q-docs-setup | Keep-5 branch map + brain/scope/registry | **active** | [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
-| 0c | Q-be-branch-clear | Mirror keep-5 clear on cts-docker | **next** | BRANCH_HOLD_NOTES |
+| 0 | Q-fe-match-be | FE match pass vs BE tip (schema/API/bootstrap/return QR) | **active** | [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) |
+| 0a | Q-jwt-phase-a | JWT Phase A FE smoke (`flutter run`) + docs header sync | **next** | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
+| 0b | Q-admin-bootstrap | FE admin-bootstrap on professor-cts; lab smoke after migrate | **next** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
+| 0c | Q-docs-setup | Keep-lane map + brain/scope/registry | open | [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
@@ -89,6 +89,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 10:10 | Added FE_MATCH_BE_TIP_CONTINUE_PROMPT — FE check/match vs BE tip schema+API | `cts_beta` docs |
 | 2026-09-09 10:05 | Keep-lane tidy: push FE docs + day-lane hooks; reset local beta-ver; BE hooks on professor-dock | both |
 | 2026-09-09 09:50 | FE keep-5: merge admin-bootstrap + return-qr + AGENTS into professor-cts; navy ours-merge; delete extras | `cts_beta` |
 | 2026-09-08 23:50 | Return QR Phase 2 wired: GET boarding_qr?trip=return + POST boarding_scan; return_trip_id; cream nits | `cts_beta` / `professor-cts` |

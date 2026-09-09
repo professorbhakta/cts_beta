@@ -1,0 +1,142 @@
+> **Doc:** docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
+> **Updated:** 2026-09-09 10:10 IST
+> **Session:** FE match pass vs BE tip (schema + API + bootstrap + return QR)
+================================================================================
+COPY FROM HERE → paste as new chat START (FE match BE tip)
+================================================================================
+
+@PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+@docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
+@docs/setup/DISCUSSION_STATUS.md
+@docs/setup/BRANCH_HOLD_NOTES.md
+@docs/API_CONTRACTS.md
+@docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
+@docs/setup/LOGIN_JSON_FIELDS.txt
+@docs/setup/SQLITE_TABLES_COLUMNS.txt
+@docs/setup/RETURN_TRIP_API_GAP.md
+@docs/setup/RETURN_QR_UI_PREP.md
+@docs/ROUTING_AND_AUTH.md
+@lib/features/batches/README.md
+@lib/features/d2d/README.md
+@docs/LOCAL_DEV.md
+@docs/TESTING.md
+
+Task: **Frontend match pass** — verify `professor-cts` against backend tip `professor-dock`,
+list gaps, then fix FE (or flag true BE gaps) so schema/API/UI stay aligned.
+
+REPOS:
+  FE  D:\cts_beta     branch **professor-cts** (day lane; also = gb-f&d / p&gb-merger)
+  BE  D:\cts-docker   branch **professor-dock** @ tip (also = gb-dock / p-gb-merger)
+  Do **not** day-work or push `main` on either repo.
+
+---
+
+## Context — what BE tip already has (do NOT re-implement on BE)
+
+Backend tip includes (vs older `main`):
+
+1) **JWT Phase A** — POST /user/login, POST /user/refresh, Bearer; passport payload
+   (access, refresh, user, adminCode, organizations[], supervisorOrgs[], profile).
+
+2) **Org schema migrations** — Organization, SubAdminOrganization, Supervisor;
+   organizationId on resources; adminCode kept.
+
+3) **Admin bootstrap** — GET /user/admin-bootstrap/ (ADMIN/SUPERVISOR, Bearer).
+
+4) **Return trip log** — ReturnTripLog + going/return board archives;
+   DTODLOG return_* odometer fields moved onto ReturnTripLog;
+   GET boarding_qr/?trip=return + scan via token; End archives RCList (no FE archive UI).
+
+5) **Settings / deps / gitignore** hygiene for JWT lab.
+
+FE tip already merged: JWT + cream UI + role homes + admin_bootstrap feature +
+return QR Phase 2 + AGENTS.md. Remotes keep-5 only.
+
+---
+
+## Goal (this chat)
+
+Produce a **match report**, then **close FE gaps** against live BE tip.
+
+Order of work:
+  A. Confirm branches + lab BE is on professor-dock (migrated if possible).
+  B. Contract checklist (below) — code read + optional lab smoke.
+  C. Write gap table: MATCH | FE_FIX | BE_FIX | DEFER.
+  D. Implement FE_FIX items only (Provider, module layout, no new REST unless required).
+  E. Update API_CONTRACTS + feature READMEs + DISCUSSION_STATUS for anything that changed.
+  F. END sync (brain §5/§9, PROMPT_SCOPE, DOC_REGISTRY). Push day lane when commits land.
+
+---
+
+## Checklist — FE must match
+
+### Auth / login JSON
+[ ] ApiUrl + Dio: Bearer on non-login/refresh; refresh-on-401 once then /signIn
+[ ] Login parse keys exactly per LOGIN_JSON_FIELDS.txt (camelCase wire only)
+[ ] userType homes: ADMIN / SUPERVISOR / DRIVER / COMMUTER / STAFF
+    (STAFF → commuter UX; SUPERVISOR → admin shell + AdminService allow-list)
+[ ] Empty organizations[] / supervisorOrgs[] / stub profile still valid (Phase A)
+
+### Admin bootstrap → SQLite
+[ ] After ADMIN/SUPERVISOR JWT login, GET /user/admin-bootstrap/ runs
+[ ] Response shape vs ADMIN_BOOTSTRAP_DRAFT.md + API_CONTRACTS § Auth — Admin bootstrap
+[ ] camelCase → snake_case SQLite schema v2 (SQLITE_TABLES_COLUMNS.txt)
+[ ] No UI screens required for bootstrap; Provider/repository only
+[ ] 403 path for non-admin roles is safe (no crash)
+
+### Org schema awareness (Phase A vs B)
+[ ] FE tolerates null/missing routeCode, acType, area, organizations[]
+[ ] Do **not** require org rows for login/bootstrap smoke until lab migrate + Phase B
+[ ] If BE already returns org fields after migrate: map into SQLite organization /
+    sub_admin_organization / supervisor tables without inventing wire keys
+
+### Return QR / return trip log
+[ ] ApiUrl.boardingQr(batchId, trip: 'return') → ?trip=return
+[ ] Mint response: handle return_trip_id; live RCList = user-ID list
+[ ] Scan uses same boarding_scan; leg is in token (no extra FE body field)
+[ ] End trip: no FE archive UI; archives are BE-only
+[ ] Odometer return leg uses ReturnTripLog fields (not old DTODLOG return_*)
+[ ] Contracts: RETURN_TRIP_API_GAP.md · RETURN_QR_UI_PREP.md · batches README
+
+### Morning D2D (regression — do not break)
+[ ] Morning boarding_qr / boarding_scan / waiting join_waiting still work
+[ ] WS ended-trip guard + isTripEnded still honored
+
+### Routing / roles
+[ ] ROUTING_AND_AUTH.md homes + AdminService allow-list still match code
+[ ] Return boarding QR/scan routes gated correctly by role
+
+---
+
+## Out of scope (unless user says go)
+- Client pack STEP 8 full device smoke (needs explicit **go**)
+- VPS / merge BE tip → main
+- Senior JWT hardening
+- Re-opening return-trip product decisions
+- Navy UI redesign (cream is tip)
+- New .md/.txt except updates to owners already listed
+
+---
+
+## Non-negotiables
+- State: Provider only (no Riverpod)
+- Layout: features/.../screens|providers|models|repositories — no presentation/domain/data
+- Git: FE day lane professor-cts; BE professor-dock; never day-push main
+- Prefer extend existing APIs; do not invent camelCase beyond contracts
+- flutter analyze + flutter test after FE code changes
+- Device smoke before push only when user requires pre-push gate
+
+---
+
+## Deliverables
+1. Gap table in chat (and bump DISCUSSION_STATUS "Still open" if needed)
+2. FE fixes committed on professor-cts (push day lane)
+3. Doc headers + API_CONTRACTS / feature README touch-ups for real deltas
+4. Pasteable next START if migrate/smoke is the following step
+
+================================================================================
+END COPY
+================================================================================
+
+After paste: fill PROMPT_SCOPE §1 for this chat; keep §2 queue — set Q-fe-match-be active.

@@ -66,6 +66,7 @@ Verified on branch; BHAKTA chose keep current behavior for small audience + easy
 - Client pack STEP 8 device smoke (on **go**)
 
 ## Next
+- **FE match pass** — paste [FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](./FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt)
 - Lab migrate org + return-trip migrations on `professor-dock`
 - Device smoke JWT + admin-bootstrap + return QR
 - Client lock: return / evening trip **same QR boarding as morning** — see `CLIENT_RETURN_QR_NOTE.md`

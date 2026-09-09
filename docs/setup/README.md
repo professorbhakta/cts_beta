@@ -1,11 +1,12 @@
 > **Doc:** docs/setup/README.md
 > **Updated:** 2026-09-09
-> **Session:** BE tip consolidated; branch map in BRANCH_HOLD_NOTES
+> **Session:** FE match-BE-tip continue prompt added
 
 # Setup / ops / schema drafts
 
 | Doc | Role |
 |-----|------|
+| [FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](./FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | **Next FE chat** — match professor-cts to BE tip |
 | [DISCUSSION_STATUS.md](./DISCUSSION_STATUS.md) | **Start here** - what's live vs draft vs next |
 | [CLIENT_RETURN_QR_NOTE.md](./CLIENT_RETURN_QR_NOTE.md) | Client lock: return QR = morning boarding (discuss only) |
 | [RETURN_TRIP_COLUMNS_DRAFT.md](./RETURN_TRIP_COLUMNS_DRAFT.md) | Return trip log + archive column draft |

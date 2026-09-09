@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 10:05 IST
-> **Session:** Keep-lane tidy — docs + day-lane hooks
+> **Updated:** 2026-09-09 10:10 IST
+> **Session:** FE match-BE-tip continue prompt
 
 # Documentation Registry
 
@@ -74,9 +74,10 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
 | [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 08:20 IST | FE wired (now on professor-cts) |
+| [docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | 2026-09-09 10:10 IST | FE match vs BE tip — next chat START |
 | [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 10:05 IST | FE keep-5 + BE keep-4 remotes |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 10:05 IST | Lanes cleared; lab migrate still open |
-| [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 09:25 IST | Index + branch consolidation |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 10:10 IST | Next = FE match prompt |
+| [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 10:10 IST | Index FE match continue prompt |
 | [docs/setup/CLIENT_RETURN_QR_NOTE.md](docs/setup/CLIENT_RETURN_QR_NOTE.md) | 2026-09-08 20:20 IST | Client: return QR = morning boarding |
 | [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 23:50 IST | Phase 2 wired |
 | [docs/setup/RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md) | 2026-09-08 23:50 IST | Dock green-flag contract |
