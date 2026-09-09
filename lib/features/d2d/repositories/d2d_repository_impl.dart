@@ -159,9 +159,14 @@ class D2dRepositoryImpl implements D2dRepository {
   }
 
   @override
-  Future<ApiResult<BoardingQrPayload>> getBoardingQr(String batchId) async {
+  Future<ApiResult<BoardingQrPayload>> getBoardingQr(
+    String batchId, {
+    String? trip,
+  }) async {
     try {
-      final response = await _apiService.getApi(ApiUrl.boardingQr(batchId));
+      final response = await _apiService.getApi(
+        ApiUrl.boardingQr(batchId, trip: trip),
+      );
       if (response is! Map) {
         return ApiResult.failure(
           const ApiFailure(

@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 08:20 IST
-> **Session:** Admin bootstrap FE wired (Phase A) — STAFF→commuter; SUPERVISOR AdminService allow-list
+> **Updated:** 2026-09-09 09:50 IST
+> **Session:** FE branch clear — extras merged into professor-cts (keep 5)
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -117,6 +117,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 - **JWT Phase A** device `flutter run` smoke + Admin password reset
 - **Client pack STEP 8** device smoke (user go)
 - Schema / SQLite role tables — discuss-only until green flag ([docs/setup/](docs/setup/))
+- **Return QR Phase 2 wired** — mint `?trip=return` + shared `boarding_scan`; live **RCList** = ID list on return trip row; **On End** BE archives — **FE no archive UI** — [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md)
 - Parked UI: return-leg KM, admin org odometer list, unboard UI
 - **Decide next:** Confirm “API every time” (26d-discuss)
 - Batch-wise Mark all coming (`CommuterListScreen`)
@@ -160,9 +161,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-07 | JWT Phase A + docs path | FE PR #4 cream merged; lab login/refresh OK; brain/registry/scope + `docs/setup` synced |
-| 2026-08-31 | D2D Phase 3 | Return waiting Redis + join_waiting + FCFS; FE Waiting line |
-| 2026-08-31 | D2D Phase 1+2 | Morning cross-batch QR, waiting pool + FCFS |
+| 2026-09-09 | FE branch clear | Merged admin-bootstrap + return QR into professor-cts; keep only 5 remotes |
+| 2026-09-08 | Return QR Phase 2 | Wired GET boarding_qr?trip=return + POST boarding_scan; return_trip_id |
+| 2026-09-07 | JWT Phase A + docs path | FE PR #4 cream merged; lab login/refresh OK; `docs/setup` synced |
 
 ---
 

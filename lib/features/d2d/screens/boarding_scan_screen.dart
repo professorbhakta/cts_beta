@@ -6,8 +6,20 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 /// Commuter scans the driver boarding QR → [D2dRepository.boardingScan].
+///
+/// Shared for morning and return: token carries leg (`morning`|`return`).
+/// Return entry: [ReturnBoardingScanScreen] with return-facing title/hint.
 class BoardingScanScreen extends StatefulWidget {
-  const BoardingScanScreen({super.key});
+  const BoardingScanScreen({
+    super.key,
+    this.title = 'Scan boarding QR',
+    this.hint =
+        'Scan to board if you are on the live queue. '
+        'If not added yet, you can join the waiting line.',
+  });
+
+  final String title;
+  final String hint;
 
   @override
   State<BoardingScanScreen> createState() => _BoardingScanScreenState();
@@ -139,7 +151,7 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan boarding QR')),
+      appBar: AppBar(title: Text(widget.title)),
       body: _permissionDenied
           ? Center(
               child: Padding(
@@ -186,11 +198,10 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
-                            'Scan to board if you are on the live queue. '
-                            'If not added yet, you can join the waiting line.',
+                          Text(
+                            widget.hint,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               shadows: [
                                 Shadow(blurRadius: 4, color: Colors.black),

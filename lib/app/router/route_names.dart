@@ -29,6 +29,16 @@ class RouteName {
   static const String returnCommuterScreen = '/returnCommuterScreen';
   static const String driverReturnCommuter = '/driverReturnCommuter';
 
+  /// Driver/admin-like show screen for return boarding QR (visual prep).
+  /// Binds later to return trip log + RCList — not morning DTODLOG return_*.
+  /// See `docs/setup/RETURN_QR_UI_PREP.md`.
+  static const String returnBoardingQr = '/returnBoardingQr';
+
+  /// Return boarding scan entry (visual prep). Not morning `/boardingScan`.
+  /// TODO(Dock): RCList scan contract — user-ID list on return trip log row
+  /// (like CList); no invented camelCase fields.
+  static const String returnBoardingScan = '/returnBoardingScan';
+
   static const String popForm = '/popForm';
   static const String popScreen = '/popScreen';
 
@@ -83,18 +93,20 @@ class RouteName {
     d2dChannel,
   };
 
-  /// Driver role home + driver D2D log + return list (confirm/remove).
+  /// Driver role home + driver D2D log + return list + return boarding QR show.
   static const Set<String> driverOnlyPrefixes = {
     driverHomeScreen,
     d2dLog,
     driverReturnCommuter,
+    returnBoardingQr,
   };
 
-  /// Commuter role home + cab tracking + boarding scan.
+  /// Commuter role home + cab tracking + boarding scan (+ return scan alias).
   static const Set<String> commuterOnlyPrefixes = {
     commuterHomeScreen,
     trackCabScreen,
     boardingScan,
+    returnBoardingScan,
   };
 
   static String homeForRole(String? userType) {

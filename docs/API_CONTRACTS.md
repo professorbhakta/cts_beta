@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-09
-> **Session:** Senior JWT hardening deferred for smoke (Dock)
+> **Updated:** 2026-09-09 09:50 IST
+> **Session:** Admin bootstrap + return QR Phase 2 on professor-cts
 
 # API Contracts — Backend ↔ Flutter
 
@@ -191,8 +191,8 @@ Schema: nullable KM/photo columns on **`DTODLOG`**. Media on disk; photo URLs = 
 | `GET /d2d/odometer/<batch_id>/?date=` | DRIVER / ADMIN | `getOdometer` |
 | `GET /d2d/odometer/org/<admin_code>/?date=` | ADMIN | `getOdometerOrg` |
 | `GET /d2d/odometer/photo/…` | DRIVER / ADMIN | URL on snapshot (session cookie) |
-| `GET /d2d/boarding_qr/<batch_id>/` | DRIVER / ADMIN | `getBoardingQr` |
-| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` — body `{token, action?}` · `action`: **`board`** (default) or **`join_waiting`** |
+| `GET /d2d/boarding_qr/<batch_id>/` | DRIVER / ADMIN | `getBoardingQr` — optional `?trip=morning` \| `?trip=return` |
+| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` — body `{token, action?}` · `action`: **`board`** (default) or **`join_waiting`**; token carries leg |
 | `POST /d2d/boarding_unboard/` | DRIVER / ADMIN | `boardingUnboard` |
 
 Error body: `{ "status": "error", "code": "<code>", "message": "…" }`.  
@@ -211,6 +211,8 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 | `not_boarded` | Unboard target not in CList |
 
 Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
+
+**Return-trip QR (Phase 2 wired):** `GET …/boarding_qr/<batch>/?trip=return` mints token + `return_trip_id` (return trip log / RCList). `POST …/boarding_scan/` with that token boards return (leg in token). Live RCList = user-ID list on trip row; End archives BE-side — **no FE archive UI**. Contract: [setup/RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md) · UI: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 

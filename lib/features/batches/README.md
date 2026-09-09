@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-01 10:20 IST
-> **Session:** Phase 3 return waiting pool + join_waiting + Waiting line UI
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -32,6 +32,12 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | Running batch screen | `screens/running_batch_screen.dart` |
 | Return batch picker | `screens/returning_batch_screen.dart` — list on narrow screens / pool extras; grid on wide |
 | Return picker card | `widgets/return_batch_picker_card.dart` — fixed-height tile, no nested scroll |
+| Return boarding QR panel | `widgets/return_boarding_qr_panel.dart` — `BoardingQrPanel(trip: return)` → `?trip=return` |
+| Return boarding QR screen | `screens/return_boarding_qr_screen.dart` — driver/admin-like show; cream board |
+| Return boarding scan screen | `screens/return_boarding_scan_screen.dart` — STAFF/COMMUTER → shared `boarding_scan` |
+| Return boarding role policy | `models/return_boarding_role_policy.dart` — show vs scan gates |
+| Return trip log / RCList refs | `models/return_trip_log_placeholders.dart` — batch + optional `return_trip_id`; no archive UI |
+
 | Return commuter UI | `../commuters/screens/return_batch_commuter_screen.dart` |
 | Return provider | `providers/return_batch_provider.dart` |
 | Running provider | `providers/running_batch_provider.dart` |
@@ -50,7 +56,11 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | `/returnBatchScreen` | `ReturningBatchScreen` — batch picker |
 | `/returnCommuterScreen/:batchId` | `ReturnCommuterListScreen` — admin add from Available and monitor Confirmed |
 | `/runningBatchScreen` | `RunningBatchScreen` — morning live DTODLOG snapshot only |
-| `/driverReturnCommuter/:batchId` | Driver return list (confirm/remove/end) |
+| `/driverReturnCommuter/:batchId` | Driver return list (confirm/remove/end) + **BOARDING QR** entry |
+| `/returnBoardingQr/:batchId` | Return boarding QR **show** (`?trip=return` mint) |
+| `/returnBoardingScan` | Return boarding **scan** (`POST boarding_scan`; token leg=return) |
+
+**Return QR (Phase 2):** [docs/setup/RETURN_QR_UI_PREP.md](../../../docs/setup/RETURN_QR_UI_PREP.md) · [RETURN_TRIP_API_GAP.md](../../../docs/setup/RETURN_TRIP_API_GAP.md). Live RCList = user-ID list on return trip log; End archives BE-side — **no FE archive UI**.
 
 **Running batches (morning D2D):** `GET` running list on screen open, pull-to-refresh, **app resume** (via `AppLifecycleHost`), return from the D2D channel, and when the admin channel sees trip-ended. No 20s poll. Live pickup is WebSocket on `/d2dChannel/:id`. Evening return is a different backend (`ReturnBatchProvider`).
 

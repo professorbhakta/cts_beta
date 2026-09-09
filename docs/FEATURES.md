@@ -1,6 +1,6 @@
 > **Doc:** docs/FEATURES.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** admin_home role note — Supervisor filtered shell
+> **Updated:** 2026-09-08 23:50 IST
+> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
 
 # Feature catalog
 
@@ -19,7 +19,7 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `admin_home` | Admin + Supervisor (filtered) | AdminMainScreen | AdminProvider | — | Multiple (counts) |
 | `routes` | Admin | RouteScreen, RouteForm | RouteController | RouteFormProvider | RouteRepository |
 | `pops` | Admin | PopScreen, PopForm | PopProvider | PopFormProvider | PopRepository |
-| `batches` | Admin + Driver (return list) | Batch, BatchForm, Running, Returning, ReturnCommuterListScreen | BatchProvider, RunningBatchProvider, ReturnBatchProvider | BatchFormProvider | BatchRepository (offline-first), RunningBatchRepository, ReturnBatchRepository |
+| `batches` | Admin + Driver (return list) | Batch, BatchForm, Running, Returning, ReturnCommuterListScreen, ReturnBoardingQrScreen | BatchProvider, RunningBatchProvider, ReturnBatchProvider | BatchFormProvider | BatchRepository (offline-first), RunningBatchRepository, ReturnBatchRepository |
 | `cabs` | Admin | CabScreen, CabForm | CabProvider | CabFormProvider | CabRepository |
 | `drivers` | Admin + Driver | DriverScreen, DriverForm, DriverHomePage | DriverProvider, DriverHomeProvider | DriverFormProvider | DriverRepository |
 | `commuters` | Admin + Commuter | CommuterScreen, CommuterForm, CommuterHomePage, CommuterListScreen, ReturnCommuterListScreen | CommuterController, CommuterHomeProvider | CommuterFormProvider | CommuterRepository |
@@ -44,6 +44,8 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `/returnBatchScreen` | ReturningBatchScreen | batches |
 | `/returnCommuterScreen/:batchId` | ReturnCommuterListScreen (admin) | batches / commuters |
 | `/driverReturnCommuter/:batchId` | ReturnCommuterListScreen (confirm/remove) | batches / commuters |
+| `/returnBoardingQr/:batchId` | ReturnBoardingQrScreen (show; `?trip=return`) | batches |
+| `/returnBoardingScan` | ReturnBoardingScanScreen → boarding_scan | batches |
 | `/cabScreen`, `/cabForm` | CabScreen, CabForm | cabs |
 | `/driverScreen`, `/driverForm` | DriverScreen, DriverForm | drivers |
 | `/driverHomeScreen` | DriverHomePage | drivers |

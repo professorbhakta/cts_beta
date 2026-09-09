@@ -1,6 +1,6 @@
 ﻿> **Doc:** docs/README.md
-> **Updated:** 2026-08-25 22:05 IST
-> **Session:** FLOWS owns QR/KM journeys
+> **Updated:** 2026-09-08 15:18 IST
+> **Session:** + docs/setup (return QR UI prep)
 
 # CTS (c2s) — Documentation
 
@@ -21,6 +21,7 @@ docs/
 ├── backend/README.md     ← thin pointers only
 ├── features/
 ├── next-plan/
+├── setup/                ← UI prep notes (e.g. return QR — await Dock)
 ├── client_req/           ← QR + KM (log, 05 story, STEP 8 smoke)
 ├── FLOWS_BY_ROLE.md      ← operator click-paths incl. QR + KM (no guides/)
 ├── UI_ARCHITECTURE.md
