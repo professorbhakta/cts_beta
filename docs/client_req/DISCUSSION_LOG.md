@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-09-09 10:16 IST
-> **Session:** QUICK CLOSE — FE match ahead of STEP 8
+> **Updated:** 2026-09-09 18:55 IST
+> **Session:** FE match re-verify done — lab migrate next
 
 # Client req — discussion log
 
@@ -18,14 +18,14 @@
 
 | Flag | Value |
 |------|--------|
-| **STATUS** | `MULTI_TRACK` — Q-fe-match-be active; STEP 8 waits on **go** |
-| **FOCUS** | **FE match** vs BE tip → [FE_MATCH_BE_TIP_CONTINUE_PROMPT](../setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) · then STEP 8 on go |
-| **FOCUS_DOC** | [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 · [CHAT_PROMPTS.txt](../../CHAT_PROMPTS.txt) START |
-| **LAST_CHAT** | 2026-09-09 10:16 IST |
-| **LAST_SUMMARY** | QUICK CLOSE: no device smoke (no go). Active queue = FE match pass (professor-cts vs professor-dock). STEP 8 still gated. |
-| **NEXT_SUGGEST** | Paste FE match START (CHAT_PROMPTS full shell) · lab migrate optional · STEP 8 only on **go** |
-| **BLOCKED_ON** | User paste FE match chat; STEP 8 needs **go** |
-| **LOCKED** | return QR UX=morning; mint `?trip=return`; shared boarding_scan; live RCList=user-ID list; End→history (BE); FE no archive UI |
+| **STATUS** | `MULTI_TRACK` — Q-fe-match-be **done**; STEP 8 waits on **go** |
+| **FOCUS** | Lab migrate + JWT/bootstrap/return QR smoke → then STEP 8 on go |
+| **FOCUS_DOC** | [DISCUSSION_STATUS](../setup/DISCUSSION_STATUS.md) · [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 |
+| **LAST_CHAT** | 2026-09-09 18:55 IST |
+| **LAST_SUMMARY** | FE match re-verify vs live dock: e750 merged; return scan disables boarding_scan join_waiting. Docker down → migrate DEFER. |
+| **NEXT_SUGGEST** | Lab migrate on professor-dock · device smoke JWT/bootstrap/return QR · STEP 8 only on **go** |
+| **BLOCKED_ON** | Lab Docker/migrate for migrate smoke; STEP 8 needs **go** |
+| **LOCKED** | return QR UX=morning; mint `?trip=return`; shared boarding_scan board-only on return; live RCList=user-ID list; End→history (BE); FE no archive UI |
 | **SCHEMA_DIR** | Morning DTODLOG/CList morning-only; return trip log + live RCList ID list; End archives to history |
 
 ---

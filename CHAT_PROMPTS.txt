@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-09-09 18:10 IST
-> **Session:** FE match done — next lab migrate / device smoke
+> **Updated:** 2026-09-09 18:55 IST
+> **Session:** FE match re-verify done — next lab migrate
 ================================================================================
 QUICK START (minimal) — FE match BE tip
 ================================================================================
@@ -84,11 +84,10 @@ MIDDLE CONTEXT
 ================================================================================
 
 Current focus:
-  - **Done:** Q-fe-match-be — gap table + FE_FIX (profile stubs, bootstrap soft-fail)
+  - **Done:** Q-fe-match-be — cloud FE_FIX merged + return scan join_waiting gated morning-only
   - **Next:** Lab migrate on professor-dock · JWT/bootstrap/return QR device smoke
   - STEP 8 only on **go**
-  - BE tip professor-dock (JWT + org schema + admin-bootstrap + return trip log); main held
-  - FE tip professor-cts (+ match FE_FIX branch cursor/fe-match-be-tip-e750)
+  - BE tip professor-dock `46c413e`; FE tip professor-cts (match FE_FIX landed)
 
 Story split (stable):
   - 05 = product story/locks · FLOWS = journeys · 07 = smoke · DISCUSSION_LOG = pointer

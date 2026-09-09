@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/RETURN_QR_UI_PREP.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 wired — GET boarding_qr?trip=return + POST boarding_scan
+> **Updated:** 2026-09-09 18:55 IST
+> **Session:** FE match — return scan no boarding_scan join_waiting
 
 # Return-trip QR boarding — UI prep → Phase 2 wired
 
@@ -14,7 +14,7 @@
 |------|------|
 | Driver mint return QR | `GET /d2d/boarding_qr/<batchId>/?trip=return` → token + `return_trip_id` |
 | Morning mint | `GET /d2d/boarding_qr/<batchId>/` (unchanged) |
-| Commuter scan | `POST /d2d/boarding_scan/` body `{token}` — token carries leg |
+| Commuter scan | `POST /d2d/boarding_scan/` body `{token}` — token carries leg; **boards only** (return waiting = `add_commuter` `join_waiting`) |
 | Confirm (existing) | `POST /d2d/return_batch/add_commuter` |
 | End (existing) | BE → `return_board_archive`; trip keeps archive ID only |
 

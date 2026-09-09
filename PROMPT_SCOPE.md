@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 18:10 IST
-> **Session:** FE match pass complete — Q-fe-match-be done
+> **Updated:** 2026-09-09 18:55 IST
+> **Session:** FE match re-verify complete — Q-fe-match-be done
 
 # PROMPT SCOPE — CTS
 
@@ -110,6 +110,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 18:55 | FE match re-verify vs dock source: merge e750; FE_FIX return scan no boarding_scan join_waiting; migrate DEFER (Docker down) | `cts_beta` |
 | 2026-09-09 18:10 | FE match: gap table; FE_FIX flat/nested profile + bootstrap soft-fail; 166 tests | `cts_beta` |
 | 2026-09-09 10:16 | QUICK CLOSE: no STEP 8 (no go); queue unchanged — next paste FE match START | `cts_beta` |
 | 2026-09-09 10:20 | Hardened FE match prompt: brain §3 pack, no migrate/smoke blockers, lib/data/local OK, stale draft refs fixed | `cts_beta` |

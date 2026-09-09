@@ -1,6 +1,6 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
+> **Updated:** 2026-09-09 18:55 IST
+> **Session:** FE match re-verify — return scan disables boarding_scan join_waiting
 
 # Batches Feature — CRUD, Running, Return REST
 
@@ -34,7 +34,7 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | Return picker card | `widgets/return_batch_picker_card.dart` — fixed-height tile, no nested scroll |
 | Return boarding QR panel | `widgets/return_boarding_qr_panel.dart` — `BoardingQrPanel(trip: return)` → `?trip=return` |
 | Return boarding QR screen | `screens/return_boarding_qr_screen.dart` — driver/admin-like show; cream board |
-| Return boarding scan screen | `screens/return_boarding_scan_screen.dart` — STAFF/COMMUTER → shared `boarding_scan` |
+| Return boarding scan screen | `screens/return_boarding_scan_screen.dart` — STAFF/COMMUTER → shared `boarding_scan` (`allowJoinWaiting: false`; return wait via `joinReturnWaiting`) |
 | Return boarding role policy | `models/return_boarding_role_policy.dart` — show vs scan gates |
 | Return trip log / RCList refs | `models/return_trip_log_placeholders.dart` — batch + optional `return_trip_id`; no archive UI |
 

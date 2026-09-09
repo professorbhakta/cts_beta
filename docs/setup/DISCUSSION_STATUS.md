@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-09 18:10 IST
-> **Session:** FE match pass — gap table done; FE_FIX profile + bootstrap soft-fail
+> **Updated:** 2026-09-09 18:55 IST
+> **Session:** FE match re-verify vs live professor-dock source
 
 # Dock / CTS discussion status (single path)
 
@@ -67,13 +67,13 @@ Verified on branch; BHAKTA chose keep current behavior for small audience + easy
 - Return-leg KM / org odometer / unboard UI (parked)
 - Persist login orgs / SUPERVISOR `allowList` into SQLite (Phase B)
 
-## FE match (2026-09-09 cloud)
-Compared FE tip vs contracts (BE repo not in this VM). Strong **MATCH**: JWT Dio, login envelope, role homes, admin-bootstrap feature+DAO, return QR mint/scan, morning D2D/`isTripEnded`, routing.
-**FE_FIX shipped:** flat+nested login profile stubs; bootstrap soft-fail after login (debugPrint, no block).
-**DEFER:** Phase B org tables/junctions; return odometer UI; lab migrate; STEP 8.
+## FE match (2026-09-09)
+Cloud: gap table + FE_FIX (flat/nested profile, bootstrap soft-fail) — merged to `professor-cts` via `cursor/fe-match-be-tip-e750`.
+Local re-verify vs live `professor-dock` source (`46c413e`): login/refresh/bootstrap/return QR mint+scan **MATCH**. Extra **FE_FIX**: return scan disables `boarding_scan` `join_waiting` (BE return path boards only; waiting = `return_batch/add_commuter`).
+**DEFER:** lab migrate (Docker was down this pass); Phase B orgs; STEP 8; senior JWT.
 
 ## Next
-- Lab migrate org + return-trip migrations on `professor-dock`
+- Lab migrate org + return-trip migrations on `professor-dock` (Docker up)
 - Device smoke JWT + admin-bootstrap + return QR
 - Client pack STEP 8 (only on **go**)
 - Client lock: return / evening trip **same QR boarding as morning** — see `CLIENT_RETURN_QR_NOTE.md`

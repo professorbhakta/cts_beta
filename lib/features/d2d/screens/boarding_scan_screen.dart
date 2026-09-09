@@ -9,6 +9,10 @@ import 'package:provider/provider.dart';
 ///
 /// Shared for morning and return: token carries leg (`morning`|`return`).
 /// Return entry: [ReturnBoardingScanScreen] with return-facing title/hint.
+///
+/// [allowJoinWaiting] is morning-only. BE return `boarding_scan` always boards
+/// into RCList and ignores `action`; return waiting uses
+/// `POST return_batch/add_commuter` (`action: join_waiting`).
 class BoardingScanScreen extends StatefulWidget {
   const BoardingScanScreen({
     super.key,
@@ -16,10 +20,14 @@ class BoardingScanScreen extends StatefulWidget {
     this.hint =
         'Scan to board if you are on the live queue. '
         'If not added yet, you can join the waiting line.',
+    this.allowJoinWaiting = true,
   });
 
   final String title;
   final String hint;
+
+  /// When false (return scan), do not offer `boarding_scan` join_waiting.
+  final bool allowJoinWaiting;
 
   @override
   State<BoardingScanScreen> createState() => _BoardingScanScreenState();
@@ -124,7 +132,8 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
       if (result.isFailure) {
         final failure = result.failure!;
         final code = failure.code;
-        if (code == 'not_in_queue' || code == 'capacity_full') {
+        if (widget.allowJoinWaiting &&
+            (code == 'not_in_queue' || code == 'capacity_full')) {
           final wantsJoin = await _offerJoinWaiting(
             failure.message ?? 'Cannot board right now.',
           );

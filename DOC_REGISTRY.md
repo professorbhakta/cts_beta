@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 18:10 IST
-> **Session:** FE match pass — FE_FIX + docs END sync
+> **Updated:** 2026-09-09 18:55 IST
+> **Session:** FE match re-verify END sync
 
 # Documentation Registry
 
@@ -28,11 +28,11 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 18:10 IST | FE match done; next lab migrate/smoke |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 18:10 IST | §5/§9 FE match outcome |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 18:10 IST | Q-fe-match-be done |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 18:10 IST | FE match END sync |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 10:16 IST | pointer: FE match then STEP 8 on go |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 18:55 IST | FE match re-verify; next lab migrate |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 18:55 IST | §5/§9 return-scan FE_FIX |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 18:55 IST | Q-fe-match-be done (re-verify) |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 18:55 IST | FE match re-verify END |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 18:55 IST | FE match done; lab migrate next |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
