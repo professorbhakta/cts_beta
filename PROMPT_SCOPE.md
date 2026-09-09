@@ -89,6 +89,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 10:15 | CHAT_PROMPTS: FE match-BE-tip is primary START; STEP 8 kept as alt on go | `cts_beta` |
 | 2026-09-09 10:10 | Added FE_MATCH_BE_TIP_CONTINUE_PROMPT — FE check/match vs BE tip schema+API | `cts_beta` docs |
 | 2026-09-09 10:05 | Keep-lane tidy: push FE docs + day-lane hooks; reset local beta-ver; BE hooks on professor-dock | both |
 | 2026-09-09 09:50 | FE keep-5: merge admin-bootstrap + return-qr + AGENTS into professor-cts; navy ours-merge; delete extras | `cts_beta` |
