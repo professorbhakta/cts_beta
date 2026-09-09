@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify vs dock — return scan FE_FIX
+> **Updated:** 2026-09-09 19:10 IST
+> **Session:** Lab migrate OK + JWT/bootstrap/return QR API probe PASS
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -104,15 +104,16 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ## 5. Current focus
 
-**Session (2026-09-09):** FE match vs live `professor-dock` — cloud FE_FIX merged; return scan no longer offers `boarding_scan` join_waiting.
+**Session (2026-09-09):** Lab migrate on `professor-dock` confirmed applied; light API probe PASS (login/refresh/bootstrap/return QR mint+scan).
 
 | Piece | Detail |
 |-------|--------|
 | FE tip | `professor-cts` — JWT + cream + bootstrap + return QR + match FE_FIX |
+| BE tip | `professor-dock` `46c413e` — org + return-trip migrations **applied** on lab |
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
 | Day sync | pull on start / push on stop for professor-cts |
 
-**Next chat:** Lab migrate on `professor-dock` (Docker was down this pass), then JWT/bootstrap/return QR device smoke. STEP 8 only on **go**.
+**Next chat:** Device smoke JWT + bootstrap + return QR (`flutter run`) when ready. STEP 8 only on **go**. Phase B org rows still empty.
 
 **Also open:** Phase B orgs · return-leg KM parked · STEP 8
 
@@ -187,9 +188,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
+| 2026-09-09 | Lab migrate + probe | Migrate already applied; login/refresh/bootstrap/return QR+scan PASS |
 | 2026-09-09 | FE match re-verify | Merged e750; return scan `allowJoinWaiting: false`; Docker down → migrate DEFER |
 | 2026-09-09 | FE match BE tip | Gap table; FE_FIX profile stubs + bootstrap soft-fail; 166 tests |
-| 2026-09-09 | FE branch clear | Merged admin-bootstrap + return QR into professor-cts; keep only 5 remotes |
 
 ---
 

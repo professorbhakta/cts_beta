@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify END sync
+> **Updated:** 2026-09-09 19:10 IST
+> **Session:** Lab migrate + API probe PASS
 
 # Documentation Registry
 
@@ -28,11 +28,11 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 18:55 IST | FE match re-verify; next lab migrate |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 18:55 IST | §5/§9 return-scan FE_FIX |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 18:55 IST | Q-fe-match-be done (re-verify) |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 18:55 IST | FE match re-verify END |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 18:55 IST | FE match done; lab migrate next |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 19:10 IST | lab migrate + API probe PASS |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 19:10 IST | §5 migrate OK; next device smoke |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 19:10 IST | Q-lab-migrate done |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 19:10 IST | lab probe END |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 19:10 IST | lab migrate OK; device smoke next |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
@@ -76,7 +76,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 08:20 IST | FE wired (now on professor-cts) |
 | [docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | 2026-09-09 10:10 IST | FE match vs BE tip — next chat START |
 | [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 10:05 IST | FE keep-5 + BE keep-4 remotes |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 18:10 IST | FE match gap table + FE_FIX |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 19:10 IST | lab migrate + API probe PASS |
 | [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 10:10 IST | Index FE match continue prompt |
 | [docs/setup/CLIENT_RETURN_QR_NOTE.md](docs/setup/CLIENT_RETURN_QR_NOTE.md) | 2026-09-08 20:20 IST | Client: return QR = morning boarding |
 | [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 23:50 IST | Phase 2 wired |

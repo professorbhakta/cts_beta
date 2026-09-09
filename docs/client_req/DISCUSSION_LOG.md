@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify done — lab migrate next
+> **Updated:** 2026-09-09 19:10 IST
+> **Session:** Lab migrate OK — device smoke / STEP 8 next
 
 # Client req — discussion log
 
@@ -18,13 +18,13 @@
 
 | Flag | Value |
 |------|--------|
-| **STATUS** | `MULTI_TRACK` — Q-fe-match-be **done**; STEP 8 waits on **go** |
-| **FOCUS** | Lab migrate + JWT/bootstrap/return QR smoke → then STEP 8 on go |
-| **FOCUS_DOC** | [DISCUSSION_STATUS](../setup/DISCUSSION_STATUS.md) · [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 |
-| **LAST_CHAT** | 2026-09-09 18:55 IST |
-| **LAST_SUMMARY** | FE match re-verify vs live dock: e750 merged; return scan disables boarding_scan join_waiting. Docker down → migrate DEFER. |
-| **NEXT_SUGGEST** | Lab migrate on professor-dock · device smoke JWT/bootstrap/return QR · STEP 8 only on **go** |
-| **BLOCKED_ON** | Lab Docker/migrate for migrate smoke; STEP 8 needs **go** |
+| **STATUS** | `MULTI_TRACK` — lab migrate **done**; STEP 8 waits on **go** |
+| **FOCUS** | Device smoke JWT/bootstrap/return QR → STEP 8 on go |
+| **FOCUS_DOC** | [DISCUSSION_STATUS](../setup/DISCUSSION_STATUS.md) · [TESTING.md](../TESTING.md) |
+| **LAST_CHAT** | 2026-09-09 19:10 IST |
+| **LAST_SUMMARY** | Lab migrate already applied on professor-dock. API probe: admin login/refresh/bootstrap OK; driver return QR mint+commuter scan OK (`return_trip_id`, RCList). |
+| **NEXT_SUGGEST** | `flutter run` device smoke · STEP 8 only on **go** · Phase B org fill optional |
+| **BLOCKED_ON** | STEP 8 needs **go**; device smoke needs human on emulator/phone |
 | **LOCKED** | return QR UX=morning; mint `?trip=return`; shared boarding_scan board-only on return; live RCList=user-ID list; End→history (BE); FE no archive UI |
 | **SCHEMA_DIR** | Morning DTODLOG/CList morning-only; return trip log + live RCList ID list; End archives to history |
 

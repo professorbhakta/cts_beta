@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify complete — Q-fe-match-be done
+> **Updated:** 2026-09-09 19:10 IST
+> **Session:** Lab migrate + API probe PASS — next device smoke / STEP 8 on go
 
 # PROMPT SCOPE — CTS
 
@@ -79,8 +79,9 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 |------:|----|------|--------|-------|
 | 0 | Q-fe-match-be | FE match pass vs BE tip (schema/API/bootstrap/return QR) | **done** | [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) |
 | 0a | Q-jwt-phase-a | JWT Phase A FE smoke (`flutter run`) + docs header sync | **next** | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
-| 0b | Q-admin-bootstrap | FE admin-bootstrap on professor-cts; lab smoke after migrate | **next** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
+| 0b | Q-admin-bootstrap | FE admin-bootstrap on professor-cts; lab API probe OK; device smoke open | **next** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
 | 0c | Q-docs-setup | Keep-lane map + brain/scope/registry | open | [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
+| 0d | Q-lab-migrate | Org + return-trip migrations on professor-dock lab | **done** | DISCUSSION_STATUS · LOCAL_DEV |
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
@@ -110,6 +111,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 19:10 | Lab migrate confirmed applied; API probe login/refresh/bootstrap/return QR+scan PASS | both |
 | 2026-09-09 18:55 | FE match re-verify vs dock source: merge e750; FE_FIX return scan no boarding_scan join_waiting; migrate DEFER (Docker down) | `cts_beta` |
 | 2026-09-09 18:10 | FE match: gap table; FE_FIX flat/nested profile + bootstrap soft-fail; 166 tests | `cts_beta` |
 | 2026-09-09 10:16 | QUICK CLOSE: no STEP 8 (no go); queue unchanged — next paste FE match START | `cts_beta` |

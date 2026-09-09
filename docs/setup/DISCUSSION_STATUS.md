@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify vs live professor-dock source
+> **Updated:** 2026-09-09 19:10 IST
+> **Session:** Lab migrate confirmed + JWT/bootstrap/return QR probe PASS
 
 # Dock / CTS discussion status (single path)
 
@@ -11,8 +11,8 @@
 |-------|-------------|--------|
 | Backend tip | `professor-dock` / `gb-dock` / `p-gb-merger` @ `46c413e` | Pushed; remotes = **4 lanes only** (+ day-lane hooks) |
 | JWT Phase A | in tip | Lab smoked earlier; hardening deferred |
-| Org schema | in tip | Migrations present; **lab migrate + smoke still open** |
-| Return trip log | in tip | Tables, QR `?trip=return`, archives, DTODLOG `return_*` stripped |
+| Org schema | in tip | Migrations **applied** on lab; `Organization` table empty (Phase B fill still open) |
+| Return trip log | in tip | Tables applied; QR `?trip=return` probed OK (`return_trip_id`) |
 | Admin bootstrap BE | in tip (`admin_bootstrap.py`) | `GET /user/admin-bootstrap/` |
 | Flutter tip | `professor-cts` (= `gb-f&d` / `p&gb-merger`) | Admin-bootstrap + return QR Phase 2 merged; remotes = **5 lanes only** |
 
@@ -59,23 +59,29 @@ Verified on branch; BHAKTA chose keep current behavior for small audience + easy
 | Low | Typo `serailizer`; logout session-only | **Defer** |
 
 ## Still open
-- Lab `migrate` + smoke on consolidated BE tip
-- Phase B: fill login/bootstrap `organizations` from DB (after migrate OK)
-- VPS deploy of tip → `main` (only after lab OK)
+- Phase B: fill login/bootstrap `organizations` from DB (tables exist; org rows still 0)
+- VPS deploy of tip → `main` (only after fuller device smoke OK)
 - Senior JWT hardening (see above)
 - Client pack STEP 8 device smoke (on **go**)
 - Return-leg KM / org odometer / unboard UI (parked)
 - Persist login orgs / SUPERVISOR `allowList` into SQLite (Phase B)
+- SUPERVISOR / STAFF lab seed users (none in DB yet)
 
 ## FE match (2026-09-09)
 Cloud: gap table + FE_FIX (flat/nested profile, bootstrap soft-fail) — merged to `professor-cts` via `cursor/fe-match-be-tip-e750`.
 Local re-verify vs live `professor-dock` source (`46c413e`): login/refresh/bootstrap/return QR mint+scan **MATCH**. Extra **FE_FIX**: return scan disables `boarding_scan` `join_waiting` (BE return path boards only; waiting = `return_batch/add_commuter`).
-**DEFER:** lab migrate (Docker was down this pass); Phase B orgs; STEP 8; senior JWT.
+
+## Lab migrate + API probe (2026-09-09 19:10)
+- `migrate --plan` → **No planned migration operations** (org + return-trip already applied via tip/entrypoint).
+- Admin login `7069036462` + refresh + `GET /user/admin-bootstrap/` → **ok** (10 batches / 10 drivers / 1500 commuters; orgs=0).
+- Driver `9876544111` `GET /d2d/boarding_qr/1/?trip=return` → **ok** + `return_trip_id=1` (creates `return_trip_log`).
+- Morning QR without active D2D → `trip_not_active` (expected; not a migrate fail).
+- STEP 8 not run.
 
 ## Next
-- Lab migrate org + return-trip migrations on `professor-dock` (Docker up)
-- Device smoke JWT + admin-bootstrap + return QR
+- Device smoke JWT + admin-bootstrap + return QR (`flutter run`) when ready
 - Client pack STEP 8 (only on **go**)
+- Phase B org rows / SUPERVISOR+STAFF seed if needed
 - Client lock: return / evening trip **same QR boarding as morning** — see `CLIENT_RETURN_QR_NOTE.md`
 
 ## Rule

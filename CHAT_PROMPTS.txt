@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match re-verify done — next lab migrate
+> **Updated:** 2026-09-09 19:10 IST
+> **Session:** Lab migrate + API probe PASS
 ================================================================================
 QUICK START (minimal) — FE match BE tip
 ================================================================================
@@ -84,18 +84,18 @@ MIDDLE CONTEXT
 ================================================================================
 
 Current focus:
-  - **Done:** Q-fe-match-be — cloud FE_FIX merged + return scan join_waiting gated morning-only
-  - **Next:** Lab migrate on professor-dock · JWT/bootstrap/return QR device smoke
-  - STEP 8 only on **go**
-  - BE tip professor-dock `46c413e`; FE tip professor-cts (match FE_FIX landed)
+  - **Done:** Q-fe-match-be + lab migrate (already applied) + light API probe PASS
+  - **Next:** Device smoke JWT/bootstrap/return QR (`flutter run`) · STEP 8 on **go**
+  - Phase B org rows still empty; SUPERVISOR/STAFF not seeded
+  - BE tip professor-dock `46c413e`; FE tip professor-cts
 
 Story split (stable):
   - 05 = product story/locks · FLOWS = journeys · 07 = smoke · DISCUSSION_LOG = pointer
   - setup/ = JWT · schema · bootstrap · branch map · FE match continue prompt
 
 Open:
-  - Lab migrate on professor-dock?
-  - Device smoke JWT + bootstrap + return QR?
+  - Device smoke JWT + bootstrap + return QR (`flutter run`)?
+  - Phase B org fill / SUPERVISOR+STAFF seed?
   - User go for STEP 8?
 
 ================================================================================
