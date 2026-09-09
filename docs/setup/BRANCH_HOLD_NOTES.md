@@ -25,7 +25,7 @@ Still never auto-push `main`. No force-push.
 | `professor-cts` | PC day tip (sync hub) |
 | `gb-f&d` | Cloud Cursor lane |
 | `p&gb-merger` | Integrate desk |
-| `beta-ver` | Recovery |
+| `beta-ver` | **Dormant** recovery — do not day-work; local checkout drift OK; tip is `professor-cts` |
 
 **Cleared into `professor-cts` (2026-09-09):**
 - `feat/admin-bootstrap` — merged (FF)

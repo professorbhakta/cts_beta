@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
 > **Updated:** 2026-09-09
-> **Session:** Keep-lane tidy — docs + day-lane hooks pushed
+> **Session:** Branch hygiene — beta-ver dormant; day-lane lock sync
 
 # Dock / CTS discussion status (single path)
 
@@ -33,7 +33,7 @@
 | `professor-cts` | PC day tip (sync hub) |
 | `gb-f&d` | Cloud Cursor |
 | `p&gb-merger` | Integrate desk |
-| `beta-ver` | Recovery |
+| `beta-ver` | **Dormant** recovery — no day-work; leave local/remote as-is |
 
 **Cleared + deleted:** `feat/admin-bootstrap`, `cursor/return-qr-ui-prep-6f9b`, `cursor/setup-dev-environment-96cd`, `cursor/role-ui-login-routing-a855`, `cursor/commuter-driver-ui-redesign-1fbd` (navy lineage ours-merged; cream kept).
 
