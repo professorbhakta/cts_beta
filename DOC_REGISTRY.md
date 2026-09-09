@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 10:20 IST
-> **Session:** FE match prompt hardened for agent flow
+> **Updated:** 2026-09-09 10:16 IST
+> **Session:** QUICK CLOSE — next FE match START
 
 # Documentation Registry
 
@@ -28,11 +28,11 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 10:20 IST | FE match START hardened; STEP 8 alt |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 10:20 IST | §3 FE match attach pack locked |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 10:20 IST | Q-fe-match-be + harden changelog |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 10:20 IST | FE match harden |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 10:16 IST | QUICK CLOSE; next = FE match START |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 10:16 IST | §9 QUICK CLOSE; Q-fe-match-be active |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 10:16 IST | queue unchanged; STEP 8 waits on go |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 10:16 IST | QUICK CLOSE sync |
+| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 10:16 IST | pointer: FE match then STEP 8 on go |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
 | [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |

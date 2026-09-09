@@ -1,6 +1,6 @@
 > **Doc:** docs/client_req/DISCUSSION_LOG.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
+> **Updated:** 2026-09-09 10:16 IST
+> **Session:** QUICK CLOSE — FE match ahead of STEP 8
 
 # Client req — discussion log
 
@@ -18,13 +18,13 @@
 
 | Flag | Value |
 |------|--------|
-| **STATUS** | `MULTI_TRACK` — return QR Phase 2 wired; STEP 8 next on **go** |
-| **FOCUS** | **STEP 8** device smoke → [07-NEXT-AGENT-PROMPT.md](07-NEXT-AGENT-PROMPT.md) |
-| **FOCUS_DOC** | [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 · [LAB_SMOKE_ISSUES.txt](../LAB_SMOKE_ISSUES.txt) |
-| **LAST_CHAT** | 2026-09-08 23:50 IST |
-| **LAST_SUMMARY** | Return QR Phase 2: driver mint `GET boarding_qr/<batch>/?trip=return` (+ `return_trip_id`); commuter `POST boarding_scan` `{token}`; cream nits; archive UI stays BE-only. [RETURN_QR_UI_PREP](../setup/RETURN_QR_UI_PREP.md) · [GAP](../setup/RETURN_TRIP_API_GAP.md). |
-| **NEXT_SUGGEST** | STEP 8 **go** · Q-26d · Dock field mismatch ping if lab differs |
-| **BLOCKED_ON** | User **go** for smoke |
+| **STATUS** | `MULTI_TRACK` — Q-fe-match-be active; STEP 8 waits on **go** |
+| **FOCUS** | **FE match** vs BE tip → [FE_MATCH_BE_TIP_CONTINUE_PROMPT](../setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) · then STEP 8 on go |
+| **FOCUS_DOC** | [PROMPT_SCOPE.md](../../PROMPT_SCOPE.md) §2 · [CHAT_PROMPTS.txt](../../CHAT_PROMPTS.txt) START |
+| **LAST_CHAT** | 2026-09-09 10:16 IST |
+| **LAST_SUMMARY** | QUICK CLOSE: no device smoke (no go). Active queue = FE match pass (professor-cts vs professor-dock). STEP 8 still gated. |
+| **NEXT_SUGGEST** | Paste FE match START (CHAT_PROMPTS full shell) · lab migrate optional · STEP 8 only on **go** |
+| **BLOCKED_ON** | User paste FE match chat; STEP 8 needs **go** |
 | **LOCKED** | return QR UX=morning; mint `?trip=return`; shared boarding_scan; live RCList=user-ID list; End→history (BE); FE no archive UI |
 | **SCHEMA_DIR** | Morning DTODLOG/CList morning-only; return trip log + live RCList ID list; End archives to history |
 

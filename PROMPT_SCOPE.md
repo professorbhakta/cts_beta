@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 10:20 IST
-> **Session:** FE match prompt hardened — attach pack + no blockers
+> **Updated:** 2026-09-09 10:16 IST
+> **Session:** QUICK CLOSE — Q-fe-match-be still active; STEP 8 waits on go
 
 # PROMPT SCOPE — CTS
 
@@ -110,6 +110,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 10:16 | QUICK CLOSE: no STEP 8 (no go); queue unchanged — next paste FE match START | `cts_beta` |
 | 2026-09-09 10:20 | Hardened FE match prompt: brain §3 pack, no migrate/smoke blockers, lib/data/local OK, stale draft refs fixed | `cts_beta` |
 | 2026-09-09 10:15 | CHAT_PROMPTS: FE match-BE-tip is primary START; STEP 8 kept as alt on go | `cts_beta` |
 | 2026-09-09 10:10 | Added FE_MATCH_BE_TIP_CONTINUE_PROMPT — FE check/match vs BE tip schema+API | `cts_beta` docs |

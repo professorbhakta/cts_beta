@@ -1,6 +1,6 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-09-09 10:20 IST
-> **Session:** FE match START hardened (attach pack + no migrate/smoke blockers)
+> **Updated:** 2026-09-09 10:16 IST
+> **Session:** QUICK CLOSE — STEP 8 held (no go); next = FE match START
 ================================================================================
 QUICK START (minimal) — FE match BE tip
 ================================================================================
@@ -98,9 +98,9 @@ Story split (stable):
   - setup/ = JWT · schema · bootstrap · branch map · FE match continue prompt
 
 Open:
-  - Paste FE match START (above) in a new chat?
-  - Lab migrate on professor-dock?
-  - User go for STEP 8?
+  - **Next:** paste FE match START (full shell) in a new chat
+  - Lab migrate on professor-dock? (optional; do not block match)
+  - STEP 8 only after explicit **go** (not this session)
 
 ================================================================================
 QUICK CLOSE
