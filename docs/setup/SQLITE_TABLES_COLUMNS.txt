@@ -1,0 +1,18 @@
+CTS SQLite — exact table + column names (discuss-only)
+Updated: 2026-09-09
+Status: FE Phase A bootstrap tables on feat/admin-bootstrap (schema v2); Phase B orgs still discuss
+Prefer snake_case in SQLite; map from API camelCase on sync.
+See also: SCHEMA_FINAL_DRAFT.txt, LOGIN_JSON_FIELDS.txt, JWT_LOGIN_IMPLEMENTATION_NOTES.txt
+
+auth_session (or tokens in secure storage + sqlite for rest):
+access_token, refresh_token, user_id, user_type, admin_code, default_organization_id, updated_at
+
+organization: id TEXT PK, org_name, is_active, created_at, updated_at
+sub_admin: id TEXT PK, user_id INTEGER
+sub_admin_organization: id INTEGER PK, sub_admin_id, organization_id, is_active; UNIQUE(sub_admin_id, organization_id)
+supervisor: id INTEGER PK, user_id, organization_id, is_active; UNIQUE(user_id, organization_id)
+user (or app_user): id INTEGER PK, username, mobile_number, email, user_type, has_paid NULL, device_id — NO password
+commuter / routes / pick_up_points / batch / cab / driver / dtodlog: mirror SCHEMA_FINAL_DRAFT (snake_case)
+
+ROLE fill on sync: ADMIN full org-scoped; SUPERVISOR allow-list by organization_id; DRIVER assignment subset; COMMUTER/STAFF own row + summary
+Login seeds auth_session only; full rows from later bootstrap/home.

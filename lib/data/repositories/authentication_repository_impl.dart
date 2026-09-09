@@ -7,11 +7,18 @@ import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/domain/repositories/authentication_repository.dart';
 import 'package:cts/features/auth/models/login_response.dart';
+import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
+import 'package:cts/data/local/database/app_database.dart';
 
 class AuthenticationRepositoryImpl implements AuthenticationRepository {
-  AuthenticationRepositoryImpl({required this._apiService});
+  AuthenticationRepositoryImpl({
+    required BaseApiServices apiService,
+    AdminBootstrapRepository? bootstrapRepository,
+  })  : _apiService = apiService,
+        _bootstrapRepository = bootstrapRepository;
 
   final BaseApiServices _apiService;
+  final AdminBootstrapRepository? _bootstrapRepository;
 
   @override
   Future<ApiResult<String>> login({
@@ -58,6 +65,13 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       );
 
       _persistLoginUser(parsed);
+
+      // login = passport; bootstrap = luggage (ADMIN / SUPERVISOR only).
+      final role = parsed.user.userType;
+      final bootstrap = _bootstrapRepository;
+      if ((role == 'ADMIN' || role == 'SUPERVISOR') && bootstrap != null) {
+        await bootstrap.sync();
+      }
 
       return ApiResult.success(parsed.user.userType);
     } catch (e) {
@@ -115,7 +129,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       case 'COMMUTER':
       case 'STAFF':
       case 'DRIVER':
-        // STAFF shares commuter home/UX — accept the same profile keys when
+        // STAFF shares commuter home/UX â€” accept the same profile keys when
         // the JWT stub includes assignment / isComing fields.
         final batch = profileData['batchId'];
         if (batch is Map) {
@@ -233,6 +247,11 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
     } catch (_) {
       // Always clear locally so a failed POST cannot trap the user in-app.
     } finally {
+      try {
+        await AppDatabase.instance.clearAll();
+      } catch (_) {
+        // DB may not be open in tests.
+      }
       await AppManager.instance.clearLocalSession();
     }
     return ApiResult.success(null);

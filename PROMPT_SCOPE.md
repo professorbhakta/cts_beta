@@ -1,5 +1,5 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-08 12:45 IST
+> **Updated:** 2026-09-09 08:20 IST
 > **Session:** Role UI routing — STAFF→commuter; SUPERVISOR allow-list
 
 # PROMPT SCOPE — CTS
@@ -39,16 +39,16 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | Phase 3 complete; session closed |
+| P1 | Goal clear? | yes | JWT Phase A + cream on professor-cts; docs/setup is restart path |
 | P2 | Role / surface? | yes | Extend return_batch + batches UI; mirror morning Phase 2 |
 | P3 | Non-negotiables? | yes | No new REST unless needed; Provider; locked Q1–Q4 product |
 | P4 | Both ends? | yes | `cts-docker` return pool + `cts_beta` return screens |
 | P5 | R10 isComing? | yes | Return confirm ≠ isComing; End clears via trip_end scope |
-| P6 | Git branch? | yes | beta-ver; no commit unless asked |
+| P6 | Git branch? | yes | FE lanes: professor-cts / gb-f&d / p&gb-merger; keep beta-ver; never day-work on main |
 | P7 | Docs policy? | yes | Update API_CONTRACTS + batches README; handoff in D2D_PHASE3_CONTINUE_PROMPT |
 | P8 | Out of scope? | yes | Do not redo morning Phase 1+2; STEP 8 only on **go** |
 
-**This prompt:** Phase 3 — return trip waiting + FCFS → [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt).
+**This prompt:** Admin bootstrap FE + JWT luggage sync — start [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) · [JWT notes](docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt).
 
 ---
 
@@ -56,6 +56,9 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
+| 0 | Q-jwt-phase-a | JWT Phase A FE smoke (`flutter run`) + docs header sync | **active** | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
+| 0a | Q-admin-bootstrap | FE admin-bootstrap wired; BE endpoint + device smoke | **active** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
+| 0b | Q-docs-setup | Keep `docs/setup` + brain/scope/registry labels current | **active** | DOC_REGISTRY · setup/README |
 | 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |

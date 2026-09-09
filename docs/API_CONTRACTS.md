@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-01 10:20 IST
-> **Session:** Doc sync — view/ waiting[] example; headers aligned to Phase 3
+> **Updated:** 2026-09-09
+> **Session:** Senior JWT hardening deferred for smoke (Dock)
 
 # API Contracts — Backend ↔ Flutter
 
@@ -330,3 +330,20 @@ Redis return waiting key: `d2d:return_waiting:{YYYY-MM-DD}:{batch_id}` — flush
 - [LOCAL_DEV.md](./LOCAL_DEV.md) — Docker / Nginx / LAN
 - [GLOSSARY.md](./GLOSSARY.md) — Redis keys, channel group names
 - `lib/api/api_list.dart`
+
+---
+
+## Auth — Admin bootstrap (2026-09-09)
+
+> Detail: [setup/ADMIN_BOOTSTRAP_DRAFT.md](./setup/ADMIN_BOOTSTRAP_DRAFT.md)
+> FE: wired on branch `feat/admin-bootstrap` (`lib/features/admin_bootstrap/`) — no UI screens.
+
+| Method | Path | Auth | Success |
+|--------|------|------|---------|
+| GET | /user/admin-bootstrap/ | Bearer access | status, generatedAt, adminCode, organizations[], enums, routes[], pickUpPoints[], batches[], cabs[], drivers[], commuters[], today |
+
+- ADMIN or SUPERVISOR only (403 otherwise).
+- Scoped by caller's subAdmin adminCode when present.
+- Phase A: organizations may be []; routeCode / acType / area may be null until schema migrate.
+- FE maps camelCase → snake_case SQLite (schema v2) after JWT login.
+

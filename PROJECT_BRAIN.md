@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** Role routing — STAFF→commuter; SUPERVISOR AdminService allow-list
+> **Updated:** 2026-09-09 08:20 IST
+> **Session:** Admin bootstrap FE wired (Phase A) — STAFF→commuter; SUPERVISOR AdminService allow-list
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -81,37 +81,19 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ## 5. Current focus
 
-**Session (2026-08-31):** Morning D2D Phase 1+2 + **Return Phase 3** shipped — cross-batch QR, trip-end `isComing`, morning/return waiting pool + FCFS, collapsed Already IN, return Waiting line UI.
+**Session (2026-09-09):** Admin bootstrap FE wired on `feat/admin-bootstrap` — login → `GET /user/admin-bootstrap/` → SQLite v2 (snake_case). JWT passport remains. BE endpoint may still lag.
 
 | Piece | Detail |
 |-------|--------|
-| Morning D2D | Phase 1+2 **done** — see [d2d/README.md](lib/features/d2d/README.md) |
-| Return batch | Phase 3 **done** — `return_waiting_pool.py` + `action: join_waiting` on add_commuter |
-| STEP 8 smoke | Still **partial** — [LAB_SMOKE_ISSUES.txt](docs/LAB_SMOKE_ISSUES.txt) |
-| Helper | `set_commuters_is_coming()` in `return_batch_utils.py` — one on/off/trip_end entry |
-| Stack | LOCAL_DEV · Docker restart after BE pulls |
+| Admin bootstrap FE | Branch `feat/admin-bootstrap`. Feature `lib/features/admin_bootstrap/` (Provider; no screens). Schema v2 tables + DAO. Draft: [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) |
+| JWT FE | Secure storage + Bearer + refresh-on-401 (merged lineage on professor-cts) |
+| Setup drafts | [docs/setup/](docs/setup/) — ADMIN_BOOTSTRAP_DRAFT, SQLITE_TABLES_COLUMNS, SCHEMA_FINAL_DRAFT |
 
-**Also open:** STEP 8 on user **go** · ISSUE-008 adminCode (uncommitted FE) · Q-26d-discuss · commit when asked.
+**Also open:** BE `GET /user/admin-bootstrap/` implement + device smoke · schema Phase B orgs · STEP 8
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | `beta-ver` | Uncommitted: D2D Phase 1+2 FE + docs + ISSUE-008 |
-| `D:\cts-docker` | (local) | Uncommitted: waiting_pool, boarding, consumers, return end, tests |
-
-**26d facts (do not redo):**
-- Intent ≠ confirm. Admin/driver still `POST add_commuter`. Do **not** reuse `isComing` as return intent (R10).
-- Redis: `d2d:return_intent:{dd-mm-yyyy}` → `home` \| `skip` \| `earlier:{batch_id}`
-- API: `GET/POST /d2d/return_batch/intent`, `GET /d2d/return_batch/intent_options`
-
-| Device | Last role | Login |
-|--------|-----------|--------|
-| `emulator-5554` | **Admin (logged in)** | `7069036462` / `password` |
-| Phone `5f36af49` | **Driver 1 (logged in)** | **`9876544111`** (Driver 2 is `9876544112` / Batch-02) |
-
-| State | Detail |
-|-------|--------|
-| `.env` | LAN **`172.20.10.2`** (iPhone hotspot lab; check `docs/LOCAL_DEV.md` if Wi‑Fi changed) |
-| Backend containers | Up: Nginx / Django / redis / Postgres / **PostgresBackup** |
+| `D:\cts_beta` | `feat/admin-bootstrap` | FE bootstrap sync after ADMIN/SUPERVISOR login |
 
 ---
 
@@ -132,7 +114,9 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ### Open backlog (from PROJECT_TODOS)
 
+- **JWT Phase A** device `flutter run` smoke + Admin password reset
 - **Client pack STEP 8** device smoke (user go)
+- Schema / SQLite role tables — discuss-only until green flag ([docs/setup/](docs/setup/))
 - Parked UI: return-leg KM, admin org odometer list, unboard UI
 - **Decide next:** Confirm “API every time” (26d-discuss)
 - Batch-wise Mark all coming (`CommuterListScreen`)
@@ -176,10 +160,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-08-31 | D2D Phase 3 | Return waiting Redis + `join_waiting` + FCFS auto-confirm; FE Waiting line + commuter join; uncommitted both repos |
-| 2026-08-31 | D2D Phase 1+2 | Morning: cross-batch QR, trip-end isComing, waiting pool + FCFS, UI collapse/waiting line |
-| 2026-08-29 | Agent law + layout END sync | Five role cards; LIB_STRUCTURE + ARCHITECTURE aligned; STEP 8 on **go** |
-| 2026-08-25 | Rest / wrap | Docs complete; STEP 8 still blocked on **go** |
+| 2026-09-07 | JWT Phase A + docs path | FE PR #4 cream merged; lab login/refresh OK; brain/registry/scope + `docs/setup` synced |
+| 2026-08-31 | D2D Phase 3 | Return waiting Redis + join_waiting + FCFS; FE Waiting line |
+| 2026-08-31 | D2D Phase 1+2 | Morning cross-batch QR, waiting pool + FCFS |
 
 ---
 

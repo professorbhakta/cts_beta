@@ -4,6 +4,9 @@ class ApiUrl {
   static String refreshUrl = "user/refresh";
   static String logoutUrl = "user/logout";
 
+  /// One-shot admin sync after JWT login (ADMIN / SUPERVISOR).
+  static const String adminBootstrapUrl = "user/admin-bootstrap/";
+
   static String userUrl = "user";
   static String cndUserUrl = "user/";
   static String adminUrl = "user/admin/";
@@ -12,7 +15,7 @@ class ApiUrl {
   static String commuterUrl = "user/commuter";
   static String commuterDriverUrl = "user/driver/batch/";
   static String adminCommuterUrl = "user/admin/commuter/";
-  /// `PATCH …/isComing` — admin mark-all coming for org [adminCode].
+  /// `PATCH â€¦/isComing` â€” admin mark-all coming for org [adminCode].
   static String adminCommuterIsComingUrl(String adminCode) =>
       "user/admin/commuter/$adminCode/isComing";
 
@@ -39,7 +42,7 @@ class ApiUrl {
   static const String returnBatchIntentOptions =
       "d2d/return_batch/intent_options";
 
-  // Client pack — odometer (multipart start/end; JSON GETs)
+  // Client pack â€” odometer (multipart start/end; JSON GETs)
   static const String odometerStart = "d2d/odometer/start/";
   static const String odometerEnd = "d2d/odometer/end/";
   static String odometerBatch(String batchId) => "d2d/odometer/$batchId/";
@@ -47,7 +50,7 @@ class ApiUrl {
   static String odometerPhoto(String batchId, String leg, String kind) =>
       "d2d/odometer/photo/$batchId/$leg/$kind/";
 
-  // Client pack — QR boarding
+  // Client pack â€” QR boarding
   static String boardingQr(String batchId) => "d2d/boarding_qr/$batchId/";
   static const String boardingScan = "d2d/boarding_scan/";
   static const String boardingUnboard = "d2d/boarding_unboard/";

@@ -46,6 +46,9 @@ import 'package:cts/domain/repositories/authentication_repository.dart';
 import 'package:cts/domain/repositories/session_repository.dart';
 import 'package:cts/domain/usecases/get_initial_route_usecase.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
+import 'package:cts/features/admin_bootstrap/providers/admin_bootstrap_provider.dart';
+import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
+import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository_impl.dart';
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository_impl.dart';
@@ -87,9 +90,15 @@ class AppProviders {
         value: sessionAuthNotifier,
       ),
       Provider<SessionRepository>(create: (_) => SessionRepositoryImpl()),
+      Provider<AdminBootstrapRepository>(
+        create: (context) => AdminBootstrapRepositoryImpl(
+          apiService: context.read<BaseApiServices>(),
+        ),
+      ),
       Provider<AuthenticationRepository>(
         create: (context) => AuthenticationRepositoryImpl(
           apiService: context.read<BaseApiServices>(),
+          bootstrapRepository: context.read<AdminBootstrapRepository>(),
         ),
       ),
       Provider<BatchRepository>.value(value: offlineFirstBatchRepository),
@@ -136,6 +145,11 @@ class AppProviders {
       ChangeNotifierProvider(
         create: (context) =>
             SplashProvider(context.read<GetInitialRouteUseCase>()),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => AdminBootstrapProvider(
+          context.read<AdminBootstrapRepository>(),
+        ),
       ),
       ChangeNotifierProvider(
         create: (context) =>
@@ -227,7 +241,11 @@ class AppProviders {
       onUnauthorized: onSessionInvalidated,
     );
 
-    final authRepository = AuthenticationRepositoryImpl(apiService: apiService);
+    final bootstrapRepository = AdminBootstrapRepositoryImpl(apiService: apiService);
+    final authRepository = AuthenticationRepositoryImpl(
+      apiService: apiService,
+      bootstrapRepository: bootstrapRepository,
+    );
     sessionAuthNotifier.bindAuthRepository(authRepository);
     await sessionAuthNotifier.refresh(validateWithServer: true);
 
