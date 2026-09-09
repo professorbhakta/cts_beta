@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-09 10:10 IST
-> **Session:** FE match prompt — bootstrap note points at professor-cts
+> **Updated:** 2026-09-09 18:10 IST
+> **Session:** FE match — profile stub flat/nested + bootstrap soft-fail
 
 # API Contracts — Backend ↔ Flutter
 
@@ -33,7 +33,7 @@ Wire keys are **camelCase only**. CSRF is **not** used for Flutter JWT calls.
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `POST /user/login` body `{mobileNumber, password}` | `ApiUrl.loginUrl` | Response: `{access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}, adminCode, organizations[], supervisorOrgs[], profile}`. Access + refresh stored in FlutterSecureStorage. Empty org arrays / null profile stubs are valid. |
+| `POST /user/login` body `{mobileNumber, password}` | `ApiUrl.loginUrl` | Response: `{access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}, adminCode, organizations[], supervisorOrgs[], profile}`. Access + refresh stored in FlutterSecureStorage. Empty org arrays / null profile stubs are valid. Profile assignment ids may be **flat** or nested maps; ADMIN/SUPERVISOR prefer `subAdminId`/`supervisorId` when envelope `adminCode` empty. ADMIN/SUPERVISOR then soft-call bootstrap (login still succeeds if luggage fails). |
 | `POST /user/refresh` body `{refresh}` → `{access}` | `ApiUrl.refreshUrl` | Dio interceptor: on **401**, one refresh attempt then retry original; if refresh fails → clear tokens + go `/signIn` |
 | Later APIs | Dio interceptor | `Authorization: Bearer <access>` on non-login/refresh requests |
 | `POST /user/logout` | `ApiUrl.logoutUrl` | Client always clears JWT + prefs, even if POST fails |

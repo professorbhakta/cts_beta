@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 10:20 IST
-> **Session:** FE match prompt hardened — attach pack + no blockers
+> **Updated:** 2026-09-09 18:10 IST
+> **Session:** FE match pass complete — Q-fe-match-be done
 
 # PROMPT SCOPE — CTS
 
@@ -60,16 +60,16 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | Clear cts_beta remotes to 5 keepers; merge extras → professor-cts |
-| P2 | Role / surface? | yes | FE tip professor-cts; keep main / gb-f&d / p&gb-merger / beta-ver |
-| P3 | Non-negotiables? | yes | No day-push main; cream kept over navy; Provider |
-| P4 | Both ends? | yes | FE clear first; cts-docker clear next |
-| P5 | R10 isComing? | yes | Return confirm ≠ isComing; End clears via trip_end scope |
-| P6 | Git branch? | yes | Keep only 5 FE remotes after delete |
-| P7 | Docs policy? | yes | BRANCH_HOLD_NOTES + brain/scope/registry |
-| P8 | Out of scope? | yes | No VPS main; STEP 8 only on **go** |
+| P1 | Goal clear? | yes | FE match vs BE tip; close FE gaps |
+| P2 | Role / surface? | yes | FE tip professor-cts; read BE tip contracts |
+| P3 | Non-negotiables? | yes | Provider; no day-push main; cream tip |
+| P4 | Both ends? | yes | FE_FIX only; BE read/compare |
+| P5 | R10 isComing? | yes | Return confirm ≠ isComing |
+| P6 | Git branch? | yes | cursor/fe-match-be-tip-e750 → professor-cts |
+| P7 | Docs policy? | yes | DISCUSSION_STATUS + brain/scope/registry |
+| P8 | Out of scope? | yes | No STEP 8; no VPS main; no BE edits |
 
-**This prompt:** Prepare / run FE match vs BE tip — [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt).
+**This prompt:** FE match vs BE tip — [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt).
 
 ---
 
@@ -77,7 +77,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
-| 0 | Q-fe-match-be | FE match pass vs BE tip (schema/API/bootstrap/return QR) | **active** | [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) |
+| 0 | Q-fe-match-be | FE match pass vs BE tip (schema/API/bootstrap/return QR) | **done** | [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) |
 | 0a | Q-jwt-phase-a | JWT Phase A FE smoke (`flutter run`) + docs header sync | **next** | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
 | 0b | Q-admin-bootstrap | FE admin-bootstrap on professor-cts; lab smoke after migrate | **next** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
 | 0c | Q-docs-setup | Keep-lane map + brain/scope/registry | open | [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
@@ -110,6 +110,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 18:10 | FE match: gap table; FE_FIX flat/nested profile + bootstrap soft-fail; 166 tests | `cts_beta` |
 | 2026-09-09 10:20 | Hardened FE match prompt: brain §3 pack, no migrate/smoke blockers, lib/data/local OK, stale draft refs fixed | `cts_beta` |
 | 2026-09-09 10:15 | CHAT_PROMPTS: FE match-BE-tip is primary START; STEP 8 kept as alt on go | `cts_beta` |
 | 2026-09-09 10:10 | Added FE_MATCH_BE_TIP_CONTINUE_PROMPT — FE check/match vs BE tip schema+API | `cts_beta` docs |

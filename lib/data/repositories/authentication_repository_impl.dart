@@ -9,6 +9,7 @@ import 'package:cts/domain/repositories/authentication_repository.dart';
 import 'package:cts/features/auth/models/login_response.dart';
 import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
 import 'package:cts/data/local/database/app_database.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthenticationRepositoryImpl implements AuthenticationRepository {
   AuthenticationRepositoryImpl({
@@ -67,10 +68,17 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       _persistLoginUser(parsed);
 
       // login = passport; bootstrap = luggage (ADMIN / SUPERVISOR only).
+      // Soft-fail: bootstrap errors must not block JWT login.
       final role = parsed.user.userType;
       final bootstrap = _bootstrapRepository;
       if ((role == 'ADMIN' || role == 'SUPERVISOR') && bootstrap != null) {
-        await bootstrap.sync();
+        final luggage = await bootstrap.sync();
+        if (luggage.isFailure) {
+          debugPrint(
+            'Admin bootstrap soft-fail after login: '
+            '${luggage.failure?.message ?? 'unknown'}',
+          );
+        }
       }
 
       return ApiResult.success(parsed.user.userType);
@@ -129,34 +137,9 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       case 'COMMUTER':
       case 'STAFF':
       case 'DRIVER':
-        // STAFF shares commuter home/UX â€” accept the same profile keys when
-        // the JWT stub includes assignment / isComing fields.
-        final batch = profileData['batchId'];
-        if (batch is Map) {
-          AppManager.instance.setString(
-            ManagerKey.batchId,
-            batch['id']?.toString() ?? '',
-          );
-          AppManager.instance.setString(
-            ManagerKey.batchName,
-            batch['batchName']?.toString() ?? '',
-          );
-          AppManager.instance.setString(
-            ManagerKey.batchTime,
-            batch['batchTime']?.toString() ?? '',
-          );
-        }
-        final cab = profileData['cabId'];
-        if (cab is Map) {
-          AppManager.instance.setString(
-            ManagerKey.cabId,
-            cab['id']?.toString() ?? '',
-          );
-          AppManager.instance.setString(
-            ManagerKey.cabNumb,
-            cab['regNumber']?.toString() ?? '',
-          );
-        }
+        // LOGIN_JSON_FIELDS: batchId/cabId may be flat ids OR nested maps.
+        // STAFF shares commuter home/UX — same assignment / isComing keys.
+        _applyAssignmentStub(profileData);
         if (RouteName.isCommuterLike(userType) &&
             profileData.containsKey('isComing')) {
           AppManager.instance.setString(
@@ -176,12 +159,72 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
         break;
       case 'ADMIN':
       case 'SUPERVISOR':
-        final id = profileData['id']?.toString();
-        if (id != null && id.isNotEmpty) {
-          AppManager.instance.setString(ManagerKey.adminCode, id);
+        // Prefer explicit Phase A+ keys; fall back to legacy profile.id.
+        // Envelope adminCode (already stored) wins unless empty/'0'.
+        final existing = AppManager.instance.getString(ManagerKey.adminCode);
+        if (existing.isEmpty || existing == '0') {
+          final code = _firstNonEmptyString([
+            profileData['subAdminId'],
+            profileData['supervisorId'],
+            profileData['id'],
+          ]);
+          if (code != null) {
+            AppManager.instance.setString(ManagerKey.adminCode, code);
+          }
         }
         break;
     }
+  }
+
+  /// Accept nested `{id, …}` maps or flat id / name strings from login profile.
+  void _applyAssignmentStub(Map<String, dynamic> profileData) {
+    final batch = profileData['batchId'];
+    if (batch is Map) {
+      _setIfNonEmpty(ManagerKey.batchId, batch['id']);
+      _setIfNonEmpty(ManagerKey.batchName, batch['batchName']);
+      _setIfNonEmpty(ManagerKey.batchTime, batch['batchTime']);
+    } else {
+      _setIfNonEmpty(ManagerKey.batchId, batch);
+      _setIfNonEmpty(ManagerKey.batchName, profileData['batchName']);
+      _setIfNonEmpty(ManagerKey.batchTime, profileData['batchTime']);
+    }
+
+    final cab = profileData['cabId'];
+    if (cab is Map) {
+      _setIfNonEmpty(ManagerKey.cabId, cab['id']);
+      _setIfNonEmpty(
+        ManagerKey.cabNumb,
+        cab['regNumber'] ?? cab['cabRegNumber'],
+      );
+    } else {
+      _setIfNonEmpty(ManagerKey.cabId, cab);
+      _setIfNonEmpty(
+        ManagerKey.cabNumb,
+        profileData['cabRegNumber'] ?? profileData['regNumber'],
+      );
+    }
+
+    final pop = profileData['popId'];
+    if (pop is Map) {
+      _setIfNonEmpty(ManagerKey.popId, pop['id']);
+    } else {
+      _setIfNonEmpty(ManagerKey.popId, pop);
+    }
+  }
+
+  void _setIfNonEmpty(String key, dynamic value) {
+    final text = value?.toString().trim();
+    if (text != null && text.isNotEmpty) {
+      AppManager.instance.setString(key, text);
+    }
+  }
+
+  String? _firstNonEmptyString(List<dynamic> values) {
+    for (final value in values) {
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty) return text;
+    }
+    return null;
   }
 
   @override
