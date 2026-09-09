@@ -1,17 +1,19 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-09-09 10:15 IST
-> **Session:** FE match-BE-tip is active START; STEP 8 still on go
+> **Updated:** 2026-09-09 10:20 IST
+> **Session:** FE match START hardened (attach pack + no migrate/smoke blockers)
 ================================================================================
 QUICK START (minimal) — FE match BE tip
 ================================================================================
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
+@CHAT_PROMPTS.txt
 @docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
 @docs/API_CONTRACTS.md
 @docs/setup/DISCUSSION_STATUS.md
 Task: Frontend match pass — verify professor-cts vs professor-dock tip (schema + API).
-Note: Full checklist in FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt. Day lanes only — never main.
+Note: Full checklist + work order in FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt.
+      Code/contract match first; lab migrate optional; STEP 8 only on go.
 
 ================================================================================
 START PROMPT (full shell) — FE match BE tip
@@ -19,13 +21,16 @@ START PROMPT (full shell) — FE match BE tip
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
+@CHAT_PROMPTS.txt
 @docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
 @docs/setup/DISCUSSION_STATUS.md
 @docs/setup/BRANCH_HOLD_NOTES.md
 @docs/API_CONTRACTS.md
+@docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt
 @docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
 @docs/setup/LOGIN_JSON_FIELDS.txt
 @docs/setup/SQLITE_TABLES_COLUMNS.txt
+@docs/setup/SCHEMA_FINAL_DRAFT.txt
 @docs/setup/RETURN_TRIP_API_GAP.md
 @docs/setup/RETURN_QR_UI_PREP.md
 @docs/ROUTING_AND_AUTH.md
@@ -36,16 +41,18 @@ START PROMPT (full shell) — FE match BE tip
 
 Task: Frontend match pass — verify professor-cts against professor-dock tip
 (schema + API + bootstrap + return QR), list gaps (MATCH | FE_FIX | BE_FIX | DEFER),
-then fix FE mismatches only.
+then fix FE mismatches only. Follow FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt end-to-end.
 
-REPOS: D:\cts_beta (professor-cts) · D:\cts-docker (professor-dock)
+REPOS: D:\cts_beta (professor-cts only) · D:\cts-docker (read professor-dock; no BE edits unless asked)
 
 Constraints:
-  Follow FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt checklist end-to-end.
+  Attach = brain §3 Always, then this setup/match pack (do not reshuffle).
+  Code/contract match first — do not block on Docker migrate or device smoke.
   Provider only; no new REST unless required; camelCase wire per contracts.
-  Git: day lanes only (professor-cts / professor-dock). Never day-push main.
+  Existing lib/data/local SQLite OK; no new presentation/domain folders.
+  Git: professor-cts day lane only. Never day-push main.
+  After FE code: flutter analyze + flutter test. Device pre-push gate only on user go.
   Do not start client pack STEP 8 without explicit go.
-  Do not change attach order or recreate retired docs.
   END sync: brain §5/§9, PROMPT_SCOPE, DOC_REGISTRY, this file MIDDLE CONTEXT.
 
 ================================================================================
@@ -79,17 +86,19 @@ MIDDLE CONTEXT
 Current focus:
   - **Active:** Q-fe-match-be — FE match pass vs BE tip (schema/API/bootstrap/return QR)
     Prompt owner: docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
+    Paste hub: this file START (full shell)
+  - Work order: code/contract match → gap table → FE_FIX → analyze/test → END sync
+  - Lab migrate / device smoke = optional or on **go** (do not block match report)
   - BE tip professor-dock (JWT + org schema + admin-bootstrap + return trip log); main held
   - FE tip professor-cts (JWT + cream + roles + bootstrap + return QR Phase 2); keep-5 remotes
   - Next after match: lab migrate smoke · JWT/bootstrap device smoke · STEP 8 on **go**
-  - Parked: return KM / org odo / unboard; Phase B org lists from DB
 
 Story split (stable):
   - 05 = product story/locks · FLOWS = journeys · 07 = smoke · DISCUSSION_LOG = pointer
   - setup/ = JWT · schema · bootstrap · branch map · FE match continue prompt
 
 Open:
-  - Run FE match START (above)?
+  - Paste FE match START (above) in a new chat?
   - Lab migrate on professor-dock?
   - User go for STEP 8?
 

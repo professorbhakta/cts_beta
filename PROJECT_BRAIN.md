@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 10:10 IST
-> **Session:** FE match-BE-tip continue prompt ready
+> **Updated:** 2026-09-09 10:20 IST
+> **Session:** FE match pack locked in §3; prompt hardened for agents
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -62,6 +62,27 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 @lib/features/batches/README.md
 ```
 
+**FE match / setup (append after Always — order locked with CHAT_PROMPTS):**
+```
+@CHAT_PROMPTS.txt
+@docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
+@docs/setup/DISCUSSION_STATUS.md
+@docs/setup/BRANCH_HOLD_NOTES.md
+@docs/API_CONTRACTS.md
+@docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt
+@docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
+@docs/setup/LOGIN_JSON_FIELDS.txt
+@docs/setup/SQLITE_TABLES_COLUMNS.txt
+@docs/setup/SCHEMA_FINAL_DRAFT.txt
+@docs/setup/RETURN_TRIP_API_GAP.md
+@docs/setup/RETURN_QR_UI_PREP.md
+@docs/ROUTING_AND_AUTH.md
+@lib/features/batches/README.md
+@lib/features/d2d/README.md
+@docs/LOCAL_DEV.md
+@docs/TESTING.md
+```
+
 **Gate:** pack opened with `let's start client feature`. Device smoke = STEP 8 only after user **go**.
 
 ---
@@ -76,6 +97,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 | **New UI** | @docs/FLOWS_BY_ROLE.md @docs/UI_ARCHITECTURE.md @docs/FEATURES.md |
 | **Backend / lab** | @docs/LOCAL_DEV.md @docs/API_CONTRACTS.md @docs/backend/README.md |
 | **Offline** | @docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md |
+| **FE match / setup** | Same as §3 FE match pack · owner [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) |
 | **Client req** | Same as §3 client-pack list; add @docs/FLOWS_BY_ROLE.md for QA/smoke journeys; optional @docs/client_req/05-open-decisions.md |
 
 ---

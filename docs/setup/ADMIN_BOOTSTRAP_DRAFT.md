@@ -8,9 +8,9 @@
 **Who:** `userType` ADMIN or SUPERVISOR only (403 others)  
 **Idea:** login = passport; this call = luggage (one sync for Admin app)
 
-Scope today (Phase A, no Organization tables yet):
+Scope today (Phase A on tip — org **migrations exist** on `professor-dock`; lab migrate may still be pending):
 - Filter by caller’s `adminCode` (subAdmin id) like existing APIs
-- `organizations` / rich org fields may be `[]` until schema migrate
+- `organizations` / rich org fields may be `[]` until migrate + Phase B fill
 - SUPERVISOR: same shape; only orgs/batches they may touch (when Supervisor rows exist; else same as admin for dummy)
 
 ---

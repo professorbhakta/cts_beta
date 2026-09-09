@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 10:10 IST
-> **Session:** FE match-BE-tip continue prompt ready
+> **Updated:** 2026-09-09 10:20 IST
+> **Session:** FE match prompt hardened — attach pack + no blockers
 
 # PROMPT SCOPE — CTS
 
@@ -20,6 +20,27 @@
 @docs/API_CONTRACTS.md
 @docs/TESTING.md
 @docs/LOCAL_DEV.md
+```
+
+**FE match / setup (append after Always — same as brain §3 / CHAT_PROMPTS):**
+```
+@CHAT_PROMPTS.txt
+@docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
+@docs/setup/DISCUSSION_STATUS.md
+@docs/setup/BRANCH_HOLD_NOTES.md
+@docs/API_CONTRACTS.md
+@docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt
+@docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
+@docs/setup/LOGIN_JSON_FIELDS.txt
+@docs/setup/SQLITE_TABLES_COLUMNS.txt
+@docs/setup/SCHEMA_FINAL_DRAFT.txt
+@docs/setup/RETURN_TRIP_API_GAP.md
+@docs/setup/RETURN_QR_UI_PREP.md
+@docs/ROUTING_AND_AUTH.md
+@lib/features/batches/README.md
+@lib/features/d2d/README.md
+@docs/LOCAL_DEV.md
+@docs/TESTING.md
 ```
 
 Add for journeys/QA: `@docs/FLOWS_BY_ROLE.md`  
@@ -89,6 +110,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 10:20 | Hardened FE match prompt: brain §3 pack, no migrate/smoke blockers, lib/data/local OK, stale draft refs fixed | `cts_beta` |
 | 2026-09-09 10:15 | CHAT_PROMPTS: FE match-BE-tip is primary START; STEP 8 kept as alt on go | `cts_beta` |
 | 2026-09-09 10:10 | Added FE_MATCH_BE_TIP_CONTINUE_PROMPT — FE check/match vs BE tip schema+API | `cts_beta` docs |
 | 2026-09-09 10:05 | Keep-lane tidy: push FE docs + day-lane hooks; reset local beta-ver; BE hooks on professor-dock | both |

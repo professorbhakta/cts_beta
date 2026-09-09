@@ -1,19 +1,22 @@
 > **Doc:** docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
-> **Updated:** 2026-09-09 10:10 IST
-> **Session:** FE match pass vs BE tip (schema + API + bootstrap + return QR)
+> **Updated:** 2026-09-09 10:20 IST
+> **Session:** FE match pass — hardened for agent flow (no blockers)
 ================================================================================
 COPY FROM HERE → paste as new chat START (FE match BE tip)
 ================================================================================
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
+@CHAT_PROMPTS.txt
 @docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
 @docs/setup/DISCUSSION_STATUS.md
 @docs/setup/BRANCH_HOLD_NOTES.md
 @docs/API_CONTRACTS.md
+@docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt
 @docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
 @docs/setup/LOGIN_JSON_FIELDS.txt
 @docs/setup/SQLITE_TABLES_COLUMNS.txt
+@docs/setup/SCHEMA_FINAL_DRAFT.txt
 @docs/setup/RETURN_TRIP_API_GAP.md
 @docs/setup/RETURN_QR_UI_PREP.md
 @docs/ROUTING_AND_AUTH.md
@@ -26,21 +29,25 @@ Task: **Frontend match pass** — verify `professor-cts` against backend tip `pr
 list gaps, then fix FE (or flag true BE gaps) so schema/API/UI stay aligned.
 
 REPOS:
-  FE  D:\cts_beta     branch **professor-cts** (day lane; also = gb-f&d / p&gb-merger)
-  BE  D:\cts-docker   branch **professor-dock** @ tip (also = gb-dock / p-gb-merger)
-  Do **not** day-work or push `main` on either repo.
+  FE  D:\cts_beta     work on **professor-cts** only (day lane)
+  BE  D:\cts-docker   read/compare **professor-dock** (do not change BE unless user asks)
+  Never day-work or push `main`. Do not FF gb-* / merger lanes unless user asks.
+
+ATTACH RULE:
+  Brain §3 Always first (PROJECT_BRAIN + PROMPT_SCOPE). Then this setup/match pack
+  (same order as CHAT_PROMPTS full START). Do not reshuffle; do not invent a new order.
 
 ---
 
 ## Context — what BE tip already has (do NOT re-implement on BE)
 
-Backend tip includes (vs older `main`):
+Backend tip (`professor-dock`) includes (vs older `main`):
 
 1) **JWT Phase A** — POST /user/login, POST /user/refresh, Bearer; passport payload
    (access, refresh, user, adminCode, organizations[], supervisorOrgs[], profile).
 
 2) **Org schema migrations** — Organization, SubAdminOrganization, Supervisor;
-   organizationId on resources; adminCode kept.
+   organizationId on resources; adminCode kept. (Lab migrate may still be pending.)
 
 3) **Admin bootstrap** — GET /user/admin-bootstrap/ (ADMIN/SUPERVISOR, Bearer).
 
@@ -53,19 +60,31 @@ Backend tip includes (vs older `main`):
 FE tip already merged: JWT + cream UI + role homes + admin_bootstrap feature +
 return QR Phase 2 + AGENTS.md. Remotes keep-5 only.
 
+Draft lag OK: ADMIN_BOOTSTRAP_DRAFT / SCHEMA_FINAL_DRAFT headers may still say
+"pre-migrate". Prefer **API_CONTRACTS + code on tip** as wire truth; use drafts as shape hints.
+
 ---
 
 ## Goal (this chat)
 
-Produce a **match report**, then **close FE gaps** against live BE tip.
+Produce a **match report**, then **close FE gaps** against BE tip contracts/code.
 
-Order of work:
-  A. Confirm branches + lab BE is on professor-dock (migrated if possible).
-  B. Contract checklist (below) — code read + optional lab smoke.
-  C. Write gap table: MATCH | FE_FIX | BE_FIX | DEFER.
-  D. Implement FE_FIX items only (Provider, module layout, no new REST unless required).
-  E. Update API_CONTRACTS + feature READMEs + DISCUSSION_STATUS for anything that changed.
-  F. END sync (brain §5/§9, PROMPT_SCOPE, DOC_REGISTRY). Push day lane when commits land.
+### Work order (do not skip A→C)
+
+  A. Confirm FE branch is professor-cts. BE path readable at professor-dock.
+  B. **Code/contract match first** (read FE + docs + BE source). Docker up is optional.
+  C. Write gap table: MATCH | FE_FIX | BE_FIX | DEFER (with file pointers).
+  D. Implement **FE_FIX only** (Provider; module layout; no new REST unless required).
+  E. After code edits: `flutter pub get`, `flutter analyze`, `flutter test`.
+  F. Docs: API_CONTRACTS + touched feature README + DISCUSSION_STATUS if status changed.
+  G. END sync: brain §5/§9, PROMPT_SCOPE, DOC_REGISTRY, CHAT_PROMPTS MIDDLE CONTEXT.
+
+### Lab / migrate (optional — do not block the report)
+
+- If Docker is already up on professor-dock: note whether migrations applied; optional
+  light login/bootstrap probe.
+- If Docker is down or migrate not done: still complete A–C and FE_FIX from contracts.
+  Put "needs lab migrate" under DEFER / BE_FIX — do not stall the chat.
 
 ---
 
@@ -84,10 +103,12 @@ Order of work:
 [ ] camelCase → snake_case SQLite schema v2 (SQLITE_TABLES_COLUMNS.txt)
 [ ] No UI screens required for bootstrap; Provider/repository only
 [ ] 403 path for non-admin roles is safe (no crash)
+[ ] Existing `lib/data/local/` SQLite DAO path is OK (legacy local DB) — do not
+    invent presentation/domain folders; do not force a relocate this pass
 
 ### Org schema awareness (Phase A vs B)
 [ ] FE tolerates null/missing routeCode, acType, area, organizations[]
-[ ] Do **not** require org rows for login/bootstrap smoke until lab migrate + Phase B
+[ ] Do **not** require org rows for login/bootstrap until lab migrate + Phase B
 [ ] If BE already returns org fields after migrate: map into SQLite organization /
     sub_admin_organization / supervisor tables without inventing wire keys
 
@@ -112,31 +133,38 @@ Order of work:
 ## Out of scope (unless user says go)
 - Client pack STEP 8 full device smoke (needs explicit **go**)
 - VPS / merge BE tip → main
+- BE code changes / running migrate as a required gate
 - Senior JWT hardening
 - Re-opening return-trip product decisions
 - Navy UI redesign (cream is tip)
 - New .md/.txt except updates to owners already listed
+- FF/push of gb-f&d, p&gb-merger, gb-dock, p-gb-merger unless asked
 
 ---
 
 ## Non-negotiables
 - State: Provider only (no Riverpod)
-- Layout: features/.../screens|providers|models|repositories — no presentation/domain/data
-- Git: FE day lane professor-cts; BE professor-dock; never day-push main
+- Layout: features/.../screens|providers|models|repositories
+  (no new presentation/domain). Existing lib/data/local for SQLite is allowed.
+- Git: commit on professor-cts; never day-push main
 - Prefer extend existing APIs; do not invent camelCase beyond contracts
-- flutter analyze + flutter test after FE code changes
-- Device smoke before push only when user requires pre-push gate
+- After FE code changes: flutter analyze + flutter test
+- **Push policy:** docs-only → push professor-cts OK.
+  Code FE_FIX → push professor-cts after analyze/test green.
+  Full device pre-push gate (TESTING.md) only when user says **go** / pre-push —
+  do not block the match report waiting for devices.
 
 ---
 
 ## Deliverables
-1. Gap table in chat (and bump DISCUSSION_STATUS "Still open" if needed)
-2. FE fixes committed on professor-cts (push day lane)
+1. Gap table in chat (MATCH | FE_FIX | BE_FIX | DEFER) with paths
+2. FE_FIX commits on professor-cts (push day lane per push policy above)
 3. Doc headers + API_CONTRACTS / feature README touch-ups for real deltas
-4. Pasteable next START if migrate/smoke is the following step
+4. Update CHAT_PROMPTS MIDDLE CONTEXT
+5. Pasteable next START (lab migrate smoke or STEP 8 on go)
 
 ================================================================================
 END COPY
 ================================================================================
 
-After paste: fill PROMPT_SCOPE §1 for this chat; keep §2 queue — set Q-fe-match-be active.
+After paste: fill PROMPT_SCOPE §1 for this chat; keep §2 — Q-fe-match-be **active**.

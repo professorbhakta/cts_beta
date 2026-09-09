@@ -4,7 +4,7 @@
 
 # Return trip API gap — Phase 2 boarding QR
 
-**Status:** Dock Phase 2 **green-flagged** for FE wire (lab BE `feat/return-trip-log` @ `aa60dc5`).  
+**Status:** Dock Phase 2 on BE tip `professor-dock` (return trip log + QR). FE wired on `professor-cts`.  
 **FE owner note:** [RETURN_QR_UI_PREP.md](./RETURN_QR_UI_PREP.md).
 
 If response fields differ in lab, Dock adjusts — **do not invent camelCase** beyond snake_case shown here and morning boarding client parsing.
