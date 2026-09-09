@@ -87,7 +87,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-08 15:18 IST | returnBoardingQr / returnBoardingScan prefixes |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-08 12:45 IST | user types split |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-09 09:50 IST | Admin bootstrap + return QR Phase 2 |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-09 18:10 IST | Login profile stub + bootstrap soft-fail |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-31 13:45 IST | return waiting Redis key |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 23:50 IST | Return QR Phase 2 mint/scan |
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
