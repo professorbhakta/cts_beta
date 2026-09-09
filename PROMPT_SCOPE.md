@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 09:50 IST
-> **Session:** Branch clear — merge extras into professor-cts (keep 5)
+> **Updated:** 2026-09-09 10:05 IST
+> **Session:** Keep-lane tidy — docs + day-lane hooks pushed
 
 # PROMPT SCOPE — CTS
 
@@ -89,6 +89,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-09 10:05 | Keep-lane tidy: push FE docs + day-lane hooks; reset local beta-ver; BE hooks on professor-dock | both |
 | 2026-09-09 09:50 | FE keep-5: merge admin-bootstrap + return-qr + AGENTS into professor-cts; navy ours-merge; delete extras | `cts_beta` |
 | 2026-09-08 23:50 | Return QR Phase 2 wired: GET boarding_qr?trip=return + POST boarding_scan; return_trip_id; cream nits | `cts_beta` / `professor-cts` |
 | 2026-09-08 15:45 | Return QR LOCKED: End archives RCList→history; trip keeps archive ID; FE no archive UI | `cts_beta` / `professor-cts` |

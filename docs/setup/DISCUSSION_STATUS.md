@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
 > **Updated:** 2026-09-09
-> **Session:** BE tip consolidated — JWT + return-trip + org schema + admin-bootstrap on day lanes (local)
+> **Session:** Keep-lane tidy — docs + day-lane hooks pushed
 
 # Dock / CTS discussion status (single path)
 
@@ -9,26 +9,35 @@
 ## Live now (code)
 | Piece | Branch / PR | Notes |
 |-------|-------------|--------|
-| Backend tip | `professor-dock` / `gb-dock` / `p-gb-merger` = `cursor/phase-a-jwt-login-9a34` @ `6311e9a` | Local FF 2026-09-09; **push pending**; `main` still 9 behind (VPS hold) |
-| JWT Phase A | in tip · [cts-docker#1](https://github.com/professorbhakta/cts-docker/pull/1) | Lab smoked earlier; hardening deferred |
-| Org schema | in tip · [cts-docker#2](https://github.com/professorbhakta/cts-docker/pull/2) | Migrations present; **lab migrate + smoke still open** |
-| Return trip log | in tip (was `feat/return-trip-log`) | Tables, QR `?trip=return`, archives, DTODLOG `return_*` stripped |
+| Backend tip | `professor-dock` / `gb-dock` / `p-gb-merger` @ `6311e9a` | Pushed; remotes = **4 lanes only** |
+| JWT Phase A | in tip | Lab smoked earlier; hardening deferred |
+| Org schema | in tip | Migrations present; **lab migrate + smoke still open** |
+| Return trip log | in tip | Tables, QR `?trip=return`, archives, DTODLOG `return_*` stripped |
 | Admin bootstrap BE | in tip (`admin_bootstrap.py`) | `GET /user/admin-bootstrap/` |
-| Flutter JWT + cream | `professor-cts` | Active FE tip |
-| Flutter admin-bootstrap | `feat/admin-bootstrap` (+1 vs professor) | FE wired; merge into professor-cts next |
+| Flutter tip | `professor-cts` (= `gb-f&d` / `p&gb-merger`) | Admin-bootstrap + return QR Phase 2 merged; remotes = **5 lanes only** |
 
 ## Backend git lanes (cts-docker)
-| Lane | Role | Status 2026-09-09 |
-|------|------|-------------------|
-| `main` | VPS / release only | **Hold** — do not FF until lab migrate OK |
-| `professor-dock` | PC lab day-to-day | Local = tip; push pending |
-| `gb-dock` | Cloud Cursor / heavy agent | Local = tip; push pending |
-| `p-gb-merger` | Integrate desk → later PR to main | Local = tip; push pending |
-| `feat/return-trip-log` | feature (now ancestor) | Fully inside tip |
-| `cursor/cts-schema-org-migrate-d32b` | one-shot (now ancestor) | Fully inside tip |
-| `cursor/phase-a-jwt-login-9a34` | JWT lab lineage | Same commit as day lanes |
+| Lane | Role | Status |
+|------|------|--------|
+| `main` | VPS / release only | **Hold** — do not FF until lab migrate OK (`ef632cd`) |
+| `professor-dock` | PC lab day tip | = tip `6311e9a` |
+| `gb-dock` | Cloud Cursor | = tip `6311e9a` |
+| `p-gb-merger` | Integrate desk → later PR to main | = tip `6311e9a` |
 
-Branch map detail: [BRANCH_HOLD_NOTES.md](./BRANCH_HOLD_NOTES.md)
+**Cleared + deleted:** `cursor/phase-a-jwt-login-9a34`, `feat/return-trip-log`, `cursor/cts-schema-org-migrate-d32b`.
+
+## Frontend git lanes (cts_beta)
+| Lane | Role |
+|------|------|
+| `main` | Default / no day-work |
+| `professor-cts` | PC day tip (sync hub) |
+| `gb-f&d` | Cloud Cursor |
+| `p&gb-merger` | Integrate desk |
+| `beta-ver` | Recovery |
+
+**Cleared + deleted:** `feat/admin-bootstrap`, `cursor/return-qr-ui-prep-6f9b`, `cursor/setup-dev-environment-96cd`, `cursor/role-ui-login-routing-a855`, `cursor/commuter-driver-ui-redesign-1fbd` (navy lineage ours-merged; cream kept).
+
+Branch map: [BRANCH_HOLD_NOTES.md](./BRANCH_HOLD_NOTES.md)
 
 ## Endpoints (Phase A + bootstrap)
 - `POST /user/login` `{mobileNumber,password}` → access, refresh, user, adminCode, organizations[], supervisorOrgs[], profile
@@ -38,40 +47,31 @@ Branch map detail: [BRANCH_HOLD_NOTES.md](./BRANCH_HOLD_NOTES.md)
 - CSRF: web/admin only; Flutter uses JWT
 - Lab host: `http://127.0.0.1/` — phone/emulator: confirm current LAN IP
 
-## Senior review (2026-09-08) - DEFERRED (no code change)
+## Senior review (2026-09-08) — DEFERRED
 Verified on branch; BHAKTA chose keep current behavior for small audience + easy smoke:
 
 | Sev | Finding | Decision |
 |-----|---------|----------|
-| High | `login_user` always Django `login()` + JWT (Flutter also gets session cookie) | **Defer** - keep dual bridge |
-| High | Access 12h / refresh 7d, no rotate/blacklist | **Defer** - keep TTLs |
+| High | `login_user` always Django `login()` + JWT (Flutter also gets session cookie) | **Defer** |
+| High | Access 12h / refresh 7d, no rotate/blacklist | **Defer** |
 | Med | `build_profile`: STAFF not explicit; leftover STUDENT | **Defer** |
 | Med | Session `login()` errors only `print` | **Defer** |
 | Low | Typo `serailizer`; logout session-only | **Defer** |
-| Low | Cleanup commit `076abd7` not on PR #1 | Optional push later (hygiene only) |
-
-Revisit hardening after smoke + larger audience / prod push.
-
-## Draft / UI only
-- `docs/setup/SCHEMA_FINAL_DRAFT.txt` (migrations now exist on tip — draft may lag)
-- Slim schema / roles / JWT notes in `docs/setup/`
-- UI map: `docs/setup/CREAM_BOARD_SCHEMA_UI.md` (Sat; mocks until migrate)
 
 ## Still open
-- Lab `migrate` + smoke on consolidated tip
+- Lab `migrate` + smoke on consolidated BE tip
 - Phase B: fill login/bootstrap `organizations` from DB (after migrate OK)
 - VPS deploy of tip → `main` (only after lab OK)
 - Senior JWT hardening (see above)
-- FE: merge `feat/admin-bootstrap` → `professor-cts`; review `cursor/return-qr-ui-prep-6f9b`
+- Client pack STEP 8 device smoke (on **go**)
 
 ## Next
-- Push cts-docker day lanes (`professor-dock`, `gb-dock`, `p-gb-merger`) when BHAKTA says go
-- Lab migrate org + return-trip migrations
-- FE merge admin-bootstrap; then return QR branch review
+- Lab migrate org + return-trip migrations on `professor-dock`
+- Device smoke JWT + admin-bootstrap + return QR
 - Client lock: return / evening trip **same QR boarding as morning** — see `CLIENT_RETURN_QR_NOTE.md`
 
 ## Rule
-After every discussion or implementation: bump **Updated** + **Session** on touched `.md`, then DOC_REGISTRY / API_CONTRACTS / brain / scope before the next topic.
+After every discussion or implementation: bump **Updated** + **Session** on touched `.md`, then DOC_REGISTRY / brain / scope before the next topic.
 
 ### RCLIST SHAPE
 - User-ID list on return trip row (like morning CList), not per-rider rows.
@@ -81,14 +81,14 @@ After every discussion or implementation: bump **Updated** + **Session** on touc
 - On End: archive table; trip keeps archive ID pointer.
 
 ### Column draft / DTODLOG return_*
-- See `docs/setup/RETURN_TRIP_COLUMNS_DRAFT.md` — **done 2026-09-09** and **merged into tip**.
+- See `docs/setup/RETURN_TRIP_COLUMNS_DRAFT.md` — **done** and merged into tip.
 
 ### Admin bootstrap
-- Draft: `docs/setup/ADMIN_BOOTSTRAP_DRAFT.md` — **BE + FE code present**; FE still on feature branch until merge.
+- Draft: `docs/setup/ADMIN_BOOTSTRAP_DRAFT.md` — **BE + FE on day tips**.
 
 ## BHAKTA decisions (2026-09-09)
-- Schema local: **green flag go** — Organization, SubAdminOrganization, Supervisor + organizationId on resources (keep adminCode).
+- Schema local: **green flag go** — Organization, SubAdminOrganization, Supervisor + organizationId (keep adminCode).
 - Phase B: after tables exist + lab OK, fill login/bootstrap `organizations` from DB.
 - Return trip: already discussed — **do not re-open**.
 - JWT hardening: stay deferred.
-- VPS JWT / STEP 8 / password: no new action from BHAKTA until lab OK.
+- VPS JWT / STEP 8 / password: no new action until lab OK.

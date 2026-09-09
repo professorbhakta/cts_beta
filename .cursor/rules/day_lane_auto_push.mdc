@@ -1,0 +1,13 @@
+---
+description: Online/offline sync — Flutter day lane professor-cts
+alwaysApply: true
+---
+
+# cts_beta → professor-cts (sync hub)
+
+https://github.com/professorbhakta/cts_beta/tree/professor-cts
+
+- Session start: pull day lane when clean. Session end: push unpushed commits.
+- After commits on `professor-cts`: always push (no second ask).
+- Offline OK — local commits wait; sync when online.
+- Never day-push `main`. No force-push unless user asks.

@@ -36,6 +36,18 @@ Still never auto-push `main`. No force-push.
 
 Remote list: [cts_beta/branches](https://github.com/professorbhakta/cts_beta/branches)
 
-## cts-docker (backend) — next clear pass
+## cts-docker (backend) — keep only these 4 remotes
 
-Still has feature/cursor branches; day tip local FF pending push. Keep target (mirror): `main`, `professor-dock`, `gb-dock`, `p-gb-merger`, + one recovery if needed.
+| Branch | Role |
+|--------|------|
+| `main` | VPS / release only (hold until lab migrate OK) |
+| `professor-dock` | PC lab day tip (sync hub) @ `6311e9a` |
+| `gb-dock` | Cloud Cursor lane @ `6311e9a` |
+| `p-gb-merger` | Integrate desk @ `6311e9a` |
+
+**Cleared into day tip + deleted (2026-09-09):**
+- `cursor/phase-a-jwt-login-9a34` — JWT Phase A (already at tip)
+- `feat/return-trip-log` — return tables / QR
+- `cursor/cts-schema-org-migrate-d32b` — org schema migrations
+
+Remote list: [cts-docker/branches](https://github.com/professorbhakta/cts-docker/branches)

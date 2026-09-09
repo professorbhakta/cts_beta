@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 09:50 IST
-> **Session:** FE branch clear — only 5 remotes; tip on professor-cts
+> **Updated:** 2026-09-09 10:05 IST
+> **Session:** Keep-lane tidy — docs + day-lane hooks
 
 # Documentation Registry
 
@@ -28,9 +28,9 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 09:50 IST | FE keep-5 branch clear |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 09:50 IST | branch clear + return QR merged |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 09:50 IST | FE keep-5 remotes |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 10:05 IST | Keep-lane tidy + hooks |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 10:05 IST | tidy changelog |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 10:05 IST | keep-lane tidy |
 | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-08-31 13:45 IST | MIDDLE CONTEXT — Phase 3 done |
 | [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
@@ -74,8 +74,8 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
 | [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 08:20 IST | FE wired (now on professor-cts) |
-| [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 09:50 IST | FE keep only 5 remotes |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 09:25 IST | BE tip consolidated |
+| [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 10:05 IST | FE keep-5 + BE keep-4 remotes |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 10:05 IST | Lanes cleared; lab migrate still open |
 | [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 09:25 IST | Index + branch consolidation |
 | [docs/setup/CLIENT_RETURN_QR_NOTE.md](docs/setup/CLIENT_RETURN_QR_NOTE.md) | 2026-09-08 20:20 IST | Client: return QR = morning boarding |
 | [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 23:50 IST | Phase 2 wired |

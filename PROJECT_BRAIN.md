@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 09:50 IST
-> **Session:** FE branch clear — extras merged into professor-cts (keep 5)
+> **Updated:** 2026-09-09 10:05 IST
+> **Session:** Keep-lane tidy — docs + day-lane hooks on professor tips
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -90,12 +90,12 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
 | Day sync | pull on start / push on stop for professor-cts |
 
-**Also open:** Push/delete extras · FF `gb-f&d` + `p&gb-merger` · BE branch clear (cts-docker) · lab migrate · STEP 8
+**Also open:** Lab migrate on BE tip · device smoke · STEP 8 · Phase B orgs
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | `professor-cts` | Day FE tip after keep-5 clear |
-| `D:\cts-docker` | `professor-dock` | Local = JWT tip (push pending) |
+| `D:\cts_beta` | `professor-cts` | Day FE tip (keep-5 remotes) |
+| `D:\cts-docker` | `professor-dock` | Day BE tip `6311e9a` (keep-4 remotes; `main` held) |
 
 ---
 

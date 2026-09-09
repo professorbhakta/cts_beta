@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/day-lane-sync.ps1 -Mode pull -DayBranch professor-cts",
+        "timeout": 120
+      }
+    ],
+    "stop": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/day-lane-sync.ps1 -Mode push -DayBranch professor-cts",
+        "timeout": 120
+      }
+    ]
+  }
+}
