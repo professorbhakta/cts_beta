@@ -3,6 +3,11 @@
 // Wire fields are snake_case from BE. Return Phase 2 adds optional
 // `return_trip_id` / `trip` on mint+scan when `?trip=return`
 // (see docs/setup/RETURN_TRIP_API_GAP.md).
+//
+// Agent / future UI field map (Dart ← wire):
+//   returnTripLogId ← return_trip_id  // PK of BE table return_trip_log (ReturnTripLog)
+//   tripLeg         ← trip            // "morning" | "return" (which boarding leg)
+// Do not rename wire keys. Prefer these Dart names in new screens/providers.
 
 String? _optionalWireString(dynamic raw) {
   if (raw == null) return null;
@@ -21,8 +26,8 @@ class BoardingQrPayload {
     required this.batchId,
     required this.d2dId,
     required this.tripDate,
-    this.returnTripId,
-    this.trip,
+    this.returnTripLogId,
+    this.tripLeg,
   });
 
   final String token;
@@ -31,15 +36,20 @@ class BoardingQrPayload {
   final String qrPayload;
   final int expiresIn;
   final String batchId;
+
+  /// Morning DTODLOG id when present; `0` on return mint (return uses [returnTripLogId]).
   final int d2dId;
   final String tripDate;
 
-  /// Present on return-leg mint (`?trip=return`) — binds to return trip log.
-  /// Null for morning mint. Kept for later UI / sync consumers.
-  final String? returnTripId;
+  /// BE `return_trip_id` — primary key of `return_trip_log` / ReturnTripLog.
+  /// Null on morning mint. Use for later RCList / return odo consumers.
+  final String? returnTripLogId;
 
-  /// Wire `trip`: `morning` | `return` when present.
-  final String? trip;
+  /// BE `trip` — boarding leg: `morning` | `return` (when present).
+  final String? tripLeg;
+
+  /// True when this mint/scan is the return (evening) leg.
+  bool get isReturnLeg => tripLeg == 'return' || returnTripLogId != null;
 
   factory BoardingQrPayload.fromJson(Map<String, dynamic> json) {
     return BoardingQrPayload(
@@ -50,8 +60,8 @@ class BoardingQrPayload {
       batchId: json['batch_id']?.toString() ?? '',
       d2dId: int.tryParse(json['d2d_id']?.toString() ?? '') ?? 0,
       tripDate: json['trip_date']?.toString() ?? '',
-      returnTripId: _optionalWireString(json['return_trip_id']),
-      trip: _optionalWireString(json['trip']),
+      returnTripLogId: _optionalWireString(json['return_trip_id']),
+      tripLeg: _optionalWireString(json['trip']),
     );
   }
 }
@@ -64,8 +74,8 @@ class BoardingScanResult {
     this.action = 'board',
     this.queuePosition = 0,
     this.message,
-    this.returnTripId,
-    this.trip,
+    this.returnTripLogId,
+    this.tripLeg,
   });
 
   final bool alreadyBoarded;
@@ -75,11 +85,15 @@ class BoardingScanResult {
   final int queuePosition;
   final String? message;
 
-  /// Present on return-leg scan; store for later consumers (live RCList sync).
-  final String? returnTripId;
+  /// BE `return_trip_id` — ReturnTripLog PK after a return-leg scan.
+  /// Keep for live RCList / history consumers (no archive UI on FE).
+  final String? returnTripLogId;
 
-  /// Wire `trip`: `morning` | `return` when present.
-  final String? trip;
+  /// BE `trip` — `morning` | `return` when present.
+  final String? tripLeg;
+
+  /// True when scan boarded the return (evening) leg.
+  bool get isReturnLeg => tripLeg == 'return' || returnTripLogId != null;
 
   factory BoardingScanResult.fromJson(Map<String, dynamic> json) {
     return BoardingScanResult(
@@ -89,8 +103,8 @@ class BoardingScanResult {
       action: json['action']?.toString() ?? 'board',
       queuePosition: int.tryParse(json['queue_position']?.toString() ?? '') ?? 0,
       message: _optionalWireString(json['message']),
-      returnTripId: _optionalWireString(json['return_trip_id']),
-      trip: _optionalWireString(json['trip']),
+      returnTripLogId: _optionalWireString(json['return_trip_id']),
+      tripLeg: _optionalWireString(json['trip']),
     );
   }
 }

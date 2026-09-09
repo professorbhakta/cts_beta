@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/RETURN_QR_UI_PREP.md
-> **Updated:** 2026-09-09 18:55 IST
-> **Session:** FE match — return scan no boarding_scan join_waiting
+> **Updated:** 2026-09-09 20:10 IST
+> **Session:** FE agent names — returnTripLogId / tripLeg
 
 # Return-trip QR boarding — UI prep → Phase 2 wired
 
@@ -19,6 +19,15 @@
 | End (existing) | BE → `return_board_archive`; trip keeps archive ID only |
 
 Flutter: `BoardingQrPanel(trip: ApiUrl.boardingTripReturn)` via `ReturnBoardingQrPanel`; scan via `ReturnBoardingScanScreen` → shared `BoardingScanScreen` / `boardingScan`.
+
+**FE names for agents (Dart ← wire):**
+| Dart | Wire | Meaning |
+|------|------|---------|
+| `returnTripLogId` | `return_trip_id` | PK of BE `return_trip_log` / ReturnTripLog |
+| `tripLeg` | `trip` | `morning` \| `return` |
+| `isReturnLeg` | (derived) | true when return leg / id present |
+
+Stored on: `BoardingQrPayload`, `BoardingScanResult`, `OdometerSnapshot`, `ReturnTripLogRef` / `RclistRef`.
 
 ## Schema locks
 

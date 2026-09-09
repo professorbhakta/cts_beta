@@ -36,7 +36,7 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | Return boarding QR screen | `screens/return_boarding_qr_screen.dart` — driver/admin-like show; cream board |
 | Return boarding scan screen | `screens/return_boarding_scan_screen.dart` — STAFF/COMMUTER → shared `boarding_scan` (`allowJoinWaiting: false`; return wait via `joinReturnWaiting`) |
 | Return boarding role policy | `models/return_boarding_role_policy.dart` — show vs scan gates |
-| Return trip log / RCList refs | `models/return_trip_log_placeholders.dart` — batch + optional `return_trip_id`; no archive UI |
+| Return trip log / RCList refs | `models/return_trip_log_placeholders.dart` — `returnTripLogId` ← wire `return_trip_id`; no archive UI |
 
 | Return commuter UI | `../commuters/screens/return_batch_commuter_screen.dart` |
 | Return provider | `providers/return_batch_provider.dart` |

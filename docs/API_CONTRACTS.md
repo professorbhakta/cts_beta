@@ -212,7 +212,7 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 
 Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
 
-**Return-trip QR (Phase 2 wired):** `GET …/boarding_qr/<batch>/?trip=return` mints token + `return_trip_id` (return trip log / RCList). `POST …/boarding_scan/` with that token boards return (leg in token; **no** `join_waiting` on this path). Live RCList = user-ID list on trip row; End archives BE-side — **no FE archive UI**. Contract: [setup/RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md) · UI: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return-trip QR (Phase 2 wired):** `GET …/boarding_qr/<batch>/?trip=return` mints token + `return_trip_id` (return trip log / RCList). `POST …/boarding_scan/` with that token boards return (leg in token; **no** `join_waiting` on this path). Live RCList = user-ID list on trip row; End archives BE-side — **no FE archive UI**. FE Dart: `returnTripLogId` ← `return_trip_id`, `tripLeg` ← `trip`. Contract: [setup/RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md) · UI: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 

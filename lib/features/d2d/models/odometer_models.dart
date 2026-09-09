@@ -67,7 +67,7 @@ class OdometerSnapshot {
     required this.batchId,
     required this.tripDate,
     this.d2dId,
-    this.returnTripId,
+    this.returnTripLogId,
     required this.morning,
     required this.returnLeg,
     this.gapKm,
@@ -76,29 +76,36 @@ class OdometerSnapshot {
 
   final String batchId;
   final String tripDate;
+
+  /// Morning DTODLOG id when present.
   final int? d2dId;
 
-  /// Present when return leg is bound to [ReturnTripLog]; keep for later UI.
-  final String? returnTripId;
+  /// BE `return_trip_id` — PK of `return_trip_log` when return odo is bound.
+  /// Prefer this name in UI/agents (not the short wire key).
+  final String? returnTripLogId;
   final OdometerLegSnapshot morning;
   final OdometerLegSnapshot returnLeg;
   final int? gapKm;
   final bool complete;
 
+  /// True when a return trip log id is present (return leg in play).
+  bool get hasReturnTripLog =>
+      returnTripLogId != null && returnTripLogId!.isNotEmpty;
+
   factory OdometerSnapshot.fromJson(Map<String, dynamic> json) {
     final returnTripRaw = json['return_trip_id'];
-    String? returnTripId;
+    String? returnTripLogId;
     if (returnTripRaw != null) {
       final text = returnTripRaw.toString().trim();
       if (text.isNotEmpty && text.toLowerCase() != 'null') {
-        returnTripId = text;
+        returnTripLogId = text;
       }
     }
     return OdometerSnapshot(
       batchId: json['batch_id']?.toString() ?? '',
       tripDate: json['trip_date']?.toString() ?? '',
       d2dId: OdometerLegSnapshot._asInt(json['d2d_id']),
-      returnTripId: returnTripId,
+      returnTripLogId: returnTripLogId,
       morning: OdometerLegSnapshot.fromJson(
         json['morning'] is Map
             ? Map<String, dynamic>.from(json['morning'] as Map)
