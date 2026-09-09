@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 10:16 IST
-> **Session:** QUICK CLOSE — next FE match START
+> **Updated:** 2026-09-09 18:10 IST
+> **Session:** FE match pass — FE_FIX + docs END sync
 
 # Documentation Registry
 
@@ -28,10 +28,10 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 10:16 IST | QUICK CLOSE; next = FE match START |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 10:16 IST | §9 QUICK CLOSE; Q-fe-match-be active |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 10:16 IST | queue unchanged; STEP 8 waits on go |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 10:16 IST | QUICK CLOSE sync |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 18:10 IST | FE match done; next lab migrate/smoke |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 18:10 IST | §5/§9 FE match outcome |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 18:10 IST | Q-fe-match-be done |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 18:10 IST | FE match END sync |
 | [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 10:16 IST | pointer: FE match then STEP 8 on go |
 | [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-26 07:58 IST | Option B inventory |
@@ -76,7 +76,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 08:20 IST | FE wired (now on professor-cts) |
 | [docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | 2026-09-09 10:10 IST | FE match vs BE tip — next chat START |
 | [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 10:05 IST | FE keep-5 + BE keep-4 remotes |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 10:10 IST | Next = FE match prompt |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 18:10 IST | FE match gap table + FE_FIX |
 | [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 10:10 IST | Index FE match continue prompt |
 | [docs/setup/CLIENT_RETURN_QR_NOTE.md](docs/setup/CLIENT_RETURN_QR_NOTE.md) | 2026-09-08 20:20 IST | Client: return QR = morning boarding |
 | [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-08 23:50 IST | Phase 2 wired |
@@ -87,7 +87,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-08 15:18 IST | returnBoardingQr / returnBoardingScan prefixes |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-08 12:45 IST | user types split |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-09 09:50 IST | Admin bootstrap + return QR Phase 2 |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-09 18:10 IST | Login profile stub + bootstrap soft-fail |
 | [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-08-31 13:45 IST | return waiting Redis key |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-08 23:50 IST | Return QR Phase 2 mint/scan |
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-08 23:50 IST | Phase 2 return QR wired |

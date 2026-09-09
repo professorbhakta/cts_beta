@@ -3,6 +3,8 @@ import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/data/repositories/authentication_repository_impl.dart';
+import 'package:cts/features/admin_bootstrap/models/admin_bootstrap_response.dart';
+import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
 import 'package:cts/features/auth/models/login_response.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -47,6 +49,24 @@ class _FakeApiService implements BaseApiServices {
   @override
   Future<dynamic> patchUrl(String url, dynamic data) =>
       throw UnimplementedError();
+}
+
+class _FailingBootstrapRepository implements AdminBootstrapRepository {
+  @override
+  Future<ApiResult<AdminBootstrapResponse>> sync() async {
+    return ApiResult.failure(
+      const ApiFailure(
+        type: ApiFailureType.server,
+        message: 'bootstrap unavailable',
+      ),
+    );
+  }
+
+  @override
+  Future<AdminBootstrapResponse?> readCachedMeta() async => null;
+
+  @override
+  Future<void> clearLocal() async {}
 }
 
 Future<void> _seedLoggedInDriverSession() async {
@@ -175,6 +195,86 @@ void main() {
       expect(result.isSuccess, isTrue);
       expect(result.data, 'SUPERVISOR');
       expect(AppClass.userType, 4);
+    });
+
+    test('DRIVER flat profile stub maps batchId/cabId/cabRegNumber', () async {
+      final repository = AuthenticationRepositoryImpl(
+        apiService: _FakeApiService(
+          postHandler: (data, url) async => _loginEnvelope(
+            userType: 'DRIVER',
+            profile: {
+              'driverId': 9,
+              'organizationId': 'org-1',
+              'batchId': 'batch-42',
+              'cabId': 7,
+              'batchName': 'Morning-A',
+              'cabRegNumber': 'MH12AB1234',
+            },
+          ),
+        ),
+      );
+
+      final result = await repository.login(
+        mobileNumber: '9876543210',
+        password: 'secret',
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.data, 'DRIVER');
+      expect(AppManager.instance.getString(ManagerKey.batchId), 'batch-42');
+      expect(AppManager.instance.getString(ManagerKey.cabId), '7');
+      expect(AppManager.instance.getString(ManagerKey.batchName), 'Morning-A');
+      expect(AppManager.instance.getString(ManagerKey.cabNumb), 'MH12AB1234');
+    });
+
+    test('ADMIN profile subAdminId fills adminCode when envelope empty',
+        () async {
+      final repository = AuthenticationRepositoryImpl(
+        apiService: _FakeApiService(
+          postHandler: (data, url) async => _loginEnvelope(
+            userType: 'ADMIN',
+            adminCode: null,
+            profile: {
+              'subAdminId': 'sub-admin-uuid',
+              'defaultOrganizationId': 'org-1',
+              'organizationCount': 1,
+              'canManageOrgs': true,
+            },
+          ),
+        ),
+      );
+
+      final result = await repository.login(
+        mobileNumber: '9876543210',
+        password: 'secret',
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(
+        AppManager.instance.getString(ManagerKey.adminCode),
+        'sub-admin-uuid',
+      );
+    });
+
+    test('ADMIN login soft-fails bootstrap and still succeeds', () async {
+      final repository = AuthenticationRepositoryImpl(
+        apiService: _FakeApiService(
+          postHandler: (data, url) async => _loginEnvelope(
+            userType: 'ADMIN',
+            adminCode: 'AC-9',
+          ),
+        ),
+        bootstrapRepository: _FailingBootstrapRepository(),
+      );
+
+      final result = await repository.login(
+        mobileNumber: '9876543210',
+        password: 'secret',
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.data, 'ADMIN');
+      expect(AppManager.instance.getString(ManagerKey.adminCode), 'AC-9');
     });
 
     test('fails clearly on legacy {user_id,user_type} response', () async {

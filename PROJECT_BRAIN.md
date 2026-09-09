@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 10:16 IST
-> **Session:** QUICK CLOSE — active Q-fe-match-be; STEP 8 held
+> **Updated:** 2026-09-09 18:10 IST
+> **Session:** FE match pass — FE_FIX profile stub + bootstrap soft-fail
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -104,17 +104,17 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ## 5. Current focus
 
-**Session (2026-09-09):** FE remotes cleared to **5 keepers**. Merged admin-bootstrap + return QR Phase 2 (+ `AGENTS.md`) into [`professor-cts`](https://github.com/professorbhakta/cts_beta/tree/professor-cts). Navy redesign lineage absorbed without applying navy UI (cream kept).
+**Session (2026-09-09):** FE match vs BE tip contracts — gap table done. FE_FIX: login profile flat/nested stubs + admin-bootstrap soft-fail. Branch: `cursor/fe-match-be-tip-e750` → merge to `professor-cts`.
 
 | Piece | Detail |
 |-------|--------|
-| FE tip | `professor-cts` — JWT + cream + role UI + admin-bootstrap + return QR Phase 2 |
+| FE tip | `professor-cts` — JWT + cream + role UI + admin-bootstrap + return QR Phase 2 + match FE_FIX |
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
 | Day sync | pull on start / push on stop for professor-cts |
 
-**Next chat:** [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) — verify/fix FE vs BE tip.
+**Next chat:** Lab migrate on `professor-dock` (optional smoke), then JWT/bootstrap/return QR device smoke. STEP 8 only on **go**.
 
-**Also open:** Lab migrate on BE tip · FE match pass · device smoke · STEP 8 · Phase B orgs
+**Also open:** Phase B orgs · return-leg KM parked · STEP 8
 
 | Repo | Branch | Tip |
 |------|--------|-----|
@@ -187,8 +187,8 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-09 | QUICK CLOSE | No code; STEP 8 not started (no go); next chat = FE match START |
-| 2026-09-09 | FE match pack | Hardened START + §3 attach; keep-5 remotes; Q-fe-match-be active |
+| 2026-09-09 | FE match BE tip | Gap table; FE_FIX profile stubs + bootstrap soft-fail; 166 tests |
+| 2026-09-09 | FE branch clear | Merged admin-bootstrap + return QR into professor-cts; keep only 5 remotes |
 | 2026-09-08 | Return QR Phase 2 | Wired GET boarding_qr?trip=return + POST boarding_scan; return_trip_id |
 
 ---

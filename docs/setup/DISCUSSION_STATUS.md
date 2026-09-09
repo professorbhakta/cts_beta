@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-09
-> **Session:** Branch hygiene — beta-ver dormant; day-lane lock sync
+> **Updated:** 2026-09-09 18:10 IST
+> **Session:** FE match pass — gap table done; FE_FIX profile + bootstrap soft-fail
 
 # Dock / CTS discussion status (single path)
 
@@ -64,11 +64,18 @@ Verified on branch; BHAKTA chose keep current behavior for small audience + easy
 - VPS deploy of tip → `main` (only after lab OK)
 - Senior JWT hardening (see above)
 - Client pack STEP 8 device smoke (on **go**)
+- Return-leg KM / org odometer / unboard UI (parked)
+- Persist login orgs / SUPERVISOR `allowList` into SQLite (Phase B)
+
+## FE match (2026-09-09 cloud)
+Compared FE tip vs contracts (BE repo not in this VM). Strong **MATCH**: JWT Dio, login envelope, role homes, admin-bootstrap feature+DAO, return QR mint/scan, morning D2D/`isTripEnded`, routing.
+**FE_FIX shipped:** flat+nested login profile stubs; bootstrap soft-fail after login (debugPrint, no block).
+**DEFER:** Phase B org tables/junctions; return odometer UI; lab migrate; STEP 8.
 
 ## Next
-- **FE match pass** — paste [FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](./FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt)
 - Lab migrate org + return-trip migrations on `professor-dock`
 - Device smoke JWT + admin-bootstrap + return QR
+- Client pack STEP 8 (only on **go**)
 - Client lock: return / evening trip **same QR boarding as morning** — see `CLIENT_RETURN_QR_NOTE.md`
 
 ## Rule
