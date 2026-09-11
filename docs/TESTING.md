@@ -88,3 +88,9 @@ Prior full-cycle smoke **PASS** 2026-08-23 (Batch-01 D2D + return). Client pack 
 | Commuter sample | `9876556704` | `password` | — |
 
 Do **not** wipe dump admin `9898927941` (Parul org).
+
+## Live VPS API probe
+
+Against `https://abhimaarg.tech/` (same host as web): [testing/LIVE_API_TEST_REPORT.md](./testing/LIVE_API_TEST_REPORT.md) · script [`scripts/live_api_probe.sh`](../scripts/live_api_probe.sh).
+
+Lab seed mobiles above do **not** exist on live. Live smoke mobiles: ADMIN `9879105576`, DRIVER `6351505091`, STAFF `9898927941` (password `password`). Critical authz/WS findings are in the report.

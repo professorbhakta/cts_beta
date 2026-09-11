@@ -46,6 +46,7 @@ Branch map: [BRANCH_HOLD_NOTES.md](./BRANCH_HOLD_NOTES.md)
 - Header: `Authorization: Bearer <access>`
 - CSRF: web/admin only; Flutter uses JWT
 - Lab host: `http://127.0.0.1/` — phone/emulator: confirm current LAN IP
+- **Live VPS:** `https://abhimaarg.tech/` · `wss://abhimaarg.tech/ws/` — API probe 2026-09-11: [LIVE_API_TEST_REPORT](../testing/LIVE_API_TEST_REPORT.md) (WS 4401; return `end` authz hole; unauth `GET /user/<id>` leaks password hash)
 - Lab SUPER_ADMIN (web `/void/`): `9000000000` / `password`
 
 ## Senior review (2026-09-08) — DEFERRED

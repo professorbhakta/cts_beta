@@ -57,6 +57,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | Pack handoff pointer | `docs/client_req/DISCUSSION_LOG.md` |
 | Smoke script | `docs/client_req/07-NEXT-AGENT-PROMPT.md` |
 | Smoke / test how-to | `docs/TESTING.md` |
+| Live VPS API probe | `docs/testing/LIVE_API_TEST_REPORT.md` · `scripts/live_api_probe.sh` |
 | BE module index | `docs/backend/README.md` |
 | JWT / discussion status | `docs/setup/DISCUSSION_STATUS.md` · `docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt` |
 | Branch map (FE+BE) | `docs/setup/BRANCH_HOLD_NOTES.md` |
@@ -76,7 +77,10 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 20:15 IST | SUPER_ADMIN + SQLite v3 |
 | [docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | 2026-09-09 20:30 IST | checklist: SUPER_ADMIN + returnTripLogId |
 | [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 20:30 IST | tip SHAs FE `0524868` / BE `98ebc66` |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 20:30 IST | tip `98ebc66` / FE `0524868` |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-11 | + live VPS probe pointer |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-09-11 | + live VPS accounts / probe |
+| [docs/API_AND_ENV.md](docs/API_AND_ENV.md) | 2026-09-11 | + https://abhimaarg.tech |
+| [docs/testing/LIVE_API_TEST_REPORT.md](docs/testing/LIVE_API_TEST_REPORT.md) | 2026-09-11 | live API real-case probe |
 | [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 20:30 IST | SUPER_ADMIN + bootstrap index |
 | [docs/setup/CLIENT_RETURN_QR_NOTE.md](docs/setup/CLIENT_RETURN_QR_NOTE.md) | 2026-09-08 20:20 IST | Client: return QR = morning boarding |
 | [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-09 20:10 IST | returnTripLogId / tripLeg |
@@ -98,7 +102,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-09 20:15 IST | returnTripLogId / tripLeg |
 | [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-08 23:50 IST | return QR Phase 2 done |
 | [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-09-11 | + live VPS probe |
 | [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-09-09 20:10 IST | store id `tech.abhimaarg.cts` |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 23:50 IST | return QR Phase 2 live |
 | [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 23:50 IST | return QR Phase 2 |

@@ -33,6 +33,8 @@ Load path: `AppConfig.initialize()` in `lib/appManager/app_class.dart` (via `mai
 
 **Defaults (if .env missing):** `http://172.20.10.2/` and `ws://172.20.10.2/ws/` — suitable for LAN dev only.
 
+**Live VPS (APK/web testing):** `https://abhimaarg.tech/` and `wss://abhimaarg.tech/ws/` — probed 2026-09-11; see [testing/LIVE_API_TEST_REPORT.md](./testing/LIVE_API_TEST_REPORT.md).
+
 **Normalization:** trailing `/` only. Schemes are **not** rewritten — `https://` and `wss://` stay as set.
 
 Android **debug/profile** allow cleartext HTTP for LAN Docker. **Release** does not (`usesCleartextTraffic` is not set on the main manifest).
