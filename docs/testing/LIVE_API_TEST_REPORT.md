@@ -149,3 +149,20 @@ These mutations hit production Parul data — call out for ops:
 ```bash
 BASE_URL=https://abhimaarg.tech ./scripts/live_api_probe.sh
 ```
+
+
+---
+
+## Web UI smoke (same host)
+
+Manual Flutter web login against `https://abhimaarg.tech/` (2026-09-11):
+
+| Step | Result |
+|------|--------|
+| App load (CanvasKit) | PASS |
+| Sign-in screen | PASS |
+| ADMIN login `9879105576` / `password` | PASS → `#/adminHomeScreen` |
+| Dashboard counts (5 batches / 227 commuters / 4 drivers) | PASS |
+| Logout | PASS |
+
+Screenshots: `web-signin-screen.webp`, `web-admin-dashboard.webp` (agent artifacts).
