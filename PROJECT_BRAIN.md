@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-09 20:30 IST
-> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg owners
+> **Updated:** 2026-09-12 16:10 IST
+> **Session:** FE trip report module wired; lab BE professor-dock@77ed62a
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -18,6 +18,10 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 | Backend (Docker) | `D:\cts-docker` | Django REST + WebSocket + Postgres + Redis |
 
 ---
+
+## 1b. Live FE work
+
+- Daily trip report + edit `end_km`: `lib/features/trip_report/` on `feat/daily-trip-report`. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md). Lab BE: `professor-dock` @ `77ed62a`.
 
 ## 2. Non-negotiables
 

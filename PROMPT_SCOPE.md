@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-09 20:30 IST
-> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg owners
+> **Updated:** 2026-09-12 16:10 IST
+> **Session:** trip report FE started; contract TRIP_AUTO_CLOSE_CONTRACT
 
 # PROMPT SCOPE — CTS
 
@@ -167,3 +167,9 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 **END:** brain / registry / todos; if Q-client is #1 → **always** bump DISCUSSION_LOG pointer.  
 **STEP 8:** only on user **go**.  
 **Do not** invent a new attach order; **do not** put product rules in DISCUSSION_LOG.
+
+## Change log (recent)
+
+| When | Note |
+|------|------|
+| 2026-09-12 16:10 IST | FE `feat/daily-trip-report`: daily trip report + edit_end_km (Provider). Contract `docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md`. Lab smoke BE `professor-dock` @ `77ed62a`. |

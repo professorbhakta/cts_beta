@@ -52,6 +52,9 @@ import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_reposi
 import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository_impl.dart';
+import 'package:cts/features/trip_report/providers/trip_report_provider.dart';
+import 'package:cts/features/trip_report/repositories/trip_report_repository.dart';
+import 'package:cts/features/trip_report/repositories/trip_report_repository_impl.dart';
 import 'package:cts/features/profile/providers/profile_provider.dart';
 import 'package:cts/features/splash/providers/splash_provider.dart';
 import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
@@ -135,6 +138,11 @@ class AppProviders {
       ),
       Provider<D2dRepository>(
         create: (context) => D2dRepositoryImpl(
+          apiService: context.read<BaseApiServices>(),
+        ),
+      ),
+      Provider<TripReportRepository>(
+        create: (context) => TripReportRepositoryImpl(
           apiService: context.read<BaseApiServices>(),
         ),
       ),

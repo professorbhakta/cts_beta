@@ -69,4 +69,8 @@ class ApiUrl {
   /// Query value for morning-leg boarding QR mint (optional; default on BE).
   static const String boardingTripMorning = 'morning';
 
+  // Daily trip report + admin/supervisor end_km edit (snake_case)
+  static const String tripReportUrl = 'd2d/trip_report/';
+  static const String tripReportEditEndKmUrl = 'd2d/trip_report/edit_end_km/';
+
 }

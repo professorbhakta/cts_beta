@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-09 20:30 IST
-> **Session:** Docs sync SUPER_ADMIN + returnTripLogId/tripLeg
+> **Updated:** 2026-09-12 16:10 IST
+> **Session:** trip report FE + TRIP_AUTO_CLOSE_CONTRACT registered
 
 # Documentation Registry
 

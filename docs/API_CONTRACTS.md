@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-09 20:15 IST
-> **Session:** SUPER_ADMIN + returnTripLogId/tripLeg + SQLite v3 docs
+> **Updated:** 2026-09-12 16:10 IST
+> **Session:** FE trip report pointer + TRIP_AUTO_CLOSE_CONTRACT
 
 # API Contracts — Backend ↔ Flutter
 
@@ -9,6 +9,18 @@ Single reference for aligning `D:\cts-docker` endpoints with `D:\cts_beta` clien
 **Base URL:** `API_BASE_URL` in Flutter = `http://<host>/` via Nginx port 80. Stack/LAN: [LOCAL_DEV.md](./LOCAL_DEV.md).
 
 **Feature owners:** [lib/features/d2d/README.md](../lib/features/d2d/README.md) · [lib/features/batches/README.md](../lib/features/batches/README.md)
+
+### Daily trip report + edit end_km (FE pointer)
+
+Wire contract (snake_case): [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRIP_AUTO_CLOSE_CONTRACT.md).
+
+| Backend | Flutter | Notes |
+|---------|---------|-------|
+| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Items with morning/return legs + close_kind |
+| `PATCH`/`POST /d2d/trip_report/edit_end_km/` | `ApiUrl.tripReportEditEndKmUrl` | Body `{batch_id, leg, end_km, date?}`. FE uses PATCH |
+
+Lab smoke BE tip: `professor-dock` @ `77ed62a`. Feature module: `lib/features/trip_report/`.
+
 
 ### Client truth contract (P1)
 

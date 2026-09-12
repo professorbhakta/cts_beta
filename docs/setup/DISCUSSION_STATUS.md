@@ -1,10 +1,19 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-09 20:30 IST
-> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg + tip SHAs
+> **Updated:** 2026-09-12 16:10 IST
+> **Session:** FE trip report wired; BE smoke @ professor-dock 77ed62a
 
 # Dock / CTS discussion status (single path)
 
 **Canonical folder:** `D:\cts_beta\docs` (+ root `DOC_REGISTRY.md`, `PROJECT_BRAIN.md`, `PROMPT_SCOPE.md`, `.cursorrules`).
+
+## Open-trip auto-close + daily report (LOCKED 2026-09-12) — green flag GO
+- Remind driver + alert Admin/Supervisor if morning/return started and not ended.
+- Auto-close Asia/Calcutta: **morning 12:00 PM**, **return 12:00 AM**.
+- Auto-close: `end_km = start_km`, mark **incomplete**, `endTime` + `isActive=false`, archive like End.
+- Admin + Supervisor may edit `end_km`; show status **edited**.
+- Daily trip report (mobile + web) so they can check the day.
+- **BE tip (lab smoke):** `professor-dock` @ `77ed62a` (open-trip auto-close). Do not wait on `gb-dock` merge.
+- **FE:** started/wired on `feat/daily-trip-report` — Provider module `lib/features/trip_report/`, route + drawer + AdminService gate; contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass.
 
 ## Live now (code)
 | Piece | Branch / PR | Notes |
@@ -20,7 +29,7 @@
 | Lane | Role | Status |
 |------|------|--------|
 | `main` | VPS / release only | **Hold** — do not FF until fuller device smoke OK |
-| `professor-dock` | PC lab day tip | = tip `98ebc66` |
+| `professor-dock` | PC lab day tip | = tip `77ed62a` (auto-close) |
 | `gb-dock` | Cloud Cursor | align when asked |
 | `p-gb-merger` | Integrate desk → later PR to main | align when asked |
 

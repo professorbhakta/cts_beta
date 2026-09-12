@@ -52,6 +52,9 @@ class RouteName {
   static const String commuterListScreen = '/commuterListScreen';
   static const String commuterScreen = '/commuterScreen';
 
+  /// Daily trip report (ADMIN / SUPER_ADMIN / SUPERVISOR).
+  static const String tripReportScreen = '/tripReportScreen';
+
   // Offline temp module
   static const String offlineTempHome = '/offlineTempHome';
   static const String offlineBatchCommuters = '/offlineBatchCommuters';
@@ -91,6 +94,7 @@ class RouteName {
     commuterScreen,
     commuterForm,
     d2dChannel,
+    tripReportScreen,
   };
 
   /// Driver role home + driver D2D log + return list + return boarding QR show.

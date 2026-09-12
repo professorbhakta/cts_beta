@@ -537,6 +537,11 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     context.push(RouteName.popForm);
                   },
                 ),
+              if (allowed.contains(AdminService.tripReport))
+                QuickActionButton(
+                  label: 'Trip Report',
+                  onTap: () => context.push(RouteName.tripReportScreen),
+                ),
             ];
 
             if (actions.isEmpty) {

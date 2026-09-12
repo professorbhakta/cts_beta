@@ -1,8 +1,8 @@
 ﻿# Branch notes — keep-5 remotes (docs-first)
 
-Updated: 2026-09-09 20:30 IST
+Updated: 2026-09-12 16:10 IST
 Owner: F&D
-Session: tip SHAs — FE `0524868` · BE `98ebc66`
+Session: ffeat/daily-trip-report FE trip report; BE smoke professor-dock@77ed62a
 
 ## This-machine auto-sync (locked)
 
@@ -36,6 +36,14 @@ Still never auto-push `main`. No force-push.
 - `cursor/role-ui-login-routing-a855` — already in tip via PR #5 (delete only)
 
 Remote list: [cts_beta/branches](https://github.com/professorbhakta/cts_beta/branches)
+
+
+
+## Active feature branch (temporary)
+
+| Branch | Role |
+|--------|------|
+| feat/daily-trip-report | FE daily trip report + edit_end_km (from professor-cts dirty HEAD). Merge back to professor-cts when green. Lab smoke BE: professor-dock @ 77ed62a. |
 
 ## cts-docker (backend) — keep only these 4 remotes
 

@@ -12,6 +12,7 @@ import 'package:cts/offline_temp/screens/offline_batch_commuters_screen.dart';
 import 'package:cts/offline_temp/screens/offline_home_screen.dart';
 import 'package:cts/offline_temp/screens/offline_route_pops_screen.dart';
 import 'package:cts/features/admin_home/screens/admin_home_screen.dart';
+import 'package:cts/features/trip_report/screens/trip_report_screen.dart';
 import 'package:cts/features/cabs/forms/cab_form.dart';
 import 'package:cts/features/cabs/screens/cab_screen.dart';
 import 'package:cts/features/pops/forms/pop_form.dart';
@@ -79,6 +80,10 @@ GoRouter createAppRouter({
       GoRoute(
         path: RouteName.adminHomeScreen,
         builder: (context, state) => const AdminMainScreen(),
+      ),
+      GoRoute(
+        path: RouteName.tripReportScreen,
+        builder: (context, state) => const TripReportScreen(),
       ),
       GoRoute(
         path: RouteName.driverHomeScreen,
