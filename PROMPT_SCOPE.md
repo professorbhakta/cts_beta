@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-16 09:05 IST
-> **Session:** Residual risk check after beep/Add fixes
+> **Updated:** 2026-09-16 09:10 IST
+> **Session:** Pushed professor-cts + professor-dock
 
 # PROMPT SCOPE — CTS
 
@@ -117,6 +117,7 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-16 09:10 | Pushed day lanes: FE `professor-cts` **30909b8**; BE `professor-dock` **66c89e9** (`batchId` hydrate) — restart dock then smoke | both |
 | 2026-09-16 09:05 | Residual: no more FE code bugs blocking; only luggage no-retry edge + BE push/restart + human smoke | `cts_beta` |
 | 2026-09-15 22:50 | Fix: one board tone per Already-IN delta (other wins); admin Add FAB-only (no cream duplicate) | `cts_beta` |
 | 2026-09-15 22:45 | Review: cream/beep FE wiring OK (18 D2D tests PASS); blockers = FE uncommitted + BE `batchId` not pushed/restarted; minor = multi-beep race, dual Add, luggage no-retry | `cts_beta` + `cts-docker` |

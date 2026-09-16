@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-15 22:35 IST
-> **Session:** D2D cream + other-batch docs; WS `batchId` audit fix
+> **Updated:** 2026-09-16 09:10 IST
+> **Session:** Pushed professor-cts + professor-dock (cream/beeps + WS batchId)
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -108,23 +108,23 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Session (2026-09-15):** D2D cream UI + other-batch red + board beeps — code + docs; audit fixes applied.
+**Session (2026-09-16):** D2D cream + beeps pushed; BE `batchId` hydrate pushed — restart dock before smoke.
 
 | Piece | Detail |
 |-------|--------|
-| FE tip | Cream shared body; Driver no Add; Admin/Supervisor Add; SUPER_ADMIN monitor; red tint; short/long beeps (`ManagerKey.batchId` on scan) |
-| BE tip | WS live entries include **`batchId`** (home batch) — redeploy/restart **professor-dock** before driver morning red/beeps |
-| Focus | Human device smoke after FE push + BE restart |
+| FE tip | `professor-cts` **30909b8** — cream shared body; FAB-only Add; red + one tone/delta; WS `batchId` parse |
+| BE tip | `professor-dock` **66c89e9** — WS live entries include **`batchId`** — **restart/redeploy dock** for driver red/beeps |
+| Focus | Human device smoke (admin cream, driver no Add, red rows, both-phone beeps) |
 | Docs | [d2d README](lib/features/d2d/README.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) live entry `batchId` |
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` |
 | Day sync | pull on start / push on stop for professor-cts / professor-dock |
 
-**Next:** Push FE + BE day lanes; human smoke (admin cream, driver no Add, red rows, both-phone beeps).
+**Next:** Restart BE stack on lab/VPS; human smoke both phones.
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | feature / `professor-cts` | D2D cream + beeps |
-| `D:\cts-docker` | `professor-dock` | WS `batchId` hydrate (local edit — push) |
+| `D:\cts_beta` | `professor-cts` | **30909b8** cream + beeps (+ trip report) |
+| `D:\cts-docker` | `professor-dock` | **66c89e9** WS `batchId` hydrate |
 
 ---
 
