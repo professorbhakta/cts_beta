@@ -255,6 +255,7 @@ class BootstrapCab {
     this.capacity,
     this.routeId,
     this.acType,
+    this.km,
     this.trackingVehicleId,
     this.isActive = true,
     this.organizationId,
@@ -265,6 +266,8 @@ class BootstrapCab {
   final int? capacity;
   final int? routeId;
   final String? acType;
+  /// Baseline / starting odometer for cab running status (not trip-leg KM).
+  final int? km;
   final String? trackingVehicleId;
   final bool isActive;
   final String? organizationId;
@@ -276,6 +279,7 @@ class BootstrapCab {
       capacity: _asInt(json['capacity']),
       routeId: _asInt(json['routeId']),
       acType: _nullableString(json['acType']),
+      km: _asInt(json['km']),
       trackingVehicleId: _nullableString(json['trackingVehicleId']),
       isActive: _asBool(json['isActive'], defaultValue: true),
       organizationId: _nullableString(

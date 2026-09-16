@@ -66,6 +66,9 @@ class _FailingBootstrapRepository implements AdminBootstrapRepository {
   Future<AdminBootstrapResponse?> readCachedMeta() async => null;
 
   @override
+  Future<AdminBootstrapResponse?> readLuggage() async => null;
+
+  @override
   Future<void> clearLocal() async {}
 }
 

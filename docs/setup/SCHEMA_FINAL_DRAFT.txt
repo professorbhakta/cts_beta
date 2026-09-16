@@ -1,8 +1,9 @@
 CTS SCHEMA — FINAL DRAFT (saved)
 ================================
-Updated: 2026-09-09 19:50 IST
-Status: Tip aligned — org schema + ReturnTripLog shipped; DTODLOG return_* stripped
+Updated: 2026-09-12 15:55 IST
+Status: Tip aligned — org schema + ReturnTripLog; app SoT uses organizationId + cab.km
 Target path: D:\cts_beta\docs\setup\SCHEMA_FINAL_DRAFT.txt
+Note: RETURN_TRIP_COLUMNS_DRAFT merged here (retired).
 
 ------------------------------------------------------------------------
 LOCKED DECISIONS
@@ -15,6 +16,8 @@ LOCKED DECISIONS
 - DTODLOG extras: cabId, driverUserId, startedBy
 - Organization table; KEEP SubAdminOrganization SEPARATE (do not merge into subAdmin)
 - Keep adminCode AND add organizationId (adminCode = all-my-data; orgId = per-org)
+- **REQUIRED for app:** organizationId (not collegeName); User.username + mobileNumber (not first_name/last_name)
+- **Cab.km REQUIRED** as baseline / starting running-status value (trip-leg odo stays on D2D APIs)
 - Cab regNumber globally unique; organizationId for group-by only
 - PoP lat/longitude nullable (needed later when GPS collected)
 - Thin Supervisor table (userId + organizationId)
@@ -103,9 +106,24 @@ unique (batchId, tripDate)
 NOTE: return_* odometer columns REMOVED — live on ReturnTripLog only.
 
 ------------------------------------------------------------------------
-RETURN TRIP (shipped 2026-09-09) — see RETURN_TRIP_COLUMNS_DRAFT.md
+RETURN TRIP (shipped 2026-09-09; columns ex–RETURN_TRIP_COLUMNS_DRAFT)
 ------------------------------------------------------------------------
-ReturnTripLog: RCList, batchId, tripDate, start/end time, isActive,
-  start_km/end_km/photos/recorded_at (no return_ prefix)
-ReturnBoardArchive / GoingBoardArchive on End (BE only; no FE archive UI)
-Live boarded IDs: Redis + sockets (not HTTPS polling)
+Table style: lower snake_case. Live boarded IDs: Redis + sockets + list on trip row.
+On End: snapshot archive; trip keeps archive id. FE: no archive UI.
+
+return_trip_log (one evening trip per batch + date):
+  id PK, batchId FK, tripDate, isActive, startTime, endTime null
+  start_km/end_km int null, start_photo/end_photo file null
+  start_recorded_at/end_recorded_at datetime null
+  RCList int[] — live boarded user ids
+  unique (batchId, tripDate)
+
+return_board_archive (after return End):
+  id PK, return_trip_id FK, userIds int[], archivedAt
+  batchId, tripDate (copies for reports)
+
+going_board_archive (after morning End):
+  id PK, dtodlog_id FK, userIds int[], archivedAt
+  batchId, tripDate
+
+Live flow: Start → trip+Redis → Scan/pool → Redis+socket+RCList/CList → End → archive

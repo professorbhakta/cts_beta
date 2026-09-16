@@ -5,7 +5,6 @@ import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:cts/core/sync/sync_manager.dart';
-import 'package:cts/offline_temp/screens/offline_home_screen.dart';
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:flutter/material.dart';
@@ -151,25 +150,6 @@ class AdminNavList extends StatelessWidget {
                 route: item.route,
                 isSelected: currentRoute == item.route,
               ),
-          ],
-          if (showOfflineDrawerTile()) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Text(
-                'OFFLINE',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurface.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.1,
-                ),
-              ),
-            ),
-            _DrawerNavTile(
-              icon: Icons.cloud_off_outlined,
-              title: 'Offline Mode',
-              route: RouteName.offlineTempHome,
-              isSelected: currentRoute == RouteName.offlineTempHome,
-            ),
           ],
         ],
         const SizedBox(height: 24),

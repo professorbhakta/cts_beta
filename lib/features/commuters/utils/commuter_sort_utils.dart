@@ -50,12 +50,12 @@ List<CommuterModel> sortCommuterList(
       ], reverse: true);
     case CommuterSortOption.collegeAZ:
       return sortListAZMultiple(list, [
-        (commuter) => commuter.collegeName ?? '',
+        (commuter) => commuter.orgOrCollegeLabel,
         (commuter) => commuter.userId?.username ?? '',
       ]);
     case CommuterSortOption.collegeZA:
       return sortListAZMultiple(list, [
-        (commuter) => commuter.collegeName ?? '',
+        (commuter) => commuter.orgOrCollegeLabel,
         (commuter) => commuter.userId?.username ?? '',
       ], reverse: true);
     case CommuterSortOption.popAZ:

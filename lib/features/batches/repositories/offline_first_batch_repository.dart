@@ -40,45 +40,44 @@ class OfflineFirstBatchRepository implements BatchRepository {
 
   @override
   Future<ApiResult<List<BatchModel>>> getBatches() async {
-    if (await _connectivity.isOnline) {
-      final result = await _remote.getBatches();
-      if (result.isSuccess && result.data != null) {
-        await _cache.replaceAll(
-          entityType: EntityType.batch,
-          adminCode: _adminCode,
-          rawItems: result.data!.map((batch) => batch.toJson()).toList(),
-        );
-      }
+    final result = await _remote.getBatches();
+    if (result.isSuccess && result.data != null) {
+      await _cache.replaceAll(
+        entityType: EntityType.batch,
+        adminCode: _adminCode,
+        rawItems: result.data!.map((batch) => batch.toJson()).toList(),
+      );
       return result;
     }
 
-    final cached = await _cache.readAll(
-      entityType: EntityType.batch,
-      adminCode: _adminCode,
-      fromJson: BatchModel.fromJson,
-    );
-
-    if (cached.isNotEmpty) {
-      return ApiResult.success(cached);
+    if (!await _connectivity.isOnline) {
+      final cached = await _cache.readAll(
+        entityType: EntityType.batch,
+        adminCode: _adminCode,
+        fromJson: BatchModel.fromJson,
+      );
+      if (cached.isNotEmpty) {
+        return ApiResult.success(cached);
+      }
     }
 
-    return ApiResult.failure(
-      const ApiFailure(
-        type: ApiFailureType.network,
-        message:
-            'You are offline and no cached batches are available. Connect once to load data.',
-      ),
-    );
+    return result.isFailure
+        ? result
+        : ApiResult.failure(
+            const ApiFailure(
+              type: ApiFailureType.network,
+              message:
+                  'You are offline and no cached batches are available. Connect once to load data.',
+            ),
+          );
   }
 
   @override
   Future<ApiResult<void>> createBatch(Map<String, dynamic> data) async {
     if (await _connectivity.isOnline) {
-      final result = await _remote.createBatch(data);
-      if (result.isSuccess) {
-        await getBatches();
-      }
-      return result;
+      // Remote schedules catalog refreshInBackground; skip extra getBatches
+      // rewrite into entity_cache (luggage is SoT).
+      return _remote.createBatch(data);
     }
 
     final tempId = -DateTime.now().millisecondsSinceEpoch;
@@ -112,11 +111,7 @@ class OfflineFirstBatchRepository implements BatchRepository {
   @override
   Future<ApiResult<void>> updateBatch(int id, Map<String, dynamic> data) async {
     if (await _connectivity.isOnline) {
-      final result = await _remote.updateBatch(id, data);
-      if (result.isSuccess) {
-        await getBatches();
-      }
-      return result;
+      return _remote.updateBatch(id, data);
     }
 
     final cached = await _cache.readAll(

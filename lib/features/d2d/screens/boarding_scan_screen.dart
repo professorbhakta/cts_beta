@@ -1,4 +1,6 @@
+import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/d2d/helpers/client_pack_feedback.dart';
+import 'package:cts/features/d2d/helpers/d2d_board_beep.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -90,6 +92,16 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
     return wantsJoin == true;
   }
 
+  Future<void> _playBoardBeep(String tripBatchId) async {
+    // Login stores batch on SharedPreferences; AppClass.batchId is legacy/unused.
+    final stored = AppManager.instance.getString(ManagerKey.batchId).trim();
+    final home = int.tryParse(stored) ?? AppClass.batchId;
+    final other = home > 0 &&
+        tripBatchId.trim().isNotEmpty &&
+        home.toString() != tripBatchId.trim();
+    await D2dBoardBeep.instance.playForOtherBatch(other);
+  }
+
   Future<void> _joinWaiting(String token) async {
     final repo = context.read<D2dRepository>();
     final result = await repo.boardingScan(token, action: 'join_waiting');
@@ -104,6 +116,7 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
     final data = result.data;
     final msg = data?.message?.trim();
     if (data?.queuePosition == 0) {
+      await _playBoardBeep(data?.batchId ?? '');
       ClientPackFeedback.showSuccess(msg ?? 'Boarded from waiting line.');
     } else {
       ClientPackFeedback.showSuccess(
@@ -148,6 +161,9 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
       }
 
       final already = result.data?.alreadyBoarded == true;
+      if (!already) {
+        await _playBoardBeep(result.data?.batchId ?? '');
+      }
       ClientPackFeedback.showSuccess(
         already ? 'Already boarded.' : 'Boarded successfully.',
       );

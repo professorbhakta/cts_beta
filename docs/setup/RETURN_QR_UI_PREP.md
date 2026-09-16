@@ -1,11 +1,11 @@
 > **Doc:** docs/setup/RETURN_QR_UI_PREP.md
-> **Updated:** 2026-09-09 20:10 IST
-> **Session:** FE agent names — returnTripLogId / tripLeg
+> **Updated:** 2026-09-12 15:55 IST
+> **Session:** Absorbed CLIENT_RETURN_QR_NOTE locks; note retired
 
 # Return-trip QR boarding — UI prep → Phase 2 wired
 
 **Status:** Flutter **Phase 2 wired** (Dock / BHAKTA green-flag).  
-**Product lock:** evening / return trip uses the **same QR boarding UX as morning**.  
+**Product lock (BHAKTA):** evening / return trip uses the **same QR boarding UX as morning** — only that ask; no invented extra return features.  
 **Contract:** [RETURN_TRIP_API_GAP.md](./RETURN_TRIP_API_GAP.md) · morning parsers in `boarding_models.dart`.
 
 ## Endpoints (wired)
@@ -29,15 +29,17 @@ Flutter: `BoardingQrPanel(trip: ApiUrl.boardingTripReturn)` via `ReturnBoardingQ
 
 Stored on: `BoardingQrPayload`, `BoardingScanResult`, `OdometerSnapshot`, `ReturnTripLogRef` / `RclistRef`.
 
-## Schema locks
+## Schema locks (client + dock)
 
 | Layer | Direction |
 |-------|-----------|
 | Morning | `DTODLOG` + **CList** morning-only |
-| Return | **Return trip log** + **RCList** (user-ID list on trip row) |
+| Return | Full **return trip log** (DTODLOG-like shell) + **RCList** = user-ID list on trip row (not one row per rider) |
+| Truth | Live = Redis + sockets + list on trip row — **not** Redis-only boarding truth |
 | Cleanup | No FE use of morning DTODLOG `return_*` |
-| **On End** | BE archives to history; trip keeps archive ID only |
+| **On End** | BE archives list to history; trip keeps archive ID only |
 | **FE** | Live UI = **ID list only** — **do not build archive UI** |
+| Race | Concurrent QR list writes OK for small audience; no extra tables for now |
 
 ## Screens / routes
 

@@ -1,8 +1,8 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Brand / status colors beside [ColorScheme].
-/// Seeded from [AppColors]; UI reads via [CtsThemeContext.cts].
+/// Seeded from [AppColors] (theme SoT); UI reads via [CtsThemeContext.cts].
 @immutable
 class CtsColors extends ThemeExtension<CtsColors> {
   const CtsColors({

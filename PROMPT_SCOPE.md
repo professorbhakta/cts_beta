@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-12 16:10 IST
-> **Session:** trip report FE started; contract TRIP_AUTO_CLOSE_CONTRACT
+> **Updated:** 2026-09-16 09:05 IST
+> **Session:** Residual risk check after beep/Add fixes
 
 # PROMPT SCOPE — CTS
 
@@ -12,20 +12,20 @@
 @PROMPT_SCOPE.md
 ```
 
-**Client pack / STEP 8 (append — do not reshuffle):**
+**Client pack / STEP 8 (append — only on go):**
 ```
-@docs/client_req/DISCUSSION_LOG.md
-@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@docs/setup/DISCUSSION_STATUS.md
+@docs/FLOWS_BY_ROLE.md
+@docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt
 @lib/features/d2d/README.md
 @docs/API_CONTRACTS.md
 @docs/TESTING.md
 @docs/LOCAL_DEV.md
 ```
 
-**FE match / setup (append after Always — same as brain §3 / CHAT_PROMPTS):**
+**Setup drafts (append after Always when doing JWT/bootstrap/schema — same as brain §3):**
 ```
 @CHAT_PROMPTS.txt
-@docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
 @docs/setup/DISCUSSION_STATUS.md
 @docs/setup/BRANCH_HOLD_NOTES.md
 @docs/API_CONTRACTS.md
@@ -43,8 +43,7 @@
 @docs/TESTING.md
 ```
 
-Add for journeys/QA: `@docs/FLOWS_BY_ROLE.md`  
-Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md`
+Add for journeys/QA: already in STEP 8 pack via FLOWS.  
 
 | File | Owns |
 |------|------|
@@ -52,7 +51,7 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 | [PROJECT_TODOS.md](PROJECT_TODOS.md) | Long-lived backlog |
 | **This file** | Prompt gate, ordered queue, change log |
 
-**Story split:** 05 = product story/locks · FLOWS = click-paths · 07 = smoke · DISCUSSION_LOG = pointer only.
+**Story split:** FLOWS = journeys + D1–D10 · API_CONTRACTS = wire/schema · DISCUSSION_STATUS = handoff · STEP8 checklist = smoke.
 
 ---
 
@@ -60,16 +59,18 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | Sync docs/md owners for SUPER_ADMIN + returnTripLogId/tripLeg + v3 |
-| P2 | Role / surface? | yes | Docs only (no code) |
-| P3 | Non-negotiables? | yes | No new md files; update owners only |
-| P4 | Both ends? | yes | FE docs + BE tip SHA note |
-| P5 | R10 isComing? | n/a | Not this task |
-| P6 | Git branch? | yes | `professor-cts` |
-| P7 | Docs policy? | yes | brain/scope/registry/DISCUSSION_* |
-| P8 | Out of scope? | yes | No STEP 8; no code FE_FIX |
+| P1 | Goal clear? | yes | D2D cream shared UI + other-batch red + board beeps |
+| P2 | Role / surface? | yes | Main Agent · Admin/Driver/Commuter D2D |
+| P3 | Non-negotiables? | yes | Separate screens; Driver no Add; SUPER_ADMIN no Add |
+| P4 | Both ends? | yes | FE + BE WS `batchId` hydrate (redeploy dock) |
+| P5 | R10 isComing? | n/a | |
+| P6 | Git branch? | yes | day lane / dirty tree |
+| P7 | Docs policy? | yes | d2d README owner |
+| P8 | Out of scope? | yes | No FCM multi-device push beeps; no invent morning overflow BE |
 
-**This prompt:** Update docs that need SUPER_ADMIN / clearer Dart names / tip SHAs.
+**This prompt:** Implement shared cream Admin/Driver D2D UI, hide driver Add, red other-batch, short/long board beeps.
+
+**Gate (locked):** Device smoke stays human post-push.
 
 ---
 
@@ -77,12 +78,17 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
-| 0 | Q-fe-match-be | FE match pass vs BE tip (schema/API/bootstrap/return QR) | **done** | [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) |
-| 0a | Q-jwt-phase-a | JWT Phase A FE smoke (`flutter run`) + docs header sync | **next** | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
-| 0b | Q-admin-bootstrap | FE admin-bootstrap on professor-cts; lab API probe OK; device smoke open | **next** | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
+| 0 | Q-d2d-cream-beep | Shared cream D2D + other-batch red + board beeps + WS `batchId` | **done** (code+docs) · smoke human · BE restart | [d2d README](lib/features/d2d/README.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
+| 0 | Q-play-aab | Play Store signed AAB — Gradle release signing wired; user creates keystore + builds | **parked** (user) | [BUILD_AND_RELEASE](docs/BUILD_AND_RELEASE.md) |
+| 0 | Q-fe-match-be | FE match pass vs BE tip (schema/API/bootstrap/return QR) | **done** | prompt deleted 2026-09-10; SoT = DISCUSSION_STATUS + API_CONTRACTS |
+| 0y | Q-platform-lean | Platform: store less + smooth flow (bg catalog refresh, non-block login/boot) | **in progress** | OFFLINE_AND_SYNC · admin_bootstrap · FIND-011 |
+| 0z | Q-fe-prod-inspect | P0–P7 **PASS**; P8 device = **human post-push** (not agent) | **parked** (human) | [CONTINUE](docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt) |
+| 0a | Q-jwt-phase-a | JWT Phase A FE smoke — **human + devices after push** | **parked** (human) | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
+| 0b | Q-admin-bootstrap | FE admin-bootstrap consumed for lists/home; device smoke = human post-push | **parked** (smoke) | [ADMIN_BOOTSTRAP_DRAFT](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) · API_CONTRACTS |
 | 0c | Q-docs-setup | Keep-lane map + brain/scope/registry | open | [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
+| 0c2 | Q-docs-hygiene | Prune junk + merge redundant md | **done** | DOC_REGISTRY |
 | 0d | Q-lab-migrate | Org + return-trip migrations on professor-dock lab | **done** | DISCUSSION_STATUS · LOCAL_DEV |
-| 1 | Q-client-qr-odo | Client pack STEP 8 device smoke | **next** (on **go**) | [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
+| 1 | Q-client-qr-odo | Client pack STEP 8 device smoke — **human + devices after push** | **parked** (human) | [FLOWS](docs/FLOWS_BY_ROLE.md) · [STEP8](docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt) · [LAB_SMOKE_ISSUES](docs/LAB_SMOKE_ISSUES.txt) |
 | 2 | Q-client-tests | New tests under `test/features/d2d/` | open | TESTING |
 | 3 | Q-26d | Confirm “API every time” discuss | pending | return add UI |
 | 4 | Q-return-qr-dock | Return QR Phase 2 wire (`?trip=return` + boarding_scan) | **done** | [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) · [GAP](docs/setup/RETURN_TRIP_API_GAP.md) |
@@ -111,6 +117,58 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
+| 2026-09-16 09:05 | Residual: no more FE code bugs blocking; only luggage no-retry edge + BE push/restart + human smoke | `cts_beta` |
+| 2026-09-15 22:50 | Fix: one board tone per Already-IN delta (other wins); admin Add FAB-only (no cream duplicate) | `cts_beta` |
+| 2026-09-15 22:45 | Review: cream/beep FE wiring OK (18 D2D tests PASS); blockers = FE uncommitted + BE `batchId` not pushed/restarted; minor = multi-beep race, dual Add, luggage no-retry | `cts_beta` + `cts-docker` |
+| 2026-09-15 22:35 | Docs sync: API_CONTRACTS live `batchId`; d2d README role/beep/cream; brain/scope/registry | `cts_beta` (+ BE hydrate note) |
+| 2026-09-15 22:30 | Audit fix: commuter beep reads ManagerKey.batchId; WS `batchId` for driver other-batch (BE hydrate + FE parse) | `cts_beta` + `cts-docker` |
+| 2026-09-15 22:15 | D2D: shared cream Admin/Driver body; Driver no Add; SUPER_ADMIN no Add; red other-batch; short/long board beeps; Admin return no QR | `cts_beta` |
+| 2026-09-15 10:40 | Play Store: release signing via key.properties; AAB steps in BUILD_AND_RELEASE; key.properties.example | `cts_beta` |
+| 2026-09-15 10:36 | Device smoke locked: human + real devices, post-push only; P8/STEP8/JWT smoke parked (not agent) | `cts_beta` |
+| 2026-09-15 10:18 | Re-entry after break; orient only — branch `feat/daily-trip-report`, large dirty tree | `cts_beta` |
+| 2026-09-12 16:00 | Moved FE checklist → `docs/`; thinned `docs/features/*_E2E.md` to pointers | `cts_beta` |
+| 2026-09-12 15:55 | setup/ merge+retire: CLIENT_RETURN→RETURN_QR_UI_PREP; COLUMNS→SCHEMA; ROLE+USER_ROLES→ROUTING; CREAM→UI_ARCHITECTURE §8 | `cts_beta` |
+| 2026-09-12 15:45 | Retired `docs/backend/` + `docs/client_req/`; D1–D10 → FLOWS; safety → API_CONTRACTS; modules → LOCAL_DEV; attach lists updated | `cts_beta` |
+| 2026-09-12 15:35 | Removed `integration_test/` + pubspec `integration_test` dep; pre-push stays manual `flutter run` | `cts_beta` |
+| 2026-09-12 12:25 | Deleted leftover logs: `flutter_01.log`, `flutter_02.log`, `tmp_emu_boot.log` | `cts_beta` |
+| 2026-09-12 12:25 | Explained: client_req still STEP-8 pack; docs/backend emptied on purpose (01–04 → owners); flutter_*.log + tmp_emu_boot.log = local junk (gitignored) | `cts_beta` |
+| 2026-09-12 12:20 | Deleted junk `.tmp_mobile_ocr/` (7 OCR PNGs) | `cts_beta` |
+| 2026-09-12 12:15 | Docs hygiene proposed: delete `.tmp_mobile_ocr`; move root checklist; merge setup overlaps; keep locked attach owners | `cts_beta` |
+| 2026-09-11 12:40 | Dock P0 shipped: JWT WS middleware; GET /user/ dump closed; return end/add/remove role gate; SUPER_ADMIN/SUPERVISOR; 20 tests OK | `cts-docker` |
+| 2026-09-11 12:05 | Mapped 3 critical BE holes + fix plan: GET /user/ dump; return end no auth; WS JWT middleware missing (4401) | `cts-docker` |
+| 2026-09-11 10:15 | cts-index 500: nginx missing `./cts-index` bind — recreated C2S-Nginx; portal 200; API `/user/login` reachable | `cts-docker` |
+| 2026-09-11 08:35 | Flutter web release → `cts-docker/cts-index` (VPS URLs bundled); nginx SPA + API split; marketing backup kept | both |
+| 2026-09-10 23:05 | P7 platform PASS; phone/location manifests cleaned; FIND-018 FCM deferred; OEM note; forms canPop; CONTINUE → P8 | `cts_beta` |
+| 2026-09-10 22:15 | Redis: remove host `6379` publish — `cts-docker` main `cf0f6a5` (apply on VPS) | `cts-docker` |
+| 2026-09-10 22:35 | Pre-push local gate (skip d2d_channel device): analyze 0 err; **152** tests pass; lab login+bootstrap OK | `cts_beta` |
+| 2026-09-10 22:15 | External VPS check: HTTPS OK; **Redis 6379 public +PONG** — must firewall/bind; 5432/8000 closed | VPS |
+| 2026-09-10 23:15 | Pruned superseded continues: FE_MATCH, D2D_PHASE3, LAB_SMOKE_CONTINUE (kept LAB_SMOKE_ISSUES + client_req + inspection) | `cts_beta` |
+| 2026-09-10 23:05 | P7 PASS — next P8 device (on go) | `cts_beta` |
+| 2026-09-10 22:10 | Clarified: public IP via domain DNS is normal; harden firewall/SSH/TLS not “hide IP” | scope |
+| 2026-09-10 22:00 | Hygiene: drop unused http/cookie deps; dead collegeName validator + commClg; API_CONTRACTS getCommuters→bootstrap; D2D comment | `cts_beta` |
+| 2026-09-10 21:55 | CONTINUE prompt POV locks (env asset, phone+location, checkbox honesty) — READY TO GO | `cts_beta` |
+| 2026-09-10 21:45 | Fat continue prompt: 4 lanes to close P3–P6 PARTIALS in one shot | `cts_beta` |
+| 2026-09-10 20:05 | P5∥P6 inspection; FIND-010+003 closed; FIND-012..017; API logs kDebugMode | `cts_beta` |
+| 2026-09-10 19:50 | Platform lean: bg catalog refresh after CRUD; non-block login/cold boot; skip post-CRUD batch cache rewrite | `cts_beta` |
+| 2026-09-10 19:40 | Removed `lib/offline_temp/` Offline Mode prototype; kept OfflineFirstBatch/SyncManager | `cts_beta` |
+| 2026-09-10 19:35 | FIND-001 fix (`instanceOrNull`); FE-0.4 168 pass; P3∥P4 evidence; FIND-007..011 | `cts_beta` |
+| 2026-09-10 19:05 | Inspection continue prompt + mindset reset to original Main Agent; brain §5/§9 handoff | `cts_beta` |
+| 2026-09-10 18:45 | FE inspection P0–P2: FIND-001 AppDatabase.instance throw after CRUD resync (3 tests); structure+UC map recorded | `cts_beta` |
+| 2026-09-10 13:40 | FE checklist deep reflow: subPs dependency-ordered; P2/P4/P5/P6/P8/P9/P10 IDs re-sequenced; gates + overlap map | `cts_beta` |
+| 2026-09-10 13:25 | FE checklist: India-ops/scale should-adds (TTL, poison sync, multi-op, UC15/16, RTL, OEM, size, analytics, STRIDE, web N/A) | `cts_beta` |
+| 2026-09-10 12:55 | FE checklist: V0–V10 design spine + Figs 1–13 (context/DFD/UC/seq/state/deploy) | `cts_beta` |
+| 2026-09-10 19:45 | Required-field lock synced to owner docs (bootstrap draft, SQLITE v4, SCHEMA, LOGIN, DISCUSSION, continue prompt, brain) | both |
+| 2026-09-10 19:20 | Required fields locked: organizationId (not collegeName), cab km; FE form/mapper; BE bootstrap emits km/orgId | both |
+| 2026-09-10 12:45 | FE checklist reflow: P4 API before P8 journeys; overlap map; Requires/Unblocks; P0 narrowed | `cts_beta` |
+| 2026-09-10 12:35 | Added FE_PRODUCTION_INSPECTION_CHECKLIST.md (Phases 0–11); inspection not started | `cts_beta` |
+| 2026-09-10 12:15 | Audit+fix: catalog SoT via bootstrap; clear SQLite on invalidate; cold-start hydrate; remove list fan-out | `cts_beta` |
+| 2026-09-10 12:05 | FE: admin home + list get* read bootstrap luggage; no catalog fan-out; pull-refresh re-syncs | `cts_beta` |
+| 2026-09-10 07:45 | Web: skip SQLite — API-only boot; no-op cache/sync DAOs; offline_temp gated | `cts_beta` |
+| 2026-09-09 22:00 | Full assembly check: Android APK + web build PASS; iOS files OK (Mac build N/A); restored `.env.example`; 167 tests | `cts_beta` |
+| 2026-09-09 21:40 | Parul final seed: 217 allowlist students + 10 Bharuch staff + 4 drivers + admin; DB wiped+reloaded | `cts-docker` |
+| 2026-09-09 21:05 | Lab DB wiped + reloaded Parul-only seed (admin 9879105576; no dummy org) | `cts-docker` |
+| 2026-09-09 20:55 | Parul University seed: admin 9879105576 + 4 buses/drivers/batches + 9863 riders; RejectedImport quarantine 199 | `cts-docker` |
+| 2026-09-09 20:40 | Bharuch XLSX gap check vs live Postgres (admin/students/staff); awaiting defaults | both |
 | 2026-09-09 20:30 | Docs sync: SUPER_ADMIN + `returnTripLogId`/`tripLeg` + SQLite v3 owners; tip SHAs | `cts_beta` |
 | 2026-09-09 20:10 | Store id → `tech.abhimaarg.cts` (domain abhimaarg.tech) both platforms | `cts_beta` |
 | 2026-09-09 19:50 | SUPER_ADMIN web /void/; FE null-safe + return_trip_id vars; SQLite v3; stale return_* docs scrubbed | both |
@@ -164,12 +222,13 @@ Optional: `@docs/client_req/05-open-decisions.md` · `@docs/client_req/README.md
 
 **START:** attach locked list; fill §1; align §2.  
 **During:** update §2–§4 async.  
-**END:** brain / registry / todos; if Q-client is #1 → **always** bump DISCUSSION_LOG pointer.  
+**END:** brain / registry / todos; if STEP 8 pack touched → bump DISCUSSION_STATUS.  
 **STEP 8:** only on user **go**.  
-**Do not** invent a new attach order; **do not** put product rules in DISCUSSION_LOG.
+**Do not** invent a new attach order; **do not** recreate `docs/backend/` or `docs/client_req/`.
 
 ## Change log (recent)
 
 | When | Note |
 |------|------|
-| 2026-09-12 16:10 IST | FE `feat/daily-trip-report`: daily trip report + edit_end_km (Provider). Contract `docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md`. Lab smoke BE `professor-dock` @ `77ed62a`. |
+| 2026-09-12 16:10 IST | FE feat/daily-trip-report: daily trip report + edit_end_km (Provider). Contract docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md. Lab smoke BE professor-dock @ 77ed62a. |
+

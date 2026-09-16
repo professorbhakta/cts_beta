@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-12 16:10 IST
-> **Session:** FE trip report module wired; lab BE professor-dock@77ed62a
+> **Updated:** 2026-09-15 22:35 IST
+> **Session:** D2D cream + other-batch docs; WS `batchId` audit fix
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -21,7 +21,8 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 1b. Live FE work
 
-- Daily trip report + edit `end_km`: `lib/features/trip_report/` on `feat/daily-trip-report`. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md). Lab BE: `professor-dock` @ `77ed62a`.
+- Daily trip report + edit end_km: lib/features/trip_report/. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md).
+- D2D cream + other-batch red + board beeps — [lib/features/d2d/README.md](lib/features/d2d/README.md); WS live `batchId` — [API_CONTRACTS](docs/API_CONTRACTS.md).
 
 ## 2. Non-negotiables
 
@@ -39,7 +40,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 3. Attach on every chat
 
-**Locked order — do not reshuffle.** Same list in PROMPT_SCOPE, client_req README, 07, CHAT_PROMPTS.
+**Locked order — do not reshuffle.** Same list in PROMPT_SCOPE, CHAT_PROMPTS.
 
 **Always:**
 ```
@@ -47,17 +48,16 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 @PROMPT_SCOPE.md
 ```
 
-**Client pack / STEP 8 (append in this order):**
+**Client pack / STEP 8 (append in this order — only on go):**
 ```
-@docs/client_req/DISCUSSION_LOG.md
-@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@docs/setup/DISCUSSION_STATUS.md
+@docs/FLOWS_BY_ROLE.md
+@docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt
 @lib/features/d2d/README.md
 @docs/API_CONTRACTS.md
 @docs/TESTING.md
 @docs/LOCAL_DEV.md
 ```
-
-Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_req/DESIGN_SNAPSHOT.md` (schema/APIs) · `@docs/client_req/README.md` (index)
 
 **Return work:**
 ```
@@ -66,10 +66,9 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 @lib/features/batches/README.md
 ```
 
-**FE match / setup (append after Always — order locked with CHAT_PROMPTS):**
+**Setup drafts (append after Always when doing JWT/bootstrap/schema — order locked):**
 ```
 @CHAT_PROMPTS.txt
-@docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
 @docs/setup/DISCUSSION_STATUS.md
 @docs/setup/BRANCH_HOLD_NOTES.md
 @docs/API_CONTRACTS.md
@@ -87,7 +86,7 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 @docs/TESTING.md
 ```
 
-**Gate:** pack opened with `let's start client feature`. Device smoke = STEP 8 only after user **go**.
+**Gate:** Device smoke = STEP 8 only after user **go**. Product locks D1–D10 live in FLOWS.
 
 ---
 
@@ -99,31 +98,33 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 | **D2D** | @lib/features/d2d/README.md @docs/API_CONTRACTS.md @docs/TESTING.md |
 | **Return batch** | @lib/features/batches/README.md @docs/API_CONTRACTS.md @docs/FLOWS_BY_ROLE.md |
 | **New UI** | @docs/FLOWS_BY_ROLE.md @docs/UI_ARCHITECTURE.md @docs/FEATURES.md |
-| **Backend / lab** | @docs/LOCAL_DEV.md @docs/API_CONTRACTS.md @docs/backend/README.md |
+| **Backend / lab** | @docs/LOCAL_DEV.md @docs/API_CONTRACTS.md |
 | **Offline** | @docs/OFFLINE_AND_SYNC.md @docs/ARCHITECTURE.md |
-| **FE match / setup** | Same as §3 FE match pack · owner [FE_MATCH_BE_TIP_CONTINUE_PROMPT](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) |
-| **Client req** | Same as §3 client-pack list; add @docs/FLOWS_BY_ROLE.md for QA/smoke journeys; optional @docs/client_req/05-open-decisions.md |
+| **Setup / JWT / bootstrap** | Same as §3 setup drafts pack · start [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) |
+| **FE prod inspection** | [FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT](docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt) + [CHECKLIST](docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md) · stay Main Agent mindset |
+| **Client / STEP 8** | Same as §3 client-pack list |
 
 ---
 
 ## 5. Current focus
 
-**Session (2026-09-09):** Docs owners synced for SUPER_ADMIN + Dart `returnTripLogId`/`tripLeg` + SQLite v3. Code already on tip; device smoke still open.
+**Session (2026-09-15):** D2D cream UI + other-batch red + board beeps — code + docs; audit fixes applied.
 
 | Piece | Detail |
 |-------|--------|
-| FE tip | `professor-cts` `0524868` — JWT + bootstrap + return QR + schema v3 + SUPER_ADMIN shell + store id `tech.abhimaarg.cts` |
-| BE tip | `professor-dock` `98ebc66` — SUPER_ADMIN; lab `9000000000` for `/void/` |
-| Agent names | Dart `returnTripLogId` ← wire `return_trip_id`; `tripLeg` ← wire `trip` |
-| Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` — [BRANCH_HOLD_NOTES](docs/setup/BRANCH_HOLD_NOTES.md) |
-| Day sync | pull on start / push on stop for professor-cts |
+| FE tip | Cream shared body; Driver no Add; Admin/Supervisor Add; SUPER_ADMIN monitor; red tint; short/long beeps (`ManagerKey.batchId` on scan) |
+| BE tip | WS live entries include **`batchId`** (home batch) — redeploy/restart **professor-dock** before driver morning red/beeps |
+| Focus | Human device smoke after FE push + BE restart |
+| Docs | [d2d README](lib/features/d2d/README.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) live entry `batchId` |
+| Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` |
+| Day sync | pull on start / push on stop for professor-cts / professor-dock |
 
-**Next chat:** Device smoke JWT + bootstrap + return QR (`flutter run`) when ready. STEP 8 only on **go**. Phase B org fill still open.
+**Next:** Push FE + BE day lanes; human smoke (admin cream, driver no Add, red rows, both-phone beeps).
 
 | Repo | Branch | Tip |
 |------|--------|-----|
-| `D:\cts_beta` | `professor-cts` | Day FE tip `0524868` (keep-5 remotes) |
-| `D:\cts-docker` | `professor-dock` | Day BE tip `98ebc66` (keep-4 remotes; `main` held) |
+| `D:\cts_beta` | feature / `professor-cts` | D2D cream + beeps |
+| `D:\cts-docker` | `professor-dock` | WS `batchId` hydrate (local edit — push) |
 
 ---
 
@@ -144,9 +145,8 @@ Optional: `@docs/client_req/05-open-decisions.md` (D1–D10) · `@docs/client_re
 
 ### Open backlog (from PROJECT_TODOS)
 
-- **JWT Phase A** device `flutter run` smoke + Admin password reset
-- **Client pack STEP 8** device smoke (user go)
-- Phase B: fill login/bootstrap `organizations` from DB (SQLite v3 tables ready)
+- **JWT Phase A** / **P8** / **STEP 8** device smoke — human + real devices **after push** (not agent) + Admin password reset
+- Phase B: richer org fill on login (bootstrap already returns organizations[] on lab)
 - **Return QR Phase 2 wired** — mint `?trip=return` + shared `boarding_scan`; Dart `returnTripLogId`/`tripLeg`; **FE no archive UI** — [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) · [GAP](docs/setup/RETURN_TRIP_API_GAP.md)
 - Parked UI: return-leg KM, admin org odometer list, unboard UI
 - **Decide next:** Confirm “API every time” (26d-discuss)
@@ -194,9 +194,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-09 | Docs sync | Owners updated: SUPER_ADMIN, `returnTripLogId`/`tripLeg`, SQLite v3, tip SHAs |
-| 2026-09-09 | Store id domain | `tech.abhimaarg.cts` from `abhimaarg.tech` (Android+iOS+linux) |
-| 2026-09-09 | SUPER_ADMIN + FE harden | Web=/void/; null-safe wire; SQLite v3; clearer Dart names |
+| 2026-09-15 ~22:35 | D2D cream + audit docs | Cream UI; Driver no Add; red + beeps; WS `batchId` FE+BE; scan beep uses prefs; docs synced |
+| 2026-09-11 ~12:40 | Dock P0 security | JWT WS middleware; GET `/user/` dump closed; return end/add/remove role-gated; SUPER_ADMIN/SUPERVISOR; **20** tests OK |
+| 2026-09-10 ~23:15 | Prune superseded continues | Deleted FE_MATCH / D2D_PHASE3 / LAB_SMOKE_CONTINUE; scrubbed attach lists; kept client_req + inspection + LAB_SMOKE_ISSUES |
 
 ---
 
@@ -207,10 +207,10 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | Flutter docs hub | [docs/README.md](docs/README.md) · [docs/START_HERE.md](docs/START_HERE.md) |
 | Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/CODE_MAP.md](docs/CODE_MAP.md) |
 | API wire | [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) |
-| Lab / Docker | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) · [docs/backend/README.md](docs/backend/README.md) |
-| **UI / flows** | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) (QR/KM + smoke) · [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) |
+| Lab / Docker | [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) |
+| **UI / flows** | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) (QR/KM + D1–D10 + smoke) · [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) |
 | Feature owners | [lib/features/d2d/README.md](lib/features/d2d/README.md) · [lib/features/batches/README.md](lib/features/batches/README.md) |
-| Client pack | [DISCUSSION_LOG](docs/client_req/DISCUSSION_LOG.md) (pointer) · [05 story/locks](docs/client_req/05-open-decisions.md) · [DESIGN_SNAPSHOT](docs/client_req/DESIGN_SNAPSHOT.md) · [07 smoke](docs/client_req/07-NEXT-AGENT-PROMPT.md) |
+| Client / STEP 8 | [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) · [FLOWS](docs/FLOWS_BY_ROLE.md) · [STEP8 checklist](docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
 | Testing | [docs/TESTING.md](docs/TESTING.md) |
 | Registry / prompts | [DOC_REGISTRY.md](DOC_REGISTRY.md) · [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) |
 | Backlog | [PROJECT_TODOS.md](PROJECT_TODOS.md) |
@@ -226,12 +226,15 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | Odometer REST | `odometer_views.py` + `urls.py` | `ApiUrl` + `submitOdometer*` / `getOdometer*` | API_CONTRACTS |
 | QR + scan REST | `boarding_views.py` + tokens | `getBoardingQr` / `boardingScan` / unboard | API_CONTRACTS |
 | Scan = boarded | `board_commuter` + WS REMOVE | swipe REMOVE + scan success → Already IN | API_CONTRACTS + d2d README |
-| Morning WS | `consumers.py` + `live_state.py` | `D2dChannelProvider` | d2d README + API_CONTRACTS |
-| Driver UI | — | `d2d_log_screen` + odo sheet + QR panel | d2d README |
-| Commuter UI | — | `/boardingScan` + Mark Coming | d2d README · FEATURES |
+| Morning WS | `consumers.py` + `live_state.py` + live `batchId` on entries | `D2dChannelProvider` + `homeBatchId` | d2d README + API_CONTRACTS |
+| Driver UI | — | `d2d_log_screen` + cream body + QR; **no Add**; red/beeps | d2d README |
+| Admin live UI | — | `d2d_channel` cream body; Add if operator; no QR | d2d README |
+| Commuter UI | — | `/boardingScan` + Mark Coming + board beep | d2d README · FEATURES |
 | Return evening | `return_batch_*` | batches feature | batches README + API_CONTRACTS |
-| Product locks | — | — | client_req/05 |
-| Schema / API inventory | — | — | client_req/DESIGN_SNAPSHOT |
-| Smoke / tests | `test_odometer.py`, `test_boarding_scan.py` | `test/features/d2d/` | TESTING · 07 |
+| Product locks | — | — | FLOWS_BY_ROLE (D1–D10) |
+| Schema / API inventory | — | — | API_CONTRACTS |
+| Smoke / tests | `test_odometer.py`, `test_boarding_scan.py` | `test/features/d2d/` | TESTING · STEP8 checklist · FLOWS |
 
-**Retired (do not recreate):** `docs/backend/01–04`, `docs/guides/`, client_req `00–04`+`06`, `test/widget_test.dart`.
+**Retired (do not recreate):** `docs/backend/`, `docs/client_req/`, `docs/guides/`,
+setup drafts `CLIENT_RETURN_QR_NOTE` · `RETURN_TRIP_COLUMNS_DRAFT` · `ROLE_ACCESS_PHASE_A` ·
+`USER_ROLES_DISCUSSION` · `CREAM_BOARD_SCHEMA_UI`, `test/widget_test.dart`, `integration_test/`.

@@ -325,6 +325,7 @@ Future<void> showD2dWaitingLineDialog(
   BuildContext context, {
   required List<D2dCommuterModel> commuters,
   required void Function(D2dCommuterModel commuter) onCall,
+  bool Function(D2dCommuterModel commuter)? isOtherBatch,
 }) {
   return _showD2dCommuterListDialog(
     context,
@@ -334,6 +335,7 @@ Future<void> showD2dWaitingLineDialog(
     commuters: commuters,
     showPosition: true,
     onCall: onCall,
+    isOtherBatch: isOtherBatch,
   );
 }
 
@@ -341,6 +343,7 @@ Future<void> showD2dAlreadyInDialog(
   BuildContext context, {
   required List<D2dCommuterModel> commuters,
   required void Function(D2dCommuterModel commuter) onCall,
+  bool Function(D2dCommuterModel commuter)? isOtherBatch,
 }) {
   return _showD2dCommuterListDialog(
     context,
@@ -350,6 +353,7 @@ Future<void> showD2dAlreadyInDialog(
     commuters: commuters,
     showPosition: false,
     onCall: onCall,
+    isOtherBatch: isOtherBatch,
   );
 }
 
@@ -361,6 +365,7 @@ Future<void> _showD2dCommuterListDialog(
   required List<D2dCommuterModel> commuters,
   required bool showPosition,
   required void Function(D2dCommuterModel commuter) onCall,
+  bool Function(D2dCommuterModel commuter)? isOtherBatch,
 }) {
   final cts = context.cts;
   final theme = Theme.of(context);
@@ -439,56 +444,68 @@ Future<void> _showD2dCommuterListDialog(
                     itemBuilder: (context, index) {
                       final c = commuters[index];
                       final pop = c.popId?.pickUpPointName;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Row(
-                          children: [
-                            if (showPosition)
-                              SizedBox(
-                                width: 28,
-                                child: Text(
-                                  '${index + 1}',
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    color: cts.navy.withValues(alpha: 0.55),
-                                    fontFeatures: const [
-                                      FontFeature.tabularFigures(),
-                                    ],
+                      final other = isOtherBatch?.call(c) ?? false;
+                      return ColoredBox(
+                        color: other
+                            ? scheme.error.withValues(alpha: 0.12)
+                            : Colors.transparent,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 4,
+                          ),
+                          child: Row(
+                            children: [
+                              if (showPosition)
+                                SizedBox(
+                                  width: 28,
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: cts.navy.withValues(alpha: 0.55),
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    c.username,
-                                    style: theme.textTheme.titleSmall?.copyWith(
-                                      color: cts.navy,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  if (pop != null && pop.isNotEmpty)
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      showPosition
-                                          ? pop
-                                          : 'Stop #${c.inLine ?? '?'} · $pop',
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: cts.navy.withValues(alpha: 0.55),
+                                      c.username,
+                                      style:
+                                          theme.textTheme.titleSmall?.copyWith(
+                                        color: cts.navy,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                ],
+                                    if (pop != null && pop.isNotEmpty)
+                                      Text(
+                                        showPosition
+                                            ? pop
+                                            : 'Stop #${c.inLine ?? '?'} · $pop',
+                                        style:
+                                            theme.textTheme.bodySmall?.copyWith(
+                                          color:
+                                              cts.navy.withValues(alpha: 0.55),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              tooltip: 'Call commuter',
-                              onPressed: () => onCall(c),
-                              icon: Icon(
-                                Icons.call_outlined,
-                                color: cts.navy,
-                                size: 20,
+                              IconButton(
+                                tooltip: 'Call commuter',
+                                onPressed: () => onCall(c),
+                                icon: Icon(
+                                  Icons.call_outlined,
+                                  color: cts.navy,
+                                  size: 20,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -510,12 +527,14 @@ class D2dBoardRow extends StatelessWidget {
     required this.provider,
     this.onCall,
     this.showDivider = true,
+    this.isOtherBatch = false,
   });
 
   final D2dCommuterModel commuter;
   final D2dChannelProvider provider;
   final VoidCallback? onCall;
   final bool showDivider;
+  final bool isOtherBatch;
 
   @override
   Widget build(BuildContext context) {
@@ -569,77 +588,82 @@ class D2dBoardRow extends StatelessWidget {
               ],
             )
           : null,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: onCall,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            commuter.username,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: cts.navy,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (commuter.popId?.pickUpPointName != null)
+      child: ColoredBox(
+        color: isOtherBatch
+            ? scheme.error.withValues(alpha: 0.12)
+            : Colors.transparent,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: onCall,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              commuter.popId!.pickUpPointName!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: cts.navy.withValues(alpha: 0.55),
+                              commuter.username,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: cts.navy,
+                                fontWeight: FontWeight.w600,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                        ],
+                            if (commuter.popId?.pickUpPointName != null)
+                              Text(
+                                commuter.popId!.pickUpPointName!,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: cts.navy.withValues(alpha: 0.55),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  height: 40,
-                  child: OutlinedButton(
-                    onPressed: !canConfirm || commuterId == null
-                        ? null
-                        : () => provider.confirmCommuter(commuterId),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: cts.navy,
-                      side: BorderSide(color: cts.navy.withValues(alpha: 0.55)),
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    height: 40,
+                    child: OutlinedButton(
+                      onPressed: !canConfirm || commuterId == null
+                          ? null
+                          : () => provider.confirmCommuter(commuterId),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: cts.navy,
+                        side: BorderSide(color: cts.navy.withValues(alpha: 0.55)),
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'Board',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: cts.navy,
-                        fontWeight: FontWeight.w600,
+                      child: Text(
+                        'Board',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (showDivider)
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: cts.navy.withValues(alpha: 0.1),
-            ),
-        ],
+            if (showDivider)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: cts.navy.withValues(alpha: 0.1),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -650,10 +674,12 @@ class D2dAlreadyInSection extends StatefulWidget {
     super.key,
     required this.commuters,
     this.onCall,
+    this.isOtherBatch,
   });
 
   final List<D2dCommuterModel> commuters;
   final void Function(D2dCommuterModel commuter)? onCall;
+  final bool Function(D2dCommuterModel commuter)? isOtherBatch;
 
   @override
   State<D2dAlreadyInSection> createState() => _D2dAlreadyInSectionState();
@@ -706,6 +732,8 @@ class _D2dAlreadyInSectionState extends State<D2dAlreadyInSection> {
               onCall: widget.onCall == null
                   ? null
                   : () => widget.onCall!(widget.commuters[i]),
+              isOtherBatch:
+                  widget.isOtherBatch?.call(widget.commuters[i]) ?? false,
             ),
             if (i < widget.commuters.length - 1)
               Divider(height: 1, thickness: 1, color: hairline),
@@ -721,10 +749,12 @@ class D2dWaitingSection extends StatelessWidget {
     super.key,
     required this.commuters,
     this.onCall,
+    this.isOtherBatch,
   });
 
   final List<D2dCommuterModel> commuters;
   final void Function(D2dCommuterModel commuter)? onCall;
+  final bool Function(D2dCommuterModel commuter)? isOtherBatch;
 
   @override
   Widget build(BuildContext context) {
@@ -759,6 +789,7 @@ class D2dWaitingSection extends StatelessWidget {
             position: i + 1,
             commuter: commuters[i],
             onCall: onCall == null ? null : () => onCall!(commuters[i]),
+            isOtherBatch: isOtherBatch?.call(commuters[i]) ?? false,
           ),
           if (i < commuters.length - 1)
             Divider(height: 1, thickness: 1, color: hairline),
@@ -774,60 +805,68 @@ class D2dWaitingTile extends StatelessWidget {
     required this.position,
     required this.commuter,
     this.onCall,
+    this.isOtherBatch = false,
   });
 
   final int position;
   final D2dCommuterModel commuter;
   final VoidCallback? onCall;
+  final bool isOtherBatch;
 
   @override
   Widget build(BuildContext context) {
     final cts = context.cts;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final name = commuter.username;
     final pop = commuter.popId?.pickUpPointName ?? 'Waiting for seat';
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 28,
-            child: Text(
-              '$position',
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: cts.navy.withValues(alpha: 0.55),
-                fontFeatures: const [FontFeature.tabularFigures()],
+    return ColoredBox(
+      color: isOtherBatch
+          ? scheme.error.withValues(alpha: 0.12)
+          : Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 28,
+              child: Text(
+                '$position',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: cts.navy.withValues(alpha: 0.55),
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: cts.navy,
-                    fontWeight: FontWeight.w600,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: cts.navy,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Text(
-                  pop,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: cts.navy.withValues(alpha: 0.55),
+                  Text(
+                    pop,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cts.navy.withValues(alpha: 0.55),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (onCall != null)
-            IconButton(
-              tooltip: 'Call commuter',
-              onPressed: onCall,
-              icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
-            ),
-        ],
+            if (onCall != null)
+              IconButton(
+                tooltip: 'Call commuter',
+                onPressed: onCall,
+                icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -838,48 +877,56 @@ class D2dAlreadyInTile extends StatelessWidget {
     super.key,
     required this.commuter,
     this.onCall,
+    this.isOtherBatch = false,
   });
 
   final D2dCommuterModel commuter;
   final VoidCallback? onCall;
+  final bool isOtherBatch;
 
   @override
   Widget build(BuildContext context) {
     final cts = context.cts;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final pop = commuter.popId?.pickUpPointName ?? 'N/A';
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  commuter.username,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: cts.navy,
-                    fontWeight: FontWeight.w600,
+    return ColoredBox(
+      color: isOtherBatch
+          ? scheme.error.withValues(alpha: 0.12)
+          : Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    commuter.username,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: cts.navy,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Text(
-                  'Stop #${commuter.inLine ?? '?'} · $pop',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: cts.navy.withValues(alpha: 0.55),
+                  Text(
+                    'Stop #${commuter.inLine ?? '?'} · $pop',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cts.navy.withValues(alpha: 0.55),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (onCall != null)
-            IconButton(
-              tooltip: 'Call commuter',
-              onPressed: onCall,
-              icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
-            ),
-        ],
+            if (onCall != null)
+              IconButton(
+                tooltip: 'Call commuter',
+                onPressed: onCall,
+                icon: Icon(Icons.call_outlined, color: cts.navy, size: 18),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -893,12 +940,14 @@ class D2dDriverCommuterTile extends StatelessWidget {
     required this.provider,
     required this.onCall,
     this.showDivider = true,
+    this.isOtherBatch = false,
   });
 
   final D2dCommuterModel commuter;
   final D2dChannelProvider provider;
   final VoidCallback onCall;
   final bool showDivider;
+  final bool isOtherBatch;
 
   @override
   Widget build(BuildContext context) {
@@ -953,83 +1002,88 @@ class D2dDriverCommuterTile extends StatelessWidget {
               ],
             )
           : null,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        commuter.username,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: cts.navy,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if ((pop != null && pop.isNotEmpty) ||
-                          commuter.inLine != null)
+      child: ColoredBox(
+        color: isOtherBatch
+            ? scheme.error.withValues(alpha: 0.12)
+            : Colors.transparent,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          [
-                            if (commuter.inLine != null)
-                              'Stop #${commuter.inLine}',
-                            if (pop != null && pop.isNotEmpty) pop,
-                          ].join(' · '),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cts.navy.withValues(alpha: 0.55),
+                          commuter.username,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: cts.navy,
+                            fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Call commuter',
-                  onPressed: onCall,
-                  icon: Icon(Icons.call_outlined, color: cts.navy, size: 20),
-                ),
-                const SizedBox(width: 4),
-                SizedBox(
-                  height: 36,
-                  child: OutlinedButton(
-                    onPressed: !canConfirm || commuterId == null
-                        ? null
-                        : () => provider.confirmCommuter(commuterId),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: cts.navy,
-                      side: BorderSide(
-                        color: cts.navy.withValues(alpha: 0.55),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    child: Text(
-                      'Board',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: cts.navy,
-                        fontWeight: FontWeight.w600,
-                      ),
+                        if ((pop != null && pop.isNotEmpty) ||
+                            commuter.inLine != null)
+                          Text(
+                            [
+                              if (commuter.inLine != null)
+                                'Stop #${commuter.inLine}',
+                              if (pop != null && pop.isNotEmpty) pop,
+                            ].join(' · '),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cts.navy.withValues(alpha: 0.55),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  IconButton(
+                    tooltip: 'Call commuter',
+                    onPressed: onCall,
+                    icon: Icon(Icons.call_outlined, color: cts.navy, size: 20),
+                  ),
+                  const SizedBox(width: 4),
+                  SizedBox(
+                    height: 36,
+                    child: OutlinedButton(
+                      onPressed: !canConfirm || commuterId == null
+                          ? null
+                          : () => provider.confirmCommuter(commuterId),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: cts.navy,
+                        side: BorderSide(
+                          color: cts.navy.withValues(alpha: 0.55),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      child: Text(
+                        'Board',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: cts.navy,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (showDivider)
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: cts.navy.withValues(alpha: 0.1),
-            ),
-        ],
+            if (showDivider)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: cts.navy.withValues(alpha: 0.1),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -1041,11 +1095,13 @@ class D2dAdminCommuterTile extends StatelessWidget {
     required this.commuter,
     required this.provider,
     required this.onCall,
+    this.isOtherBatch = false,
   });
 
   final D2dCommuterModel commuter;
   final D2dChannelProvider provider;
   final VoidCallback onCall;
+  final bool isOtherBatch;
 
   @override
   Widget build(BuildContext context) {
@@ -1058,33 +1114,38 @@ class D2dAdminCommuterTile extends StatelessWidget {
       D2dChannelAction.removeFromQueue,
     );
 
-    final card = ModernListCard(
-      title: commuter.username,
-      subtitle: 'ID ${commuter.id ?? '?'}',
-      icon: Icons.person_rounded,
-      iconColor: scheme.primary,
-      trailing: IconButton(
-        tooltip: 'Call commuter',
-        onPressed: onCall,
-        icon: Icon(
-          Icons.call_rounded,
-          color: Theme.of(context).colorScheme.primary,
+    final card = ColoredBox(
+      color: isOtherBatch
+          ? scheme.error.withValues(alpha: 0.12)
+          : Colors.transparent,
+      child: ModernListCard(
+        title: commuter.username,
+        subtitle: 'ID ${commuter.id ?? '?'}',
+        icon: Icons.person_rounded,
+        iconColor: scheme.primary,
+        trailing: IconButton(
+          tooltip: 'Call commuter',
+          onPressed: onCall,
+          icon: Icon(
+            Icons.call_rounded,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
+        children: [
+          InfoRow(
+            icon: Icons.location_on_rounded,
+            label: 'POP:',
+            value: commuter.popId?.pickUpPointName ?? 'N/A',
+            iconColor: cts.info,
+          ),
+          InfoRow(
+            icon: Icons.format_list_numbered_rounded,
+            label: 'Stop #:',
+            value: commuter.inLine?.toString() ?? 'N/A',
+            iconColor: cts.yellowDark,
+          ),
+        ],
       ),
-      children: [
-        InfoRow(
-          icon: Icons.location_on_rounded,
-          label: 'POP:',
-          value: commuter.popId?.pickUpPointName ?? 'N/A',
-          iconColor: cts.info,
-        ),
-        InfoRow(
-          icon: Icons.format_list_numbered_rounded,
-          label: 'Stop #:',
-          value: commuter.inLine?.toString() ?? 'N/A',
-          iconColor: cts.yellowDark,
-        ),
-      ],
     );
 
     if (!canRemove) {

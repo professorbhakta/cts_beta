@@ -96,6 +96,8 @@ class ManagerKey {
   static const popId = "pop_id";
   static const userType = "user_type";
   static const adminCode = "admin_code";
+  /// Org admin mobile from login profile `adminCode.userId.mobileNumber` when present.
+  static const adminMobile = "admin_mobile";
   static const isComing = "isComing";
   static const webSocketConn = "webSocketConn";
 
@@ -167,39 +169,26 @@ class AppManager {
 
   /// Runtime permissions used by packages/UI on each platform.
   ///
-  /// Android: phone, notifications, location, camera.
-  /// iOS: notifications, location, camera (phone has no equivalent prompt).
+  /// Splash requests **only** what the app uses today:
+  /// - notifications — firebase_messaging / OS alerts
+  /// - camera — image_picker + mobile_scanner (odometer + boarding QR)
+  ///
+  /// **Removed (FIND-012 / FE-7.4 / FE-7.5):** `Permission.phone` and
+  /// `Permission.location` — no Geolocator / READ_PHONE_STATE; Android
+  /// phone+location perms and iOS `NSLocation*` strings dropped.
   Future getPermissions() async {
-    final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
-
     if (kDebugMode) {
-      if (isAndroid) {
-        debugPrint(
-          'Permission.phone.isGranted ${await Permission.phone.isGranted}',
-        );
-      }
       debugPrint(
         'Permission.notification.isGranted ${await Permission.notification.isGranted}',
-      );
-      debugPrint(
-        'Permission.location.isGranted ${await Permission.location.isGranted}',
       );
       debugPrint(
         'Permission.camera.isGranted ${await Permission.camera.isGranted}',
       );
     }
 
-    // READ_PHONE_STATE / device_info — Android only.
-    if (isAndroid && !await Permission.phone.isGranted) {
-      await Permission.phone.request();
-    }
     // firebase_messaging (held) + OS alerts — both platforms.
     if (!await Permission.notification.isGranted) {
       await Permission.notification.request();
-    }
-    // When-in-use location — both (Info.plist + Android manifest).
-    if (!await Permission.location.isGranted) {
-      await Permission.location.request();
     }
     // image_picker + mobile_scanner (odometer + boarding QR) — both.
     if (!await Permission.camera.isGranted) {
@@ -268,8 +257,12 @@ class AppConfig {
 
     await AppManager.initialize();
 
-    const defaultApiBaseUrl = 'http://172.20.10.2/';
-    const defaultWebSocketUrl = 'ws://172.20.10.2/ws/';
+    // Lab LAN defaults are for local debug/profile only — never silent in release.
+    const labApiBaseUrl = 'http://172.20.10.2/';
+    const labWebSocketUrl = 'ws://172.20.10.2/ws/';
+    final allowLabDefaults = !kReleaseMode;
+    final defaultApiBaseUrl = allowLabDefaults ? labApiBaseUrl : '';
+    final defaultWebSocketUrl = allowLabDefaults ? labWebSocketUrl : '';
 
     try {
       await dotenv.load(fileName: fileName, isOptional: true);
@@ -312,9 +305,29 @@ class AppConfig {
       );
     }
 
+    final apiBaseUrl = _normalizeBaseUrl(envApiBaseUrl());
+    final webSocketUrl = _normalizeWebSocketUrl(envWebSocketUrl());
+
+    if (apiBaseUrl.isEmpty || webSocketUrl.isEmpty) {
+      throw StateError(
+        'AppConfig: API_BASE_URL and WEBSOCKET_URL must be set in .env. '
+        'Release builds refuse silent lab LAN defaults (FIND-010).',
+      );
+    }
+
+    if (kReleaseMode &&
+        (apiBaseUrl.startsWith('http://172.') ||
+            apiBaseUrl.contains('172.20.10.2') ||
+            webSocketUrl.contains('172.20.10.2'))) {
+      throw StateError(
+        'AppConfig: release build must not use lab LAN host 172.20.10.2. '
+        'Set production HTTPS/WSS endpoints in .env.',
+      );
+    }
+
     _instance = AppConfig._(
-      apiBaseUrl: _normalizeBaseUrl(envApiBaseUrl()),
-      webSocketUrl: _normalizeWebSocketUrl(envWebSocketUrl()),
+      apiBaseUrl: apiBaseUrl,
+      webSocketUrl: webSocketUrl,
       defaultAdminCode: envOrDefault('DEFAULT_ADMIN_CODE', ''),
     );
     AppManager.defaultAdminCodeFallback = _instance!.defaultAdminCode;

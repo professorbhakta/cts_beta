@@ -41,7 +41,7 @@ sequenceDiagram
 |------|------|----------------|
 | 1 | `lib/main.dart` | `WidgetsFlutterBinding`, DB init, bootstrap |
 | 2 | `AppConfig.initialize()` | `.env` → API / WebSocket URLs |
-| 3 | `AppDatabase` / `OfflineTempDatabase` | SQLite for cache, sync queue, offline temp |
+| 3 | `AppDatabase` | SQLite for cache, sync queue, admin bootstrap |
 | 4 | `AppProviders.bootstrapServices()` | Network, `SyncManager`, offline-first batches, `SessionAuthNotifier` |
 | 5 | `CtsApp` | `MaterialApp.router`, theme, global providers |
 
@@ -98,7 +98,6 @@ flowchart TB
 | `lib/screens/` | App-level error / offline screens only |
 | `lib/data/` | **Legacy shared only** — session/auth impl + local DB; do **not** copy this pattern into new features |
 | `lib/domain/` | **Legacy shared only** — auth/session contracts + use cases; do **not** copy this pattern into new features |
-| `lib/offline_temp/` | Prototype offline UI (pending merge or isolation) |
 | `lib/appManager/`, legacy `controllers/`, duplicate `screens/` | **Being removed** — re-export stubs only; do not add code here |
 
 ---

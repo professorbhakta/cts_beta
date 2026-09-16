@@ -1,6 +1,6 @@
 > **Doc:** docs/TESTING.md
-> **Updated:** 2026-08-25 22:05 IST
-> **Session:** Smoke points at FLOWS QR/KM table
+> **Updated:** 2026-09-12 15:45 IST
+> **Session:** STEP 8 → FLOWS + STEP8 checklist (client_req retired)
 
 # Testing
 
@@ -49,7 +49,7 @@ Default Flutter `widget_test.dart` was **removed** — do not restore a theme-on
 4. `flutter run -d 5f36af49` — driver `9876544111` / `password` → driver home
 5. Report pass/fail per device. If a device is unavailable, document the gap — do not push silently.
 
-Prefer `flutter run` + manual login over `integration_test` for first build.
+Pre-push smoke is **manual** `flutter run` + login (no `integration_test/` suite).
 
 **Done** for a P session = code + doc sync + analyze + tests + **both-device smoke** + push.
 
@@ -57,7 +57,7 @@ Prefer `flutter run` + manual login over `integration_test` for first build.
 
 ## Client pack STEP 8 (device smoke)
 
-Only after user says **go**. Click-path table: [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) § Morning QR+KM. Script: [client_req/07-NEXT-AGENT-PROMPT.md](./client_req/07-NEXT-AGENT-PROMPT.md).
+Only after user says **go**. Click-path table: [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) § Morning QR+KM. Checklist: [STEP8_DEVICE_SMOKE_CHECKLIST.txt](./STEP8_DEVICE_SMOKE_CHECKLIST.txt).
 
 Morning: Start → start KM+photo → QR scan + one swipe fallback → end KM → STOP.  
 Accounts / LAN: PROJECT_BRAIN §5.

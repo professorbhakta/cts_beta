@@ -1,6 +1,5 @@
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/app/router/route_names.dart';
-import 'package:cts/offline_temp/offline_auto_redirect.dart';
 import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/drivers/providers/driver_home_provider.dart';
@@ -48,46 +47,44 @@ class _DriverHomePageState extends State<DriverHomePage> {
   Widget build(BuildContext context) {
     final scheme = context.scheme;
 
-    return OfflineAutoRedirect(
-      child: Scaffold(
-        backgroundColor: scheme.surfaceContainerHighest,
-        drawer: const AppDrawer(),
-        body: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () =>
-                context.read<DriverHomeProvider>().fetchDriverProfile(),
-            child: Consumer<DriverHomeProvider>(
-              builder: (context, provider, child) {
-                return switch (provider.state) {
-                  ViewState.loading => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 200, child: LoadingIndicator()),
-                      ],
-                    ),
-                  ViewState.error => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        StatusMessage.error(
-                          title: provider.errorMessage ?? 'An error occurred',
-                          onRetry: () => provider.fetchDriverProfile(),
-                        ),
-                      ],
-                    ),
-                  _ when provider.driverProfile == null => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        StatusMessage(
-                          icon: Icons.assignment_outlined,
-                          title: 'No assignment details found.',
-                          message: 'Pull to refresh.',
-                        ),
-                      ],
-                    ),
-                  _ => _buildBoard(context, provider),
-                };
-              },
-            ),
+    return Scaffold(
+      backgroundColor: scheme.surfaceContainerHighest,
+      drawer: const AppDrawer(),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () =>
+              context.read<DriverHomeProvider>().fetchDriverProfile(),
+          child: Consumer<DriverHomeProvider>(
+            builder: (context, provider, child) {
+              return switch (provider.state) {
+                ViewState.loading => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 200, child: LoadingIndicator()),
+                    ],
+                  ),
+                ViewState.error => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      StatusMessage.error(
+                        title: provider.errorMessage ?? 'An error occurred',
+                        onRetry: () => provider.fetchDriverProfile(),
+                      ),
+                    ],
+                  ),
+                _ when provider.driverProfile == null => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      StatusMessage(
+                        icon: Icons.assignment_outlined,
+                        title: 'No assignment details found.',
+                        message: 'Pull to refresh.',
+                      ),
+                    ],
+                  ),
+                _ => _buildBoard(context, provider),
+              };
+            },
           ),
         ),
       ),

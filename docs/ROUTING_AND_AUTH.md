@@ -1,6 +1,6 @@
 > **Doc:** docs/ROUTING_AND_AUTH.md
-> **Updated:** 2026-09-09 19:50 IST
-> **Session:** SUPER_ADMIN + web /void/ portal note
+> **Updated:** 2026-09-12 15:55 IST
+> **Session:** Absorbed ROLE_ACCESS + USER_ROLES drafts; both retired
 
 # Routing and authentication
 
@@ -27,6 +27,9 @@ How users move through the app: **go_router**, **session**, and **role-based acc
 
 ## User roles (homes)
 
+`userType`: `ADMIN` | `SUPER_ADMIN` | `SUPERVISOR` | `DRIVER` | `COMMUTER` | `STAFF`  
+**No `personType`** — Staff vs Commuter rider is `userType` only. **`hasPaid`** on User; **`adminCode` kept** + **`organizationId`** on org-scoped rows. Org tables: Organization + SubAdminOrganization (separate from subAdmin).
+
 | `userType` | Home route | Admin shell? |
 |------------|------------|--------------|
 | `ADMIN` | `/adminHomeScreen` | Yes — **all** `AdminService` tiles |
@@ -37,7 +40,8 @@ How users move through the app: **go_router**, **session**, and **role-based acc
 | `COMMUTER` | `/commuterHomeScreen` | No |
 
 **Decision:** No separate “supervisor home” screen — SUPERVISOR uses the admin dashboard with capability filtering. STAFF is **not** in `isAdminLike`.  
-**Web:** There is no separate Flutter web admin app yet (sqflite). Org / schema management for now uses Django admin at `/void/` as **SUPER_ADMIN** (`is_staff` + `is_superuser`). Mobile ADMIN/SUPERVISOR stay on the Flutter app.
+**Web:** There is no separate Flutter web admin app yet (sqflite). Org / schema management for now uses Django admin at `/void/` as **SUPER_ADMIN** (`is_staff` + `is_superuser`). Mobile ADMIN/SUPERVISOR stay on the Flutter app.  
+**Lab SUPER_ADMIN:** `9000000000` / `password` (see [LOCAL_DEV](./LOCAL_DEV.md)).
 
 ---
 

@@ -7,7 +7,8 @@ class DatabaseSchema {
   /// v1: cache + sync_queue.
   /// v2: admin-bootstrap entity tables.
   /// v3: org junction tables + organization_id on bootstrap entities.
-  static const int version = 3;
+  /// v4: cab.km (baseline / starting odometer for running status).
+  static const int version = 4;
 
   static const String cacheTable = 'entity_cache';
   static const String syncQueueTable = 'sync_queue';
@@ -137,6 +138,7 @@ class DatabaseSchema {
       capacity INTEGER,
       route_id INTEGER,
       ac_type TEXT,
+      km INTEGER,
       tracking_vehicle_id TEXT,
       is_active INTEGER NOT NULL DEFAULT 1,
       admin_code TEXT,
@@ -212,6 +214,11 @@ class DatabaseSchema {
     'ALTER TABLE $cabTable ADD COLUMN organization_id TEXT',
     'ALTER TABLE $driverTable ADD COLUMN organization_id TEXT',
     'ALTER TABLE $commuterTable ADD COLUMN organization_id TEXT',
+  ];
+
+  /// Additive columns for upgrades from schema v3 → v4.
+  static const List<String> v4AlterScripts = [
+    'ALTER TABLE $cabTable ADD COLUMN km INTEGER',
   ];
 
   static const List<String> creationScripts = [

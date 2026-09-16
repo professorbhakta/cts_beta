@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_TODOS.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Return QR Phase 2 wired (?trip=return + boarding_scan)
+> **Updated:** 2026-09-15 22:35 IST
+> **Session:** D2D cream + WS `batchId` docs sync
 
 # Project Todo & Progress
 
@@ -14,6 +14,8 @@
 - [x] API layer consolidated under `core/network/`
 - [x] APK validation: debug APK built successfully at `build_android/app/outputs/apk/debug/app-debug.apk`
  - [x] Git repository connected / remote verified (`origin` → professorbhakta/cts_beta, branch `beta-ver`)
+- [ ] **Play Store:** upload keystore + `key.properties` (local) → signed `.aab` — [BUILD_AND_RELEASE](docs/BUILD_AND_RELEASE.md)
+- [x] **D2D cream + other-batch + beeps** — shared body; Driver no Add; red tint; short/long WAV; WS `batchId`; docs synced — device smoke still human; **restart professor-dock** for WS `batchId`
 
 ## Documentation (`docs/`)
 
@@ -36,13 +38,15 @@
 1. [x] Confirm state management approach → **Provider retained**
 2. [x] Feature-first migration through Phase 7 (batches)
 3. [x] Splash → auth → role routing via go_router guards
-4. [~] Offline: SyncManager + drawer badge; `offline_temp` isolated prototype (P9); full promote deferred
+4. [x] Offline: SyncManager + drawer badge; `offline_temp` prototype **removed** (2026-09-10)
 5. [x] Baseline `flutter pub get`, `flutter analyze`, `flutter test`
 
 ### Follow-ups
 6. [ ] Replace / harden deprecated or placeholder screens and TODOs in admin CRUD flows
 7. [~] Automated tests — real suite under `test/features/` + `test/api|core|…`; default `widget_test.dart` **removed** (add new client-pack tests under `test/features/d2d/`)
-8. [x] Auth security wave: TLS keep, session cookies cached, logout/401, D2D WS cookie (REST d2d permissions + `POST /user/` userType still open)
+7b. [ ] **i18n / RTL / Hindi (FIND-017 / FE-6.14)** — **post-v1 timeline:** (1) inventory user-facing strings; (2) `flutter_localizations` + `MaterialApp` delegates; (3) Hindi `app_hi.arb` + RTL smoke on sign-in + D2D; **not blocking v1 store**.
+7c. [ ] **FCM init + device token (FIND-018 / FE-7.6)** — needs Firebase project + `google-services.json` / `GoogleService-Info.plist` + BE token API; wire under **P10**; keep `POST_NOTIFICATIONS` only until then.
+8. [x] Auth security wave: TLS keep, JWT REST, logout/401, D2D **JwtAuthMiddlewareStack** (Bearer); GET `/user/` dump closed; return end/add/remove role-gated (2026-09-11)
 9. [x] Phase 7: migrate **batches** (running + return)
 10. [x] Pending-sync badge in admin drawer
 11. [x] Phase 8 polish (admin_home, d2d, profile) — architecture freeze + structure/UX; then Phase 9–10
@@ -89,8 +93,8 @@
 26d-cutoff. [x] Cutoff / no-show seat release (R7) — D3 = T−15 lazy; `cutoff_applied` on status
 26d-cutoff-tz. [x] C1 Django `TIME_ZONE=Asia/Kolkata` (env `DJANGO_TIME_ZONE`) for wall-clock T−15
 26d-discuss. [ ] Clarify admin return Confirm “API every time” (normal one POST vs heavy reload/double call) — then fix or skip
-26u-client. [x] Client pack BE + Flutter BUILD UI STEPS 1–7 (QR boarding + odometer) — [docs/client_req/](docs/client_req/README.md)
-26u-client-smoke. [ ] **STEP 8 device smoke** (user says **go**) — emu admin + phone driver
+26u-client. [x] Client pack BE + Flutter BUILD UI STEPS 1–7 (QR boarding + odometer) — locks in [FLOWS](docs/FLOWS_BY_ROLE.md); wire in [API_CONTRACTS](docs/API_CONTRACTS.md)
+26u-client-smoke. [ ] **STEP 8 device smoke** — human + real devices **after app push** (not agent); emu admin + phone driver
 26u-return-qr-ui. [x] Return QR boarding **Phase 2 wired** — `?trip=return` mint + shared `boarding_scan`; [RETURN_QR_UI_PREP](docs/setup/RETURN_QR_UI_PREP.md) · [GAP](docs/setup/RETURN_TRIP_API_GAP.md)
 26u-client-park. [ ] Parked UI: return-leg KM, admin org odometer list, unboard UI
 26u-ops-nginx. [x] nginx `client_max_body_size 8m` (odometer multipart)
@@ -138,7 +142,7 @@ Phases **0–7 are frozen** (layout + migration complete). Do not reopen them fo
 | **6** Drivers + commuters | Frozen | CRUD + role homes + list/return screens |
 | **7** Batches (running + return) | Frozen | `features/batches/` |
 | **8** admin_home, d2d, profile | Done | Structure/UX polish (no token redesign) |
-| **9** Promote offline_temp | Isolated (P9) | drawer-only prototype (`offline_module` barrel removed) |
+| **9** Promote offline_temp | **Removed** (2026-09-10) | Prod batch sync only (`OfflineFirstBatchRepository`) |
 | **10** Remove legacy + Reviewer | Pending | Remaining: `appManager` → `app/services`; naming |
 
 ### Restructure for readability (new — [LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md))

@@ -84,9 +84,7 @@
 	<!-- Camera: odometer photo + boarding QR (mobile_scanner / image_picker) -->
 	<key>NSCameraUsageDescription</key>
 	<string>CTS needs the camera to photograph the odometer and scan boarding QR codes.</string>
-	<!-- Location: requested at splash (permission_handler); SPM enables Permission.location from this key -->
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>CTS uses your location while the app is open to support trip and pickup features.</string>
+	<!-- FIND-012 / FE-7.5: NSLocation* removed — no Geolocator / location APIs -->
 	<!-- url_launcher: tel: dialer + https/http tracking links (iOS 9+ canLaunchUrl) -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

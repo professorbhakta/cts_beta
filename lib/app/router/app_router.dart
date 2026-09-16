@@ -8,9 +8,6 @@ import 'package:cts/features/d2d/screens/d2d_channel.dart';
 import 'package:cts/features/d2d/screens/d2d_log_screen.dart';
 import 'package:cts/features/profile/screens/profile_screen.dart';
 import 'package:cts/features/splash/screens/splash_screen.dart';
-import 'package:cts/offline_temp/screens/offline_batch_commuters_screen.dart';
-import 'package:cts/offline_temp/screens/offline_home_screen.dart';
-import 'package:cts/offline_temp/screens/offline_route_pops_screen.dart';
 import 'package:cts/features/admin_home/screens/admin_home_screen.dart';
 import 'package:cts/features/trip_report/screens/trip_report_screen.dart';
 import 'package:cts/features/cabs/forms/cab_form.dart';
@@ -249,43 +246,6 @@ GoRouter createAppRouter({
           final batchId = D2dRouteArgs.batchIdFrom(state.extra);
           if (batchId == null) return const DriverHomePage();
           return D2DLogScreen(batchId: batchId);
-        },
-      ),
-      GoRoute(
-        path: RouteName.offlineTempHome,
-        builder: (context, state) => const OfflineHomeScreen(),
-      ),
-      GoRoute(
-        path: '${RouteName.offlineBatchCommuters}/:batchId',
-        builder: (context, state) {
-          final raw = state.pathParameters['batchId'];
-          final batchId = int.tryParse(raw ?? '');
-          if (batchId == null) return const OfflineHomeScreen();
-          return OfflineBatchCommutersScreen(batchId: batchId);
-        },
-      ),
-      GoRoute(
-        path: RouteName.offlineBatchCommuters,
-        builder: (context, state) {
-          final batchId = state.extra as int?;
-          if (batchId == null) return const OfflineHomeScreen();
-          return OfflineBatchCommutersScreen(batchId: batchId);
-        },
-      ),
-      GoRoute(
-        path: '${RouteName.offlineRoutePops}/:routeId',
-        builder: (context, state) {
-          final routeId = int.tryParse(state.pathParameters['routeId'] ?? '');
-          if (routeId == null) return const OfflineHomeScreen();
-          return OfflineRoutePopsScreen(routeId: routeId);
-        },
-      ),
-      GoRoute(
-        path: RouteName.offlineRoutePops,
-        builder: (context, state) {
-          final routeId = state.extra as int?;
-          if (routeId == null) return const OfflineHomeScreen();
-          return OfflineRoutePopsScreen(routeId: routeId);
         },
       ),
     ],

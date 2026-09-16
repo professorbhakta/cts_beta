@@ -17,7 +17,6 @@ lib/
 ├── core/sync/           # SyncManager (offline queue)
 ├── features/            # Feature-first modules (main product code)
 ├── widgets/             # Shared UI components
-├── offline_temp/        # Offline prototype module
 ├── appManager/          # Session globals, colors, snackbar, view state
 ├── screens/             # App-wide error + no-internet screens
 ├── models/              # Shared models (User, Cab, Route, Pop, D2D)

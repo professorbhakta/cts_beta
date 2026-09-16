@@ -4,6 +4,7 @@ import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/data/local/dao/admin_bootstrap_dao.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_cache.dart';
 import 'package:cts/features/admin_bootstrap/models/admin_bootstrap_response.dart';
 import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
 
@@ -17,16 +18,22 @@ class AdminBootstrapRepositoryImpl implements AdminBootstrapRepository {
   final BaseApiServices _apiService;
   final AdminBootstrapDao _dao;
 
+  static bool _isAdminRole(String? userType) {
+    return userType == 'ADMIN' ||
+        userType == 'SUPER_ADMIN' ||
+        userType == 'SUPERVISOR';
+  }
+
   @override
   Future<ApiResult<AdminBootstrapResponse>> sync() async {
     try {
       final userType = AppManager.instance.getString(ManagerKey.userType);
-      if (userType != 'ADMIN' && userType != 'SUPERVISOR') {
+      if (!_isAdminRole(userType)) {
         return ApiResult.failure(
           ApiFailure(
             type: ApiFailureType.invalidRequest,
             message:
-                'Admin bootstrap is only available for ADMIN or SUPERVISOR.',
+                'Admin bootstrap is only available for ADMIN, SUPER_ADMIN, or SUPERVISOR.',
           ),
         );
       }
@@ -54,6 +61,7 @@ class AdminBootstrapRepositoryImpl implements AdminBootstrapRepository {
         AppManager.instance.setString(ManagerKey.adminCode, adminCode);
       }
 
+      AdminBootstrapCache.instance.set(parsed);
       await _dao.replaceAll(parsed, adminCode: adminCode);
 
       return ApiResult.success(parsed);
@@ -63,10 +71,18 @@ class AdminBootstrapRepositoryImpl implements AdminBootstrapRepository {
   }
 
   @override
+  Future<AdminBootstrapResponse?> readLuggage() {
+    return AdminBootstrapCache.instance.load(dao: _dao);
+  }
+
+  @override
   Future<AdminBootstrapResponse?> readCachedMeta() {
     return _dao.readMetaAsResponse();
   }
 
   @override
-  Future<void> clearLocal() => _dao.clearAll();
+  Future<void> clearLocal() async {
+    AdminBootstrapCache.instance.clear();
+    await _dao.clearAll();
+  }
 }

@@ -37,7 +37,7 @@ class AdminBootstrapProvider with ChangeNotifier {
   }
 
   Future<void> hydrateFromCache() async {
-    _last = await _repository.readCachedMeta();
+    _last = await _repository.readLuggage();
     notifyListeners();
   }
 

@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-12 16:10 IST
-> **Session:** trip report FE + TRIP_AUTO_CLOSE_CONTRACT registered
+> **Updated:** 2026-09-15 22:35 IST
+> **Session:** D2D cream + WS `batchId` docs sync
 
 # Documentation Registry
 
@@ -8,7 +8,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 **Attach order is locked** in [PROJECT_BRAIN.md](PROJECT_BRAIN.md) §3 — do not invent a new order each chat.
 
-**Story split:** [05](docs/client_req/05-open-decisions.md) = product story/locks · [DESIGN_SNAPSHOT](docs/client_req/DESIGN_SNAPSHOT.md) = schema/APIs · [FLOWS](docs/FLOWS_BY_ROLE.md) = journeys · [07](docs/client_req/07-NEXT-AGENT-PROMPT.md) = smoke · [DISCUSSION_LOG](docs/client_req/DISCUSSION_LOG.md) = pointer only.
+**Story split:** [FLOWS](docs/FLOWS_BY_ROLE.md) = journeys + D1–D10 · [API_CONTRACTS](docs/API_CONTRACTS.md) = wire/schema · [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md) = handoff · [STEP8 checklist](docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt) = smoke.
 
 ---
 
@@ -19,7 +19,7 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 3. [PROJECT_BRAIN.md](PROJECT_BRAIN.md) §5 / §6 / §9 (+ §10 map if ownership moved).
 4. [PROMPT_SCOPE.md](PROMPT_SCOPE.md) queue + change log.
 5. [PROJECT_TODOS.md](PROJECT_TODOS.md) if backlog moved.
-6. If client pack is still queue #1: **always** bump DISCUSSION_LOG (`LAST_SUMMARY` + `NEXT_SUGGEST`).
+6. If client/STEP 8 pack touched: bump [DISCUSSION_STATUS](docs/setup/DISCUSSION_STATUS.md).
 7. No long specs in PROJECT_BRAIN — pointers only.
 
 ---
@@ -28,16 +28,12 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
-| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-09 20:30 IST | docs sync MIDDLE |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-09 20:30 IST | tip SHAs + Dart names |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-09 20:30 IST | docs sync log |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-09 20:30 IST | this sync |
-| [docs/client_req/DISCUSSION_LOG.md](docs/client_req/DISCUSSION_LOG.md) | 2026-09-09 20:30 IST | naming + SUPER_ADMIN pointer |
-| [docs/client_req/README.md](docs/client_req/README.md) | 2026-08-26 07:58 IST | read order + snapshot |
-| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-09-09 19:50 IST | DTODLOG return_* scrubbed |
-| [docs/client_req/07-NEXT-AGENT-PROMPT.md](docs/client_req/07-NEXT-AGENT-PROMPT.md) | 2026-08-26 07:53 IST | photo optional smoke |
-| [docs/client_req/05-open-decisions.md](docs/client_req/05-open-decisions.md) | 2026-08-26 07:58 IST | + snapshot link |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-09 20:30 IST | SUPER_ADMIN + returnTripLogId note |
+| [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-12 15:55 IST | setup merge noted |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-15 22:35 IST | D2D cream + WS `batchId` audit |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-15 22:35 IST | Q-d2d-cream-beep done + docs |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-15 22:35 IST | this sync |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-12 16:10 IST | trip report FE + BE 77ed62a |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-15 22:35 IST | Admin/Driver D2D cream + no driver Add |
 
 ---
 
@@ -46,26 +42,31 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | Concern | Owner |
 |---------|--------|
 | Session / queue | `PROJECT_BRAIN` + `PROMPT_SCOPE` |
-| Docker / LAN / backup / nginx | `docs/LOCAL_DEV.md` |
-| REST + WS wire | `docs/API_CONTRACTS.md` |
+| Docker / LAN / backup / nginx + `d2d_log` module map | `docs/LOCAL_DEV.md` |
+| REST + WS wire + schema inventory | `docs/API_CONTRACTS.md` |
 | Morning D2D + client pack UI | `lib/features/d2d/README.md` |
 | Return batch | `lib/features/batches/README.md` |
-| Return QR UI / Phase 2 | `docs/setup/RETURN_QR_UI_PREP.md` · `docs/setup/RETURN_TRIP_API_GAP.md` |
-| Operator journeys (incl. QR/KM) | `docs/FLOWS_BY_ROLE.md` |
-| Schema / APIs inventory | `docs/client_req/DESIGN_SNAPSHOT.md` |
-| Product story + D1–D10 | `docs/client_req/05-open-decisions.md` |
-| Pack handoff pointer | `docs/client_req/DISCUSSION_LOG.md` |
-| Smoke script | `docs/client_req/07-NEXT-AGENT-PROMPT.md` |
+| Return QR UI / Phase 2 + client locks | `docs/setup/RETURN_QR_UI_PREP.md` · `docs/setup/RETURN_TRIP_API_GAP.md` |
+| Operator journeys + product locks D1–D10 | `docs/FLOWS_BY_ROLE.md` |
+| Roles / homes / allow-list | `docs/ROUTING_AND_AUTH.md` |
+| Admin list/form field map | `docs/UI_ARCHITECTURE.md` §8 |
+| Pack handoff pointer | `docs/setup/DISCUSSION_STATUS.md` |
+| Smoke checklist | `docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt` · FLOWS QA section |
 | Smoke / test how-to | `docs/TESTING.md` |
-| BE module index | `docs/backend/README.md` |
 | JWT / discussion status | `docs/setup/DISCUSSION_STATUS.md` · `docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt` |
 | Branch map (FE+BE) | `docs/setup/BRANCH_HOLD_NOTES.md` |
 | Setup drafts index | `docs/setup/README.md` · `docs/setup/SCHEMA_FINAL_DRAFT.txt` |
 | Admin bootstrap | `docs/setup/ADMIN_BOOTSTRAP_DRAFT.md` · `docs/setup/SQLITE_TABLES_COLUMNS.txt` |
+| FE prod inspection checklist | [docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md](docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md) |
+| FE inspect continue prompt | [docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt](docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt) |
 
 **Full BE↔FE dot table:** [PROJECT_BRAIN.md §10](PROJECT_BRAIN.md#10-deep-docs--stable-befe-map).
 
-**Retired:** `docs/backend/01–04`, `docs/guides/`, client_req `00–04`+`06`, `test/widget_test.dart`.
+**Retired:** entire `docs/backend/`, entire `docs/client_req/`, `docs/guides/`, `test/widget_test.dart`,
+`integration_test/`, setup drafts `CLIENT_RETURN_QR_NOTE`, `RETURN_TRIP_COLUMNS_DRAFT`,
+`ROLE_ACCESS_PHASE_A`, `USER_ROLES_DISCUSSION`, `CREAM_BOARD_SCHEMA_UI`,
+`docs/D2D_PHASE3_CONTINUE_PROMPT.txt`, `docs/LAB_SMOKE_CONTINUE_PROMPT.txt`,
+`docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt`.
 
 ---
 
@@ -74,35 +75,34 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
 | [docs/setup/ADMIN_BOOTSTRAP_DRAFT.md](docs/setup/ADMIN_BOOTSTRAP_DRAFT.md) | 2026-09-09 20:15 IST | SUPER_ADMIN + SQLite v3 |
-| [docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt](docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt) | 2026-09-09 20:30 IST | checklist: SUPER_ADMIN + returnTripLogId |
-| [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 20:30 IST | tip SHAs FE `0524868` / BE `98ebc66` |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-09 20:30 IST | tip `98ebc66` / FE `0524868` |
-| [docs/setup/README.md](docs/setup/README.md) | 2026-09-09 20:30 IST | SUPER_ADMIN + bootstrap index |
-| [docs/setup/CLIENT_RETURN_QR_NOTE.md](docs/setup/CLIENT_RETURN_QR_NOTE.md) | 2026-09-08 20:20 IST | Client: return QR = morning boarding |
-| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-09 20:10 IST | returnTripLogId / tripLeg |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-12 15:55 IST | setup prune |
+| [docs/setup/README.md](docs/setup/README.md) | 2026-09-12 15:55 IST | 10 live drafts only |
+| [docs/setup/BRANCH_HOLD_NOTES.md](docs/setup/BRANCH_HOLD_NOTES.md) | 2026-09-09 20:30 IST | tip SHAs |
+| [docs/setup/RETURN_QR_UI_PREP.md](docs/setup/RETURN_QR_UI_PREP.md) | 2026-09-12 15:55 IST | Absorbed CLIENT_RETURN locks |
 | [docs/setup/RETURN_TRIP_API_GAP.md](docs/setup/RETURN_TRIP_API_GAP.md) | 2026-09-09 20:15 IST | FE agent name map |
-| [docs/setup/ROLE_ACCESS_PHASE_A.md](docs/setup/ROLE_ACCESS_PHASE_A.md) | 2026-09-09 20:15 IST | SUPER_ADMIN + /void/ |
 | [docs/setup/LOGIN_JSON_FIELDS.txt](docs/setup/LOGIN_JSON_FIELDS.txt) | 2026-09-09 20:15 IST | SUPER_ADMIN profile |
 | [docs/setup/SQLITE_TABLES_COLUMNS.txt](docs/setup/SQLITE_TABLES_COLUMNS.txt) | 2026-09-09 19:50 IST | schema v3 |
+| [docs/setup/SCHEMA_FINAL_DRAFT.txt](docs/setup/SCHEMA_FINAL_DRAFT.txt) | 2026-09-12 15:55 IST | Absorbed return columns draft |
 | [docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt](docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt) | 2026-09-09 20:15 IST | SUPER_ADMIN userType |
-| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-08-29 10:02 IST | Target tree aligned to disk; folder law |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-29 10:03 IST | Layer mermaid flow names; no folder jargon |
-| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-09-09 20:30 IST | SUPER_ADMIN QA login |
-| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-09 19:50 IST | SUPER_ADMIN + /void/ |
-| [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-09 20:30 IST | SUPER_ADMIN role line |
+| [docs/LIB_STRUCTURE.md](docs/LIB_STRUCTURE.md) | 2026-09-10 19:40 IST | offline_temp removed |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | 2026-08-29 10:03 IST | Layer mermaid |
+| [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) | 2026-09-12 15:45 IST | + d2d_log module map |
+| [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-12 15:55 IST | Absorbed ROLE_ACCESS + USER_ROLES |
+| [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-12 15:45 IST | Drop backend/README link |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-09 20:15 IST | SUPER_ADMIN + returnTripLogId |
-| [docs/client_req/DESIGN_SNAPSHOT.md](docs/client_req/DESIGN_SNAPSHOT.md) | 2026-09-09 19:50 IST | DTODLOG return_* scrubbed |
-| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-09 20:30 IST | SUPER_ADMIN + returnTripLogId |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-15 22:35 IST | WS live entry `batchId`; ADD role matrix |
+| [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-15 22:35 IST | Cream channel; Driver no Add; other-batch red/beeps |
+| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-15 22:35 IST | D2D cream Admin/Driver wireframes |
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-09 20:15 IST | returnTripLogId naming |
-| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-09 20:15 IST | returnTripLogId / tripLeg |
-| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-08 23:50 IST | return QR Phase 2 done |
-| [docs/D2D_PHASE3_CONTINUE_PROMPT.txt](docs/D2D_PHASE3_CONTINUE_PROMPT.txt) | 2026-08-31 13:20 IST | completed — archive reference |
-| [docs/TESTING.md](docs/TESTING.md) | 2026-08-25 22:05 IST | → FLOWS smoke |
-| [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-09-09 20:10 IST | store id `tech.abhimaarg.cts` |
-| [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-08 23:50 IST | return QR Phase 2 live |
-| [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-08 23:50 IST | return QR Phase 2 |
-| [docs/README.md](docs/README.md) | 2026-09-08 15:18 IST | + docs/setup folder |
-| [docs/START_HERE.md](docs/START_HERE.md) | 2026-08-25 22:05 IST | FLOWS QR/KM |
-| [docs/backend/README.md](docs/backend/README.md) | 2026-08-25 21:50 IST | odo/boarding modules |
-| E2E | D2D_E2E · RETURN_BATCH_E2E | when flows change |
+| [lib/features/d2d/README.md](lib/features/d2d/README.md) | 2026-09-15 22:35 IST | Cream UI; other-batch; beeps; WS `batchId` |
+| [PROJECT_TODOS.md](PROJECT_TODOS.md) | 2026-09-15 22:35 IST | D2D cream + beeps checked |
+| [docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md](docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md) | 2026-09-12 16:00 IST | Moved under docs/; P0–P7 PASS; Next P8 |
+| [docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt](docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt) | 2026-09-12 16:00 IST | Checklist path → docs/ |
+| [docs/TESTING.md](docs/TESTING.md) | 2026-09-12 15:45 IST | STEP 8 → FLOWS + checklist |
+| [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) | 2026-09-10 23:05 IST | P7 SDK pins |
+| [docs/FEATURES.md](docs/FEATURES.md) | 2026-09-10 19:40 IST | offline_temp removed |
+| [docs/README.md](docs/README.md) | 2026-09-12 16:00 IST | Checklist under docs; E2E thinned |
+| [docs/START_HERE.md](docs/START_HERE.md) | 2026-09-12 15:45 IST | Drop client_req paths |
+| [docs/features/D2D_E2E.md](docs/features/D2D_E2E.md) | 2026-09-12 16:00 IST | Thinned to pointer |
+| [docs/features/RETURN_BATCH_E2E.md](docs/features/RETURN_BATCH_E2E.md) | 2026-09-12 16:00 IST | Thinned to pointer |
+| E2E | D2D_E2E · RETURN_BATCH_E2E | pointer-only; owners = FLOWS + contracts + READMEs |

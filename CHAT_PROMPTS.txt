@@ -1,28 +1,27 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-09-09 20:30 IST
-> **Session:** Docs sync — SUPER_ADMIN + returnTripLogId/tripLeg
+> **Updated:** 2026-09-12 16:00 IST
+> **Session:** Checklist under docs/; E2E thinned
 ================================================================================
-QUICK START (minimal) — FE match BE tip
-================================================================================
-
-@PROJECT_BRAIN.md
-@PROMPT_SCOPE.md
-@CHAT_PROMPTS.txt
-@docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
-@docs/API_CONTRACTS.md
-@docs/setup/DISCUSSION_STATUS.md
-Task: Frontend match pass — verify professor-cts vs professor-dock tip (schema + API).
-Note: Full checklist + work order in FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt.
-      Code/contract match first; lab migrate optional; STEP 8 only on go.
-
-================================================================================
-START PROMPT (full shell) — FE match BE tip
+QUICK START (minimal) — FE prod inspection P8 (needs go + BE)
 ================================================================================
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
 @CHAT_PROMPTS.txt
-@docs/setup/FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt
+@docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md
+@docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt
+@docs/TESTING.md
+Task: FE production inspection — P8 device use cases only after user **go** + BE up.
+Note: Full order in FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt.
+      P0–P7 PASS. Do not start P8/STEP 8 without explicit go.
+
+================================================================================
+START PROMPT (full shell) — Setup drafts (JWT / bootstrap / schema)
+================================================================================
+
+@PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+@CHAT_PROMPTS.txt
 @docs/setup/DISCUSSION_STATUS.md
 @docs/setup/BRANCH_HOLD_NOTES.md
 @docs/API_CONTRACTS.md
@@ -39,20 +38,18 @@ START PROMPT (full shell) — FE match BE tip
 @docs/LOCAL_DEV.md
 @docs/TESTING.md
 
-Task: Frontend match pass — verify professor-cts against professor-dock tip
-(schema + API + bootstrap + return QR), list gaps (MATCH | FE_FIX | BE_FIX | DEFER),
-then fix FE mismatches only. Follow FE_MATCH_BE_TIP_CONTINUE_PROMPT.txt end-to-end.
+Task: Setup / JWT / bootstrap / schema work on professor-cts.
+Start at DISCUSSION_STATUS.md; fix FE only unless user asks for BE.
 
 REPOS: D:\cts_beta (professor-cts only) · D:\cts-docker (read professor-dock; no BE edits unless asked)
 
 Constraints:
-  Attach = brain §3 Always, then this setup/match pack (do not reshuffle).
-  Code/contract match first — do not block on Docker migrate or device smoke.
+  Attach = brain §3 Always, then setup drafts pack (do not reshuffle).
   Provider only; no new REST unless required; camelCase wire per contracts.
   Existing lib/data/local SQLite OK; no new presentation/domain folders.
   Git: professor-cts day lane only. Never day-push main.
   After FE code: flutter analyze + flutter test. Device pre-push gate only on user go.
-  Do not start client pack STEP 8 without explicit go.
+  Do not start client pack STEP 8 or inspection P8 without explicit go.
   END sync: brain §5/§9, PROMPT_SCOPE, DOC_REGISTRY, this file MIDDLE CONTEXT.
 
 ================================================================================
@@ -61,43 +58,41 @@ START PROMPT (alt) — Client pack STEP 8 smoke (only on go)
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
-@docs/client_req/DISCUSSION_LOG.md
-@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@docs/setup/DISCUSSION_STATUS.md
 @docs/FLOWS_BY_ROLE.md
+@docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt
 @lib/features/d2d/README.md
 @docs/API_CONTRACTS.md
 @docs/TESTING.md
 @docs/LOCAL_DEV.md
 
 Task: Run client pack STEP 8 device smoke (ONLY if user said go).
-Follow FLOWS_BY_ROLE § Morning QR+KM (same as 07 copy block).
+Follow FLOWS_BY_ROLE § Morning QR+KM + STEP8_DEVICE_SMOKE_CHECKLIST.txt.
 Emulator admin 7069036462; phone driver 9876544111. LAN from PROJECT_BRAIN §5.
-Story/locks: docs/client_req/05-open-decisions.md. Pointer: DISCUSSION_LOG only.
+Story/locks: FLOWS D1–D10. Handoff: DISCUSSION_STATUS.
 
 Constraints:
   Do not start smoke without explicit go.
   Prefer keep sessions. Git: professor-cts day lane. No commit/push unless asked.
-  Do not change attach order or recreate retired docs.
+  Do not change attach order or recreate retired docs (backend/, client_req/).
 
 ================================================================================
 MIDDLE CONTEXT
 ================================================================================
 
 Current focus:
-  - **Done:** lab migrate + API probe + SUPER_ADMIN web=/void/ + FE null-safe + SQLite v3
-    + Dart names `returnTripLogId`/`tripLeg` + docs owners synced (2026-09-09 20:30)
-  - **Next:** Device smoke JWT/bootstrap/return QR · STEP 8 on **go**
-  - Phase B org fill still empty on wire; junction tables ready in FE SQLite
-  - BE tip professor-dock `98ebc66`; FE tip professor-cts `0524868`
+  - **Done:** P0–P7 FE prod inspection; retired backend/client_req; setup merge; E2E thinned; checklist under docs/
+  - **Next:** Inspection **P8** device use cases on **go** + BE · STEP 8 on **go**
+  - Setup SoT: DISCUSSION_STATUS · JWT/bootstrap/schema drafts
 
 Story split (stable):
-  - 05 = product story/locks · FLOWS = journeys · 07 = smoke · DISCUSSION_LOG = pointer
-  - setup/ = JWT · schema · bootstrap · branch map · FE match continue prompt
+  - FLOWS = journeys + D1–D10 · API_CONTRACTS = wire/schema · DISCUSSION_STATUS = handoff · STEP8 checklist = smoke
+  - setup/ = JWT · schema · bootstrap · branch map · return QR
+  - docs/features/ = thin E2E pointers only
 
 Open:
-  - Device smoke JWT + bootstrap + return QR (`flutter run`)?
+  - User go for inspection P8 / STEP 8?
   - Phase B org fill / SUPERVISOR+STAFF seed?
-  - User go for STEP 8?
 
 ================================================================================
 QUICK CLOSE
@@ -113,12 +108,11 @@ END PROMPT
 2. PROMPT_SCOPE.md (§2, §4, header)
 3. DOC_REGISTRY.md fast sync rows
 4. PROJECT_TODOS.md if backlog moved
-5. ALWAYS update docs/client_req/DISCUSSION_LOG.md pointer when Q-client-qr-odo
-   is still queue #1 (or pack was touched) — LAST_SUMMARY + NEXT_SUGGEST required.
-   Do not put product rules in the log — those belong in 05 / FLOWS / API_CONTRACTS.
+5. If Q-client-qr-odo / STEP 8 pack touched: bump docs/setup/DISCUSSION_STATUS.md
+   (Still open / notes). Product rules belong in FLOWS / API_CONTRACTS — not status.
 6. This file MIDDLE CONTEXT
 7. Reply: short summary + pasteable next START
 
 Do NOT create new .md/.txt unless user asks.
-Do NOT recreate docs/backend/01–04 or docs/guides/.
+Do NOT recreate docs/backend/ or docs/client_req/ or docs/guides/.
 Do NOT invent a new attach order.

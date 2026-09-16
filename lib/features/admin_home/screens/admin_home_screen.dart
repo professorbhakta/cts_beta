@@ -1,6 +1,5 @@
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/theme/cts_colors.dart';
-import 'package:cts/offline_temp/offline_auto_redirect.dart';
 import 'package:cts/app/router/admin_service.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/appManager/view_state.dart';
@@ -44,29 +43,27 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return OfflineAutoRedirect(
-      child: DashboardShell(
-        title: 'c2s',
-        quietBrandAppBar: true,
-        titleWidget: const CtsBrandLogo(height: 32),
-        child: Consumer<AdminProvider>(
-          builder: (context, provider, child) {
-            switch (provider.state) {
-              case ViewState.loading:
-                return _buildDashboardSkeleton(context);
-              case ViewState.error:
-                return StatusMessage.error(
-                  title:
-                      provider.errorMessage ?? 'Failed to load dashboard data.',
-                  message: 'Please check your connection and try again.',
-                  onRetry: () => provider.loadDetailedDashboardData(),
-                );
-              case ViewState.success:
-              case ViewState.idle:
-                return _buildDashboard(context, provider);
-            }
-          },
-        ),
+    return DashboardShell(
+      title: 'c2s',
+      quietBrandAppBar: true,
+      titleWidget: const CtsBrandLogo(height: 32),
+      child: Consumer<AdminProvider>(
+        builder: (context, provider, child) {
+          switch (provider.state) {
+            case ViewState.loading:
+              return _buildDashboardSkeleton(context);
+            case ViewState.error:
+              return StatusMessage.error(
+                title:
+                    provider.errorMessage ?? 'Failed to load dashboard data.',
+                message: 'Please check your connection and try again.',
+                onRetry: () => provider.loadDetailedDashboardData(),
+              );
+            case ViewState.success:
+            case ViewState.idle:
+              return _buildDashboard(context, provider);
+          }
+        },
       ),
     );
   }
@@ -80,7 +77,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     final showQuickActions = allowed.isNotEmpty;
 
     return RefreshIndicator(
-      onRefresh: () => provider.loadDetailedDashboardData(),
+      onRefresh: () => provider.loadDetailedDashboardData(forceRefresh: true),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),

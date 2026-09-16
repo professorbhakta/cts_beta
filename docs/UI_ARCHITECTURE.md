@@ -1,6 +1,6 @@
 > **Doc:** docs/UI_ARCHITECTURE.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
+> **Updated:** 2026-09-15 22:35 IST
+> **Session:** D2D cream shared body note (Admin + Driver)
 
 # CTS Mobile App — UI, Navigation, Wireframes & Controls
 
@@ -39,17 +39,13 @@ Every **registered** GoRouter destination plus **nested** `Navigator.push` scree
 | 17 | CabScreen / CabForm | `/cabScreen`, `/cabForm` | ADMIN | Drawer, dashboard, list actions |
 | 18 | DriverScreen / DriverForm | `/driverScreen`, `/driverForm` | ADMIN | Drawer, dashboard, list actions |
 | 19 | CommuterScreen / CommuterForm | `/commuterScreen`, `/commuterForm` | ADMIN | Drawer, dashboard, list actions |
-| 20 | D2dChannel | `/d2dChannel/:batchId` | ADMIN | Running batch card tap — **no** boarding QR |
-| 21 | D2DLogScreen | `/d2dLog/:batchId` | DRIVER | Driver home START TRIP — start/end KM sheets + boarding QR + CList |
+| 20 | D2dChannel | `/d2dChannel/:batchId` | ADMIN / SUPERVISOR (+ SUPER_ADMIN monitor) | Running batch card — cream live log; **no** QR; Add if operator |
+| 21 | D2DLogScreen | `/d2dLog/:batchId` | DRIVER | Driver START TRIP — cream body + KM + QR + CList; **no Add** |
 | 21b | BoardingScanScreen | `/boardingScan` | COMMUTER / STAFF | Commuter home **Scan** — camera → `boardingScan` API |
 | 21c | ReturnBoardingScanScreen | `/returnBoardingScan` | COMMUTER / STAFF | Return scan → shared boarding_scan (token leg=return) |
 | 22 | ReturnCommuterListScreen | `/returnCommuterScreen/:batchId` | ADMIN | Return batch picker row |
 | 23 | ReturnCommuterListScreen (confirm/remove) | `/driverReturnCommuter/:batchId` | DRIVER | Driver home RETURN LIST + **BOARDING QR** |
 | 23b | ReturnBoardingQrScreen | `/returnBoardingQr/:batchId` | DRIVER (+ admin-like) | Return QR show — mint `?trip=return` |
-| 24 | OfflineHomeScreen | `/offlineTempHome` | ADMIN (drawer when enabled) | Drawer Offline Mode |
-| 25 | OfflineRoutePopsScreen | `/offlineRoutePops/:routeId` | ADMIN | Offline Routes tab row |
-| 26 | OfflineBatchCommutersScreen | `/offlineBatchCommuters/:batchId` | ADMIN | Offline Batches tab row |
-| 27 | OfflineCommuterFormScreen | `Navigator.push` | ADMIN | Offline Commuters tab FAB |
 | 28 | CommuterListScreen | `Navigator.push` | ADMIN | Batch list row → commuters for batch |
 | 29 | Router error | `errorBuilder` | — | Unknown deep link |
 
@@ -107,10 +103,9 @@ Shared UI state: `ViewState` — `idle | loading | success | error` (`lib/appMan
 | Driver home | DriverHomePage | DriverHomeProvider | DriverRepository | `fetchDriverProfile`; START TRIP; RETURN LIST |
 | Commuters (admin) | CommuterScreen, CommuterForm, CommuterListScreen | CommuterController, CommuterFormProvider | CommuterRepository | CRUD; form pop/`create`/`update` call `refreshCurrentList` (by-batch vs all); swipe-edit passes `CommuterModel`; Coming switch → `updateCommuterIsComing`; AppBar Mark all coming → `markAllComing` |
 | Commuter home | CommuterHomePage | CommuterHomeProvider | CommuterRepository | `fetchCommuterProfile`; Switch → `updateIsComing` + dialog |
-| D2D admin | D2dChannel | D2dChannelProvider | WebSocket + D2dRepository | `connect(batchId)`, slidable actions, call tel, add sheet (`ADD` by user ID), FAB close = disconnect not STOP |
-| D2D driver | D2DLogScreen | D2dChannelProvider (shared) | Same | `fetchTripStatus`, `connect`, **STOP TRIP** FAB (`{ACTION: STOP}`), dispose disconnect |
+| D2D admin | D2dChannel | D2dChannelProvider | WebSocket + cream body | `connect`, Board/Remove, Add (ADMIN/SUPERVISOR), Call Driver, KM, FAB close = disconnect not STOP |
+| D2D driver | D2DLogScreen | D2dChannelProvider (shared) | Same cream body | `fetchTripStatus`, `connect`, QR, **no Add**, **STOP TRIP**, dispose disconnect; other-batch red + beeps |
 | Profile | ProfileScreen | ProfileProvider, SignInProvider (logout) | Session + AuthenticationRepository | `load()` session fields; confirm logout → reset controllers, session refresh |
-| Offline | OfflineHomeScreen + tabs | OfflineTempProvider | Local offline store | `initialize`, tab FABs, import/dump/refresh menu |
 | Sync | Drawer banner | SyncManager | Connectivity + queue | Manual sync button |
 
 ```mermaid
@@ -223,28 +218,36 @@ FAB optional; Batch screen uses AppBar [return][+] instead.
 
 ### 3.6 Driver — D2DLogScreen
 
-```
-+----------------------------------+
-| [=]  BrandAppBar                 |
-+----------------------------------+
-| D2D header / batch context       |
-| +------------------------------+ |
-| | Commuter rows (slidable)     | |
-| | call / status actions        | |
-| +------------------------------+ |
-|              [ Stop trip FAB ]   |
-+----------------------------------+
-```
-
-### 3.7 Admin — D2dChannel (DashboardShell)
+Shared cream body (`D2dCreamTripBody`): LIVE COMMUTER LOG, batch, boarding QR, counts, riders search/sort, Board/Remove. **No Add.** Bottom **STOP TRIP**. Other-batch rows red; board beeps on Already IN.
 
 ```
 +----------------------------------+
-| [=] D2D Channel                  |
+| [=] BrandAppBar  LIVE  CALL      |
 +----------------------------------+
-| Live commuter list (slidable)    |
-|                                  |
-|         [ Close Channel FAB ]    |
+| LIVE COMMUTER LOG · TRIP ACTIVE  |
+| Batch name                       |
+| [ Boarding QR ]                  |
+| Remaining | Waiting | On board   |
+| Riders [search] [Asc/Desc]       |
+| rider rows (Board / call)        |
+|======== STOP TRIP ===============|
++----------------------------------+
+```
+
+### 3.7 Admin — D2dChannel (same cream stack; separate screen)
+
+Same cream composition as driver. **No QR.** Add (ADMIN/SUPERVISOR). Call Driver. KM. Close channel FAB = disconnect only.
+
+```
++----------------------------------+
+| [=] BrandAppBar  LIVE  CALL      |
++----------------------------------+
+| LIVE COMMUTER LOG                |
+| Batch #… · driver                |
+| Remaining | Waiting | On board   |
+| Riders [search] [Asc/Desc]       |
+| rider rows (Board / Remove)      |
+| [+ Add]          [Close channel] |
 +----------------------------------+
 ```
 
@@ -260,20 +263,6 @@ FAB optional; Batch screen uses AppBar [return][+] instead.
 | +------------------------------+ |
 | (loading bar while updating)     |
 +----------------------------------+
-```
-
-### 3.9 Offline — OfflineHomeScreen
-
-```
-+----------------------------------+
-| Offline Mode              [...]  |
-+----------------------------------+
-|     (tab body: Routes/Batches/   |
-|      Commuters/Output)           |
-+----------------------------------+
-| O Routes | Batches | People | Out|
-+----------------------------------+
-                            [FAB]
 ```
 
 ### 3.10 Profile — ProfileScreen
@@ -505,7 +494,6 @@ flowchart LR
 | Commuters | CommuterScreen, CommuterForm, CommuterHomePage | `/commuterScreen`, … |
 | D2D | D2dChannel, D2DLogScreen | `/d2dChannel`, `/d2dLog` |
 | Profile | ProfileScreen | `/profileScreen` |
-| Offline | OfflineHomeScreen + tabs | `/offlineTempHome`, … |
 
 ---
 
@@ -514,3 +502,30 @@ flowchart LR
 - **Driver and Commuter homes** use the same `AppDrawer` / `AdminNavList` as admin (`lib/features/drivers/screens/driver_home_page.dart`, `lib/features/commuters/screens/commuter_home_page.dart`); GoRouter redirects block admin CRUD for non-admins, but drawer labels may still show management items until tapped.
 - **Duplicate widget paths:** some screens import `package:cts/widgets/...` vs `package:cts/shared/widgets/...` (same patterns, parallel barrels).
 - **Drawer selection** uses `ModalRoute.settings.name`, which may not always match GoRouter path — selected tile highlight can be inconsistent.
+
+---
+
+## 8. Admin list / form field map (ex–CREAM_BOARD)
+
+Cream palette: cream `#F7F4EE`, yellow `#F5C400` (primary only), navy `#0B1F4A`, black `#0A0A0A`. Wire **camelCase**. No `personType` — Staff/Commuter = `userType`. Schema: [SCHEMA_FINAL_DRAFT](./setup/SCHEMA_FINAL_DRAFT.txt).
+
+### List cards (slim)
+
+| Screen | Show | Do not put on card |
+|--------|------|--------------------|
+| Routes | `routeName`, `routeCode`, Active | org internals |
+| Pick-up Points | name, `area`, stop `#` (`inLine`), route, Active | lat/long until GPS |
+| Batches | name, driver, start/return times, Active | duplicate In/Out labels |
+| Cabs | `regNumber`, capacity, `acType`, route, Active | thumbnail dump |
+| Drivers | name, mobile, batch, cab, Active | — |
+| Commuters | name/mobile, batch, POP, cab, Coming, `busPassNo`, Staff/Commuter chip | Area, Vehicle, AC, Shift |
+
+### Forms / detail (full)
+
+- **Route:** name, code, Active
+- **PoP:** name, area, inLine, route, optional lat/long, Active
+- **Batch:** name, start/return times, start/end dates, Active
+- **Cab:** regNumber, capacity, acType, route, trackingVehicleId, km, Active
+- **Driver:** user/name/mobile, batch, cab, Active
+- **Commuter:** role (COMMUTER\|STAFF), identity, campus/staff block, pass (`busPassNo`…), batch/POP/cab, Active, Coming
+- Keep **`adminCode` + `organizationId`** on org-scoped rows

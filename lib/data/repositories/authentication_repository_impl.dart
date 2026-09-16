@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cts/api/api_exceptions_handler.dart';
 import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
@@ -7,6 +9,7 @@ import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/session_manager.dart';
 import 'package:cts/domain/repositories/authentication_repository.dart';
 import 'package:cts/features/auth/models/login_response.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_cache.dart';
 import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
 import 'package:cts/data/local/database/app_database.dart';
 import 'package:flutter/foundation.dart';
@@ -68,20 +71,22 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       _persistLoginUser(parsed);
 
       // login = passport; bootstrap = luggage (ADMIN / SUPERVISOR only).
-      // Soft-fail: bootstrap errors must not block JWT login.
+      // Fire-and-forget: do not block sign-in on catalog sync; home ensureLuggage.
       final role = parsed.user.userType;
       final bootstrap = _bootstrapRepository;
       if ((role == 'ADMIN' ||
               role == 'SUPER_ADMIN' ||
               role == 'SUPERVISOR') &&
           bootstrap != null) {
-        final luggage = await bootstrap.sync();
-        if (luggage.isFailure) {
-          debugPrint(
-            'Admin bootstrap soft-fail after login: '
-            '${luggage.failure?.message ?? 'unknown'}',
-          );
-        }
+        unawaited(() async {
+          final luggage = await bootstrap.sync();
+          if (luggage.isFailure) {
+            debugPrint(
+              'Admin bootstrap soft-fail after login: '
+              '${luggage.failure?.message ?? 'unknown'}',
+            );
+          }
+        }());
       }
 
       return ApiResult.success(parsed.user.userType);
@@ -157,6 +162,14 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
           final nestedId = nestedAdmin['id']?.toString();
           if (nestedId != null && nestedId.isNotEmpty) {
             AppManager.instance.setString(ManagerKey.adminCode, nestedId);
+          }
+          // Real admin mobile for privacy / contact-admin (FIND-014) — no fake number.
+          final nestedUser = nestedAdmin['userId'];
+          if (nestedUser is Map) {
+            final adminMobile = nestedUser['mobileNumber']?.toString().trim();
+            if (adminMobile != null && adminMobile.isNotEmpty) {
+              AppManager.instance.setString(ManagerKey.adminMobile, adminMobile);
+            }
           }
         }
         break;
@@ -268,6 +281,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       'COMMUTER' => 1,
       'DRIVER' => 2,
       'ADMIN' => 3,
+      'SUPER_ADMIN' => 3,
       'SUPERVISOR' => 4,
       'STAFF' => 5,
       _ => 0,
@@ -303,6 +317,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       } catch (_) {
         // DB may not be open in tests.
       }
+      AdminBootstrapCache.instance.clear();
       await AppManager.instance.clearLocalSession();
     }
     return ApiResult.success(null);

@@ -2,6 +2,8 @@ import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/appManager/snackbar_service.dart';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_list_source.dart';
+import 'package:cts/features/admin_bootstrap/models/admin_bootstrap_response.dart';
 import 'package:cts/features/batches/providers/batch_controller.dart';
 import 'package:cts/features/cabs/providers/cab_controller.dart';
 import 'package:cts/features/commuters/providers/commuter_controller.dart';
@@ -29,6 +31,7 @@ class CommuterForm extends StatefulWidget {
 class _CommuterFormState extends State<CommuterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
+  List<BootstrapOrganization> _organizations = const [];
 
   late final CommuterController _dataProvider;
 
@@ -38,6 +41,12 @@ class _CommuterFormState extends State<CommuterForm> {
     _dataProvider = context.read<CommuterController>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+      final luggage = await AdminBootstrapListSource.ensureLuggage();
+      if (!mounted) return;
+      setState(() {
+        _organizations = luggage?.organizations ?? const [];
+      });
+      // existing post-frame work continues below in original callback —
       context.read<BatchProvider>().fetchBatches();
       context.read<CabProvider>().fetchCabs();
       context.read<PopProvider>().fetchPops();
@@ -56,7 +65,7 @@ class _CommuterFormState extends State<CommuterForm> {
     final formProvider = context.watch<CommuterFormProvider>();
 
     return PopScope(
-      canPop: true,
+      canPop: !_isSubmitting,
       onPopInvokedWithResult: (bool didPop, bool? result) {
         if (didPop) {
           _dataProvider.refreshCurrentList();
@@ -125,6 +134,7 @@ class _CommuterFormState extends State<CommuterForm> {
                     "Address",
                     icon: Icons.location_on_outlined,
                     hintText: 'Optional — defaults to email',
+                    textInputAction: TextInputAction.done,
                     customValidator: (value) =>
                         Validators.address(value, isRequired: false),
                     inputFormatters: [
@@ -134,13 +144,8 @@ class _CommuterFormState extends State<CommuterForm> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // College Name Field
-                  _buildTextField(
-                    formProvider.commClg,
-                    "College Name",
-                    icon: Icons.school_outlined,
-                    customValidator: (value) => Validators.collegeName(value),
-                  ),
+                  // Organization (replaces free-text collegeName)
+                  _buildOrganizationDropdown(),
                   const SizedBox(height: 16),
                   // Batch Dropdown
                   _buildBatchDropdown(),
@@ -185,9 +190,13 @@ class _CommuterFormState extends State<CommuterForm> {
                                   'address': ?address,
                                 };
                                 final commuterData = {
-                                  "collegeName": formProvider.commClg.text
-                                      .trim()
-                                      .toUpperCase(),
+                                  if (formProvider.selectedOrganizationId !=
+                                          null &&
+                                      formProvider
+                                          .selectedOrganizationId!
+                                          .isNotEmpty)
+                                    "organizationId":
+                                        formProvider.selectedOrganizationId,
                                   "popId": formProvider.selectedPopId,
                                   "batchId": formProvider.selectedBatchId,
                                   "cabId": formProvider.selectedCabId,
@@ -216,9 +225,13 @@ class _CommuterFormState extends State<CommuterForm> {
                                     'address': address ?? email,
                                   },
                                   "user_data": {
-                                    "collegeName": formProvider.commClg.text
-                                        .trim()
-                                        .toUpperCase(),
+                                    if (formProvider.selectedOrganizationId !=
+                                            null &&
+                                        formProvider
+                                            .selectedOrganizationId!
+                                            .isNotEmpty)
+                                      "organizationId":
+                                          formProvider.selectedOrganizationId,
                                     "popId": formProvider.selectedPopId,
                                     "batchId": formProvider.selectedBatchId,
                                     "cabId": formProvider.selectedCabId,
@@ -267,6 +280,7 @@ class _CommuterFormState extends State<CommuterForm> {
     TextInputType keyboardType = TextInputType.text,
     bool isObscure = false,
     String? hintText,
+    TextInputAction textInputAction = TextInputAction.next,
     String? Function(String?)? customValidator,
     List<TextInputFormatter>? inputFormatters,
   }) {
@@ -274,6 +288,7 @@ class _CommuterFormState extends State<CommuterForm> {
     final scheme = theme.colorScheme;
     return TextFormField(
       controller: controller,
+      textInputAction: textInputAction,
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText ?? 'Enter $label',
@@ -318,6 +333,63 @@ class _CommuterFormState extends State<CommuterForm> {
       style: theme.textTheme.bodyLarge,
       validator:
           customValidator ?? (value) => Validators.required(value, label),
+    );
+  }
+
+  Widget _buildOrganizationDropdown() {
+    final formProvider = context.read<CommuterFormProvider>();
+    final scheme = context.scheme;
+
+    if (_organizations.isEmpty) {
+      return InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Organization',
+          prefixIcon: Icon(Icons.business_outlined, color: scheme.primary),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          helperText:
+              'No organizations in luggage yet (Phase B). Org id optional.',
+        ),
+        child: Text(
+          formProvider.selectedOrganizationId?.isNotEmpty == true
+              ? formProvider.selectedOrganizationId!
+              : '—',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      );
+    }
+
+    return SearchableDropdown<String>(
+      label: 'Organization',
+      hintText: 'Select organization',
+      icon: Icons.business_outlined,
+      items: _organizations.map((o) => o.id).where((id) => id.isNotEmpty).toList(),
+      value: formProvider.selectedOrganizationId,
+      itemAsString: (id) {
+        for (final org in _organizations) {
+          if (org.id == id) {
+            final name = org.orgName?.trim();
+            if (name != null && name.isNotEmpty) return name;
+            break;
+          }
+        }
+        return id;
+      },
+      filterFn: (id, filter) {
+        final q = filter.toLowerCase();
+        for (final org in _organizations) {
+          if (org.id != id) continue;
+          return '${org.orgName ?? ''} $id'.toLowerCase().contains(q);
+        }
+        return id.toLowerCase().contains(q);
+      },
+      compareFn: (a, b) => a == b,
+      onChanged: (String? newValue) {
+        setState(() {
+          formProvider.selectedOrganizationId = newValue;
+        });
+      },
+      // Org is preferred; not hard-required while Phase B rows may be empty.
+      validator: (_) => null,
     );
   }
 

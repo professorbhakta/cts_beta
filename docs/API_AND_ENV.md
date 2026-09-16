@@ -31,9 +31,20 @@ Load path: `AppConfig.initialize()` in `lib/appManager/app_class.dart` (via `mai
 | `WEBSOCKET_URL` | Recommended | D2D WebSocket base (`ws://host/ws/` locally, `wss://…` in production) |
 | `DEFAULT_ADMIN_CODE` | Optional | Default admin registration code |
 
-**Defaults (if .env missing):** `http://172.20.10.2/` and `ws://172.20.10.2/ws/` — suitable for LAN dev only.
+**Defaults (if .env missing):** debug/profile may use lab LAN only where coded; **release refuses** empty or lab `172.20.10.2` hosts (FIND-010 / `AppConfig`).
 
 **Normalization:** trailing `/` only. Schemes are **not** rewritten — `https://` and `wss://` stay as set.
+
+### Bundled `.env` asset (store / release)
+
+`.env` is listed under `pubspec.yaml` `flutter: assets:` and is **packaged into the APK/IPA**. Lab LAN values (`http://…`, `ws://…`) must **never** ship in store builds.
+
+| Build | Rule |
+|-------|------|
+| Lab / debug | Local `.env` with LAN IP is OK (gitignored). |
+| Release / Play / App Store | Replace asset with **prod HTTPS + WSS** before `flutter build`, or refuse to ship — do not rely on code defaults alone. |
+
+See also [BUILD_AND_RELEASE.md](./BUILD_AND_RELEASE.md).
 
 Android **debug/profile** allow cleartext HTTP for LAN Docker. **Release** does not (`usesCleartextTraffic` is not set on the main manifest).
 

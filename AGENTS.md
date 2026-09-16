@@ -28,8 +28,8 @@ and WebSocket backend are external and **not** in this repo (see `docs/API_AND_E
 ### Running the app in this headless VM (non-obvious)
 - There is **no `/dev/kvm`**, so an Android emulator cannot boot here. Physical devices aren't
   attached either.
-- The app is **mobile-only**: `main.dart` initializes `sqflite` at startup (`AppDatabase` +
-  `OfflineTempDatabase`, and `SyncManager` reads the DB), and `sqflite` has **no web/desktop
+- The app is **mobile-only**: `main.dart` initializes `sqflite` at startup (`AppDatabase`,
+  and `SyncManager` reads the DB), and `sqflite` has **no web/desktop
   backend** in `pubspec.yaml`. So `flutter run -d web-server` / `-d chrome` compiles and serves,
   but the screen stays **blank** because DB init aborts before `runApp`.
 - To actually see the UI in a browser during setup, two temporary shims are needed (do **not**

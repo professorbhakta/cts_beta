@@ -6,6 +6,8 @@ import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/batches/providers/return_batch_provider.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
+import 'package:cts/features/d2d/helpers/d2d_batch_membership.dart';
+import 'package:cts/features/d2d/helpers/d2d_board_beep.dart';
 import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/brand_app_bar.dart';
 import 'package:cts/widgets/loading_indicator.dart';
@@ -43,6 +45,9 @@ class ReturnCommuterListScreen extends StatefulWidget {
 class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  Set<int> _seenConfirmedIds = {};
+  bool _confirmedHydrated = false;
+  ReturnBatchProvider? _returnProvider;
 
   @override
   void initState() {
@@ -56,9 +61,61 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = context.read<ReturnBatchProvider>();
+    if (!identical(_returnProvider, provider)) {
+      _returnProvider?.removeListener(_onReturnProviderChanged);
+      _returnProvider = provider;
+      _returnProvider?.addListener(_onReturnProviderChanged);
+    }
+  }
+
+  void _onReturnProviderChanged() {
+    if (!mounted) return;
+    _beepNewConfirmed();
+  }
+
+  bool _isOtherBatch(CommuterModel c) {
+    final home = c.batchId?.id?.toString();
+    if (home == null || home.isEmpty) return false;
+    return home != widget.batchId;
+  }
+
+  void _beepNewConfirmed() {
+    final provider = _returnProvider;
+    if (provider == null) return;
+    final current = provider.confirmedCommuters
+        .map((c) => c.userId?.id)
+        .whereType<int>()
+        .toSet();
+    final newcomers = d2dNewAlreadyInIds(
+      previous: _seenConfirmedIds,
+      current: current,
+      skipBecauseInitialHydrate: !_confirmedHydrated,
+    );
+    _seenConfirmedIds = current;
+    _confirmedHydrated = true;
+    final kind = d2dBoardBeepForNewcomers(
+      newcomers: newcomers,
+      isOtherBatch: (id) {
+        for (final c in provider.confirmedCommuters) {
+          if (c.userId?.id == id) return _isOtherBatch(c);
+        }
+        return false;
+      },
+    );
+    if (kind != null) {
+      D2dBoardBeep.instance.play(kind);
+    }
+  }
+
+  @override
   void didUpdateWidget(covariant ReturnCommuterListScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.batchId != widget.batchId) {
+      _seenConfirmedIds = {};
+      _confirmedHydrated = false;
       context.read<ReturnBatchProvider>().beginReturnTripLoad(widget.batchId);
       context.read<ReturnBatchProvider>().loadReturnTrip(widget.batchId);
     }
@@ -66,6 +123,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
 
   @override
   void dispose() {
+    _returnProvider?.removeListener(_onReturnProviderChanged);
     _tabController.dispose();
     context.read<ReturnBatchProvider>().clearActiveBatch();
     super.dispose();
@@ -88,6 +146,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
     final message = await provider.confirmCommuter(userId, widget.batchId);
     if (!mounted) return;
 
+    // Board beep plays via confirmed-list delta listener (_beepNewConfirmed).
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message ?? 'Commuter confirmed for return')),
     );
@@ -311,6 +370,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                               overflowConfirmAllowed: status == null ||
                                   !status.hasPoolExtras ||
                                   (status.overflowRemaining ?? 0) > 0,
+                              isOtherBatch: _isOtherBatch,
                             ),
                             _CommuterListTab(
                               commuters: provider.confirmedCommuters,
@@ -326,6 +386,7 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
                               actionInProgress: provider.actionInProgress,
                               readOnly: widget.readOnly ||
                                   !widget.canRemoveConfirmed,
+                              isOtherBatch: _isOtherBatch,
                             ),
                           ],
                         ),
@@ -539,6 +600,7 @@ class _AvailableListTab extends StatefulWidget {
     required this.actionInProgress,
     required this.canConfirm,
     required this.overflowConfirmAllowed,
+    required this.isOtherBatch,
     this.readOnly = false,
   });
 
@@ -551,6 +613,7 @@ class _AvailableListTab extends StatefulWidget {
   final bool actionInProgress;
   final bool canConfirm;
   final bool overflowConfirmAllowed;
+  final bool Function(CommuterModel) isOtherBatch;
   final bool readOnly;
 
   @override
@@ -637,6 +700,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
                               commuter: commuter,
                               primaryLabel: 'CONFIRM',
                               primaryEmphasized: true,
+                              isOtherBatch: false,
                               onPrimary: widget.readOnly ||
                                       !widget.canConfirm
                                   ? null
@@ -659,6 +723,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
                               commuter: commuter,
                               primaryLabel: 'CONFIRM',
                               primaryEmphasized: true,
+                              isOtherBatch: true,
                               onPrimary: widget.readOnly ||
                                       !widget.canConfirm ||
                                       !widget.overflowConfirmAllowed
@@ -694,6 +759,7 @@ class _AvailableListTabState extends State<_AvailableListTab> {
                               commuter: waiting[i],
                               leadingIndex: i + 1,
                               showPrimary: false,
+                              isOtherBatch: widget.isOtherBatch(waiting[i]),
                             ),
                           ),
                       ],
@@ -825,6 +891,7 @@ class _CommuterListTab extends StatefulWidget {
     required this.onRemove,
     required this.onRefresh,
     required this.actionInProgress,
+    required this.isOtherBatch,
     this.readOnly = false,
   });
 
@@ -834,6 +901,7 @@ class _CommuterListTab extends StatefulWidget {
   final ValueChanged<CommuterModel> onRemove;
   final Future<void> Function() onRefresh;
   final bool actionInProgress;
+  final bool Function(CommuterModel) isOtherBatch;
   final bool readOnly;
 
   @override
@@ -909,6 +977,7 @@ class _CommuterListTabState extends State<_CommuterListTab> {
                           commuter: commuter,
                           primaryLabel: 'REMOVE',
                           primaryEmphasized: false,
+                          isOtherBatch: widget.isOtherBatch(commuter),
                           onPrimary: widget.readOnly
                               ? null
                               : (widget.actionInProgress
@@ -933,6 +1002,7 @@ class _CommuterActionCard extends StatelessWidget {
     this.onPrimary,
     this.showPrimary = true,
     this.leadingIndex,
+    this.isOtherBatch = false,
   });
 
   final CommuterModel commuter;
@@ -941,11 +1011,13 @@ class _CommuterActionCard extends StatelessWidget {
   final VoidCallback? onPrimary;
   final bool showPrimary;
   final int? leadingIndex;
+  final bool isOtherBatch;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cts = context.cts;
+    final scheme = theme.colorScheme;
     final hairline = cts.navy.withValues(alpha: 0.14);
     final mobile = commuter.userId?.mobileNumber ?? '';
     final pop = commuter.popId?.pickUpPointName ?? 'N/A';
@@ -955,9 +1027,16 @@ class _CommuterActionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
+        color: isOtherBatch
+            ? scheme.error.withValues(alpha: 0.12)
+            : theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: hairline, width: 1),
+        border: Border.all(
+          color: isOtherBatch
+              ? scheme.error.withValues(alpha: 0.35)
+              : hairline,
+          width: 1,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

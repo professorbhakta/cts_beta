@@ -55,11 +55,6 @@ class RouteName {
   /// Daily trip report (ADMIN / SUPER_ADMIN / SUPERVISOR).
   static const String tripReportScreen = '/tripReportScreen';
 
-  // Offline temp module
-  static const String offlineTempHome = '/offlineTempHome';
-  static const String offlineBatchCommuters = '/offlineBatchCommuters';
-  static const String offlineRoutePops = '/offlineRoutePops';
-
   /// Public routes (no login required).
   static const Set<String> public = {
     splashScreen,

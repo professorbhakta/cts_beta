@@ -13,7 +13,8 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 class TrackCabScreen extends StatefulWidget {
   const TrackCabScreen({super.key, this.vehicleId, this.cabRegNumber});
 
-  /// Cab-specific Fleet Edge id from profile; falls back to lab default when null.
+  /// Cab-specific Fleet Edge id from profile. Required for map load — no lab
+  /// default fallback (would show the wrong vehicle).
   final String? vehicleId;
 
   /// Assigned cab registration shown in the app bar.
@@ -34,8 +35,8 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   );
 
   WebViewController? _controller;
-  late final String _trackingUrl;
-  late final bool _usingDefaultVehicle;
+  late final String? _trackingUrl;
+  late final bool _missingVehicleId;
 
   var _isLoading = true;
   var _loadProgress = 0;
@@ -50,11 +51,15 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   @override
   void initState() {
     super.initState();
-    _usingDefaultVehicle =
-        FleetTrackingUrls.usesDefaultFallback(cabTrackingVehicleId: widget.vehicleId);
     _trackingUrl = FleetTrackingUrls.trackingUrl(vehicleId: widget.vehicleId);
+    _missingVehicleId = _trackingUrl == null;
+    if (_missingVehicleId) {
+      _isLoading = false;
+      return;
+    }
     _initWebView();
-    _browserPromptTimer = Timer(_browserPromptDelay, _showBrowserPromptIfNeeded);
+    _browserPromptTimer =
+        Timer(_browserPromptDelay, _showBrowserPromptIfNeeded);
   }
 
   @override
@@ -62,7 +67,11 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
     _browserPromptTimer?.cancel();
     super.dispose();
   }
+
   Future<void> _initWebView() async {
+    final trackingUrl = _trackingUrl;
+    if (trackingUrl == null) return;
+
     late final PlatformWebViewControllerCreationParams params;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
       params = WebKitWebViewControllerCreationParams(
@@ -76,6 +85,7 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
     }
 
     final controller = WebViewController.fromPlatformCreationParams(params);
+    // Fleet Edge map requires JS; no addJavaScriptChannel — CSS inject only.
     await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
     await controller.setBackgroundColor(const Color(0xFFF5F5F5));
     await controller.enableZoom(true);
@@ -93,12 +103,27 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
 
     controller.setNavigationDelegate(
       NavigationDelegate(
+        onNavigationRequest: (request) {
+          final uri = Uri.tryParse(request.url);
+          if (uri == null || !FleetTrackingUrls.isAllowedNavigation(uri)) {
+            return NavigationDecision.prevent;
+          }
+          return NavigationDecision.navigate;
+        },
         onProgress: (progress) {
           if (!mounted) return;
           setState(() => _loadProgress = progress);
         },
-        onPageStarted: (_) {
+        onPageStarted: (url) {
           if (!mounted) return;
+          final uri = Uri.tryParse(url);
+          if (uri != null && !FleetTrackingUrls.isAllowedNavigation(uri)) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = 'Blocked navigation to an untrusted host.';
+            });
+            return;
+          }
           setState(() {
             _isLoading = true;
             _errorMessage = null;
@@ -127,14 +152,40 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   }
 
   Future<void> _loadTrackingPage(WebViewController controller) {
+    final trackingUrl = _trackingUrl;
+    if (trackingUrl == null) {
+      return Future.value();
+    }
+    final uri = Uri.parse(trackingUrl);
+    if (!FleetTrackingUrls.isAllowedNavigation(uri)) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Tracking host is not on the allow-list.';
+        });
+      }
+      return Future.value();
+    }
     return controller.loadRequest(
-      Uri.parse(_trackingUrl),
+      uri,
       headers: const {'User-Agent': _mobileUserAgent},
     );
   }
 
   Future<void> _handlePageFinished(WebViewController controller) async {
     if (!mounted) return;
+
+    // Inject layout CSS only while the main frame is still on the allow-list.
+    final current = await controller.currentUrl();
+    final currentUri = current == null ? null : Uri.tryParse(current);
+    if (currentUri == null ||
+        !FleetTrackingUrls.isAllowedNavigation(currentUri)) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Blocked navigation to an untrusted host.';
+      });
+      return;
+    }
 
     if (_needsViewportReload) {
       _needsViewportReload = false;
@@ -157,6 +208,7 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   }
 
   Future<void> _reloadTrackingPage() async {
+    if (_missingVehicleId) return;
     final controller = _controller;
     if (controller == null) return;
 
@@ -169,7 +221,16 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   }
 
   Future<void> _openInBrowser() async {
-    final uri = Uri.parse(_trackingUrl);
+    final trackingUrl = _trackingUrl;
+    if (trackingUrl == null) return;
+    final uri = Uri.parse(trackingUrl);
+    if (!FleetTrackingUrls.isAllowedNavigation(uri)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tracking host is not allowed')),
+      );
+      return;
+    }
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -179,7 +240,7 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   }
 
   void _showBrowserPromptIfNeeded() {
-    if (!mounted || _browserPromptShown) return;
+    if (!mounted || _browserPromptShown || _missingVehicleId) return;
     _browserPromptShown = true;
 
     showDialog<void>(
@@ -213,6 +274,7 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
       },
     );
   }
+
   Widget _buildWebView() {
     final controller = _controller!;
 
@@ -239,6 +301,7 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final canBrowse = !_missingVehicleId && _trackingUrl != null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -267,12 +330,14 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
         actions: [
           IconButton(
             tooltip: 'Refresh',
-            onPressed: _isLoading || !_webViewReady ? null : _reloadTrackingPage,
+            onPressed: _isLoading || !_webViewReady || _missingVehicleId
+                ? null
+                : _reloadTrackingPage,
             icon: const Icon(Icons.refresh_rounded),
           ),
           IconButton(
             tooltip: 'Open in browser',
-            onPressed: _openInBrowser,
+            onPressed: canBrowse ? _openInBrowser : null,
             icon: const Icon(Icons.open_in_browser_rounded),
           ),
         ],
@@ -280,21 +345,7 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (_usingDefaultVehicle)
-            MaterialBanner(
-              content: const Text(
-                'Your cab has no Fleet Edge tracking ID yet. Showing lab default map.',
-              ),
-              leading: const Icon(Icons.info_outline),
-              actions: [
-                TextButton(
-                  onPressed: () =>
-                      ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
-                  child: const Text('Dismiss'),
-                ),
-              ],
-            ),
-          if (_isLoading && _loadProgress < 100)
+          if (!_missingVehicleId && _isLoading && _loadProgress < 100)
             LinearProgressIndicator(
               value: _loadProgress == 0 ? null : _loadProgress / 100,
               minHeight: 3,
@@ -307,6 +358,19 @@ class _TrackCabScreenState extends State<TrackCabScreen> {
   }
 
   Widget _buildBody() {
+    if (_missingVehicleId) {
+      return ColoredBox(
+        color: const Color(0xFFF5F5F5),
+        child: StatusMessage.error(
+          title: 'Tracking not configured',
+          message:
+              'Your assigned cab has no Fleet Edge tracking ID yet. '
+              'Ask your organization admin to add it — we do not show '
+              'another vehicle’s map.',
+        ),
+      );
+    }
+
     if (_errorMessage != null) {
       return ColoredBox(
         color: const Color(0xFFF5F5F5),

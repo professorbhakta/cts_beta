@@ -10,6 +10,7 @@ import 'package:cts/api/logging_interceptor.dart';
 import 'package:dio/dio.dart';
 
 import 'package:cts/api/base_api_services.dart';
+import 'package:flutter/foundation.dart';
 
 /// Dio client with JWT Bearer auth and single refresh-on-401 retry.
 ///
@@ -177,25 +178,31 @@ class NetworkApiServices extends BaseApiServices {
     }
   }
 
+  void _logCall(String message) {
+    if (kDebugMode) {
+      log(message, name: 'API_CALL');
+    }
+  }
+
   @override
   Future<dynamic> getApi(String url) async {
-    log('ApiUrl: $url', name: 'API_CALL');
+    _logCall('ApiUrl: $url');
     final response = await _dio.get(url);
     return returnResponse(response);
   }
 
   @override
   Future<dynamic> postApi(dynamic data, String url) async {
-    log('ApiUrl: $url', name: 'API_CALL');
-    log('ApiData: ${jsonEncode(data)}', name: 'API_CALL');
+    _logCall('ApiUrl: $url');
+    _logCall('ApiData: ${jsonEncode(data)}');
     final response = await _dio.post(url, data: data);
     return returnResponse(response);
   }
 
   @override
   Future<dynamic> postMultipart(dynamic data, String url) async {
-    log('ApiUrl: $url', name: 'API_CALL');
-    log('ApiData: multipart', name: 'API_CALL');
+    _logCall('ApiUrl: $url');
+    _logCall('ApiData: multipart');
     final response = await _dio.post(
       url,
       data: data,
@@ -212,16 +219,16 @@ class NetworkApiServices extends BaseApiServices {
   @override
   Future<dynamic> patchApi(int id, dynamic data, String url) async {
     final fullUrl = '$url/$id';
-    log('ApiUrl: $fullUrl', name: 'API_CALL');
-    log('ApiData: ${jsonEncode(data)}', name: 'API_CALL');
+    _logCall('ApiUrl: $fullUrl');
+    _logCall('ApiData: ${jsonEncode(data)}');
     final response = await _dio.patch(fullUrl, data: data);
     return returnResponse(response);
   }
 
   @override
   Future<dynamic> patchUrl(String url, dynamic data) async {
-    log('ApiUrl: $url', name: 'API_CALL');
-    log('ApiData: ${jsonEncode(data)}', name: 'API_CALL');
+    _logCall('ApiUrl: $url');
+    _logCall('ApiData: ${jsonEncode(data)}');
     final response = await _dio.patch(url, data: data);
     return returnResponse(response);
   }
@@ -229,13 +236,13 @@ class NetworkApiServices extends BaseApiServices {
   @override
   Future<dynamic> deleteApi(int id, String url) async {
     final fullUrl = '$url/$id';
-    log('ApiUrl: $fullUrl', name: 'API_CALL');
+    _logCall('ApiUrl: $fullUrl');
     final response = await _dio.delete(fullUrl);
     return returnResponse(response);
   }
 
   dynamic returnResponse(Response<dynamic> response) {
-    log('ApiResponse: ${response.data}', name: 'API_CALL');
+    _logCall('ApiResponse: ${response.data}');
     final statusCode = response.statusCode ?? 0;
     if (statusCode >= 200 && statusCode < 300) {
       return response.data;

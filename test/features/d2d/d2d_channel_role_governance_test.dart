@@ -34,20 +34,22 @@ void main() {
       expect(provider.actionErrorMessage, contains('driver'));
     });
 
-    test('admin confirmPickup is rejected', () {
+    test('admin confirmPickup is allowed when connected', () {
       provider = D2dChannelProvider(
         _NoOpDriverRepository(),
         _NoOpD2dRepository(),
         sessionRoleOverride: 'ADMIN',
       );
+      provider.bindActiveBatchForLifecycle('1');
 
       final confirmed = provider.confirmCommuter('4');
 
+      // Not connected to a socket → send fails, but role gate must not deny.
       expect(confirmed, isFalse);
-      expect(provider.actionErrorMessage, contains('driver'));
+      expect(provider.actionErrorMessage, isNot(contains('not allowed')));
     });
 
-    test('driver addCommuter is allowed when connected', () {
+    test('driver addCommuter is rejected by role policy', () {
       provider = D2dChannelProvider(
         _NoOpDriverRepository(),
         _NoOpD2dRepository(),
@@ -58,7 +60,7 @@ void main() {
       final added = provider.addCommuter('0');
 
       expect(added, isFalse);
-      expect(provider.actionErrorMessage, isNot(contains('not allowed')));
+      expect(provider.actionErrorMessage, contains('not allowed'));
     });
   });
 

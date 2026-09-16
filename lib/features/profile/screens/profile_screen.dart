@@ -1,6 +1,7 @@
 import 'package:cts/app/router/route_names.dart';
 import 'package:cts/app/router/session_auth_notifier.dart';
 import 'package:cts/appManager/controller_reset_util.dart';
+import 'package:cts/appManager/functions_and_tools.dart';
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
 import 'package:cts/features/profile/providers/profile_provider.dart';
@@ -142,6 +143,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  _buildPrivacyCard(context, profile),
+                  const SizedBox(height: 16),
                   Card(
                     child: ListTile(
                       leading: signInProvider.state == ViewState.loading
@@ -167,6 +170,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  /// Honest privacy path (FIND-014): no fake delete API; real admin mobile only.
+  Widget _buildPrivacyCard(BuildContext context, ProfileProvider profile) {
+    final scheme = Theme.of(context).colorScheme;
+    final adminMobile = profile.adminMobile;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.privacy_tip_outlined, color: scheme.primary),
+                const SizedBox(width: 12),
+                Text(
+                  'Privacy & account',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Account deletion and data export are handled by your '
+              'organization. This app does not delete accounts by itself.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            if (adminMobile != null) ...[
+              Text(
+                'Contact your organization admin at $adminMobile to request '
+                'deletion or a copy of your data.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () async {
+                    final launched = await calling(adminMobile);
+                    if (!context.mounted || launched) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Unable to open the phone dialer.'),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.call_outlined, size: 18),
+                  label: Text('Call $adminMobile'),
+                ),
+              ),
+            ] else
+              Text(
+                'Ask your organization admin to delete or export your account '
+                'data. No in-app delete number is available for this session.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurface.withValues(alpha: 0.75),
+                    ),
+              ),
+          ],
         ),
       ),
     );

@@ -1,12 +1,12 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-09 20:15 IST
-> **Session:** returnTripLogId naming + return scan allowJoinWaiting false
+> **Updated:** 2026-09-12 16:00 IST
+> **Session:** Primary journeys → FLOWS; E2E thinned
 
 # Batches Feature — CRUD, Running, Return REST
 
 Feature owner for batch management, running batches, and evening return trips (REST only — no WebSocket).
 
-**Wire contracts:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **Lab/Docker:** [docs/LOCAL_DEV.md](../../../docs/LOCAL_DEV.md) · **E2E:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
+**Wire contracts:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **Lab/Docker:** [docs/LOCAL_DEV.md](../../../docs/LOCAL_DEV.md) · **Journeys:** [docs/FLOWS_BY_ROLE.md](../../../docs/FLOWS_BY_ROLE.md) · **E2E pointer:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
 
 **Backend path:** `cts-docker/django/d2d_log/return_batch_views.py` + `return_batch_utils.py`.
 

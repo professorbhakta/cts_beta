@@ -21,7 +21,6 @@ lib/
 ├── theme/            # AppTheme
 ├── utils/            # Validators, sorting helpers
 ├── widgets/          # ALL shared UI components
-└── offline_temp/     # Offline prototype (separate)
 ```
 
 ## `lib/app/` — bootstrap only (no screens, no widgets)

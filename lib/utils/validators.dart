@@ -210,19 +210,6 @@ class Validators {
     return null;
   }
 
-  /// Validates college name
-  static String? collegeName(String? value) {
-    if (value == null || value.isEmpty || value.trim().isEmpty) {
-      return 'College name is required';
-    }
-    
-    if (value.trim().length < 2) {
-      return 'College name must be at least 2 characters';
-    }
-    
-    return null;
-  }
-
   /// Validates address
   static String? address(String? value, {bool isRequired = true}) {
     if (value == null || value.isEmpty || value.trim().isEmpty) {

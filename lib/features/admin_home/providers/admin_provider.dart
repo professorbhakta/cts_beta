@@ -1,31 +1,19 @@
 ﻿import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/admin_bootstrap/mappers/admin_bootstrap_list_mapper.dart';
+import 'package:cts/features/admin_bootstrap/models/admin_bootstrap_response.dart';
+import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
 import 'package:cts/features/batches/models/batch_model.dart';
-import 'package:cts/features/batches/repositories/batch_repository.dart';
 import 'package:cts/features/batches/repositories/running_batch_repository.dart';
-import 'package:cts/features/cabs/repositories/cab_repository.dart';
-import 'package:cts/features/commuters/models/commuter_model.dart';
-import 'package:cts/features/commuters/repositories/commuter_repository.dart';
-import 'package:cts/features/drivers/repositories/driver_repository.dart';
-import 'package:cts/features/pops/repositories/pop_repository.dart';
-import 'package:cts/features/routes/repositories/route_repository.dart';
 import 'package:flutter/foundation.dart';
 
+/// Admin home dashboard. Catalog counts come from bootstrap luggage;
+/// only live morning running batches still hit a separate API.
 class AdminProvider with ChangeNotifier {
-  final BatchRepository _batchRepository;
-  final CommuterRepository _commuterRepository;
-  final DriverRepository _driverRepository;
-  final CabRepository _cabRepository;
-  final RouteRepository _routeRepository;
-  final PopRepository _popRepository;
+  final AdminBootstrapRepository _bootstrapRepository;
   final RunningBatchRepository _runningBatchRepository;
 
   AdminProvider(
-    this._batchRepository,
-    this._commuterRepository,
-    this._driverRepository,
-    this._cabRepository,
-    this._routeRepository,
-    this._popRepository,
+    this._bootstrapRepository,
     this._runningBatchRepository,
   );
 
@@ -68,81 +56,54 @@ class AdminProvider with ChangeNotifier {
   int _isComingCount = 0;
   int get isComingCount => _isComingCount;
 
-  Future<void> loadDetailedDashboardData() async {
+  Future<void> loadDetailedDashboardData({bool forceRefresh = false}) async {
     _state = ViewState.loading;
     _errorMessage = null;
     _hasPartialError = false;
     _loadWarning = null;
     notifyListeners();
 
-    final results = await Future.wait([
-      _batchRepository.getBatches(),
-      _commuterRepository.getCommuters(),
-      _driverRepository.getDrivers(),
-      _cabRepository.getCabs(),
-      _routeRepository.getRoutes(),
-      _popRepository.getPops(),
-      _runningBatchRepository.fetchRunningBatches(),
-    ]);
+    var luggageOk = false;
+    var runningOk = false;
 
-    var successCount = 0;
-
-    final batchResult = results[0];
-    if (batchResult.isSuccess) {
-      _batchCount = batchResult.data?.length ?? 0;
-      successCount++;
+    if (forceRefresh) {
+      final sync = await _bootstrapRepository.sync();
+      luggageOk = sync.isSuccess && sync.data != null;
+      if (luggageOk) {
+        _applyLuggageCounts(sync.data!);
+      }
+    } else {
+      var luggage = await _bootstrapRepository.readLuggage();
+      if (luggage == null) {
+        final sync = await _bootstrapRepository.sync();
+        luggage = sync.data;
+        luggageOk = sync.isSuccess && luggage != null;
+      } else {
+        luggageOk = true;
+      }
+      if (luggage != null) {
+        _applyLuggageCounts(luggage);
+      }
     }
 
-    final commuterResult = results[1];
-    if (commuterResult.isSuccess) {
-      final commuters = commuterResult.data as List<CommuterModel>?;
-      _commuterCount = commuters?.length ?? 0;
-      _isComingCount = commuters?.where((c) => c.isComing == true).length ?? 0;
-      successCount++;
-    }
-
-    final driverResult = results[2];
-    if (driverResult.isSuccess) {
-      _driverCount = driverResult.data?.length ?? 0;
-      successCount++;
-    }
-
-    final cabResult = results[3];
-    if (cabResult.isSuccess) {
-      _cabCount = cabResult.data?.length ?? 0;
-      successCount++;
-    }
-
-    final routeResult = results[4];
-    if (routeResult.isSuccess) {
-      _routeCount = routeResult.data?.length ?? 0;
-      successCount++;
-    }
-
-    final popResult = results[5];
-    if (popResult.isSuccess) {
-      _popCount = popResult.data?.length ?? 0;
-      successCount++;
-    }
-
-    final runningBatchResult = results[6];
-    if (runningBatchResult.isSuccess) {
-      _runningBatches = List<RunningBatches>.from(
-        runningBatchResult.data ?? [],
-      );
+    final runningResult = await _runningBatchRepository.fetchRunningBatches();
+    if (runningResult.isSuccess) {
+      _runningBatches = List<RunningBatches>.from(runningResult.data ?? []);
       _runningBatchCount = _runningBatches.length;
-      successCount++;
+      runningOk = true;
     }
 
-    if (successCount == 0) {
+    if (!luggageOk && !runningOk) {
       _state = ViewState.error;
       _errorMessage = 'Failed to load dashboard data.';
       _hasPartialError = false;
       _loadWarning = null;
-    } else if (successCount < results.length) {
+    } else if (!luggageOk || !runningOk) {
       _state = ViewState.success;
       _hasPartialError = true;
-      _loadWarning = 'Some dashboard data could not be loaded.';
+      _loadWarning = luggageOk
+          ? 'Live running trips could not be loaded.'
+          : 'Catalog sync failed; live trips may still work.';
     } else {
       _state = ViewState.success;
       _hasPartialError = false;
@@ -152,7 +113,18 @@ class AdminProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Snapshot of live morning trips only. Does not reload the full dashboard.
+  void _applyLuggageCounts(AdminBootstrapResponse luggage) {
+    _batchCount = AdminBootstrapListMapper.batches(luggage).length;
+    final commuters = AdminBootstrapListMapper.commuters(luggage);
+    _commuterCount = commuters.length;
+    _isComingCount = commuters.where((c) => c.isComing == true).length;
+    _driverCount = AdminBootstrapListMapper.drivers(luggage).length;
+    _cabCount = AdminBootstrapListMapper.cabs(luggage).length;
+    _routeCount = AdminBootstrapListMapper.routes(luggage).length;
+    _popCount = AdminBootstrapListMapper.pops(luggage).length;
+  }
+
+  /// Snapshot of live morning trips only. Does not reload catalog luggage.
   Future<void> refreshRunningBatches() async {
     final result = await _runningBatchRepository.fetchRunningBatches();
     if (!result.isSuccess) return;

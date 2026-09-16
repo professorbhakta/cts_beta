@@ -9,6 +9,8 @@ class ProfileProvider with ChangeNotifier {
   String _batchTime = '—';
   String _cabNumber = '—';
   bool _showAssignment = false;
+  /// Org admin mobile from session when login profile provided it; else empty.
+  String? _adminMobile;
 
   String get name => _name;
   String get mobile => _mobile;
@@ -17,6 +19,13 @@ class ProfileProvider with ChangeNotifier {
   String get batchTime => _batchTime;
   String get cabNumber => _cabNumber;
   bool get showAssignment => _showAssignment;
+
+  /// Digits-only admin contact when known; `null` if session has none.
+  String? get adminMobile {
+    final value = _adminMobile?.trim();
+    if (value == null || value.isEmpty || value == '0') return null;
+    return value;
+  }
 
   void load() {
     final manager = AppManager.instance;
@@ -31,6 +40,10 @@ class ProfileProvider with ChangeNotifier {
     _batchName = _display(manager.getString(ManagerKey.batchName));
     _batchTime = _display(manager.getString(ManagerKey.batchTime));
     _cabNumber = _display(manager.getString(ManagerKey.cabNumb));
+    final storedAdmin = manager.getString(ManagerKey.adminMobile);
+    _adminMobile = (storedAdmin.isEmpty || storedAdmin == '0')
+        ? null
+        : storedAdmin;
     notifyListeners();
   }
 
@@ -42,6 +55,7 @@ class ProfileProvider with ChangeNotifier {
     _batchTime = '—';
     _cabNumber = '—';
     _showAssignment = false;
+    _adminMobile = null;
     notifyListeners();
   }
 

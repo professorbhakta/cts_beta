@@ -3,12 +3,17 @@ import 'package:cts/data/local/models/sync_queue_record.dart';
 import 'package:sqflite/sqflite.dart';
 
 class SyncQueueDao {
-  SyncQueueDao(this._db);
+  SyncQueueDao(Database db) : _db = db;
 
-  final Database _db;
+  /// No-op DAO when SQLite is unavailable (web / API-only).
+  SyncQueueDao.noop() : _db = null;
+
+  final Database? _db;
 
   Future<int> enqueue(SyncQueueRecord record) async {
-    return _db.insert(
+    final db = _db;
+    if (db == null) return 0;
+    return db.insert(
       DatabaseSchema.syncQueueTable,
       record.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -19,7 +24,9 @@ class SyncQueueDao {
     int limit = 50,
     int maxRetries = 5,
   }) async {
-    final rows = await _db.query(
+    final db = _db;
+    if (db == null) return const [];
+    final rows = await db.query(
       DatabaseSchema.syncQueueTable,
       where: 'retry_count < ?',
       whereArgs: [maxRetries],
@@ -31,7 +38,9 @@ class SyncQueueDao {
   }
 
   Future<void> deleteById(int id) async {
-    await _db.delete(
+    final db = _db;
+    if (db == null) return;
+    await db.delete(
       DatabaseSchema.syncQueueTable,
       where: 'id = ?',
       whereArgs: [id],
@@ -43,7 +52,9 @@ class SyncQueueDao {
     required String error,
     required int retryCount,
   }) async {
-    await _db.update(
+    final db = _db;
+    if (db == null) return;
+    await db.update(
       DatabaseSchema.syncQueueTable,
       {
         'retry_count': retryCount,
@@ -55,7 +66,9 @@ class SyncQueueDao {
   }
 
   Future<int> pendingCount({int maxRetries = 5}) async {
-    final result = await _db.rawQuery(
+    final db = _db;
+    if (db == null) return 0;
+    final result = await db.rawQuery(
       'SELECT COUNT(*) as count FROM ${DatabaseSchema.syncQueueTable} '
       'WHERE retry_count < ?',
       [maxRetries],
@@ -64,7 +77,9 @@ class SyncQueueDao {
   }
 
   Future<int> failedCount({int maxRetries = 5}) async {
-    final result = await _db.rawQuery(
+    final db = _db;
+    if (db == null) return 0;
+    final result = await db.rawQuery(
       'SELECT COUNT(*) as count FROM ${DatabaseSchema.syncQueueTable} '
       'WHERE retry_count >= ?',
       [maxRetries],

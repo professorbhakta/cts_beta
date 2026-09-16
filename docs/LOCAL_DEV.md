@@ -1,6 +1,7 @@
 > **Doc:** docs/LOCAL_DEV.md
-> **Updated:** 2026-09-09 20:30 IST
-> **Session:** + SUPER_ADMIN QA login for /void/
+> **Updated:** 2026-09-12 15:45 IST
+> **Session:** Absorbed docs/backend module map; backend/ retired
+
 # Local Development Setup
 
 ## Flutter `.env` (`D:\cts_beta\.env`)
@@ -154,14 +155,14 @@ docker ps
 docker logs C2S-Django --tail 30
 ```
 
-Postman WebSocket: `ws://<LAN-IP>/ws/1/` with `Cookie: sessionid=<login session>` (anonymous → **4401**).
+Postman WebSocket: `ws://<LAN-IP>/ws/1/` with either `Authorization: Bearer <access>` (Flutter path) or `Cookie: sessionid=<login session>` (anonymous → **4401**).
 
 ### Backend verification scripts
 
 ```powershell
 docker exec -w /app/django C2S-Django python d2d_log/test_d2d_fixes.py
 docker exec -w /app/django C2S-Django python d2d_log/test_return_batch_fixes.py
-docker exec -w /app/django -e DJANGO_SETTINGS_MODULE=c2s.settings C2S-Django python manage.py test d2d_log.test_odometer d2d_log.test_boarding_scan
+docker exec -w /app/django -e DJANGO_SETTINGS_MODULE=c2s.settings C2S-Django python manage.py test d2d_log.test_p0_security d2d_log.test_odometer d2d_log.test_boarding_scan
 ```
 
 ### Redis spot-check
@@ -206,4 +207,14 @@ QA logins (password `password`): Admin `7069036462`, Driver 1 `9876544111`, UG1 
 - [API_AND_ENV.md](./API_AND_ENV.md)
 - [lib/features/d2d/README.md](../lib/features/d2d/README.md)
 - [lib/features/batches/README.md](../lib/features/batches/README.md)
-- [backend/README.md](./backend/README.md) — thin pointer only
+
+### `d2d_log` modules (`D:\cts-docker\django\d2d_log`)
+
+| Module | Role |
+|--------|------|
+| `consumers.py` | Morning WS (ADD/REMOVE/DELETE/STOP); auth 4401/4403; ended 4001 |
+| `live_state.py` | Redis `d2d:live:…` |
+| `board_commuter` | Shared by WS REMOVE + `boarding_scan` |
+| `odometer_views.py` | start / end / get / org / photo |
+| `boarding_views.py` | boarding_qr / boarding_scan / boarding_unboard |
+| `return_batch_views.py` + utils | Evening REST + Redis return keys |

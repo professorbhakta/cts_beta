@@ -43,7 +43,7 @@ class _PopFormState extends State<PopForm> {
     final scheme = theme.colorScheme;
 
     return PopScope(
-      canPop: true,
+      canPop: !_isSubmitting,
       onPopInvokedWithResult: (bool didPop, bool? result) {
         if (didPop) {
           _dataProvider.fetchPops();
@@ -121,6 +121,7 @@ class _PopFormState extends State<PopForm> {
                     style: theme.textTheme.bodyLarge,
                     validator: (value) => Validators.pickupPointName(value),
                     textCapitalization: TextCapitalization.characters,
+                    textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(height: 16),
 
@@ -179,6 +180,7 @@ class _PopFormState extends State<PopForm> {
                       FilteringTextInputFormatter.digitsOnly,
                     ],
                     style: theme.textTheme.bodyLarge,
+                    textInputAction: TextInputAction.done,
                     validator: (value) => Validators.inLineNumber(value),
                   ),
                   const SizedBox(height: 16),

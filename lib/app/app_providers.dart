@@ -46,6 +46,7 @@ import 'package:cts/domain/repositories/authentication_repository.dart';
 import 'package:cts/domain/repositories/session_repository.dart';
 import 'package:cts/domain/usecases/get_initial_route_usecase.dart';
 import 'package:cts/features/auth/providers/sign_up_sign_in_controller.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_list_source.dart';
 import 'package:cts/features/admin_bootstrap/providers/admin_bootstrap_provider.dart';
 import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository.dart';
 import 'package:cts/features/admin_bootstrap/repositories/admin_bootstrap_repository_impl.dart';
@@ -57,7 +58,6 @@ import 'package:cts/features/trip_report/repositories/trip_report_repository.dar
 import 'package:cts/features/trip_report/repositories/trip_report_repository_impl.dart';
 import 'package:cts/features/profile/providers/profile_provider.dart';
 import 'package:cts/features/splash/providers/splash_provider.dart';
-import 'package:cts/offline_temp/providers/offline_temp_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -213,12 +213,7 @@ class AppProviders {
       ),
       ChangeNotifierProvider(
         create: (context) => AdminProvider(
-          context.read<BatchRepository>(),
-          context.read<CommuterRepository>(),
-          context.read<DriverRepository>(),
-          context.read<CabRepository>(),
-          context.read<RouteRepository>(),
-          context.read<PopRepository>(),
+          context.read<AdminBootstrapRepository>(),
           context.read<RunningBatchRepository>(),
         ),
       ),
@@ -233,7 +228,11 @@ class AppProviders {
         ),
       ),
       ChangeNotifierProvider(create: (_) => ProfileProvider()),
-      ChangeNotifierProvider(create: (_) => OfflineTempProvider()),
+      ChangeNotifierProvider(
+        create: (context) => TripReportProvider(
+          context.read<TripReportRepository>(),
+        ),
+      ),
     ];
   }
 
@@ -250,12 +249,26 @@ class AppProviders {
     );
 
     final bootstrapRepository = AdminBootstrapRepositoryImpl(apiService: apiService);
+    AdminBootstrapListSource.bind(bootstrapRepository);
     final authRepository = AuthenticationRepositoryImpl(
       apiService: apiService,
       bootstrapRepository: bootstrapRepository,
     );
     sessionAuthNotifier.bindAuthRepository(authRepository);
     await sessionAuthNotifier.refresh(validateWithServer: true);
+
+    final role = sessionAuthNotifier.userType;
+    if (sessionAuthNotifier.loggedIn &&
+        (role == 'ADMIN' ||
+            role == 'SUPER_ADMIN' ||
+            role == 'SUPERVISOR')) {
+      // Cold start: hydrate from memory/SQLite only; network refill in background.
+      // Admin home ensureLuggage / pull-to-refresh covers empty-cache cases.
+      final local = await AdminBootstrapListSource.luggage();
+      if (local == null) {
+        AdminBootstrapListSource.refreshInBackground();
+      }
+    }
 
     final connectivityService = ConnectivityService();
     final syncManager = SyncManager(connectivityService: connectivityService);
