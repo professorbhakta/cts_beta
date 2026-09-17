@@ -7,6 +7,7 @@ import 'package:cts/widgets/app_drawer.dart';
 import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/loading_indicator.dart';
 import 'package:cts/widgets/status_message.dart';
+import 'package:cts/widgets/trip_review_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -221,6 +222,19 @@ class _DriverHomePageState extends State<DriverHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildHeader(context, driverName),
+                    if (provider.tripBanner.visible) ...[
+                      const SizedBox(height: 16),
+                      TripReviewBanner(
+                        message: provider.tripBanner.message ??
+                            'Trip needs attention.',
+                        actionLabel: 'Open trip',
+                        onTap: () {
+                          final id = provider.tripBanner.batchId;
+                          if (id == null || id.isEmpty) return;
+                          context.push('${RouteName.d2dLog}/$id');
+                        },
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     Row(
                       children: [

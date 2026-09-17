@@ -1,5 +1,7 @@
 import 'package:cts/appManager/view_state.dart';
 import 'package:cts/features/trip_report/helpers/trip_report_photo_url.dart';
+import 'package:cts/features/trip_report/helpers/trip_report_review.dart';
+import 'package:cts/widgets/trip_review_banner.dart';
 import 'package:cts/features/trip_report/models/trip_report_models.dart';
 import 'package:cts/features/trip_report/providers/trip_report_provider.dart';
 import 'package:cts/theme/cts_colors.dart';
@@ -110,10 +112,23 @@ class _TripReportBody extends StatelessWidget {
             return const CatalogPageTitle(title: 'Daily Trip Report');
           }
           if (index == 1) {
-            return _DateBar(
-              dateIso: provider.selectedDateIso,
-              count: provider.report?.count ?? items.length,
-              onPick: onPickDate,
+            final needsReview = tripReportNeedsEndKmReview(provider.report);
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _DateBar(
+                  dateIso: provider.selectedDateIso,
+                  count: provider.report?.count ?? items.length,
+                  onPick: onPickDate,
+                ),
+                if (needsReview) ...[
+                  const SizedBox(height: 12),
+                  const TripReviewBanner(
+                    message:
+                        'Trips need end km review (incomplete or auto-closed). Scroll to a flagged batch below.',
+                  ),
+                ],
+              ],
             );
           }
           if (items.isEmpty) {

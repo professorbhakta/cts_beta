@@ -54,6 +54,7 @@ import 'package:cts/features/d2d/providers/d2d_channel_provider.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository_impl.dart';
 import 'package:cts/features/trip_report/providers/trip_report_provider.dart';
+import 'package:cts/features/trip_report/providers/trip_review_alert_provider.dart';
 import 'package:cts/features/trip_report/repositories/trip_report_repository.dart';
 import 'package:cts/features/trip_report/repositories/trip_report_repository_impl.dart';
 import 'package:cts/features/profile/providers/profile_provider.dart';
@@ -218,8 +219,16 @@ class AppProviders {
         ),
       ),
       ChangeNotifierProvider(
-        create: (context) =>
-            DriverHomeProvider(context.read<DriverRepository>()),
+        create: (context) => DriverHomeProvider(
+          context.read<DriverRepository>(),
+          d2dRepository: context.read<D2dRepository>(),
+          returnBatchRepository: context.read<ReturnBatchRepository>(),
+        ),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => TripReviewAlertProvider(
+          context.read<TripReportRepository>(),
+        ),
       ),
       ChangeNotifierProvider(
         create: (context) => CommuterHomeProvider(

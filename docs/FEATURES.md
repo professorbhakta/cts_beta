@@ -129,3 +129,9 @@ UI-only navigation from dashboard does not bypass providers for CRUD screens (th
 - **Camera:** requested only at **boarding QR** (`boarding_scan_screen`) and **odometer capture** (`odometer_camera_helper`).
 - **Trip report:** odometer thumbs via authenticated **network images** only — no camera dependency (web-safe).
 
+## Path A trip review banners (no FCM)
+
+- **Admin / Supervisor:** home + Daily Trip Report show a banner when today's (or selected) report has incomplete or auto-closed trips. Home taps through to Trip Report.
+- **Driver:** home banner when morning/return is still open past expected end (12:00 / 00:00 Asia/Kolkata) or odometer start exists without complete. Uses existing `get_d2d_log_status`, return batch status, and odometer APIs only.
+- **Not in this pass:** FCM, edit_record UI, report filter chips.
+

@@ -18,6 +18,8 @@ import 'package:cts/widgets/dashboard_stat_card.dart'
 import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/quick_action_button.dart';
 import 'package:cts/widgets/status_message.dart';
+import 'package:cts/widgets/trip_review_banner.dart';
+import 'package:cts/features/trip_report/providers/trip_review_alert_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +39,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.read<AdminProvider>().state != ViewState.loading) {
         context.read<AdminProvider>().loadDetailedDashboardData();
+      }
+      final allowed = AdminCapabilities.forRole(SessionRole.userType);
+      if (allowed.contains(AdminService.tripReport)) {
+        context.read<TripReviewAlertProvider>().loadToday();
       }
     });
   }
@@ -77,7 +83,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     final showQuickActions = allowed.isNotEmpty;
 
     return RefreshIndicator(
-      onRefresh: () => provider.loadDetailedDashboardData(forceRefresh: true),
+      onRefresh: () async {
+        await provider.loadDetailedDashboardData(forceRefresh: true);
+        final allowedNow = AdminCapabilities.forRole(SessionRole.userType);
+        if (allowedNow.contains(AdminService.tripReport) && context.mounted) {
+          await context.read<TripReviewAlertProvider>().loadToday();
+        }
+      },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
@@ -88,6 +100,21 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               _buildPartialLoadBanner(context, provider),
               const SizedBox(height: 16),
             ],
+            Consumer<TripReviewAlertProvider>(
+              builder: (context, alert, _) {
+                if (!alert.needsReview) return const SizedBox.shrink();
+                return Column(
+                  children: [
+                    TripReviewBanner(
+                      message:
+                          'Some trips need end km review (incomplete or auto-closed).',
+                      onTap: () => context.push(RouteName.tripReportScreen),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
             _buildGreetingSection(context),
             if (showRunning) ...[
               const SizedBox(height: 28),
