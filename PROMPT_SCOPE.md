@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-16 09:10 IST
-> **Session:** Pushed professor-cts + professor-dock
+> **Updated:** 2026-09-17 12:30 IST
+> **Session:** Trip report odometer photo thumbnails
 
 # PROMPT SCOPE — CTS
 
@@ -59,16 +59,16 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | D2D cream shared UI + other-batch red + board beeps |
-| P2 | Role / surface? | yes | Main Agent · Admin/Driver/Commuter D2D |
-| P3 | Non-negotiables? | yes | Separate screens; Driver no Add; SUPER_ADMIN no Add |
-| P4 | Both ends? | yes | FE + BE WS `batchId` hydrate (redeploy dock) |
+| P1 | Goal clear? | yes | Trip report odometer start/end photo thumbnails |
+| P2 | Role / surface? | yes | Admin/Supervisor trip report (cream) |
+| P3 | Non-negotiables? | yes | Provider only; PR base gb-f&d |
+| P4 | Both ends? | yes | FE A+B; Dock additive A preferred |
 | P5 | R10 isComing? | n/a | |
-| P6 | Git branch? | yes | day lane / dirty tree |
-| P7 | Docs policy? | yes | d2d README owner |
-| P8 | Out of scope? | yes | No FCM multi-device push beeps; no invent morning overflow BE |
+| P6 | Git branch? | yes | cursor/… → gb-f&d |
+| P7 | Docs policy? | yes | TRIP_AUTO_CLOSE + API_CONTRACTS |
+| P8 | Out of scope? | yes | No FCM/web trip report UI |
 
-**This prompt:** Implement shared cream Admin/Driver D2D UI, hide driver Add, red other-batch, short/long board beeps.
+**This prompt:** Add odometer photo thumbnails to daily trip report (A-over-B URLs, Bearer image load, fullscreen close).
 
 **Gate (locked):** Device smoke stays human post-push.
 
@@ -78,6 +78,7 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | Order | ID | Item | Status | Owner |
 |------:|----|------|--------|-------|
+| 0 | Q-trip-odo-thumbs | Trip report start/end odometer photo thumbnails (A+B) | **done** (code+docs) · smoke human | [TRIP_AUTO_CLOSE](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md) |
 | 0 | Q-d2d-cream-beep | Shared cream D2D + other-batch red + board beeps + WS `batchId` | **done** (code+docs) · smoke human · BE restart | [d2d README](lib/features/d2d/README.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) |
 | 0 | Q-play-aab | Play Store signed AAB — Gradle release signing wired; user creates keystore + builds | **parked** (user) | [BUILD_AND_RELEASE](docs/BUILD_AND_RELEASE.md) |
 | 0 | Q-fe-match-be | FE match pass vs BE tip (schema/API/bootstrap/return QR) | **done** | prompt deleted 2026-09-10; SoT = DISCUSSION_STATUS + API_CONTRACTS |
@@ -231,5 +232,6 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | When | Note |
 |------|------|
-| 2026-09-12 16:10 IST | FE feat/daily-trip-report: daily trip report + edit_end_km (Provider). Contract docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md. Lab smoke BE professor-dock @ 77ed62a. |
+| 2026-09-17 12:30 IST | Trip report odometer photo thumbs: parse start/end_photo_url; A-over-B URL; Bearer AuthenticatedNetworkImage; fullscreen close. PR → gb-f&d. |
+| 2026-09-12 16:10 IST | FE feat/daily-trip-report: daily trip report + edit_end_km (Provider). Contract docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md. Lab smoke BE professor-dock @ 77ed62a. |
 

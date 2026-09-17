@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-15 22:35 IST
-> **Session:** WS live entry `batchId` for other-batch FE highlight/beeps
+> **Updated:** 2026-09-17 12:30 IST
+> **Session:** Trip report odometer photo thumbnails (start/end_photo_url)
 
 # API Contracts — Backend ↔ Flutter
 
@@ -16,10 +16,11 @@ Wire contract (snake_case): [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRI
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Items with morning/return legs + close_kind |
+| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Items with morning/return legs + close_kind. Legs may include additive `start_photo_url` / `end_photo_url` (A) |
 | `PATCH`/`POST /d2d/trip_report/edit_end_km/` | `ApiUrl.tripReportEditEndKmUrl` | Body `{batch_id, leg, end_km, date?}`. FE uses PATCH |
+| `GET /d2d/odometer/photo/<batch>/<leg>/<kind>/` | `ApiUrl.odometerPhoto` | Interim **B** thumbnail URL when A is null; Bearer auth |
 
-Lab smoke BE tip: `professor-dock` @ `77ed62a`. Feature module: `lib/features/trip_report/`.
+Lab smoke BE tip: `professor-dock` @ `77ed62a`. Feature module: `lib/features/trip_report/`. Thumbnails: prefer A URLs; else B. See [TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRIP_AUTO_CLOSE_CONTRACT.md).
 
 
 ### Client truth contract (P1)
@@ -392,7 +393,8 @@ Auth: JWT Bearer. Roles for report/edit: **ADMIN**, **SUPERVISOR**. Status boole
 
 | Method | Path | Notes |
 |--------|------|--------|
-| GET | `/d2d/trip_report/?date=&admin_code=` | Daily list; items have `morning`/`return` legs + `close_kind` |
+| GET | `/d2d/trip_report/?date=&admin_code=` | Daily list; legs + `close_kind`; optional additive `start_photo_url` / `end_photo_url` (A) |
 | PATCH/POST | `/d2d/trip_report/edit_end_km/` | Body `{batch_id, leg, end_km, date?}`; sets `edited`, clears `incomplete` |
+| GET | `/d2d/odometer/photo/<batch>/<leg>/<kind>/` | Interim B photo URL when A null; Bearer; `leg` morning\|return, `kind` start\|end |
 
 BE PR: https://github.com/professorbhakta/cts-docker/pull/3 (`cursor/open-trip-auto-close-a9b4` → `gb-dock`). Full draft: `django/d2d_log/TRIP_AUTO_CLOSE_CONTRACT.md` on that branch.

@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-16 09:10 IST
-> **Session:** Pushed professor-cts + professor-dock (cream/beeps + WS batchId)
+> **Updated:** 2026-09-17 12:30 IST
+> **Session:** Trip report odometer photo thumbnails → gb-f&d
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -21,7 +21,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 1b. Live FE work
 
-- Daily trip report + edit end_km: lib/features/trip_report/. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md).
+- Daily trip report + edit end_km + odometer photo thumbnails (A `*_photo_url` / B `odometerPhoto` + Bearer): `lib/features/trip_report/`. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md).
 - D2D cream + other-batch red + board beeps — [lib/features/d2d/README.md](lib/features/d2d/README.md); WS live `batchId` — [API_CONTRACTS](docs/API_CONTRACTS.md).
 
 ## 2. Non-negotiables

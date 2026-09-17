@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-12 16:10 IST
-> **Session:** FE trip report wired; BE smoke @ professor-dock 77ed62a
+> **Updated:** 2026-09-17 12:30 IST
+> **Session:** Trip report odometer photo thumbnails (A + B fallback)
 
 # Dock / CTS discussion status (single path)
 
@@ -15,7 +15,7 @@
 - Admin + Supervisor may edit `end_km`; show status **edited**.
 - Daily trip report (mobile + web) so they can check the day.
 - **BE tip (lab smoke):** `professor-dock` @ `77ed62a` (open-trip auto-close). Do not wait on `gb-dock` merge.
-- **FE:** started/wired on `feat/daily-trip-report` — Provider module `lib/features/trip_report/`, route + drawer + AdminService gate; contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass.
+- **FE:** Provider module `lib/features/trip_report/` — daily report + edit_end_km + **odometer start/end photo thumbnails** (prefer `start_photo_url`/`end_photo_url`, else `ApiUrl.odometerPhoto` + Bearer). Contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass.
 
 ## Live now (code)
 | Piece | Branch / PR | Notes |
@@ -25,7 +25,7 @@
 | Org schema | in tip | Migrations applied; lab **org rows seeded** (bootstrap orgs=1 verified 2026-09-10) |
 | Return trip log | in tip | Tables applied; QR `?trip=return` probed OK (wire `return_trip_id`) |
 | Admin bootstrap BE | in tip | `GET /user/admin-bootstrap/` Ã¢â‚¬â€ ADMIN / SUPER_ADMIN / SUPERVISOR |
-| Flutter tip | `professor-cts` / `feat/daily-trip-report` | Catalog SoT = bootstrap; **trip report FE wired** (edit_end_km); SQLite **v4** |
+| Flutter tip | `professor-cts` + cloud → `gb-f&d` | Catalog SoT = bootstrap; trip report + **odo photo thumbs**; SQLite **v4** |
 
 ## Backend git lanes (cts-docker)
 | Lane | Role | Status |

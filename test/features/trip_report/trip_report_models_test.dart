@@ -25,6 +25,8 @@ void main() {
               'incomplete': true,
               'edited': false,
               'close_kind': 'incomplete',
+              'start_photo_url': null,
+              'end_photo_url': 'https://host/end.jpg',
             },
             'return': null,
             'any_incomplete': true,
@@ -57,6 +59,8 @@ void main() {
       expect(morning.closeKind, TripCloseKind.incomplete);
       expect(morning.displayChips, contains(TripCloseKind.incomplete));
       expect(morning.displayChips, contains(TripCloseKind.autoClosed));
+      expect(morning.startPhotoUrl, isNull);
+      expect(morning.endPhotoUrl, 'https://host/end.jpg');
     });
 
     test('null leg maps to absent close_kind', () {

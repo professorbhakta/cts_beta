@@ -1,7 +1,9 @@
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/trip_report/helpers/trip_report_photo_url.dart';
 import 'package:cts/features/trip_report/models/trip_report_models.dart';
 import 'package:cts/features/trip_report/providers/trip_report_provider.dart';
 import 'package:cts/theme/cts_colors.dart';
+import 'package:cts/widgets/authenticated_network_image.dart';
 import 'package:cts/widgets/catalog_list_chrome.dart';
 import 'package:cts/widgets/cts_brand_logo.dart';
 import 'package:cts/widgets/dashboard_shell.dart';
@@ -362,6 +364,8 @@ class _BatchTripCard extends StatelessWidget {
             const SizedBox(height: 12),
             _LegRow(
               label: 'Morning',
+              batchId: item.batchId,
+              legKind: TripReportLegKind.morning,
               leg: item.morning,
               onEdit: () => onEdit(
                 TripReportLegKind.morning,
@@ -371,6 +375,8 @@ class _BatchTripCard extends StatelessWidget {
             const SizedBox(height: 10),
             _LegRow(
               label: 'Return',
+              batchId: item.batchId,
+              legKind: TripReportLegKind.ret,
               leg: item.returnLeg,
               onEdit: () => onEdit(
                 TripReportLegKind.ret,
@@ -387,11 +393,15 @@ class _BatchTripCard extends StatelessWidget {
 class _LegRow extends StatelessWidget {
   const _LegRow({
     required this.label,
+    required this.batchId,
+    required this.legKind,
     required this.leg,
     required this.onEdit,
   });
 
   final String label;
+  final String batchId;
+  final TripReportLegKind legKind;
   final TripReportLeg? leg;
   final VoidCallback onEdit;
 
@@ -402,6 +412,24 @@ class _LegRow extends StatelessWidget {
     final effective = leg ?? const TripReportLeg(closeKind: TripCloseKind.absent);
     final canEdit = effective.closeKind != TripCloseKind.absent &&
         effective.startKm != null;
+    final showPhotos = effective.closeKind != TripCloseKind.absent;
+
+    final startUrl = showPhotos
+        ? resolveTripReportPhotoUrl(
+            wirePhotoUrl: effective.startPhotoUrl,
+            batchId: batchId,
+            leg: legKind,
+            kind: 'start',
+          )
+        : null;
+    final endUrl = showPhotos
+        ? resolveTripReportPhotoUrl(
+            wirePhotoUrl: effective.endPhotoUrl,
+            batchId: batchId,
+            leg: legKind,
+            kind: 'end',
+          )
+        : null;
 
     return Container(
       width: double.infinity,
@@ -453,6 +481,24 @@ class _LegRow extends StatelessWidget {
               color: cts.navy.withValues(alpha: 0.8),
             ),
           ),
+          if (showPhotos) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                _OdometerThumb(
+                  label: 'Start',
+                  url: startUrl,
+                  hairline: cts.navy.withValues(alpha: 0.14),
+                ),
+                const SizedBox(width: 10),
+                _OdometerThumb(
+                  label: 'End',
+                  url: endUrl,
+                  hairline: cts.navy.withValues(alpha: 0.14),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -466,6 +512,69 @@ class _LegRow extends StatelessWidget {
     final end = leg.endKm?.toString() ?? '—';
     final dist = leg.distanceKm?.toString() ?? '—';
     return 'start $start  ·  end $end  ·  distance $dist km';
+  }
+}
+
+class _OdometerThumb extends StatelessWidget {
+  const _OdometerThumb({
+    required this.label,
+    required this.url,
+    required this.hairline,
+  });
+
+  final String label;
+  final String? url;
+  final Color hairline;
+
+  static const double _size = 56;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final radius = BorderRadius.circular(8);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: cts.navy.withValues(alpha: 0.65),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          width: _size,
+          height: _size,
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            border: Border.all(color: hairline),
+            color: cts.navy.withValues(alpha: 0.04),
+          ),
+          child: AuthenticatedNetworkImage(
+            url: url,
+            width: _size,
+            height: _size,
+            fit: BoxFit.cover,
+            borderRadius: radius,
+            errorBuilder: (_) => Icon(
+              Icons.image_not_supported_outlined,
+              size: 20,
+              color: cts.navy.withValues(alpha: 0.28),
+            ),
+            onTap: url == null
+                ? null
+                : () => showAuthenticatedPhotoViewer(
+                      context,
+                      url: url,
+                      title: '$label odometer',
+                    ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

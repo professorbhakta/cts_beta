@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-15 22:35 IST
-> **Session:** D2D cream + WS `batchId` docs sync
+> **Updated:** 2026-09-17 12:30 IST
+> **Session:** Trip report odometer photo thumbnails docs sync
 
 # Documentation Registry
 
@@ -29,10 +29,10 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
 | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-12 15:55 IST | setup merge noted |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-15 22:35 IST | D2D cream + WS `batchId` audit |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-15 22:35 IST | Q-d2d-cream-beep done + docs |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-15 22:35 IST | this sync |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-12 16:10 IST | trip report FE + BE 77ed62a |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-17 12:30 IST | Trip report odo photo thumbs |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-17 12:30 IST | Q-trip-odo-thumbs done |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-17 12:30 IST | this sync |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-17 12:30 IST | trip report odo thumbs |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-15 22:35 IST | Admin/Driver D2D cream + no driver Add |
 
 ---
@@ -90,7 +90,8 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-12 15:55 IST | Absorbed ROLE_ACCESS + USER_ROLES |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-12 15:45 IST | Drop backend/README link |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-15 22:35 IST | WS live entry `batchId`; ADD role matrix |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-17 12:30 IST | Trip report photo URL A + B pointer |
+| [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md) | 2026-09-17 12:30 IST | start/end_photo_url + thumbnail UX |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-15 22:35 IST | Cream channel; Driver no Add; other-batch red/beeps |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-15 22:35 IST | D2D cream Admin/Driver wireframes |
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-09 20:15 IST | returnTripLogId naming |

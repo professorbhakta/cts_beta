@@ -77,6 +77,8 @@ class TripReportLeg {
     this.incomplete = false,
     this.edited = false,
     this.closeKind = TripCloseKind.absent,
+    this.startPhotoUrl,
+    this.endPhotoUrl,
   });
 
   final String? tripId;
@@ -89,6 +91,12 @@ class TripReportLeg {
   final bool incomplete;
   final bool edited;
   final TripCloseKind closeKind;
+
+  /// Wire A: additive `start_photo_url` from GET /d2d/trip_report/ (nullable).
+  final String? startPhotoUrl;
+
+  /// Wire A: additive `end_photo_url` from GET /d2d/trip_report/ (nullable).
+  final String? endPhotoUrl;
 
   /// Chip kinds to show for this leg (close_kind + auto_closed flag).
   List<TripCloseKind> get displayChips {
@@ -121,6 +129,8 @@ class TripReportLeg {
       closeKind: kind == TripCloseKind.absent && autoClosed
           ? TripCloseKind.autoClosed
           : kind,
+      startPhotoUrl: _asNullableUrl(json['start_photo_url']),
+      endPhotoUrl: _asNullableUrl(json['end_photo_url']),
     );
   }
 
@@ -128,6 +138,14 @@ class TripReportLeg {
     if (v == null) return null;
     if (v is int) return v;
     return int.tryParse(v.toString());
+  }
+
+  /// Null-safe photo URL parse — empty / `"null"` → null.
+  static String? _asNullableUrl(dynamic v) {
+    if (v == null) return null;
+    final s = v.toString().trim();
+    if (s.isEmpty || s.toLowerCase() == 'null') return null;
+    return s;
   }
 }
 
