@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-17 12:54 IST
-> **Session:** Trip report photo A on professor-dock @ 7bb35ae; silent B fallback
+> **Updated:** 2026-09-17 13:01 IST
+> **Session:** trip_report boarded[] + photo A tip 7bb35ae
 
 # API Contracts — Backend ↔ Flutter
 
@@ -16,7 +16,7 @@ Wire contract (snake_case): [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRI
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Items with morning/return legs + close_kind. Legs may include additive `start_photo_url` / `end_photo_url` (A) |
+| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Legs + close_kind + photo A URLs + `boarded[]` (`user_id`, `boarded_at`, `source`; enrichment name/mobile/count/driver optional) |
 | `PATCH`/`POST /d2d/trip_report/edit_end_km/` | `ApiUrl.tripReportEditEndKmUrl` | Body `{batch_id, leg, end_km, date?}`. FE uses PATCH |
 | `GET /d2d/odometer/photo/<batch>/<leg>/<kind>/` | `ApiUrl.odometerPhoto` | Silent **B** when A is null (older-lab); Bearer auth |
 
@@ -393,7 +393,7 @@ Auth: JWT Bearer. Roles for report/edit: **ADMIN**, **SUPERVISOR**. Status boole
 
 | Method | Path | Notes |
 |--------|------|--------|
-| GET | `/d2d/trip_report/?date=&admin_code=` | Daily list; legs + `close_kind`; optional additive `start_photo_url` / `end_photo_url` (A) |
+| GET | `/d2d/trip_report/?date=&admin_code=` | Daily list; legs + `close_kind` + photo A URLs + `boarded[]`; optional enrichment name/mobile/boarded_count/driver_* |
 | PATCH/POST | `/d2d/trip_report/edit_end_km/` | Body `{batch_id, leg, end_km, date?}`; sets `edited`, clears `incomplete` |
 | GET | `/d2d/odometer/photo/<batch>/<leg>/<kind>/` | Silent B when A null; Bearer; `leg` morning\|return, `kind` start\|end |
 

@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md
-> **Updated:** 2026-09-17 12:54 IST
-> **Session:** A photo URLs on professor-dock tip; keep silent B fallback
+> **Updated:** 2026-09-17 13:01 IST
+> **Session:** trip_report boarded[] + photo A tip 7bb35ae
 
 # Trip auto-close + daily report contract (snake_case)
 
@@ -65,8 +65,14 @@ Each leg object (or `null` if absent):
 | `close_kind` | string | `absent` \| `open` \| `normal` \| `incomplete` \| `edited` |
 | `start_photo_url` | string\|null | **A (preferred):** auth download URL for start odo photo (Dock additive) |
 | `end_photo_url` | string\|null | **A (preferred):** auth download URL for end odo photo (Dock additive) |
+| `boarded` | array | Tip: list of boarded riders; `[]` if none. Each: `user_id`, `boarded_at` (ISO), `source` |
+| `boarded[].name` | string\|null | Optional enrichment (Dock PR #7) |
+| `boarded[].mobile` | string\|null | Optional enrichment (Dock PR #7) |
+| `boarded_count` | int\|null | Optional enrichment (Dock PR #7) |
+| `driver_name` | string\|null | Optional enrichment (Dock PR #7) |
+| `driver_user_id` | string\|null | Optional enrichment (Dock PR #7) |
 
-FE also surfaces an **auto_closed** chip when `auto_closed=true`.
+FE also surfaces an **auto_closed** chip when `auto_closed=true`. Trip report UI lists boarded riders under each leg (name/mobile when present, else `user_id`; shows `boarded_at`).
 
 ### Odometer photo URLs (prefer A; silent B fallback)
 

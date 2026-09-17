@@ -499,6 +499,10 @@ class _LegRow extends StatelessWidget {
               ],
             ),
           ],
+          if (effective.closeKind != TripCloseKind.absent) ...[
+            const SizedBox(height: 10),
+            _BoardedSection(leg: effective),
+          ],
         ],
       ),
     );
@@ -512,6 +516,116 @@ class _LegRow extends StatelessWidget {
     final end = leg.endKm?.toString() ?? '—';
     final dist = leg.distanceKm?.toString() ?? '—';
     return 'start $start  ·  end $end  ·  distance $dist km';
+  }
+}
+
+class _BoardedSection extends StatelessWidget {
+  const _BoardedSection({required this.leg});
+
+  final TripReportLeg leg;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final riders = leg.boarded;
+    final count = leg.effectiveBoardedCount;
+    final driver = leg.driverName?.trim();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Boarded ($count)',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: cts.navy,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+          ),
+        ),
+        if (driver != null && driver.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          Text(
+            'Driver $driver',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cts.navy.withValues(alpha: 0.65),
+            ),
+          ),
+        ],
+        const SizedBox(height: 6),
+        if (riders.isEmpty)
+          Text(
+            'No riders boarded',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cts.navy.withValues(alpha: 0.55),
+            ),
+          )
+        else
+          for (var i = 0; i < riders.length; i++) ...[
+            if (i > 0) const SizedBox(height: 6),
+            _BoardedRiderRow(rider: riders[i]),
+          ],
+      ],
+    );
+  }
+}
+
+class _BoardedRiderRow extends StatelessWidget {
+  const _BoardedRiderRow({required this.rider});
+
+  final TripReportBoardedRider rider;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final secondary = rider.displaySecondary;
+    final at = rider.boardedAt?.trim();
+    final source = rider.source?.trim();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          Icons.person_outline,
+          size: 16,
+          color: cts.navy.withValues(alpha: 0.45),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                rider.displayPrimary,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (secondary != null)
+                Text(
+                  secondary,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cts.navy.withValues(alpha: 0.65),
+                  ),
+                ),
+              if ((at != null && at.isNotEmpty) ||
+                  (source != null && source.isNotEmpty))
+                Text(
+                  [
+                    if (at != null && at.isNotEmpty) at,
+                    if (source != null && source.isNotEmpty) source,
+                  ].join(' · '),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: cts.navy.withValues(alpha: 0.5),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

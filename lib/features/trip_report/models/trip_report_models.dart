@@ -65,6 +65,54 @@ enum TripCloseKind {
   }
 }
 
+/// One boarded rider on a morning/return trip_report leg.
+class TripReportBoardedRider {
+  const TripReportBoardedRider({
+    required this.userId,
+    this.boardedAt,
+    this.source,
+    this.name,
+    this.mobile,
+  });
+
+  final String userId;
+  final String? boardedAt;
+  final String? source;
+
+  /// Optional enrichment (Dock PR #7 — null-safe when absent).
+  final String? name;
+  final String? mobile;
+
+  /// Primary label: name, else mobile, else user_id.
+  String get displayPrimary {
+    final n = name?.trim();
+    if (n != null && n.isNotEmpty) return n;
+    final m = mobile?.trim();
+    if (m != null && m.isNotEmpty) return m;
+    return userId.isEmpty ? '—' : userId;
+  }
+
+  /// Secondary line under primary (mobile when name shown; else null).
+  String? get displaySecondary {
+    final n = name?.trim();
+    final m = mobile?.trim();
+    if (n != null && n.isNotEmpty && m != null && m.isNotEmpty) {
+      return m;
+    }
+    return null;
+  }
+
+  factory TripReportBoardedRider.fromJson(Map<String, dynamic> json) {
+    return TripReportBoardedRider(
+      userId: json['user_id']?.toString() ?? '',
+      boardedAt: TripReportLeg._asNullableString(json['boarded_at']),
+      source: TripReportLeg._asNullableString(json['source']),
+      name: TripReportLeg._asNullableString(json['name']),
+      mobile: TripReportLeg._asNullableString(json['mobile']),
+    );
+  }
+}
+
 class TripReportLeg {
   const TripReportLeg({
     this.tripId,
@@ -79,6 +127,10 @@ class TripReportLeg {
     this.closeKind = TripCloseKind.absent,
     this.startPhotoUrl,
     this.endPhotoUrl,
+    this.boarded = const [],
+    this.boardedCount,
+    this.driverName,
+    this.driverUserId,
   });
 
   final String? tripId;
@@ -97,6 +149,20 @@ class TripReportLeg {
 
   /// Wire A: additive `end_photo_url` from GET /d2d/trip_report/ (nullable).
   final String? endPhotoUrl;
+
+  /// Boarded riders for this leg (`[]` when none). Tip: `{user_id, boarded_at, source}`.
+  final List<TripReportBoardedRider> boarded;
+
+  /// Optional enrichment (Dock PR #7) — prefer over `boarded.length` when set.
+  final int? boardedCount;
+
+  /// Optional enrichment (Dock PR #7).
+  final String? driverName;
+
+  /// Optional enrichment (Dock PR #7).
+  final String? driverUserId;
+
+  int get effectiveBoardedCount => boardedCount ?? boarded.length;
 
   /// Chip kinds to show for this leg (close_kind + auto_closed flag).
   List<TripCloseKind> get displayChips {
@@ -131,7 +197,25 @@ class TripReportLeg {
           : kind,
       startPhotoUrl: _asNullableUrl(json['start_photo_url']),
       endPhotoUrl: _asNullableUrl(json['end_photo_url']),
+      boarded: _parseBoarded(json['boarded']),
+      boardedCount: _asInt(json['boarded_count']),
+      driverName: _asNullableString(json['driver_name']),
+      driverUserId: _asNullableString(json['driver_user_id']),
     );
+  }
+
+  static List<TripReportBoardedRider> _parseBoarded(dynamic raw) {
+    if (raw == null) return const [];
+    if (raw is! List) return const [];
+    final out = <TripReportBoardedRider>[];
+    for (final row in raw) {
+      if (row is Map) {
+        out.add(
+          TripReportBoardedRider.fromJson(Map<String, dynamic>.from(row)),
+        );
+      }
+    }
+    return out;
   }
 
   static int? _asInt(dynamic v) {
@@ -141,7 +225,9 @@ class TripReportLeg {
   }
 
   /// Null-safe photo URL parse — empty / `"null"` → null.
-  static String? _asNullableUrl(dynamic v) {
+  static String? _asNullableUrl(dynamic v) => _asNullableString(v);
+
+  static String? _asNullableString(dynamic v) {
     if (v == null) return null;
     final s = v.toString().trim();
     if (s.isEmpty || s.toLowerCase() == 'null') return null;

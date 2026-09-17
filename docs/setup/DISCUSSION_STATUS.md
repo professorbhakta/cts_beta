@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-17 12:54 IST
-> **Session:** A photo URLs on professor-dock @ 7bb35ae; FE silent B kept
+> **Updated:** 2026-09-17 13:01 IST
+> **Session:** trip_report boarded[] UI + photo A; PR #9 → gb-f&d
 
 # Dock / CTS discussion status (single path)
 
@@ -14,8 +14,8 @@
 - Auto-close: `end_km = start_km`, mark **incomplete**, `endTime` + `isActive=false`, archive like End.
 - Admin + Supervisor may edit `end_km`; show status **edited**.
 - Daily trip report (mobile + web) so they can check the day.
-- **BE tip (lab smoke / photos):** `professor-dock` @ `7bb35ae` — trip_report legs include `start_photo_url` / `end_photo_url` (**A**; Dock PR #5). Do not wait on `gb-dock` merge.
-- **FE:** Provider module `lib/features/trip_report/` — daily report + edit_end_km + **odometer start/end photo thumbnails** (prefer A when non-null; silent **B** `ApiUrl.odometerPhoto` + Bearer when A null). Contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass. PR → `gb-f&d`.
+- **BE tip (lab smoke / photos + boarded):** `professor-dock` @ `7bb35ae` — trip_report legs include `start_photo_url` / `end_photo_url` (**A**) and **`boarded[]`** (`user_id`, `boarded_at`, `source`; `[]` if none). Enrichment (name/mobile/boarded_count/driver_*) optional via Dock PR #7. Do not wait on `gb-dock` merge.
+- **FE:** Provider module `lib/features/trip_report/` — daily report + edit_end_km + **odometer thumbs** (prefer A; silent B) + **boarded riders list** per leg. Contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass. PR → `gb-f&d`.
 
 ## Live now (code)
 | Piece | Branch / PR | Notes |
