@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-17 12:30 IST
-> **Session:** Trip report odometer photo thumbnails (A + B fallback)
+> **Updated:** 2026-09-17 12:54 IST
+> **Session:** A photo URLs on professor-dock @ 7bb35ae; FE silent B kept
 
 # Dock / CTS discussion status (single path)
 
@@ -14,8 +14,8 @@
 - Auto-close: `end_km = start_km`, mark **incomplete**, `endTime` + `isActive=false`, archive like End.
 - Admin + Supervisor may edit `end_km`; show status **edited**.
 - Daily trip report (mobile + web) so they can check the day.
-- **BE tip (lab smoke):** `professor-dock` @ `77ed62a` (open-trip auto-close). Do not wait on `gb-dock` merge.
-- **FE:** Provider module `lib/features/trip_report/` — daily report + edit_end_km + **odometer start/end photo thumbnails** (prefer `start_photo_url`/`end_photo_url`, else `ApiUrl.odometerPhoto` + Bearer). Contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass.
+- **BE tip (lab smoke / photos):** `professor-dock` @ `7bb35ae` — trip_report legs include `start_photo_url` / `end_photo_url` (**A**; Dock PR #5). Do not wait on `gb-dock` merge.
+- **FE:** Provider module `lib/features/trip_report/` — daily report + edit_end_km + **odometer start/end photo thumbnails** (prefer A when non-null; silent **B** `ApiUrl.odometerPhoto` + Bearer when A null). Contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass. PR → `gb-f&d`.
 
 ## Live now (code)
 | Piece | Branch / PR | Notes |
@@ -31,7 +31,7 @@
 | Lane | Role | Status |
 |------|------|--------|
 | `main` | VPS / release only | **Hold** Ã¢â‚¬â€ do not FF until fuller device smoke OK |
-| `professor-dock` | PC lab day tip | = tip `98ebc66` |
+| `professor-dock` | PC lab day tip | = tip `7bb35ae` (trip_report photo A URLs) |
 | `gb-dock` | Cloud Cursor | align when asked |
 | `p-gb-merger` | Integrate desk Ã¢â€ â€™ later PR to main | align when asked |
 

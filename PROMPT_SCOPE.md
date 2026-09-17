@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-17 12:30 IST
-> **Session:** Trip report odometer photo thumbnails
+> **Updated:** 2026-09-17 12:54 IST
+> **Session:** Photos A on tip 7bb35ae; keep silent B; PR gb-f&d
 
 # PROMPT SCOPE — CTS
 
@@ -232,6 +232,7 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | When | Note |
 |------|------|
+| 2026-09-17 12:54 IST | Docs: A photo URLs on professor-dock @ 7bb35ae; FE keeps prefer-A + silent B fallback. PR #9 → gb-f&d. |
 | 2026-09-17 12:30 IST | Trip report odometer photo thumbs: parse start/end_photo_url; A-over-B URL; Bearer AuthenticatedNetworkImage; fullscreen close. PR → gb-f&d. |
 | 2026-09-12 16:10 IST | FE feat/daily-trip-report: daily trip report + edit_end_km (Provider). Contract docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md. Lab smoke BE professor-dock @ 77ed62a. |
 

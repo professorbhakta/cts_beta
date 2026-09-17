@@ -1,6 +1,6 @@
 ﻿> **Doc:** DOC_REGISTRY.md
-> **Updated:** 2026-09-17 12:30 IST
-> **Session:** Trip report odometer photo thumbnails docs sync
+> **Updated:** 2026-09-17 12:54 IST
+> **Session:** Dock tip 7bb35ae photo A + silent B docs
 
 # Documentation Registry
 
@@ -29,10 +29,10 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | Doc | Last updated | Session note |
 |-----|--------------|--------------|
 | [CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) | 2026-09-12 15:55 IST | setup merge noted |
-| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-17 12:30 IST | Trip report odo photo thumbs |
-| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-17 12:30 IST | Q-trip-odo-thumbs done |
-| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-17 12:30 IST | this sync |
-| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-17 12:30 IST | trip report odo thumbs |
+| [PROJECT_BRAIN.md](PROJECT_BRAIN.md) | 2026-09-17 12:54 IST | Photo A on tip 7bb35ae; silent B |
+| [PROMPT_SCOPE.md](PROMPT_SCOPE.md) | 2026-09-17 12:54 IST | Q-trip-odo-thumbs + dock tip note |
+| [DOC_REGISTRY.md](DOC_REGISTRY.md) | 2026-09-17 12:54 IST | this sync |
+| [docs/setup/DISCUSSION_STATUS.md](docs/setup/DISCUSSION_STATUS.md) | 2026-09-17 12:54 IST | tip 7bb35ae photo A |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-15 22:35 IST | Admin/Driver D2D cream + no driver Add |
 
 ---
@@ -90,8 +90,8 @@ Update at **end of every session** ([CHAT_PROMPTS.txt](CHAT_PROMPTS.txt) END PRO
 | [docs/ROUTING_AND_AUTH.md](docs/ROUTING_AND_AUTH.md) | 2026-09-12 15:55 IST | Absorbed ROLE_ACCESS + USER_ROLES |
 | [docs/INTEGRATION.md](docs/INTEGRATION.md) | 2026-09-12 15:45 IST | Drop backend/README link |
 | [docs/CODE_MAP.md](docs/CODE_MAP.md) | 2026-09-08 12:45 IST | AdminCapabilities map |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-17 12:30 IST | Trip report photo URL A + B pointer |
-| [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md) | 2026-09-17 12:30 IST | start/end_photo_url + thumbnail UX |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | 2026-09-17 12:54 IST | Photo A tip 7bb35ae; silent B |
+| [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md) | 2026-09-17 12:54 IST | Prefer A; silent B older-lab |
 | [docs/FLOWS_BY_ROLE.md](docs/FLOWS_BY_ROLE.md) | 2026-09-15 22:35 IST | Cream channel; Driver no Add; other-batch red/beeps |
 | [docs/UI_ARCHITECTURE.md](docs/UI_ARCHITECTURE.md) | 2026-09-15 22:35 IST | D2D cream Admin/Driver wireframes |
 | [lib/features/batches/README.md](lib/features/batches/README.md) | 2026-09-09 20:15 IST | returnTripLogId naming |

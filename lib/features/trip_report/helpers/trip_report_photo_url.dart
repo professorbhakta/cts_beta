@@ -4,8 +4,9 @@ import 'package:cts/features/trip_report/models/trip_report_models.dart';
 /// Resolves an odometer photo URL for trip report thumbnails.
 ///
 /// Prefer wire field **A** (`start_photo_url` / `end_photo_url`) when non-null /
-/// non-empty; otherwise build interim fallback **B** via
-/// [ApiUrl.odometerPhoto] from [batchId] + [leg] + [kind].
+/// non-empty (on `professor-dock` tip with photo URLs). Otherwise silent
+/// fallback **B** via [ApiUrl.odometerPhoto] from [batchId] + [leg] + [kind]
+/// (older-lab safety when A is absent).
 ///
 /// Returns `null` only when neither A nor B can be formed (e.g. empty batch id).
 String? resolveTripReportPhotoUrl({

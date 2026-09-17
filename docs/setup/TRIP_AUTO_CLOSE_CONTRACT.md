@@ -1,12 +1,12 @@
 > **Doc:** docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md
-> **Updated:** 2026-09-17 12:30 IST
-> **Session:** FE trip report odometer photo thumbnails (A + B fallback)
+> **Updated:** 2026-09-17 12:54 IST
+> **Session:** A photo URLs on professor-dock tip; keep silent B fallback
 
 # Trip auto-close + daily report contract (snake_case)
 
 **Auth:** JWT Bearer. Roles: **ADMIN** | **SUPERVISOR** (FE also allows SUPER_ADMIN shell).
 
-**BE tip for lab smoke:** `professor-dock` @ `77ed62a` (open-trip auto-close). Do not wait on `gb-dock` merge.
+**BE tip for lab smoke (photos):** `professor-dock` @ `7bb35ae` — legs emit additive `start_photo_url` / `end_photo_url` (**A**). Open-trip auto-close still from earlier tip; do not wait on `gb-dock` merge.
 
 ## Product locks
 
@@ -68,12 +68,12 @@ Each leg object (or `null` if absent):
 
 FE also surfaces an **auto_closed** chip when `auto_closed=true`.
 
-### Odometer photo URLs (A preferred, B interim)
+### Odometer photo URLs (prefer A; silent B fallback)
 
 | Path | Notes |
 |------|-------|
-| **A** | Prefer non-null `start_photo_url` / `end_photo_url` on each leg |
-| **B** | Else build `GET /d2d/odometer/photo/<batch_id>/<leg>/<kind>/` via `ApiUrl.odometerPhoto` (`leg`=`morning`\|`return`, `kind`=`start`\|`end`) |
+| **A (primary)** | Prefer non-null `start_photo_url` / `end_photo_url` on each leg (on tip `7bb35ae`; landed via Dock PR #5) |
+| **B (silent fallback)** | When A is null/empty: build `GET /d2d/odometer/photo/<batch_id>/<leg>/<kind>/` via `ApiUrl.odometerPhoto` (`leg`=`morning`\|`return`, `kind`=`start`\|`end`) — older-lab safety until every env has A |
 
 Photo GETs require `Authorization: Bearer <access>` (same session as REST). FE loads thumbnails with Bearer headers — not bare `Image.network` without auth. 404 / missing → quiet empty placeholder (no loud error).
 
