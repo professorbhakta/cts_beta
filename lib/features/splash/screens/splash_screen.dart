@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<SessionAuthNotifier>().refresh(validateWithServer: true);
       if (!mounted) return;
-      // Runtime permissions (incl. camera for odometer + QR) — not shown at install.
+      // Splash: notifications only on mobile; camera deferred to QR/odometer point-of-use. Web: no-op.
       await AppManager.instance.getPermissions();
       if (!mounted) return;
       await context.read<SplashProvider>().determineInitialRoute();

@@ -122,3 +122,10 @@ UI-only navigation from dashboard does not bypass providers for CRUD screens (th
 2. Update [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) navigation matrix
 3. Register providers and routes
 4. Add row to [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) if user journey changes
+
+## Permissions (camera / notifications)
+
+- **Splash:** mobile requests **notifications** only; **never camera**. Web splash is a no-op for `permission_handler`.
+- **Camera:** requested only at **boarding QR** (`boarding_scan_screen`) and **odometer capture** (`odometer_camera_helper`).
+- **Trip report:** odometer thumbs via authenticated **network images** only — no camera dependency (web-safe).
+

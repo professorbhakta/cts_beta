@@ -167,33 +167,35 @@ class AppManager {
     AppClass.userType = 0;
   }
 
-  /// Runtime permissions used by packages/UI on each platform.
+  /// Runtime permissions at splash (mobile only).
   ///
-  /// Splash requests **only** what the app uses today:
-  /// - notifications — firebase_messaging / OS alerts
-  /// - camera — image_picker + mobile_scanner (odometer + boarding QR)
+  /// Splash requests **notifications** on non-web (firebase_messaging / OS
+  /// alerts). **Camera is never requested here** — point-of-use already
+  /// requests in `boarding_scan_screen` + `odometer_camera_helper`.
+  ///
+  /// **Web (`kIsWeb`):** no-op. `permission_handler` prompts are useless /
+  /// noisy on Flutter web; avoid splash-time camera (and notification) prompts.
   ///
   /// **Removed (FIND-012 / FE-7.4 / FE-7.5):** `Permission.phone` and
   /// `Permission.location` — no Geolocator / READ_PHONE_STATE; Android
-  /// phone+location perms and iOS `NSLocation*` strings dropped.
+  /// phone+location perms and iOS NSLocation* strings dropped.
   Future getPermissions() async {
+    // Flutter web: skip permission_handler entirely at splash.
+    if (kIsWeb) {
+      return;
+    }
+
     if (kDebugMode) {
       debugPrint(
         'Permission.notification.isGranted ${await Permission.notification.isGranted}',
       );
-      debugPrint(
-        'Permission.camera.isGranted ${await Permission.camera.isGranted}',
-      );
     }
 
-    // firebase_messaging (held) + OS alerts — both platforms.
+    // firebase_messaging (held) + OS alerts — mobile splash only.
     if (!await Permission.notification.isGranted) {
       await Permission.notification.request();
     }
-    // image_picker + mobile_scanner (odometer + boarding QR) — both.
-    if (!await Permission.camera.isGranted) {
-      await Permission.camera.request();
-    }
+    // Camera intentionally omitted at splash (QR / odometer request at use).
   }
 
   Future<void> checkInternet(BuildContext context) async {

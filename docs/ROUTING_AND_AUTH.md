@@ -81,6 +81,7 @@ stateDiagram-v2
 ```
 
 1. **Splash** calls `SessionAuthNotifier.refresh(validateWithServer: true)` then `SplashProvider.determineInitialRoute()`.
+   - Splash also calls `AppManager.getPermissions()`: **notifications only** on mobile; **no camera**; **web no-op**. Camera is point-of-use (QR / odometer).
 2. **GetInitialRouteUseCase** returns `signIn` or `RouteName.homeForRole(userType)`.
 3. Splash uses `context.go(route)`.
 

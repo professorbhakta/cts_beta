@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-17 15:08 IST
-> **Session:** enrichment live tip 934fb02; PR #9
+> **Updated:** 2026-09-17 22:45 IST
+> **Session:** splash camera deferred (web+mobile); QR/odometer point-of-use only
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -22,6 +22,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 ## 1b. Live FE work
 
 - Daily trip report + edit end_km + odometer photo thumbs (prefer A; silent B) + **boarded[]** + enrichment: `lib/features/trip_report/`. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md). Dock tip: `934fb02`.
+- **Camera permissions:** never at splash (web no-op; mobile notifications only). Camera only at boarding QR / odometer capture (`boarding_scan_screen`, `odometer_camera_helper`). Trip report uses network images only.
 - D2D cream + other-batch red + board beeps — [lib/features/d2d/README.md](lib/features/d2d/README.md); WS live `batchId` — [API_CONTRACTS](docs/API_CONTRACTS.md).
 
 ## 2. Non-negotiables
