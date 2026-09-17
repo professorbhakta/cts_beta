@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-17 13:01 IST
-> **Session:** trip_report boarded[] on PR #9
+> **Updated:** 2026-09-17 15:08 IST
+> **Session:** enrichment live tip 934fb02 docs
 
 # PROMPT SCOPE — CTS
 
@@ -232,6 +232,7 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | When | Note |
 |------|------|
+| 2026-09-17 15:08 IST | Docs: enrichment live on professor-dock @ 934fb02 (name/mobile/boarded_count/driver_*). PR #9 → gb-f&d. |
 | 2026-09-17 13:01 IST | Trip report boarded[] parse + UI (name/mobile optional); docs tip 7bb35ae. Same PR #9 → gb-f&d. |
 | 2026-09-17 12:54 IST | Docs: A photo URLs on professor-dock @ 7bb35ae; FE keeps prefer-A + silent B fallback. PR #9 → gb-f&d. |
 | 2026-09-17 12:30 IST | Trip report odometer photo thumbs: parse start/end_photo_url; A-over-B URL; Bearer AuthenticatedNetworkImage; fullscreen close. PR → gb-f&d. |

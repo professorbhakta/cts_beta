@@ -1,12 +1,12 @@
 > **Doc:** docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md
-> **Updated:** 2026-09-17 13:01 IST
-> **Session:** trip_report boarded[] + photo A tip 7bb35ae
+> **Updated:** 2026-09-17 15:08 IST
+> **Session:** enrichment live on professor-dock tip 934fb02
 
 # Trip auto-close + daily report contract (snake_case)
 
 **Auth:** JWT Bearer. Roles: **ADMIN** | **SUPERVISOR** (FE also allows SUPER_ADMIN shell).
 
-**BE tip for lab smoke (photos):** `professor-dock` @ `7bb35ae` — legs emit additive `start_photo_url` / `end_photo_url` (**A**). Open-trip auto-close still from earlier tip; do not wait on `gb-dock` merge.
+**BE tip for lab smoke (photos + boarded + enrichment):** `professor-dock` @ `934fb02` — legs emit `start_photo_url` / `end_photo_url` (**A**), `boarded[]`, and enrichment (`boarded[].name`/`mobile`, `boarded_count`, `driver_name`, `driver_user_id`). Do not wait on `gb-dock` merge.
 
 ## Product locks
 
@@ -66,11 +66,11 @@ Each leg object (or `null` if absent):
 | `start_photo_url` | string\|null | **A (preferred):** auth download URL for start odo photo (Dock additive) |
 | `end_photo_url` | string\|null | **A (preferred):** auth download URL for end odo photo (Dock additive) |
 | `boarded` | array | Tip: list of boarded riders; `[]` if none. Each: `user_id`, `boarded_at` (ISO), `source` |
-| `boarded[].name` | string\|null | Optional enrichment (Dock PR #7) |
-| `boarded[].mobile` | string\|null | Optional enrichment (Dock PR #7) |
-| `boarded_count` | int\|null | Optional enrichment (Dock PR #7) |
-| `driver_name` | string\|null | Optional enrichment (Dock PR #7) |
-| `driver_user_id` | string\|null | Optional enrichment (Dock PR #7) |
+| `boarded[].name` | string\|null | **Live** on tip `934fb02` (null-safe when absent) |
+| `boarded[].mobile` | string\|null | **Live** on tip `934fb02` (null-safe when absent) |
+| `boarded_count` | int\|null | **Live** on tip `934fb02` (null-safe when absent) |
+| `driver_name` | string\|null | **Live** on tip `934fb02` (null-safe when absent) |
+| `driver_user_id` | string\|null | **Live** on tip `934fb02` (null-safe when absent) |
 
 FE also surfaces an **auto_closed** chip when `auto_closed=true`. Trip report UI lists boarded riders under each leg (name/mobile when present, else `user_id`; shows `boarded_at`).
 
@@ -78,7 +78,7 @@ FE also surfaces an **auto_closed** chip when `auto_closed=true`. Trip report UI
 
 | Path | Notes |
 |------|-------|
-| **A (primary)** | Prefer non-null `start_photo_url` / `end_photo_url` on each leg (on tip `7bb35ae`; landed via Dock PR #5) |
+| **A (primary)** | Prefer non-null `start_photo_url` / `end_photo_url` on each leg (on tip; photos since `7bb35ae`, current tip `934fb02`) |
 | **B (silent fallback)** | When A is null/empty: build `GET /d2d/odometer/photo/<batch_id>/<leg>/<kind>/` via `ApiUrl.odometerPhoto` (`leg`=`morning`\|`return`, `kind`=`start`\|`end`) — older-lab safety until every env has A |
 
 Photo GETs require `Authorization: Bearer <access>` (same session as REST). FE loads thumbnails with Bearer headers — not bare `Image.network` without auth. 404 / missing → quiet empty placeholder (no loud error).

@@ -1,6 +1,6 @@
 > **Doc:** docs/setup/DISCUSSION_STATUS.md
-> **Updated:** 2026-09-17 13:01 IST
-> **Session:** trip_report boarded[] UI + photo A; PR #9 → gb-f&d
+> **Updated:** 2026-09-17 15:08 IST
+> **Session:** enrichment live tip 934fb02; PR #9 → gb-f&d
 
 # Dock / CTS discussion status (single path)
 
@@ -14,8 +14,8 @@
 - Auto-close: `end_km = start_km`, mark **incomplete**, `endTime` + `isActive=false`, archive like End.
 - Admin + Supervisor may edit `end_km`; show status **edited**.
 - Daily trip report (mobile + web) so they can check the day.
-- **BE tip (lab smoke / photos + boarded):** `professor-dock` @ `7bb35ae` — trip_report legs include `start_photo_url` / `end_photo_url` (**A**) and **`boarded[]`** (`user_id`, `boarded_at`, `source`; `[]` if none). Enrichment (name/mobile/boarded_count/driver_*) optional via Dock PR #7. Do not wait on `gb-dock` merge.
-- **FE:** Provider module `lib/features/trip_report/` — daily report + edit_end_km + **odometer thumbs** (prefer A; silent B) + **boarded riders list** per leg. Contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass. PR → `gb-f&d`.
+- **BE tip (lab smoke / photos + boarded + enrichment):** `professor-dock` @ `934fb02` — trip_report legs include `start_photo_url` / `end_photo_url` (**A**), **`boarded[]`** (`user_id`, `boarded_at`, `source`; `[]` if none), and **enrichment live** (`boarded[].name`/`mobile`, `boarded_count`, `driver_name`, `driver_user_id`). Do not wait on `gb-dock` merge.
+- **FE:** Provider module `lib/features/trip_report/` — daily report + edit_end_km + **odometer thumbs** (prefer A; silent B) + **boarded riders list** per leg (uses enrichment when present). Contract [TRIP_AUTO_CLOSE_CONTRACT.md](./TRIP_AUTO_CLOSE_CONTRACT.md). No FCM/web UI this pass. PR → `gb-f&d`.
 
 ## Live now (code)
 | Piece | Branch / PR | Notes |
@@ -31,7 +31,7 @@
 | Lane | Role | Status |
 |------|------|--------|
 | `main` | VPS / release only | **Hold** Ã¢â‚¬â€ do not FF until fuller device smoke OK |
-| `professor-dock` | PC lab day tip | = tip `7bb35ae` (trip_report photo A URLs) |
+| `professor-dock` | PC lab day tip | = tip `934fb02` (trip_report photos A + boarded + enrichment) |
 | `gb-dock` | Cloud Cursor | align when asked |
 | `p-gb-merger` | Integrate desk Ã¢â€ â€™ later PR to main | align when asked |
 

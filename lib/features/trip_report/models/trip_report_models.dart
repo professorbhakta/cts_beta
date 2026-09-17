@@ -79,7 +79,7 @@ class TripReportBoardedRider {
   final String? boardedAt;
   final String? source;
 
-  /// Optional enrichment (Dock PR #7 — null-safe when absent).
+  /// Enrichment on tip `934fb02` — null-safe when absent.
   final String? name;
   final String? mobile;
 
@@ -153,13 +153,13 @@ class TripReportLeg {
   /// Boarded riders for this leg (`[]` when none). Tip: `{user_id, boarded_at, source}`.
   final List<TripReportBoardedRider> boarded;
 
-  /// Optional enrichment (Dock PR #7) — prefer over `boarded.length` when set.
+  /// Enrichment on tip `934fb02` — prefer over `boarded.length` when set.
   final int? boardedCount;
 
-  /// Optional enrichment (Dock PR #7).
+  /// Enrichment on tip `934fb02` — null-safe when absent.
   final String? driverName;
 
-  /// Optional enrichment (Dock PR #7).
+  /// Enrichment on tip `934fb02` — null-safe when absent.
   final String? driverUserId;
 
   int get effectiveBoardedCount => boardedCount ?? boarded.length;

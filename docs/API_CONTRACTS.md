@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-17 13:01 IST
-> **Session:** trip_report boarded[] + photo A tip 7bb35ae
+> **Updated:** 2026-09-17 15:08 IST
+> **Session:** enrichment live tip 934fb02
 
 # API Contracts — Backend ↔ Flutter
 
@@ -16,11 +16,11 @@ Wire contract (snake_case): [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRI
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Legs + close_kind + photo A URLs + `boarded[]` (`user_id`, `boarded_at`, `source`; enrichment name/mobile/count/driver optional) |
+| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Legs + close_kind + photo A URLs + `boarded[]` + enrichment (`name`/`mobile`/`boarded_count`/`driver_*`) live on tip `934fb02` |
 | `PATCH`/`POST /d2d/trip_report/edit_end_km/` | `ApiUrl.tripReportEditEndKmUrl` | Body `{batch_id, leg, end_km, date?}`. FE uses PATCH |
 | `GET /d2d/odometer/photo/<batch>/<leg>/<kind>/` | `ApiUrl.odometerPhoto` | Silent **B** when A is null (older-lab); Bearer auth |
 
-Lab smoke BE tip for **photos**: `professor-dock` @ `7bb35ae` (A fields on trip_report legs). Feature module: `lib/features/trip_report/`. Prefer A when non-null; else silent B. See [TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRIP_AUTO_CLOSE_CONTRACT.md).
+Lab smoke BE tip for **photos + boarded + enrichment**: `professor-dock` @ `934fb02`. Feature module: `lib/features/trip_report/`. Prefer A when non-null; else silent B. See [TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRIP_AUTO_CLOSE_CONTRACT.md).
 
 
 ### Client truth contract (P1)
@@ -393,7 +393,7 @@ Auth: JWT Bearer. Roles for report/edit: **ADMIN**, **SUPERVISOR**. Status boole
 
 | Method | Path | Notes |
 |--------|------|--------|
-| GET | `/d2d/trip_report/?date=&admin_code=` | Daily list; legs + `close_kind` + photo A URLs + `boarded[]`; optional enrichment name/mobile/boarded_count/driver_* |
+| GET | `/d2d/trip_report/?date=&admin_code=` | Daily list; legs + `close_kind` + photo A + `boarded[]` + enrichment live on tip `934fb02` |
 | PATCH/POST | `/d2d/trip_report/edit_end_km/` | Body `{batch_id, leg, end_km, date?}`; sets `edited`, clears `incomplete` |
 | GET | `/d2d/odometer/photo/<batch>/<leg>/<kind>/` | Silent B when A null; Bearer; `leg` morning\|return, `kind` start\|end |
 
