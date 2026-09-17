@@ -1,6 +1,6 @@
 ﻿> **Doc:** docs/README.md
-> **Updated:** 2026-09-08 15:18 IST
-> **Session:** + docs/setup (return QR UI prep)
+> **Updated:** 2026-09-12 16:00 IST
+> **Session:** Checklist under docs/; E2E thinned
 
 # CTS (c2s) — Documentation
 
@@ -14,16 +14,17 @@
 docs/
 ├── START_HERE.md
 ├── README.md
-├── LOCAL_DEV.md          ← Docker / LAN / backup (canonical stack)
+├── LOCAL_DEV.md          ← Docker / LAN / backup + d2d_log module map
 ├── GLOSSARY.md
 ├── INTEGRATION.md
-├── API_CONTRACTS.md      ← REST + WS wire
-├── backend/README.md     ← thin pointers only
-├── features/
-├── next-plan/
-├── setup/                ← UI prep notes (e.g. return QR — await Dock)
-├── client_req/           ← QR + KM (log, 05 story, STEP 8 smoke)
-├── FLOWS_BY_ROLE.md      ← operator click-paths incl. QR + KM (no guides/)
+├── API_CONTRACTS.md      ← REST + WS wire + schema inventory
+├── features/             ← thin E2E pointers only (D2D + return)
+├── next-plan/            ← return allocation roadmap
+├── setup/                ← JWT / bootstrap / return QR drafts
+├── FE_PRODUCTION_INSPECTION_CHECKLIST.md
+├── FLOWS_BY_ROLE.md      ← journeys + D1–D10 + smoke short
+├── STEP8_DEVICE_SMOKE_CHECKLIST.txt
+├── LAB_SMOKE_ISSUES.txt
 ├── UI_ARCHITECTURE.md
 ├── CODE_MAP.md
 ├── ARCHITECTURE.md
@@ -43,10 +44,10 @@ docs/
 | Role | Start here |
 |------|------------|
 | Anyone new | [START_HERE.md](./START_HERE.md) |
-| Product / QA / operators | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) (QR/KM morning + roles) |
+| Product / QA / operators | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) (QR/KM + D1–D10) |
 | Developer | [CODE_MAP.md](./CODE_MAP.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | Designer | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) + [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) |
-| Agent / client pack | [DISCUSSION_LOG](./client_req/DISCUSSION_LOG.md) → [05](./client_req/05-open-decisions.md) → FLOWS → [07](./client_req/07-NEXT-AGENT-PROMPT.md) |
+| Agent / STEP 8 | [DISCUSSION_STATUS](./setup/DISCUSSION_STATUS.md) → FLOWS → [STEP8 checklist](./STEP8_DEVICE_SMOKE_CHECKLIST.txt) |
 
 ---
 
@@ -57,7 +58,7 @@ docs/
 | Document | Description |
 |----------|-------------|
 | [START_HERE.md](./START_HERE.md) | Entry paths and 1-minute overview |
-| [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | Click-paths by role + morning QR/KM + smoke table |
+| [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | Click-paths + product locks + smoke short |
 | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Navigation matrix, controls, ASCII layouts |
 | [CODE_MAP.md](./CODE_MAP.md) | `lib/` folder map |
 
@@ -69,7 +70,6 @@ docs/
 | [LIB_STRUCTURE.md](./LIB_STRUCTURE.md) | Published |
 | [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md) | Published |
 | [FEATURES.md](./FEATURES.md) | Published |
-| [client_req/README.md](./client_req/README.md) | QR + KM — UI shipped; STEP 8 smoke pending |
 
 ### Operations
 
@@ -83,8 +83,9 @@ docs/
 | [LOCAL_DEV.md](./LOCAL_DEV.md) | Canonical Docker/stack |
 | [GLOSSARY.md](./GLOSSARY.md) | Published |
 | [INTEGRATION.md](./INTEGRATION.md) | Optional overview |
-| [backend/README.md](./backend/README.md) | Pointers only |
-| [features/](./features/) | D2D + return E2E flows |
+| [setup/](./setup/) | JWT · bootstrap · return QR drafts |
+| [features/](./features/) | Thin E2E pointers → FLOWS + contracts + READMEs |
+| [FE_PRODUCTION_INSPECTION_CHECKLIST.md](./FE_PRODUCTION_INSPECTION_CHECKLIST.md) | FE prod inspection (P8 on go) |
 | [next-plan/](./next-plan/) | Return allocation roadmap |
 
 ---

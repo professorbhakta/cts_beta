@@ -1,6 +1,6 @@
 > **Doc:** docs/START_HERE.md
-> **Updated:** 2026-08-25 22:05 IST
-> **Session:** FLOWS owns QR/KM journeys
+> **Updated:** 2026-09-12 15:45 IST
+> **Session:** Dropped client_req paths
 
 # Start here
 
@@ -12,11 +12,11 @@
 
 | I am… | Read first | Then | See layouts |
 |--------|------------|------|-------------|
-| **Agent / continuing chat** | [PROJECT_BRAIN.md](../PROJECT_BRAIN.md) → [PROMPT_SCOPE.md](../PROMPT_SCOPE.md) | [client_req/DISCUSSION_LOG](./client_req/DISCUSSION_LOG.md) · [FLOWS_BY_ROLE](./FLOWS_BY_ROLE.md) | [TESTING.md](./TESTING.md) + [LOCAL_DEV.md](./LOCAL_DEV.md) |
-| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) (QR/KM morning) | [client_req/05](./client_req/05-open-decisions.md) · [FEATURES.md](./FEATURES.md) | Lab accounts in LOCAL_DEV |
+| **Agent / continuing chat** | [PROJECT_BRAIN.md](../PROJECT_BRAIN.md) → [PROMPT_SCOPE.md](../PROMPT_SCOPE.md) | [DISCUSSION_STATUS](./setup/DISCUSSION_STATUS.md) · [FLOWS_BY_ROLE](./FLOWS_BY_ROLE.md) | [TESTING.md](./TESTING.md) + [LOCAL_DEV.md](./LOCAL_DEV.md) |
+| **Product / PM** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) (QR/KM + D1–D10) | [FEATURES.md](./FEATURES.md) | Lab accounts in LOCAL_DEV |
 | **Designer** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Live app |
 | **New developer** | [CODE_MAP.md](./CODE_MAP.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) → [FEATURES.md](./FEATURES.md) | `flutter run` |
-| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [UI_ARCHITECTURE.md](./UI_ARCHITECTURE.md) | Device smoke |
+| **QA** | [FLOWS_BY_ROLE.md](./FLOWS_BY_ROLE.md) · [TESTING.md](./TESTING.md) | [STEP8 checklist](./STEP8_DEVICE_SMOKE_CHECKLIST.txt) | Device smoke |
 
 Full index: [README.md](./README.md)
 
@@ -26,9 +26,9 @@ Full index: [README.md](./README.md)
 |------|------|
 | **P1 Architecture** | ARCHITECTURE · ROUTING_AND_AUTH · FEATURES |
 | **P2 Operations** | OFFLINE_AND_SYNC · BUILD_AND_RELEASE · TESTING · API_AND_ENV · LOCAL_DEV · API_CONTRACTS |
-| **P3 Journeys** | FLOWS_BY_ROLE (incl. QR/KM) · UI_ARCHITECTURE |
+| **P3 Journeys** | FLOWS_BY_ROLE (incl. QR/KM + D1–D10) · UI_ARCHITECTURE |
 
-**Owners:** LOCAL_DEV = Docker/LAN · API_CONTRACTS = wire · d2d/batches READMEs = feature behavior · FLOWS = operator paths · 05 = product story/locks · DISCUSSION_LOG = handoff pointer · 07 = smoke script. Do not recreate `backend/01–04` or `guides/`.
+**Owners:** LOCAL_DEV = Docker/LAN · API_CONTRACTS = wire · d2d/batches READMEs = feature behavior · FLOWS = operator paths + locks · DISCUSSION_STATUS = handoff · STEP8 checklist = smoke. Do not recreate `backend/` or `client_req/`.
 
 ---
 

@@ -1,0 +1,59 @@
+> **Doc:** docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt
+> **Updated:** 2026-09-12 16:00 IST
+> **Session:** Checklist path → docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md
+================================================================================
+COPY FROM HERE → paste as new chat START (P8 device gate)
+================================================================================
+
+@PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+@CHAT_PROMPTS.txt
+@docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md
+@docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt
+@docs/TESTING.md
+@docs/LOCAL_DEV.md
+@docs/FLOWS_BY_ROLE.md
+@docs/API_CONTRACTS.md
+@docs/BUILD_AND_RELEASE.md
+
+Task: **Close Phase 8 (device use cases) to PASS — only after user says go and BE is up.**
+You are Main Agent. Stay on FE `D:\cts_beta` **professor-cts** only.
+
+Prior session (2026-09-10 ~23:05): P7 platform gate **PASS**. FIND-012 manifests cleaned;
+FIND-018 FCM deferred (accepted). OEM battery note in BUILD_AND_RELEASE + d2d README.
+Analyze 0 errors; **169** tests green.
+
+PRODUCT LOCK (do not re-open): organizationId; cab.km; username+mobileNumber.
+
+NON-NEGOTIABLES: Provider · go_router · features screens/providers/models/repositories ·
+no new .md/.txt · flutter analyze + flutter test after code · commit/push only if asked ·
+device smoke needs human on emulator + phone (see TESTING § Pre-push).
+
+================================================================================
+P8 CHECKPOINTS (run 8A → 8B → 8C → 8D → 8E in order)
+================================================================================
+
+  8A  Auth UC1–UC3 (sign-in / cold session / drawer allow-list)
+  8B  Admin-like UC4–UC8 (+ supervisor tile rule 8B.9)
+  8C  Driver UC9–UC11 (+ multi-op 8C.5; OEM/wakelock live trip)
+  8D  Rider UC12–UC15 (Track Cab allow-list; intent chips)
+  8E  Cross-cut: cutoff messaging · PTR catalog · resume mid-D2D · both-device smoke last
+
+Carry-forward for device:
+  - FE-7.11 OEM battery on Xiaomi/Oppo/Vivo during live D2D
+  - FE-8E.3 proves FE-7.7 lifecycle resume
+  - FE-8C.2 camera + QR + KM photo
+
+OUT OF SCOPE: P9–P11 until P8 gate PASS; STEP 8 client-pack smoke is related but
+owned by 07-NEXT-AGENT-PROMPT — align journeys, do not duplicate unless user asks.
+full appManager fold, full Selector/i18n, Q-platform-lean entity_cache prune.
+
+DONE WHEN:
+  P8 gate **PASS** (every ID [x] or evidenced waive in §G);
+  analyze 0 errors + tests green;
+  CONTINUE prompt rewritten for P9 next;
+  short Inspector report.
+
+================================================================================
+END COPY
+================================================================================

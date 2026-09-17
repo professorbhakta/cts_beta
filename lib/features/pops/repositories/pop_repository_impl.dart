@@ -3,6 +3,8 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/api/base_api_services.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_list_source.dart';
+import 'package:cts/features/admin_bootstrap/mappers/admin_bootstrap_list_mapper.dart';
 import 'package:cts/features/pops/repositories/pop_repository.dart';
 import 'package:cts/models/pop_model.dart';
 
@@ -13,31 +15,11 @@ class PopRepositoryImpl implements PopRepository {
 
   @override
   Future<ApiResult<List<PickUpPointModel>>> getPops() async {
-    try {
-      final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
-      final response = await _apiService.getApi(
-        "${ApiUrl.adminPickUpPointUrl}$adminCode",
-      );
-
-      if (response is List<dynamic>) {
-        final pops = response
-            .map(
-              (json) =>
-                  PickUpPointModel.fromJson(Map<String, dynamic>.from(json)),
-            )
-            .toList();
-        return ApiResult.success(pops);
-      } else {
-        return ApiResult.failure(
-          ApiFailure(
-            type: ApiFailureType.parsing,
-            message: 'Invalid response format',
-          ),
-        );
-      }
-    } catch (e) {
-      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    final luggage = await AdminBootstrapListSource.ensureLuggage();
+    if (luggage != null) {
+      return ApiResult.success(AdminBootstrapListMapper.pops(luggage));
     }
+    return ApiResult.failure(AdminBootstrapListSource.catalogUnavailableFailure());
   }
 
   @override
@@ -52,6 +34,7 @@ class PopRepositoryImpl implements PopRepository {
       );
 
       if (response != null && response.toString() == 'PICK UP POINT CREATED') {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
 
@@ -76,6 +59,7 @@ class PopRepositoryImpl implements PopRepository {
       );
 
       if (response != null && response.toString() == 'PICK UP POINT UPDATED') {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
 
@@ -97,6 +81,7 @@ class PopRepositoryImpl implements PopRepository {
 
       if (response != null &&
           response.toString().toUpperCase().contains('DELETED')) {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
 

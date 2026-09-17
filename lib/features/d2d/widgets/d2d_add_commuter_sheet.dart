@@ -12,8 +12,8 @@ import 'package:provider/provider.dart';
 
 /// Bottom sheet for admin to manually add commuters to the live D2D list.
 ///
-/// Loads all commuters for the logged-in admin via
-/// `GET user/admin/commuter/{adminCode}` (same as the main Commuters screen).
+/// Loads org commuters from admin-bootstrap luggage
+/// (`CommuterRepository.getCommuters` → `ensureLuggage`), same as Commuters screen.
 class D2dAddCommuterSheet extends StatefulWidget {
   const D2dAddCommuterSheet({
     super.key,

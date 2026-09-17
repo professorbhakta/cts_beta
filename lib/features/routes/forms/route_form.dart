@@ -36,7 +36,7 @@ class _RouteFormState extends State<RouteForm> {
     final scheme = theme.colorScheme;
 
     return PopScope(
-      canPop: true,
+      canPop: !_isSubmitting,
       onPopInvokedWithResult: (bool didPop, bool? result) {
         if (didPop) {
           _dataProvider.fetchRoutes();
@@ -112,6 +112,7 @@ class _RouteFormState extends State<RouteForm> {
                       ),
                     ),
                     style: theme.textTheme.bodyLarge,
+                    textInputAction: TextInputAction.done,
                     validator: (value) => Validators.routeName(value),
                   ),
                   const SizedBox(height: 32),

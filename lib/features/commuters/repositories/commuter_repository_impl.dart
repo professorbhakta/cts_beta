@@ -4,6 +4,8 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_list_source.dart';
+import 'package:cts/features/admin_bootstrap/mappers/admin_bootstrap_list_mapper.dart';
 import 'package:cts/features/commuters/repositories/commuter_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
 import 'package:cts/models/user_model.dart';
@@ -30,34 +32,11 @@ class CommuterRepositoryImpl implements CommuterRepository {
 
   @override
   Future<ApiResult<List<CommuterModel>>> getCommuters() async {
-    try {
-      final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
-      if (adminCode.isEmpty || adminCode == '0') {
-        return ApiResult.failure(
-          ApiExceptionHandler.handle(
-            'Admin org code missing. Sign out and sign in again.',
-          ),
-        );
-      }
-      final response = await _apiService.getApi(
-        "${ApiUrl.adminCommuterUrl}$adminCode",
-      );
-
-      if (response is List<dynamic>) {
-        final commuters = response
-            .map(
-              (json) => CommuterModel.fromJson(Map<String, dynamic>.from(json)),
-            )
-            .toList();
-        return ApiResult.success(commuters);
-      } else {
-        return ApiResult.failure(
-          ApiExceptionHandler.handle('Invalid response format'),
-        );
-      }
-    } catch (e) {
-      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    final luggage = await AdminBootstrapListSource.ensureLuggage();
+    if (luggage != null) {
+      return ApiResult.success(AdminBootstrapListMapper.commuters(luggage));
     }
+    return ApiResult.failure(AdminBootstrapListSource.catalogUnavailableFailure());
   }
 
   @override
@@ -111,6 +90,7 @@ class CommuterRepositoryImpl implements CommuterRepository {
       final data = {'isComing': isComing};
 
       await _apiService.patchApi(userId, data, ApiUrl.commuterUrl);
+      // Commuter self-toggle — do not wipe admin catalog luggage.
       return ApiResult.success(null);
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
@@ -144,6 +124,7 @@ class CommuterRepositoryImpl implements CommuterRepository {
           ),
         );
       }
+      AdminBootstrapListSource.refreshInBackground();
       return ApiResult.success(null);
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
@@ -182,6 +163,7 @@ class CommuterRepositoryImpl implements CommuterRepository {
       final updated = response is Map
           ? int.tryParse(response['updated']?.toString() ?? '') ?? 0
           : 0;
+      AdminBootstrapListSource.refreshInBackground();
       return ApiResult.success(updated);
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
@@ -193,6 +175,7 @@ class CommuterRepositoryImpl implements CommuterRepository {
     try {
       final response = await _apiService.postApi(data, ApiUrl.cndUserUrl);
       if (response is Map<String, dynamic>) {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       } else {
         return ApiResult.failure(
@@ -226,6 +209,7 @@ class CommuterRepositoryImpl implements CommuterRepository {
       );
 
       if (commuterUserResponse != null && commuterUpdate != null) {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
       return ApiResult.failure(
@@ -245,6 +229,7 @@ class CommuterRepositoryImpl implements CommuterRepository {
     try {
       final response = await _apiService.deleteApi(userId, ApiUrl.userUrl);
       if (response != null && response.toString().isNotEmpty) {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
       return ApiResult.failure(

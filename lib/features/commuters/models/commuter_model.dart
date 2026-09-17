@@ -6,7 +6,13 @@ import 'package:flutter/foundation.dart';
 
 class CommuterModel {
   BatchModel? batchId;
+  /// Legacy free-text college label. Prefer [organizationId] + org table.
+  @Deprecated('Use organizationId; Organization.orgName for display')
   String? collegeName;
+  /// Organization FK (string id). Source of truth for “which college/org”.
+  String? organizationId;
+  /// Resolved display name from bootstrap `organizations[]` when available.
+  String? organizationName;
   int? id;
   UserModel? userId;
   PickUpPointModel? popId;
@@ -14,25 +20,40 @@ class CommuterModel {
   bool? isComing;
   AdminCode? adminCode;
 
-  CommuterModel(
-      {this.batchId,
-        this.collegeName,
-        this.id,
-        this.userId,
-        this.popId,
-        this.cabId,
-        this.isComing,
-        this.adminCode});
+  CommuterModel({
+    this.batchId,
+    this.collegeName,
+    this.organizationId,
+    this.organizationName,
+    this.id,
+    this.userId,
+    this.popId,
+    this.cabId,
+    this.isComing,
+    this.adminCode,
+  });
+
+  /// Display label: org name, else legacy collegeName.
+  String get orgOrCollegeLabel =>
+      (organizationName?.trim().isNotEmpty == true)
+          ? organizationName!.trim()
+          : (collegeName?.trim() ?? '');
 
   CommuterModel.fromJson(Map<String, dynamic> json) {
     batchId =
-    json['batchId'] != null ? BatchModel.fromJson(json['batchId']) : null;
-    collegeName = json['collegeName'];
+        json['batchId'] != null ? BatchModel.fromJson(json['batchId']) : null;
+    collegeName = json['collegeName']?.toString();
+    organizationId = (json['organizationId'] ?? json['organization_id'])
+        ?.toString();
+    organizationName = json['organizationName']?.toString() ??
+        json['orgName']?.toString();
     id = json['id'];
     userId =
-    json['userId'] != null ? UserModel.fromJson(json['userId']) : null;
-    popId = json['popId'] != null ? PickUpPointModel.fromJson(json['popId']) : null;
-    cabId = json['cabId'] != null ? CabModel.fromJson(json['cabId']) : null;
+        json['userId'] != null ? UserModel.fromJson(json['userId']) : null;
+    popId =
+        json['popId'] != null ? PickUpPointModel.fromJson(json['popId']) : null;
+    cabId =
+        json['cabId'] != null ? CabModel.fromJson(json['cabId']) : null;
     isComing = _parseBool(json['isComing']);
     adminCode = json['adminCode'] != null
         ? AdminCode.fromJson(json['adminCode'])
@@ -44,7 +65,15 @@ class CommuterModel {
     if (batchId != null) {
       data['batchId'] = batchId!.toJson();
     }
-    data['collegeName'] = collegeName;
+    if (collegeName != null) {
+      data['collegeName'] = collegeName;
+    }
+    if (organizationId != null) {
+      data['organizationId'] = organizationId;
+    }
+    if (organizationName != null) {
+      data['organizationName'] = organizationName;
+    }
     data['id'] = id;
     if (userId != null) {
       data['userId'] = userId!.toJson();

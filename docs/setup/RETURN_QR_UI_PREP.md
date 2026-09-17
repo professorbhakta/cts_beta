@@ -1,11 +1,11 @@
 > **Doc:** docs/setup/RETURN_QR_UI_PREP.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 wired — GET boarding_qr?trip=return + POST boarding_scan
+> **Updated:** 2026-09-12 15:55 IST
+> **Session:** Absorbed CLIENT_RETURN_QR_NOTE locks; note retired
 
 # Return-trip QR boarding — UI prep → Phase 2 wired
 
 **Status:** Flutter **Phase 2 wired** (Dock / BHAKTA green-flag).  
-**Product lock:** evening / return trip uses the **same QR boarding UX as morning**.  
+**Product lock (BHAKTA):** evening / return trip uses the **same QR boarding UX as morning** — only that ask; no invented extra return features.  
 **Contract:** [RETURN_TRIP_API_GAP.md](./RETURN_TRIP_API_GAP.md) · morning parsers in `boarding_models.dart`.
 
 ## Endpoints (wired)
@@ -14,21 +14,32 @@
 |------|------|
 | Driver mint return QR | `GET /d2d/boarding_qr/<batchId>/?trip=return` → token + `return_trip_id` |
 | Morning mint | `GET /d2d/boarding_qr/<batchId>/` (unchanged) |
-| Commuter scan | `POST /d2d/boarding_scan/` body `{token}` — token carries leg |
+| Commuter scan | `POST /d2d/boarding_scan/` body `{token}` — token carries leg; **boards only** (return waiting = `add_commuter` `join_waiting`) |
 | Confirm (existing) | `POST /d2d/return_batch/add_commuter` |
 | End (existing) | BE → `return_board_archive`; trip keeps archive ID only |
 
 Flutter: `BoardingQrPanel(trip: ApiUrl.boardingTripReturn)` via `ReturnBoardingQrPanel`; scan via `ReturnBoardingScanScreen` → shared `BoardingScanScreen` / `boardingScan`.
 
-## Schema locks
+**FE names for agents (Dart ← wire):**
+| Dart | Wire | Meaning |
+|------|------|---------|
+| `returnTripLogId` | `return_trip_id` | PK of BE `return_trip_log` / ReturnTripLog |
+| `tripLeg` | `trip` | `morning` \| `return` |
+| `isReturnLeg` | (derived) | true when return leg / id present |
+
+Stored on: `BoardingQrPayload`, `BoardingScanResult`, `OdometerSnapshot`, `ReturnTripLogRef` / `RclistRef`.
+
+## Schema locks (client + dock)
 
 | Layer | Direction |
 |-------|-----------|
 | Morning | `DTODLOG` + **CList** morning-only |
-| Return | **Return trip log** + **RCList** (user-ID list on trip row) |
+| Return | Full **return trip log** (DTODLOG-like shell) + **RCList** = user-ID list on trip row (not one row per rider) |
+| Truth | Live = Redis + sockets + list on trip row — **not** Redis-only boarding truth |
 | Cleanup | No FE use of morning DTODLOG `return_*` |
-| **On End** | BE archives to history; trip keeps archive ID only |
+| **On End** | BE archives list to history; trip keeps archive ID only |
 | **FE** | Live UI = **ID list only** — **do not build archive UI** |
+| Race | Concurrent QR list writes OK for small audience; no extra tables for now |
 
 ## Screens / routes
 

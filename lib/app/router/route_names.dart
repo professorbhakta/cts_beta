@@ -52,10 +52,8 @@ class RouteName {
   static const String commuterListScreen = '/commuterListScreen';
   static const String commuterScreen = '/commuterScreen';
 
-  // Offline temp module
-  static const String offlineTempHome = '/offlineTempHome';
-  static const String offlineBatchCommuters = '/offlineBatchCommuters';
-  static const String offlineRoutePops = '/offlineRoutePops';
+  /// Daily trip report (ADMIN / SUPER_ADMIN / SUPERVISOR).
+  static const String tripReportScreen = '/tripReportScreen';
 
   /// Public routes (no login required).
   static const Set<String> public = {
@@ -91,6 +89,7 @@ class RouteName {
     commuterScreen,
     commuterForm,
     d2dChannel,
+    tripReportScreen,
   };
 
   /// Driver role home + driver D2D log + return list + return boarding QR show.
@@ -112,8 +111,9 @@ class RouteName {
   static String homeForRole(String? userType) {
     switch (userType) {
       case 'ADMIN':
+      case 'SUPER_ADMIN':
       case 'SUPERVISOR':
-        // SUPERVISOR uses the shared admin shell (filtered capabilities).
+        // SUPER_ADMIN / ADMIN / SUPERVISOR share admin shell (capabilities differ).
         return adminHomeScreen;
       case 'STAFF':
       case 'COMMUTER':
@@ -127,10 +127,12 @@ class RouteName {
   }
 
   /// Roles that land on / may open the admin shell.
-  /// ADMIN = full services; SUPERVISOR = allow-listed services only.
+  /// ADMIN + SUPER_ADMIN = full services; SUPERVISOR = allow-listed only.
   /// STAFF is not admin-like (commuter home).
   static bool isAdminLike(String? userType) =>
-      userType == 'ADMIN' || userType == 'SUPERVISOR';
+      userType == 'ADMIN' ||
+      userType == 'SUPER_ADMIN' ||
+      userType == 'SUPERVISOR';
 
   /// Roles that use commuter home + commuter-only prefixes.
   static bool isCommuterLike(String? userType) =>

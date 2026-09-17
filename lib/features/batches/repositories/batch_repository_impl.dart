@@ -3,6 +3,8 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_list_source.dart';
+import 'package:cts/features/admin_bootstrap/mappers/admin_bootstrap_list_mapper.dart';
 import 'package:cts/features/batches/models/batch_model.dart';
 import 'package:cts/features/batches/repositories/batch_repository.dart';
 
@@ -13,28 +15,11 @@ class BatchRepositoryImpl implements BatchRepository {
 
   @override
   Future<ApiResult<List<BatchModel>>> getBatches() async {
-    try {
-      final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
-      final response = await _apiService.getApi(
-        "${ApiUrl.adminBatchUrl}$adminCode",
-      );
-
-      if (response is List<dynamic>) {
-        final batches = response
-            .map((json) => BatchModel.fromJson(Map<String, dynamic>.from(json)))
-            .toList();
-        return ApiResult.success(batches);
-      } else {
-        return ApiResult.failure(
-          ApiFailure(
-            type: ApiFailureType.parsing,
-            message: 'Invalid response format',
-          ),
-        );
-      }
-    } catch (e) {
-      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    final luggage = await AdminBootstrapListSource.ensureLuggage();
+    if (luggage != null) {
+      return ApiResult.success(AdminBootstrapListMapper.batches(luggage));
     }
+    return ApiResult.failure(AdminBootstrapListSource.catalogUnavailableFailure());
   }
 
   @override
@@ -45,6 +30,7 @@ class BatchRepositoryImpl implements BatchRepository {
       final response = await _apiService.postApi(requestData, ApiUrl.batchUrl);
 
       if (response != null && response.toString() == 'BATCH CREATED') {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
 
@@ -65,6 +51,7 @@ class BatchRepositoryImpl implements BatchRepository {
       final response = await _apiService.patchApi(id, data, ApiUrl.batchUrl);
 
       if (response != null && response.toString() == 'BATCH UPDATED') {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
 
@@ -86,6 +73,7 @@ class BatchRepositoryImpl implements BatchRepository {
 
       if (response != null &&
           response.toString().toUpperCase().contains('DELETED')) {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
 

@@ -1,6 +1,6 @@
 > **Doc:** docs/LIB_STRUCTURE.md
-> **Updated:** 2026-08-29 10:02 IST
-> **Session:** Target tree aligned to disk; folder law only
+> **Updated:** 2026-09-10 19:40 IST
+> **Session:** offline_temp prototype removed
 
 # Library structure (human-friendly)
 
@@ -20,11 +20,16 @@ The repo previously had **two structures at once** — root stubs re-exporting i
 lib/data/ + lib/domain/     → shared session/auth (root-level contracts + impl)
 lib/appManager/             → session, snackbar, config (target: fold into app/ over time)
 lib/core/network/           → one file (`network_action_guard.dart`); HTTP lives in lib/api/
-lib/offline_temp/           → prototype offline UI (pending merge or isolation)
 ```
 
 No re-export stub files remain. **New product code** goes only under `features/<name>/`.
 
+### Freeze rule (FE-3.11)
+
+**Do not add new feature → `appManager/` product edges.** New screens/providers/repositories
+must not import `appManager` for business logic, colors (use `theme/`), or helpers that
+belong in `features/` / `core/` / `widgets/`. Existing imports stay until Phase C fold;
+exceptions require an explicit ticket — not silent new coupling.
 ---
 
 ## Target layout (recommended)
@@ -63,7 +68,6 @@ lib/
 ├── data/                   # Legacy shared: session/auth impl + local SQLite (root only)
 ├── domain/                 # Legacy shared: auth/session contracts + use cases (root only)
 ├── appManager/             # Legacy session, snackbar, config — migrate to app/ over time
-├── offline_temp/           # Offline prototype (pending merge or isolation)
 │
 └── features/               # Business modules — main place for product code
     ├── auth/
@@ -184,7 +188,7 @@ Feature folders on disk use `screens/`, `forms/`, `providers/`, `models/`, `repo
 3. HTTP under `lib/api/` — **done**; lone `core/network/network_action_guard.dart` may move to `api/` or `core/` root later.
 4. Delete stub folders — **done** (no re-export stubs; root `controllers/` gone; `lib/screens/` is error + no-internet only; splash lives in `features/splash/`).
 
-**As of 2026-08-29:** Phase B complete. Phase C items (2) and (3) guard-file tidy still open. `offline_temp/` drawer-scoped; unused `offline_module.dart` barrel removed.
+**As of 2026-09-10:** Phase B complete. Phase C items (2) and (3) guard-file tidy still open. `offline_temp/` **removed** (prod batch sync via `OfflineFirstBatchRepository` remains).
 
 ### Phase D — Naming cleanup
 
@@ -196,7 +200,7 @@ Feature folders on disk use `screens/`, `forms/`, `providers/`, `models/`, `repo
 
 ### Phase E — Offline
 
-Either merge `offline_temp/` into feature repositories or isolate it behind a single `features/offline/` module with the same internal layout.
+Production offline is **batches only** (`OfflineFirstBatchRepository` + `SyncManager`). See [OFFLINE_AND_SYNC.md](./OFFLINE_AND_SYNC.md). The old `offline_temp/` prototype was deleted.
 
 ---
 

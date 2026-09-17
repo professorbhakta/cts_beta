@@ -21,6 +21,7 @@ void main() {
       expect(allowed, contains(AdminService.driver));
       expect(allowed, contains(AdminService.d2d));
       expect(allowed, contains(AdminService.commuter));
+      expect(allowed, contains(AdminService.tripReport));
     });
 
     test('STAFF and DRIVER get no admin services', () {
@@ -59,6 +60,10 @@ void main() {
         AdminCapabilities.serviceForLocation(RouteName.commuterScreen),
         AdminService.commuter,
       );
+      expect(
+        AdminCapabilities.serviceForLocation(RouteName.tripReportScreen),
+        AdminService.tripReport,
+      );
     });
 
     test('drawer catalog filters to allow-listed services', () {
@@ -72,6 +77,7 @@ void main() {
           AdminService.cab,
           AdminService.driver,
           AdminService.route,
+          AdminService.tripReport,
         },
       );
     });

@@ -1,12 +1,12 @@
 > **Doc:** lib/features/batches/README.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
+> **Updated:** 2026-09-12 16:00 IST
+> **Session:** Primary journeys → FLOWS; E2E thinned
 
 # Batches Feature — CRUD, Running, Return REST
 
 Feature owner for batch management, running batches, and evening return trips (REST only — no WebSocket).
 
-**Wire contracts:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **Lab/Docker:** [docs/LOCAL_DEV.md](../../../docs/LOCAL_DEV.md) · **E2E:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
+**Wire contracts:** [docs/API_CONTRACTS.md](../../../docs/API_CONTRACTS.md) · **Lab/Docker:** [docs/LOCAL_DEV.md](../../../docs/LOCAL_DEV.md) · **Journeys:** [docs/FLOWS_BY_ROLE.md](../../../docs/FLOWS_BY_ROLE.md) · **E2E pointer:** [docs/features/RETURN_BATCH_E2E.md](../../../docs/features/RETURN_BATCH_E2E.md)
 
 **Backend path:** `cts-docker/django/d2d_log/return_batch_views.py` + `return_batch_utils.py`.
 
@@ -34,9 +34,9 @@ Morning STOP does **not** empty the evening Available pool. Return `view/` = `ho
 | Return picker card | `widgets/return_batch_picker_card.dart` — fixed-height tile, no nested scroll |
 | Return boarding QR panel | `widgets/return_boarding_qr_panel.dart` — `BoardingQrPanel(trip: return)` → `?trip=return` |
 | Return boarding QR screen | `screens/return_boarding_qr_screen.dart` — driver/admin-like show; cream board |
-| Return boarding scan screen | `screens/return_boarding_scan_screen.dart` — STAFF/COMMUTER → shared `boarding_scan` |
+| Return boarding scan screen | `screens/return_boarding_scan_screen.dart` — STAFF/COMMUTER → shared `boarding_scan` (`allowJoinWaiting: false`; return wait via `joinReturnWaiting`) |
 | Return boarding role policy | `models/return_boarding_role_policy.dart` — show vs scan gates |
-| Return trip log / RCList refs | `models/return_trip_log_placeholders.dart` — batch + optional `return_trip_id`; no archive UI |
+| Return trip log / RCList refs | `models/return_trip_log_placeholders.dart` — `returnTripLogId` ← wire `return_trip_id`; no archive UI |
 
 | Return commuter UI | `../commuters/screens/return_batch_commuter_screen.dart` |
 | Return provider | `providers/return_batch_provider.dart` |

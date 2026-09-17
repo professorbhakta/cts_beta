@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('D2dChannelRolePolicy', () {
-    test('admin can connect, add, remove from queue, but not stop or confirm', () {
+    test('admin can connect, add, remove, confirm, but not stop', () {
       expect(D2dChannelRolePolicy.can('ADMIN', D2dChannelAction.connect), isTrue);
       expect(D2dChannelRolePolicy.can('ADMIN', D2dChannelAction.disconnect), isTrue);
       expect(D2dChannelRolePolicy.can('ADMIN', D2dChannelAction.addCommuter), isTrue);
@@ -13,13 +13,13 @@ void main() {
       );
       expect(
         D2dChannelRolePolicy.can('ADMIN', D2dChannelAction.confirmPickup),
-        isFalse,
+        isTrue,
       );
       expect(D2dChannelRolePolicy.can('ADMIN', D2dChannelAction.stopTrip), isFalse);
     });
 
-    test('driver can add, remove, confirm, and stop', () {
-      expect(D2dChannelRolePolicy.can('DRIVER', D2dChannelAction.addCommuter), isTrue);
+    test('driver cannot add; can remove, confirm, and stop', () {
+      expect(D2dChannelRolePolicy.can('DRIVER', D2dChannelAction.addCommuter), isFalse);
       expect(
         D2dChannelRolePolicy.can('DRIVER', D2dChannelAction.removeFromQueue),
         isTrue,
@@ -42,7 +42,7 @@ void main() {
       );
     });
 
-    test('supervisor can connect, add, remove from queue, but not stop or confirm', () {
+    test('supervisor can connect, add, remove, confirm, but not stop', () {
       expect(
         D2dChannelRolePolicy.can('SUPERVISOR', D2dChannelAction.connect),
         isTrue,
@@ -56,7 +56,34 @@ void main() {
         isTrue,
       );
       expect(
+        D2dChannelRolePolicy.can('SUPERVISOR', D2dChannelAction.confirmPickup),
+        isTrue,
+      );
+      expect(
         D2dChannelRolePolicy.can('SUPERVISOR', D2dChannelAction.stopTrip),
+        isFalse,
+      );
+    });
+
+    test('super_admin monitors: connect/board/remove, no add, no stop', () {
+      expect(
+        D2dChannelRolePolicy.can('SUPER_ADMIN', D2dChannelAction.connect),
+        isTrue,
+      );
+      expect(
+        D2dChannelRolePolicy.can('SUPER_ADMIN', D2dChannelAction.addCommuter),
+        isFalse,
+      );
+      expect(
+        D2dChannelRolePolicy.can('SUPER_ADMIN', D2dChannelAction.confirmPickup),
+        isTrue,
+      );
+      expect(
+        D2dChannelRolePolicy.can('SUPER_ADMIN', D2dChannelAction.removeFromQueue),
+        isTrue,
+      );
+      expect(
+        D2dChannelRolePolicy.can('SUPER_ADMIN', D2dChannelAction.stopTrip),
         isFalse,
       );
     });
@@ -72,13 +99,9 @@ void main() {
       );
     });
 
-    test('denial messages mention driver ownership for stop and confirm', () {
+    test('denial messages for stop mention driver', () {
       expect(
         D2dChannelRolePolicy.denialMessage(D2dChannelAction.stopTrip),
-        contains('driver'),
-      );
-      expect(
-        D2dChannelRolePolicy.denialMessage(D2dChannelAction.confirmPickup),
         contains('driver'),
       );
     });

@@ -1,6 +1,6 @@
 > **Doc:** docs/API_CONTRACTS.md
-> **Updated:** 2026-09-09 09:50 IST
-> **Session:** Admin bootstrap + return QR Phase 2 on professor-cts
+> **Updated:** 2026-09-17 15:08 IST
+> **Session:** enrichment live tip 934fb02
 
 # API Contracts — Backend ↔ Flutter
 
@@ -9,6 +9,19 @@ Single reference for aligning `D:\cts-docker` endpoints with `D:\cts_beta` clien
 **Base URL:** `API_BASE_URL` in Flutter = `http://<host>/` via Nginx port 80. Stack/LAN: [LOCAL_DEV.md](./LOCAL_DEV.md).
 
 **Feature owners:** [lib/features/d2d/README.md](../lib/features/d2d/README.md) · [lib/features/batches/README.md](../lib/features/batches/README.md)
+
+### Daily trip report + edit end_km (FE pointer)
+
+Wire contract (snake_case): [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRIP_AUTO_CLOSE_CONTRACT.md).
+
+| Backend | Flutter | Notes |
+|---------|---------|-------|
+| `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Legs + close_kind + photo A URLs + `boarded[]` + enrichment (`name`/`mobile`/`boarded_count`/`driver_*`) live on tip `934fb02` |
+| `PATCH`/`POST /d2d/trip_report/edit_end_km/` | `ApiUrl.tripReportEditEndKmUrl` | Body `{batch_id, leg, end_km, date?}`. FE uses PATCH |
+| `GET /d2d/odometer/photo/<batch>/<leg>/<kind>/` | `ApiUrl.odometerPhoto` | Silent **B** when A is null (older-lab); Bearer auth |
+
+Lab smoke BE tip for **photos + boarded + enrichment**: `professor-dock` @ `934fb02`. Feature module: `lib/features/trip_report/`. Prefer A when non-null; else silent B. See [TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRIP_AUTO_CLOSE_CONTRACT.md).
+
 
 ### Client truth contract (P1)
 
@@ -33,7 +46,7 @@ Wire keys are **camelCase only**. CSRF is **not** used for Flutter JWT calls.
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `POST /user/login` body `{mobileNumber, password}` | `ApiUrl.loginUrl` | Response: `{access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}, adminCode, organizations[], supervisorOrgs[], profile}`. Access + refresh stored in FlutterSecureStorage. Empty org arrays / null profile stubs are valid. |
+| `POST /user/login` body `{mobileNumber, password}` | `ApiUrl.loginUrl` | Response: `{access, refresh, user{id,username,mobileNumber,email,userType,hasPaid,deviceId}, adminCode, organizations[], supervisorOrgs[], profile}`. Access + refresh stored in FlutterSecureStorage. Empty org arrays / null profile stubs are valid. Profile assignment ids may be **flat** or nested maps; ADMIN/SUPER_ADMIN/SUPERVISOR prefer `subAdminId`/`supervisorId` when envelope `adminCode` empty. ADMIN/SUPER_ADMIN/SUPERVISOR then soft-call bootstrap (login still succeeds if luggage fails). `userType` includes **SUPER_ADMIN**. |
 | `POST /user/refresh` body `{refresh}` → `{access}` | `ApiUrl.refreshUrl` | Dio interceptor: on **401**, one refresh attempt then retry original; if refresh fails → clear tokens + go `/signIn` |
 | Later APIs | Dio interceptor | `Authorization: Bearer <access>` on non-login/refresh requests |
 | `POST /user/logout` | `ApiUrl.logoutUrl` | Client always clears JWT + prefs, even if POST fails |
@@ -41,11 +54,11 @@ Wire keys are **camelCase only**. CSRF is **not** used for Flutter JWT calls.
 
 **Removed:** old cookie/session login and `{user_id, user_type}`-only response parsing.
 
-Public `/signUp` is disabled on the Flutter client (redirects to sign-in). **Backend `POST /user/` (P2):** unauthenticated callers may only create `COMMUTER`; `DRIVER`/`ADMIN` require authenticated admin session. `PATCH /user/<pk>` `userType` changes are admin-only.
+Public `/signUp` is disabled on the Flutter client (redirects to sign-in). **Backend `POST /user/` (P2):** unauthenticated callers may only create `COMMUTER`; `DRIVER`/`ADMIN` require authenticated admin session. `PATCH /user/<pk>` `userType` changes are admin-only. **`GET /user/` list dump is disabled** (401 anon / 403 even for admin — use `admin-bootstrap`). DRF default permission is `IsAuthenticated` (login/refresh/logout + POST create keep `AllowAny` where needed).
 
 On startup/splash, Flutter calls `GET /user/<userId>` via `refreshSessionFromServer()` to reconcile cached role with server.
 
-D2D WebSocket sends `Authorization: Bearer <access>`. Role is checked **once on connect** (anonymous **4401**, wrong role **4403**). Actions on an accepted socket are not re-authorized per message.
+D2D WebSocket sends `Authorization: Bearer <access>`. Dock ASGI uses **JwtAuthMiddlewareStack** (session cookie fallback + Bearer JWT). Role is checked **once on connect** (anonymous **4401**, wrong role **4403**). Allowed: `ADMIN` / `SUPER_ADMIN` / `SUPERVISOR` (any batch) or assigned `DRIVER`. Actions on an accepted socket are not re-authorized per message.
 
 ---
 
@@ -55,7 +68,8 @@ Admin create/update goes through `CommuterForm` → `CommuterController` → `Co
 
 | Backend | Flutter | Notes |
 |---------|---------|-------|
-| `GET /user/admin/commuter/<adminCode>` | `getCommuters` | `customCommuterSerializer` — nested user has **no** email/address |
+| `GET /user/admin-bootstrap/` (commuters[]) | `getCommuters` | **Catalog SoT** — luggage via `ensureLuggage`; not the legacy list GET |
+| `GET /user/admin/commuter/<adminCode>` | *(legacy BE)* | Not called from FE catalog paths; const kept in `ApiUrl` only |
 | `GET /user/<pk>` | `getUser` | Full `userSerializer` (email, address). Loaded on **edit** so the form can prefill |
 | `POST /user/` | `createCommuter` | Body `user` + `user_data`; `userType: COMMUTER` from the admin form |
 | `PATCH /user/<pk>` | `updateCommuter` user map | Username, mobile, email, address, `userType` |
@@ -83,23 +97,28 @@ Handshake: `ADMIN` may join any batch; `DRIVER` only if assigned to that batch. 
 
 ### Server → client
 
-### Server → client
-
 ```json
-{ "result": { "data": [...], "already_in": [...], "D2D_id": 12, "driver": { ... } } }
+{ "result": { "data": [...], "already_in": [...], "waiting": [...], "D2D_id": 12, "driver": { ... } } }
 ```
 
 - **`data`** — live fly queue.
 - **`already_in`** — CList riders confirmed in the cab (same entry shape as `data`).
 - **`waiting`** — FCFS waiting pool (Phase 2); `POST boarding_scan` with `action: join_waiting`; auto-boarded to CList when a seat opens.
 
+**Live entry shape** (each list item is typically `{ "<user_id>": { ...fields } }`):
+
+| Field | Notes |
+|-------|--------|
+| `username`, `mobile_number`, `pickUpPoint`, `inLine` | Existing |
+| **`batchId`** | Home batch PK (int). Present on queue / waiting / already_in hydrate (`consumers.py`, `live_helpers.py`, `waiting_pool.py`). Flutter → `D2dCommuterModel.homeBatchId` for other-batch **red tint** + short/long board beeps (driver cannot use admin-bootstrap luggage). |
+
 ### Client → server
 
 | ACTION | CLIST | Flutter method |
 |--------|-------|----------------|
-| `REMOVE` | `[user_id]` | `confirmCommuter()` |
-| `DELETE` | `[user_id]` | `denyCommuter()` / `removeCommuter()` |
-| `ADD` | scalar `user_id` | `addCommuter()` — lookup by user ID (this batch first, then any). Needs a POP. Flutter success toast only after the rider is on the live list |
+| `REMOVE` | `[user_id]` | `confirmCommuter()` — Driver / ADMIN / SUPERVISOR / SUPER_ADMIN |
+| `DELETE` | `[user_id]` | `denyCommuter()` / `removeCommuter()` — same roles as Board |
+| `ADD` | scalar `user_id` | `addCommuter()` — **ADMIN / SUPERVISOR only** (not DRIVER, not SUPER_ADMIN). Lookup by user ID (this batch first, then any). Needs a POP. |
 | `STOP` | — | `stopTrip()` — **driver only**. Clears org home-batch `isComing`, cross-batch participants (queue/CList/waiting), flushes Redis live + waiting pools, broadcasts `{ result: { isActive: false, data: [] } }`, then closes **4001**. Admin Close channel / back is disconnect, not STOP |
 
 ### Ended trip / auth close
@@ -181,8 +200,10 @@ Response shape (`get_d2d_log_status`):
 ## Client pack — odometer + QR boarding (2026-08-24)
 
 Backend: `cts-docker/django/d2d_log/` (`odometer_views.py`, `boarding_views.py`, `board_commuter` shared with WS REMOVE).  
-Flutter: `D2dRepository` + `ApiUrl` + UI (`odometer_km_sheet`, `boarding_qr_panel`, `boarding_scan_screen`) — **STEPS 1–7 shipped**; STEP 8 smoke pending.  
-Schema: nullable KM/photo columns on **`DTODLOG`**. Media on disk; photo URLs = auth download.
+Flutter: `D2dRepository` + `ApiUrl` + UI (`odometer_km_sheet`, `boarding_qr_panel`, `boarding_scan_screen`) — **STEPS 1–7 shipped**; STEP 8 smoke pending ([FLOWS](./FLOWS_BY_ROLE.md) · [STEP8 checklist](./STEP8_DEVICE_SMOKE_CHECKLIST.txt)).  
+Schema: nullable KM/photo columns on **`DTODLOG`** (morning); return odo on **`return_trip_log`**. Media on disk; photo URLs = auth download.
+
+**Data safety (locked, ex–DESIGN_SNAPSHOT):** Prefer existing tables + nullable cols; **no** `BoardingEvent` / `CabTripOdometer` table; paths in DB not BYTEA; Redis/WS ACTION names unchanged. Product locks D1–D10: [FLOWS_BY_ROLE](./FLOWS_BY_ROLE.md).
 
 | Backend | Auth | Flutter |
 |---------|------|---------|
@@ -190,9 +211,9 @@ Schema: nullable KM/photo columns on **`DTODLOG`**. Media on disk; photo URLs = 
 | `POST /d2d/odometer/end/` | DRIVER / ADMIN | `submitOdometerEnd` |
 | `GET /d2d/odometer/<batch_id>/?date=` | DRIVER / ADMIN | `getOdometer` |
 | `GET /d2d/odometer/org/<admin_code>/?date=` | ADMIN | `getOdometerOrg` |
-| `GET /d2d/odometer/photo/…` | DRIVER / ADMIN | URL on snapshot (session cookie) |
+| `GET /d2d/odometer/photo/…` | DRIVER / ADMIN | URL on snapshot (Bearer session in app; browser may use cookie) |
 | `GET /d2d/boarding_qr/<batch_id>/` | DRIVER / ADMIN | `getBoardingQr` — optional `?trip=morning` \| `?trip=return` |
-| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` — body `{token, action?}` · `action`: **`board`** (default) or **`join_waiting`**; token carries leg |
+| `POST /d2d/boarding_scan/` | COMMUTER | `boardingScan` — body `{token, action?}` · `action`: **`board`** (default) or **`join_waiting`** (**morning only**); return token always boards RCList (waiting = `return_batch/add_commuter`) |
 | `POST /d2d/boarding_unboard/` | DRIVER / ADMIN | `boardingUnboard` |
 
 Error body: `{ "status": "error", "code": "<code>", "message": "…" }`.  
@@ -212,7 +233,7 @@ Flutter maps `code` via `ClientPackErrorMessages` → SnackBar text; `ApiFailure
 
 Shared `board_commuter()` for WS `REMOVE` and `boarding_scan`. WS ACTION names unchanged.
 
-**Return-trip QR (Phase 2 wired):** `GET …/boarding_qr/<batch>/?trip=return` mints token + `return_trip_id` (return trip log / RCList). `POST …/boarding_scan/` with that token boards return (leg in token). Live RCList = user-ID list on trip row; End archives BE-side — **no FE archive UI**. Contract: [setup/RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md) · UI: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
+**Return-trip QR (Phase 2 wired):** `GET …/boarding_qr/<batch>/?trip=return` mints token + `return_trip_id` (return trip log / RCList). `POST …/boarding_scan/` with that token boards return (leg in token; **no** `join_waiting` on this path). Live RCList = user-ID list on trip row; End archives BE-side — **no FE archive UI**. FE Dart: `returnTripLogId` ← `return_trip_id`, `tripLeg` ← `trip`. Contract: [setup/RETURN_TRIP_API_GAP.md](./setup/RETURN_TRIP_API_GAP.md) · UI: [setup/RETURN_QR_UI_PREP.md](./setup/RETURN_QR_UI_PREP.md).
 
 ---
 
@@ -229,7 +250,7 @@ Constants: `lib/api/api_list.dart`. Feature owner: [lib/features/batches/README.
 | `GET /d2d/return_batch/get_commuter/<batch_id>` | Confirmed ids + profiles (any assigned batch) | `returnBatchGetCommuter` · `getConfirmedCommuters` | Confirmed tab + capacity banner |
 | `POST /d2d/return_batch/add_commuter` | Confirm seat (default) **or** `action: join_waiting` (commuter self-serve FCFS line) | `returnBatchAddCommuter` · `addCommuterToConfirmList` / `joinReturnWaiting` | Admin + driver Confirm · commuter home **Join waiting line** |
 | `POST /d2d/return_batch/remove_commuter` | Remove seat; FCFS promotes waiting head when capacity opens | `returnBatchRemoveCommuter` · `removeCommuterFromConfirmList` | Admin + driver swipe Remove |
-| `POST /d2d/return_batch/end/<batch_id>` | Clear Redis confirmed + **return waiting**; `isComing=false` for home batch + cross-batch confirmed/waiting | `returnBatchEnd` · `endReturnTrip` | Driver End FAB |
+| `POST /d2d/return_batch/end/<batch_id>` | Clear Redis confirmed + **return waiting**; `isComing=false` for home batch + cross-batch confirmed/waiting. **Auth:** DRIVER (assigned) / ADMIN / SUPER_ADMIN / SUPERVISOR — anon **401**, wrong role **403** | `returnBatchEnd` · `endReturnTrip` | Driver End FAB |
 | `GET /d2d/return_batch/intent` | Current user’s return intent for today | `returnBatchIntent` · `getReturnIntent` | Commuter home — Return today |
 | `POST /d2d/return_batch/intent` | Set intent `skip` \| `home` \| `earlier` (+ `target_batch_id`) | `returnBatchIntent` · `setReturnIntent` | Commuter home chips |
 | `GET /d2d/return_batch/intent_options` | Org batches with strictly earlier `end_time` than home | `returnBatchIntentOptions` · `getReturnIntentOptions` | Earlier… picker |
@@ -335,17 +356,45 @@ Redis return waiting key: `d2d:return_waiting:{YYYY-MM-DD}:{batch_id}` — flush
 
 ---
 
-## Auth — Admin bootstrap (2026-09-09)
+## Auth — Admin bootstrap (2026-09-10)
 
 > Detail: [setup/ADMIN_BOOTSTRAP_DRAFT.md](./setup/ADMIN_BOOTSTRAP_DRAFT.md)
-> FE: wired on branch `feat/admin-bootstrap` (`lib/features/admin_bootstrap/`) — no UI screens.
+> FE: wired on `professor-cts` (`lib/features/admin_bootstrap/`) — no UI screens.
 
 | Method | Path | Auth | Success |
 |--------|------|------|---------|
 | GET | /user/admin-bootstrap/ | Bearer access | status, generatedAt, adminCode, organizations[], enums, routes[], pickUpPoints[], batches[], cabs[], drivers[], commuters[], today |
 
-- ADMIN or SUPERVISOR only (403 otherwise).
+- ADMIN, SUPER_ADMIN, or SUPERVISOR only (403 otherwise).
 - Scoped by caller's subAdmin adminCode when present.
-- Phase A: organizations may be []; routeCode / acType / area may be null until schema migrate.
-- FE maps camelCase → snake_case SQLite (schema v2) after JWT login.
+- Phase A: organizations may be []; routeCode / acType / area / organizationId may be null — FE tolerates.
+- FE maps camelCase → memory luggage (+ snake_case SQLite schema v3 on mobile) after JWT login / cold-start session restore.
+- **FE consumers:** admin home catalog counts + list `get*` use luggage only (`ensureLuggage` / PTR via `forceRefresh` / `invalidateAndResync`). Legacy `admin*Url` list GETs are not called from FE catalog paths (consts kept marked legacy).
+- **Catalog freshness (FIND-011 / FE-4.5):** **No TTL.** SoT is pull-to-refresh + post-CRUD `refreshInBackground()` (stale-while-revalidate; coalesced). Cold boot / login still await or background-sync per OFFLINE_AND_SYNC / ADMIN_BOOTSTRAP_DRAFT.
+- Pull-to-refresh awaits full re-sync. Mutations hit entity APIs then `refreshInBackground()` refill luggage (do not rewrite post-CRUD as blocking `invalidateAndResync`).
+- Still separate: running batches / D2D / return trip live APIs.
+- Required luggage fields: `organizationId` (not collegeName), cab `km` (baseline), `username`/`mobileNumber` (not first/last name).
 
+### FE HTTP policy (FE-4.6 / 4.11 / 4.12)
+
+| Topic | Contract |
+|-------|----------|
+| Pagination | **N/A** — admin catalogs are full bootstrap lists (no cursor/page params on FE list paths). |
+| Timeouts | Dio connect/receive/send **30s**; multipart odometer upload send/receive **60s** (`network_api_services.dart`). |
+| Auth retry | On HTTP **401**, refresh access **once** (shared Completer); failed refresh → `clearLocalSession()` → sign-in. |
+| Idempotency-Key | **Not used** — FE does not send `Idempotency-Key`; duplicate POST protection is BE-side / UX double-submit guards only. |
+| Dates | UI display `dd-MM-yyyy` (and time via `intl`); wire payloads follow endpoint docs (mixed ISO / `dd-MM-yyyy` where BE expects). |
+| Odometer photos | Compressed on device (~**200–500 KB** typical via `flutter_image_compress`) before multipart; nginx lab `client_max_body_size 8m`. |
+| Auth header | `Authorization: Bearer <access>` — not session cookies (photo URL note below may still say cookie for browser GETs). |
+
+## Open-trip auto-close + daily report (2026-09-12)
+
+Auth: JWT Bearer. Roles for report/edit: **ADMIN**, **SUPERVISOR**. Status booleans on morning `DTODLOG` + `ReturnTripLog`: `auto_closed`, `incomplete`, `edited`. Cutoffs Asia/Kolkata: morning **12:00**, return **00:00 next day**. Job: `python manage.py auto_close_open_trips` (cron ~5m). Notify stubs: `d2d_log.trip_notify` (no FCM yet).
+
+| Method | Path | Notes |
+|--------|------|--------|
+| GET | `/d2d/trip_report/?date=&admin_code=` | Daily list; legs + `close_kind` + photo A + `boarded[]` + enrichment live on tip `934fb02` |
+| PATCH/POST | `/d2d/trip_report/edit_end_km/` | Body `{batch_id, leg, end_km, date?}`; sets `edited`, clears `incomplete` |
+| GET | `/d2d/odometer/photo/<batch>/<leg>/<kind>/` | Silent B when A null; Bearer; `leg` morning\|return, `kind` start\|end |
+
+BE PR: https://github.com/professorbhakta/cts-docker/pull/3 (`cursor/open-trip-auto-close-a9b4` → `gb-dock`). Full draft: `django/d2d_log/TRIP_AUTO_CLOSE_CONTRACT.md` on that branch.

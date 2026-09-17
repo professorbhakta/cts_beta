@@ -161,7 +161,7 @@ void main() {
       final result = await repo.getBoardingQr('1');
       expect(result.isSuccess, isTrue);
       expect(result.data!.token, 'abc');
-      expect(result.data!.returnTripId, isNull);
+      expect(result.data!.returnTripLogId, isNull);
       expect(api.lastGetUrl, ApiUrl.boardingQr('1'));
     });
 
@@ -182,7 +182,7 @@ void main() {
       );
       expect(result.isSuccess, isTrue);
       expect(result.data!.token, 'ret-tok');
-      expect(result.data!.returnTripId, '17');
+      expect(result.data!.returnTripLogId, '17');
       expect(
         api.lastGetUrl,
         ApiUrl.boardingQr('4', trip: ApiUrl.boardingTripReturn),

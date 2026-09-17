@@ -4,13 +4,18 @@ class DatabaseSchema {
 
   static const String databaseName = 'cts_offline.db';
 
-  /// v1: cache + sync_queue. v2: admin-bootstrap entity tables.
-  static const int version = 2;
+  /// v1: cache + sync_queue.
+  /// v2: admin-bootstrap entity tables.
+  /// v3: org junction tables + organization_id on bootstrap entities.
+  /// v4: cab.km (baseline / starting odometer for running status).
+  static const int version = 4;
 
   static const String cacheTable = 'entity_cache';
   static const String syncQueueTable = 'sync_queue';
 
   static const String organizationTable = 'organization';
+  static const String subAdminOrganizationTable = 'sub_admin_organization';
+  static const String supervisorTable = 'supervisor';
   static const String routeTable = 'route';
   static const String pickUpPointTable = 'pick_up_point';
   static const String batchTable = 'batch';
@@ -66,13 +71,34 @@ class DatabaseSchema {
     )
   ''';
 
+  static const String createSubAdminOrganizationTable = '''
+    CREATE TABLE $subAdminOrganizationTable (
+      id INTEGER PRIMARY KEY,
+      sub_admin_id TEXT NOT NULL,
+      organization_id TEXT NOT NULL,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      UNIQUE(sub_admin_id, organization_id)
+    )
+  ''';
+
+  static const String createSupervisorTable = '''
+    CREATE TABLE $supervisorTable (
+      id INTEGER PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      organization_id TEXT NOT NULL,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      UNIQUE(user_id, organization_id)
+    )
+  ''';
+
   static const String createRouteTable = '''
     CREATE TABLE $routeTable (
       id INTEGER PRIMARY KEY,
       route_name TEXT,
       route_code TEXT,
       is_active INTEGER NOT NULL DEFAULT 1,
-      admin_code TEXT
+      admin_code TEXT,
+      organization_id TEXT
     )
   ''';
 
@@ -86,7 +112,8 @@ class DatabaseSchema {
       in_line INTEGER,
       area TEXT,
       is_active INTEGER NOT NULL DEFAULT 1,
-      admin_code TEXT
+      admin_code TEXT,
+      organization_id TEXT
     )
   ''';
 
@@ -99,7 +126,8 @@ class DatabaseSchema {
       start_date TEXT,
       end_date TEXT,
       is_active INTEGER NOT NULL DEFAULT 1,
-      admin_code TEXT
+      admin_code TEXT,
+      organization_id TEXT
     )
   ''';
 
@@ -110,9 +138,11 @@ class DatabaseSchema {
       capacity INTEGER,
       route_id INTEGER,
       ac_type TEXT,
+      km INTEGER,
       tracking_vehicle_id TEXT,
       is_active INTEGER NOT NULL DEFAULT 1,
-      admin_code TEXT
+      admin_code TEXT,
+      organization_id TEXT
     )
   ''';
 
@@ -125,7 +155,8 @@ class DatabaseSchema {
       batch_id TEXT,
       cab_id INTEGER,
       is_active INTEGER NOT NULL DEFAULT 1,
-      admin_code TEXT
+      admin_code TEXT,
+      organization_id TEXT
     )
   ''';
 
@@ -142,7 +173,8 @@ class DatabaseSchema {
       is_coming INTEGER NOT NULL DEFAULT 0,
       has_paid INTEGER,
       is_active INTEGER NOT NULL DEFAULT 1,
-      admin_code TEXT
+      admin_code TEXT,
+      organization_id TEXT
     )
   ''';
 
@@ -163,6 +195,8 @@ class DatabaseSchema {
 
   static const List<String> bootstrapTableScripts = [
     createOrganizationTable,
+    createSubAdminOrganizationTable,
+    createSupervisorTable,
     createRouteTable,
     createPickUpPointTable,
     createBatchTable,
@@ -170,6 +204,21 @@ class DatabaseSchema {
     createDriverTable,
     createCommuterTable,
     createBootstrapMetaTable,
+  ];
+
+  /// Additive columns for upgrades from schema v2 → v3.
+  static const List<String> v3AlterScripts = [
+    'ALTER TABLE $routeTable ADD COLUMN organization_id TEXT',
+    'ALTER TABLE $pickUpPointTable ADD COLUMN organization_id TEXT',
+    'ALTER TABLE $batchTable ADD COLUMN organization_id TEXT',
+    'ALTER TABLE $cabTable ADD COLUMN organization_id TEXT',
+    'ALTER TABLE $driverTable ADD COLUMN organization_id TEXT',
+    'ALTER TABLE $commuterTable ADD COLUMN organization_id TEXT',
+  ];
+
+  /// Additive columns for upgrades from schema v3 → v4.
+  static const List<String> v4AlterScripts = [
+    'ALTER TABLE $cabTable ADD COLUMN km INTEGER',
   ];
 
   static const List<String> creationScripts = [
@@ -182,6 +231,8 @@ class DatabaseSchema {
 
   static const List<String> bootstrapEntityTables = [
     organizationTable,
+    subAdminOrganizationTable,
+    supervisorTable,
     routeTable,
     pickUpPointTable,
     batchTable,

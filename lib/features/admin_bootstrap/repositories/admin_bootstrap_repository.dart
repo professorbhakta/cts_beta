@@ -1,14 +1,17 @@
 import 'package:cts/api/api_result.dart';
 import 'package:cts/features/admin_bootstrap/models/admin_bootstrap_response.dart';
 
-/// Fetches `GET /user/admin-bootstrap/` and persists into SQLite.
+/// Fetches `GET /user/admin-bootstrap/` and keeps luggage for list UIs.
 abstract class AdminBootstrapRepository {
-  /// Network fetch + replace-all local tables. ADMIN / SUPERVISOR only.
+  /// Network fetch + memory (+ SQLite on mobile). ADMIN / SUPER_ADMIN / SUPERVISOR.
   Future<ApiResult<AdminBootstrapResponse>> sync();
 
-  /// Last successful payload from SQLite meta (may be null).
+  /// Memory first, else SQLite full payload. Null if never synced.
+  Future<AdminBootstrapResponse?> readLuggage();
+
+  /// Meta-only snapshot (legacy); prefer [readLuggage] for list data.
   Future<AdminBootstrapResponse?> readCachedMeta();
 
-  /// Wipe bootstrap entity tables (logout / role change).
+  /// Wipe memory + bootstrap entity tables (logout / role change).
   Future<void> clearLocal();
 }

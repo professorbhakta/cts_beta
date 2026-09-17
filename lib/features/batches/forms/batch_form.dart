@@ -79,7 +79,7 @@ class _BatchFormState extends State<BatchForm> {
   Widget build(BuildContext context) {
 
     return PopScope(
-      canPop: true,
+      canPop: !_isSubmitting,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           _batchProvider.fetchBatches();
@@ -107,7 +107,11 @@ class _BatchFormState extends State<BatchForm> {
                             : 'Create New Batch',
                       ),
                       const SizedBox(height: 24),
-                      _buildTextField(formProvider.nameCtrl, "Batch Name"),
+                      _buildTextField(
+                        formProvider.nameCtrl,
+                        "Batch Name",
+                        textInputAction: TextInputAction.done,
+                      ),
                       const SizedBox(height: 16),
                       _buildDateTimePicker(
                         "Start Date",
@@ -246,11 +250,16 @@ class _BatchFormState extends State<BatchForm> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    TextInputAction textInputAction = TextInputAction.next,
+  }) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return TextFormField(
       controller: controller,
+      textInputAction: textInputAction,
       decoration: InputDecoration(
         labelText: label,
         hintText: 'Enter $label',

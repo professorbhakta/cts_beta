@@ -1,3 +1,4 @@
+import 'package:cts/app/router/admin_service.dart';
 import 'package:cts/app/router/auth_redirect.dart';
 import 'package:cts/app/router/route_names.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -86,6 +87,19 @@ void main() {
         ),
         isNull,
       );
+    });
+
+    test('super_admin lands on admin home with full shell', () {
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.signIn,
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPER_ADMIN',
+        ),
+        RouteName.adminHomeScreen,
+      );
+      expect(AdminCapabilities.forRole('SUPER_ADMIN'), AdminCapabilities.all);
     });
 
     test('supervisor lands on admin home from signIn', () {

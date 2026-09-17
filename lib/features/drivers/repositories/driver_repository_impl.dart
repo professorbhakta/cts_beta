@@ -3,6 +3,8 @@ import 'package:cts/api/api_list.dart';
 import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
+import 'package:cts/features/admin_bootstrap/admin_bootstrap_list_source.dart';
+import 'package:cts/features/admin_bootstrap/mappers/admin_bootstrap_list_mapper.dart';
 import 'package:cts/features/drivers/repositories/driver_repository.dart';
 import 'package:cts/features/drivers/models/driver_model.dart';
 
@@ -13,27 +15,11 @@ class DriverRepositoryImpl implements DriverRepository {
 
   @override
   Future<ApiResult<List<DriverModel>>> getDrivers() async {
-    try {
-      final adminCode = AppManager.instance.getString(ManagerKey.adminCode);
-      final response = await _apiService.getApi(
-        "${ApiUrl.adminDriverUrl}$adminCode",
-      );
-
-      if (response is List<dynamic>) {
-        final drivers = response
-            .map(
-              (json) => DriverModel.fromJson(Map<String, dynamic>.from(json)),
-            )
-            .toList();
-        return ApiResult.success(drivers);
-      } else {
-        return ApiResult.failure(
-          ApiExceptionHandler.handle('Invalid response format'),
-        );
-      }
-    } catch (e) {
-      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    final luggage = await AdminBootstrapListSource.ensureLuggage();
+    if (luggage != null) {
+      return ApiResult.success(AdminBootstrapListMapper.drivers(luggage));
     }
+    return ApiResult.failure(AdminBootstrapListSource.catalogUnavailableFailure());
   }
 
   @override
@@ -77,7 +63,7 @@ class DriverRepositoryImpl implements DriverRepository {
     try {
       final response = await _apiService.postApi(data, ApiUrl.cndUserUrl);
       if (response is Map<String, dynamic>) {
-        //driver created
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       } else {
         return ApiResult.failure(
@@ -111,6 +97,7 @@ class DriverRepositoryImpl implements DriverRepository {
       );
 
       if (driverUserResponse != null && driverUpdate != null) {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       }
       return ApiResult.failure(
@@ -129,6 +116,7 @@ class DriverRepositoryImpl implements DriverRepository {
     try {
       final response = await _apiService.deleteApi(id, ApiUrl.userUrl);
       if (response != null && response.toString().contains("DELETED")) {
+        AdminBootstrapListSource.refreshInBackground();
         return ApiResult.success(null);
       } else {
         return ApiResult.failure(
@@ -142,6 +130,4 @@ class DriverRepositoryImpl implements DriverRepository {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }
   }
-
-  // END INSERTION HERE
 }

@@ -43,7 +43,7 @@ class _DriverFormState extends State<DriverForm> {
   Widget build(BuildContext context) {
 
     return PopScope(
-      canPop: true,
+      canPop: !_isSubmitting,
       onPopInvokedWithResult: (bool didPop, bool? result) {
         if (didPop) {
           _driverProvider.fetchDrivers();
@@ -109,6 +109,7 @@ class _DriverFormState extends State<DriverForm> {
                         formProvider.driverAddressCtrl,
                         "Address",
                         icon: Icons.location_on_outlined,
+                        textInputAction: TextInputAction.done,
                         customValidator: (value) => Validators.address(value),
                       ),
                       const SizedBox(height: 16),
@@ -233,6 +234,7 @@ class _DriverFormState extends State<DriverForm> {
     IconData? icon,
     TextInputType keyboardType = TextInputType.text,
     bool isObscure = false,
+    TextInputAction textInputAction = TextInputAction.next,
     String? Function(String?)? customValidator,
     List<TextInputFormatter>? inputFormatters,
   }) {
@@ -240,6 +242,7 @@ class _DriverFormState extends State<DriverForm> {
     final scheme = theme.colorScheme;
     return TextFormField(
       controller: controller,
+      textInputAction: textInputAction,
       decoration: InputDecoration(
         labelText: label,
         hintText: 'Enter $label',

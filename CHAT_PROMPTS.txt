@@ -1,58 +1,98 @@
 > **Doc:** CHAT_PROMPTS.txt
-> **Updated:** 2026-08-29 10:27 IST
-> **Session:** END sync — agent law pass complete
+> **Updated:** 2026-09-12 16:00 IST
+> **Session:** Checklist under docs/; E2E thinned
 ================================================================================
-QUICK START (minimal)
-================================================================================
-
-@PROJECT_BRAIN.md
-@PROMPT_SCOPE.md
-@docs/client_req/DISCUSSION_LOG.md
-@docs/client_req/07-NEXT-AGENT-PROMPT.md
-@docs/FLOWS_BY_ROLE.md
-Task: Client pack STEP 8 device smoke — only after user says go.
-Note: Attach order LOCKED in PROJECT_BRAIN §3. Journeys: FLOWS § Morning QR+KM.
-
-================================================================================
-START PROMPT (full shell)
+QUICK START (minimal) — FE prod inspection P8 (needs go + BE)
 ================================================================================
 
 @PROJECT_BRAIN.md
 @PROMPT_SCOPE.md
-@docs/client_req/DISCUSSION_LOG.md
-@docs/client_req/07-NEXT-AGENT-PROMPT.md
+@CHAT_PROMPTS.txt
+@docs/FE_PRODUCTION_INSPECTION_CHECKLIST.md
+@docs/setup/FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt
+@docs/TESTING.md
+Task: FE production inspection — P8 device use cases only after user **go** + BE up.
+Note: Full order in FE_PRODUCTION_INSPECTION_CONTINUE_PROMPT.txt.
+      P0–P7 PASS. Do not start P8/STEP 8 without explicit go.
+
+================================================================================
+START PROMPT (full shell) — Setup drafts (JWT / bootstrap / schema)
+================================================================================
+
+@PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+@CHAT_PROMPTS.txt
+@docs/setup/DISCUSSION_STATUS.md
+@docs/setup/BRANCH_HOLD_NOTES.md
+@docs/API_CONTRACTS.md
+@docs/setup/JWT_LOGIN_IMPLEMENTATION_NOTES.txt
+@docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
+@docs/setup/LOGIN_JSON_FIELDS.txt
+@docs/setup/SQLITE_TABLES_COLUMNS.txt
+@docs/setup/SCHEMA_FINAL_DRAFT.txt
+@docs/setup/RETURN_TRIP_API_GAP.md
+@docs/setup/RETURN_QR_UI_PREP.md
+@docs/ROUTING_AND_AUTH.md
+@lib/features/batches/README.md
+@lib/features/d2d/README.md
+@docs/LOCAL_DEV.md
+@docs/TESTING.md
+
+Task: Setup / JWT / bootstrap / schema work on professor-cts.
+Start at DISCUSSION_STATUS.md; fix FE only unless user asks for BE.
+
+REPOS: D:\cts_beta (professor-cts only) · D:\cts-docker (read professor-dock; no BE edits unless asked)
+
+Constraints:
+  Attach = brain §3 Always, then setup drafts pack (do not reshuffle).
+  Provider only; no new REST unless required; camelCase wire per contracts.
+  Existing lib/data/local SQLite OK; no new presentation/domain folders.
+  Git: professor-cts day lane only. Never day-push main.
+  After FE code: flutter analyze + flutter test. Device pre-push gate only on user go.
+  Do not start client pack STEP 8 or inspection P8 without explicit go.
+  END sync: brain §5/§9, PROMPT_SCOPE, DOC_REGISTRY, this file MIDDLE CONTEXT.
+
+================================================================================
+START PROMPT (alt) — Client pack STEP 8 smoke (only on go)
+================================================================================
+
+@PROJECT_BRAIN.md
+@PROMPT_SCOPE.md
+@docs/setup/DISCUSSION_STATUS.md
 @docs/FLOWS_BY_ROLE.md
+@docs/STEP8_DEVICE_SMOKE_CHECKLIST.txt
 @lib/features/d2d/README.md
 @docs/API_CONTRACTS.md
 @docs/TESTING.md
 @docs/LOCAL_DEV.md
 
 Task: Run client pack STEP 8 device smoke (ONLY if user said go).
-Follow FLOWS_BY_ROLE § Morning QR+KM (same as 07 copy block).
+Follow FLOWS_BY_ROLE § Morning QR+KM + STEP8_DEVICE_SMOKE_CHECKLIST.txt.
 Emulator admin 7069036462; phone driver 9876544111. LAN from PROJECT_BRAIN §5.
-Story/locks: docs/client_req/05-open-decisions.md. Pointer: DISCUSSION_LOG only.
+Story/locks: FLOWS D1–D10. Handoff: DISCUSSION_STATUS.
 
 Constraints:
   Do not start smoke without explicit go.
-  Prefer keep sessions. Git: beta-ver only. No commit/push unless asked.
-  Do not change attach order or recreate retired docs.
+  Prefer keep sessions. Git: professor-cts day lane. No commit/push unless asked.
+  Do not change attach order or recreate retired docs (backend/, client_req/).
 
 ================================================================================
 MIDDLE CONTEXT
 ================================================================================
 
 Current focus:
-  - D2D Phase 1–3 DONE (2026-08-31): morning + return waiting/FCFS parity shipped (uncommitted)
-  - Next: STEP 8 device smoke only after user **go** — restart C2S-Django first
-  - Later: Q-client-tests; 26d-discuss; commit when asked; parked return KM / org odo / unboard
-  - Code legacy still open: appManager/, root data/domain/, *_controller.dart in providers/ (Phase C/D)
+  - **Done:** P0–P7 FE prod inspection; retired backend/client_req; setup merge; E2E thinned; checklist under docs/
+  - **Next:** Inspection **P8** device use cases on **go** + BE · STEP 8 on **go**
+  - Setup SoT: DISCUSSION_STATUS · JWT/bootstrap/schema drafts
 
 Story split (stable):
-  - 05 = product story/locks · FLOWS = QR/KM journeys · 07 = smoke · DISCUSSION_LOG = pointer
+  - FLOWS = journeys + D1–D10 · API_CONTRACTS = wire/schema · DISCUSSION_STATUS = handoff · STEP8 checklist = smoke
+  - setup/ = JWT · schema · bootstrap · branch map · return QR
+  - docs/features/ = thin E2E pointers only
 
 Open:
-  - User go for STEP 8?
-  - Commit when user asks
+  - User go for inspection P8 / STEP 8?
+  - Phase B org fill / SUPERVISOR+STAFF seed?
 
 ================================================================================
 QUICK CLOSE
@@ -68,12 +108,11 @@ END PROMPT
 2. PROMPT_SCOPE.md (§2, §4, header)
 3. DOC_REGISTRY.md fast sync rows
 4. PROJECT_TODOS.md if backlog moved
-5. ALWAYS update docs/client_req/DISCUSSION_LOG.md pointer when Q-client-qr-odo
-   is still queue #1 (or pack was touched) — LAST_SUMMARY + NEXT_SUGGEST required.
-   Do not put product rules in the log — those belong in 05 / FLOWS / API_CONTRACTS.
+5. If Q-client-qr-odo / STEP 8 pack touched: bump docs/setup/DISCUSSION_STATUS.md
+   (Still open / notes). Product rules belong in FLOWS / API_CONTRACTS — not status.
 6. This file MIDDLE CONTEXT
 7. Reply: short summary + pasteable next START
 
 Do NOT create new .md/.txt unless user asks.
-Do NOT recreate docs/backend/01–04 or docs/guides/.
+Do NOT recreate docs/backend/ or docs/client_req/ or docs/guides/.
 Do NOT invent a new attach order.

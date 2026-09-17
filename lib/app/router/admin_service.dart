@@ -12,6 +12,7 @@ enum AdminService {
   driver,
   d2d,
   commuter,
+  tripReport,
 }
 
 /// Phase A capability helpers for ADMIN (full) vs SUPERVISOR (allow-list).
@@ -27,6 +28,7 @@ class AdminCapabilities {
     AdminService.driver,
     AdminService.d2d,
     AdminService.commuter,
+    AdminService.tripReport,
   };
 
   /// SUPERVISOR Phase A allow-list: day-ops CRUD + D2D channel.
@@ -39,11 +41,13 @@ class AdminCapabilities {
     AdminService.driver,
     AdminService.d2d,
     AdminService.commuter,
+    AdminService.tripReport,
   };
 
   static Set<AdminService> forRole(String? userType) {
     switch (userType) {
       case 'ADMIN':
+      case 'SUPER_ADMIN':
         return all;
       case 'SUPERVISOR':
         return supervisorAllowList;
@@ -74,8 +78,8 @@ class AdminCapabilities {
     if (!_isAdminHome(location)) {
       final service = serviceForLocation(location);
       if (service == null) {
-        // Unknown admin prefix — ADMIN only (fail closed for non-admin).
-        return userType == 'ADMIN';
+        // Unknown admin prefix — full admins only (fail closed).
+        return userType == 'ADMIN' || userType == 'SUPER_ADMIN';
       }
       return canAccessService(userType, service);
     }
@@ -117,6 +121,9 @@ class AdminCapabilities {
     AdminService.commuter: {
       RouteName.commuterScreen,
       RouteName.commuterForm,
+    },
+    AdminService.tripReport: {
+      RouteName.tripReportScreen,
     },
   };
 }
@@ -176,6 +183,12 @@ class AdminServiceCatalog {
       title: 'Routes',
       route: RouteName.routeScreen,
       icon: Icons.route_outlined,
+    ),
+    AdminServiceNavItem(
+      service: AdminService.tripReport,
+      title: 'Trip Report',
+      route: RouteName.tripReportScreen,
+      icon: Icons.assignment_outlined,
     ),
   ];
 

@@ -14,20 +14,44 @@ void main() {
       );
     });
 
-    test('resolveVehicleId falls back to lab default', () {
+    test('resolveVehicleId returns null without cab id (no lab fallback)', () {
       expect(
         FleetTrackingUrls.resolveVehicleId(cabTrackingVehicleId: null),
-        FleetTrackingUrls.defaultVehicleId,
+        isNull,
       );
       expect(
         FleetTrackingUrls.resolveVehicleId(cabTrackingVehicleId: '  '),
-        FleetTrackingUrls.defaultVehicleId,
+        isNull,
+      );
+      expect(
+        FleetTrackingUrls.trackingUrl(vehicleId: null),
+        isNull,
       );
     });
 
     test('trackingUrl embeds resolved id in query', () {
       final url = FleetTrackingUrls.trackingUrl(vehicleId: 'ref-abc');
       expect(url, contains('id=ref-abc'));
+      expect(url, contains(FleetTrackingUrls.allowedHost));
+    });
+
+    test('isAllowedNavigation accepts only Fleet Edge host', () {
+      expect(
+        FleetTrackingUrls.isAllowedNavigation(
+          Uri.parse(FleetTrackingUrls.baseUrl),
+        ),
+        isTrue,
+      );
+      expect(
+        FleetTrackingUrls.isAllowedNavigation(
+          Uri.parse('https://evil.example/phish'),
+        ),
+        isFalse,
+      );
+      expect(
+        FleetTrackingUrls.isAllowedNavigation(Uri.parse('javascript:alert(1)')),
+        isFalse,
+      );
     });
   });
 

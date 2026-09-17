@@ -5,16 +5,21 @@ import 'package:cts/data/local/entity_type.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CacheDao {
-  CacheDao(this._db);
+  CacheDao(Database db) : _db = db;
 
-  final Database _db;
+  /// No-op DAO when SQLite is unavailable (web / API-only).
+  CacheDao.noop() : _db = null;
+
+  final Database? _db;
 
   Future<void> replaceAllForAdmin({
     required EntityType entityType,
     required String adminCode,
     required List<Map<String, dynamic>> items,
   }) async {
-    await _db.transaction((txn) async {
+    final db = _db;
+    if (db == null) return;
+    await db.transaction((txn) async {
       await txn.delete(
         DatabaseSchema.cacheTable,
         where: 'entity_type = ? AND admin_code = ?',
@@ -46,10 +51,12 @@ class CacheDao {
     required String adminCode,
     required Map<String, dynamic> item,
   }) async {
+    final db = _db;
+    if (db == null) return;
     final entityId = _readEntityId(item);
     if (entityId == null) return;
 
-    await _db.insert(
+    await db.insert(
       DatabaseSchema.cacheTable,
       {
         'entity_type': entityType.storageKey,
@@ -67,7 +74,9 @@ class CacheDao {
     required String adminCode,
     required int entityId,
   }) async {
-    await _db.delete(
+    final db = _db;
+    if (db == null) return;
+    await db.delete(
       DatabaseSchema.cacheTable,
       where: 'entity_type = ? AND admin_code = ? AND entity_id = ?',
       whereArgs: [entityType.storageKey, adminCode, entityId],
@@ -78,7 +87,9 @@ class CacheDao {
     required EntityType entityType,
     required String adminCode,
   }) async {
-    final rows = await _db.query(
+    final db = _db;
+    if (db == null) return const [];
+    final rows = await db.query(
       DatabaseSchema.cacheTable,
       where: 'entity_type = ? AND admin_code = ?',
       whereArgs: [entityType.storageKey, adminCode],

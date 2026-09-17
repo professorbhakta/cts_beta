@@ -20,11 +20,8 @@ dependencies:
 
 
   flutter_native_splash: ^2.4.1
-  http: ^1.6.0
   dio: ^5.11.0
-  dio_cookie_manager: ^3.5.0
   path_provider: ^2.1.4
-  cookie_jar: ^4.0.8
   device_info_plus: ^13.2.0
   easy_splash_screen: ^1.0.4
   flutter_easyloading: ^4.0.2
@@ -61,11 +58,10 @@ dependencies:
   mobile_scanner: ^7.0.0
   wakelock_plus: ^1.3.2
   flutter_svg: ^2.3.0
+  audioplayers: ^6.5.0
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter
-  integration_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
 
@@ -115,6 +111,8 @@ flutter:
     - assets/img/pop.png
     - assets/img/route.png
     - assets/img/student.png
+    - assets/sounds/board_same.wav
+    - assets/sounds/board_other.wav
 
 flutter_launcher_icons:
   android: true

@@ -16,7 +16,9 @@ class ReturnBoardingScanScreen extends StatelessWidget {
     return const BoardingScanScreen(
       title: 'Scan return boarding QR',
       hint:
-          'Scan to board the return trip. If you are not on the list yet, you can join the waiting line.',
+          'Scan to board the return trip. Waiting line is via return batch '
+          'Join waiting — not this QR scan.',
+      allowJoinWaiting: false,
     );
   }
 }

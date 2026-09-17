@@ -43,7 +43,7 @@ class _CabFormState extends State<CabForm> {
     final scheme = theme.colorScheme;
 
     return PopScope(
-      canPop: true,
+      canPop: !_isSubmitting,
       onPopInvokedWithResult: (bool didPop, bool? result) {
         if (didPop) {
           _dataProvider.fetchCabs();
@@ -119,6 +119,7 @@ class _CabFormState extends State<CabForm> {
                     ),
                     style: theme.textTheme.bodyLarge,
                     textCapitalization: TextCapitalization.characters,
+                    textInputAction: TextInputAction.next,
                     validator: (value) => Validators.registrationNumber(value),
                   ),
                   const SizedBox(height: 16),
@@ -177,6 +178,7 @@ class _CabFormState extends State<CabForm> {
                       FilteringTextInputFormatter.digitsOnly,
                     ],
                     style: theme.textTheme.bodyLarge,
+                    textInputAction: TextInputAction.next,
                     validator: (value) => Validators.capacity(value),
                   ),
                   const SizedBox(height: 16),
@@ -237,6 +239,7 @@ class _CabFormState extends State<CabForm> {
                       ),
                     ],
                     style: theme.textTheme.bodyLarge,
+                    textInputAction: TextInputAction.next,
                     validator: (value) => Validators.distance(value),
                   ),
                   const SizedBox(height: 16),
@@ -270,6 +273,7 @@ class _CabFormState extends State<CabForm> {
                       ),
                     ),
                     style: theme.textTheme.bodyLarge,
+                    textInputAction: TextInputAction.done,
                   ),
                   const SizedBox(height: 16),
                   // Route Dropdown

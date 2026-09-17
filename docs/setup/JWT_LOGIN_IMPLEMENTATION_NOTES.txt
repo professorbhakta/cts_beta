@@ -1,6 +1,6 @@
 CTS JWT + Login — FROZEN TARGET (phased build)
 ==============================================
-Updated: 2026-09-08
+Updated: 2026-09-09 20:15 IST
 Status: CONTRACT FROZEN as target shape
 Build: PHASED — not all fields day-one until schema exists
 Phase A IMPLEMENTED on lab — hardening deferred 2026-09-08 (see end)
@@ -27,8 +27,7 @@ Phase A (first green flag — JWT works with TODAY's DB):
     adminCode (from existing subAdmin)
     profile stubs for DRIVER/COMMUTER if rows exist today
   MAY be empty arrays / null until schema lands:
-    organizations, supervisorOrgs, rich ADMIN/SUPERVISOR profile fields
-
+    organizations, supervisorOrgs, rich ADMIN/SUPER_ADMIN/SUPERVISOR profile fields
 Phase B (after Organization / Supervisor / SubAdminOrganization schema):
   Fill organizations, supervisorOrgs, full role profiles as in § envelopes below
 
@@ -48,14 +47,15 @@ LOGIN ENVELOPE (target)
   "profile": { }
 }
 
-userType: ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
+userType: ADMIN | SUPER_ADMIN | SUPERVISOR | DRIVER | COMMUTER | STAFF
 
-ADMIN profile: subAdminId, defaultOrganizationId, organizationCount, canManageOrgs
+ADMIN / SUPER_ADMIN profile: subAdminId, defaultOrganizationId, organizationCount, canManageOrgs
 SUPERVISOR profile: supervisorId, defaultOrganizationId, organizationCount, canManageOrgs, allowList
 DRIVER profile: driverId, organizationId, batchId, cabId, batchName, cabRegNumber
 COMMUTER profile: commuterId, organizationId, batchId, popId, cabId, isComing,
   busPassNo, validFrom, validTo, batchName, popName
 STAFF profile: COMMUTER fields + designation, employeeType
+SUPER_ADMIN web: Django /void/ (staff) until Flutter web portal exists
 
 ------------------------------------------------------------------------
 BACKEND STEPS (when green flag)

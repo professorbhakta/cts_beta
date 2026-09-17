@@ -1,4 +1,6 @@
+import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/d2d/helpers/client_pack_feedback.dart';
+import 'package:cts/features/d2d/helpers/d2d_board_beep.dart';
 import 'package:cts/features/d2d/repositories/d2d_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -9,6 +11,10 @@ import 'package:provider/provider.dart';
 ///
 /// Shared for morning and return: token carries leg (`morning`|`return`).
 /// Return entry: [ReturnBoardingScanScreen] with return-facing title/hint.
+///
+/// [allowJoinWaiting] is morning-only. BE return `boarding_scan` always boards
+/// into RCList and ignores `action`; return waiting uses
+/// `POST return_batch/add_commuter` (`action: join_waiting`).
 class BoardingScanScreen extends StatefulWidget {
   const BoardingScanScreen({
     super.key,
@@ -16,10 +22,14 @@ class BoardingScanScreen extends StatefulWidget {
     this.hint =
         'Scan to board if you are on the live queue. '
         'If not added yet, you can join the waiting line.',
+    this.allowJoinWaiting = true,
   });
 
   final String title;
   final String hint;
+
+  /// When false (return scan), do not offer `boarding_scan` join_waiting.
+  final bool allowJoinWaiting;
 
   @override
   State<BoardingScanScreen> createState() => _BoardingScanScreenState();
@@ -82,6 +92,16 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
     return wantsJoin == true;
   }
 
+  Future<void> _playBoardBeep(String tripBatchId) async {
+    // Login stores batch on SharedPreferences; AppClass.batchId is legacy/unused.
+    final stored = AppManager.instance.getString(ManagerKey.batchId).trim();
+    final home = int.tryParse(stored) ?? AppClass.batchId;
+    final other = home > 0 &&
+        tripBatchId.trim().isNotEmpty &&
+        home.toString() != tripBatchId.trim();
+    await D2dBoardBeep.instance.playForOtherBatch(other);
+  }
+
   Future<void> _joinWaiting(String token) async {
     final repo = context.read<D2dRepository>();
     final result = await repo.boardingScan(token, action: 'join_waiting');
@@ -96,6 +116,7 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
     final data = result.data;
     final msg = data?.message?.trim();
     if (data?.queuePosition == 0) {
+      await _playBoardBeep(data?.batchId ?? '');
       ClientPackFeedback.showSuccess(msg ?? 'Boarded from waiting line.');
     } else {
       ClientPackFeedback.showSuccess(
@@ -124,7 +145,8 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
       if (result.isFailure) {
         final failure = result.failure!;
         final code = failure.code;
-        if (code == 'not_in_queue' || code == 'capacity_full') {
+        if (widget.allowJoinWaiting &&
+            (code == 'not_in_queue' || code == 'capacity_full')) {
           final wantsJoin = await _offerJoinWaiting(
             failure.message ?? 'Cannot board right now.',
           );
@@ -139,6 +161,9 @@ class _BoardingScanScreenState extends State<BoardingScanScreen> {
       }
 
       final already = result.data?.alreadyBoarded == true;
+      if (!already) {
+        await _playBoardBeep(result.data?.batchId ?? '');
+      }
       ClientPackFeedback.showSuccess(
         already ? 'Already boarded.' : 'Boarded successfully.',
       );

@@ -1,7 +1,9 @@
 /// Role-action matrix for live D2D WebSocket mutations.
 ///
-/// Connect/disconnect is allowed for admin (monitor) and assigned driver.
-/// Trip closure (STOP) is driver-only; admin Close channel is disconnect only.
+/// Connect/disconnect: admin-like monitors + assigned driver.
+/// Add: ADMIN / SUPERVISOR only (not DRIVER, not SUPER_ADMIN).
+/// Board (confirm) + remove: admin operators + driver.
+/// Trip closure (STOP): driver only; admin Close channel is disconnect only.
 enum D2dChannelAction {
   connect,
   disconnect,
@@ -14,16 +16,27 @@ enum D2dChannelAction {
 class D2dChannelRolePolicy {
   const D2dChannelRolePolicy._();
 
+  /// ADMIN / SUPERVISOR day-ops operators (Add + Board + Remove).
+  static bool isOperator(String? role) =>
+      role == 'ADMIN' || role == 'SUPERVISOR';
+
+  /// Can join the live channel to watch (includes SUPER_ADMIN monitor).
+  static bool isMonitor(String? role) =>
+      isOperator(role) || role == 'SUPER_ADMIN';
+
   static bool can(String? role, D2dChannelAction action) {
-    final isAdminMonitor = role == 'ADMIN' || role == 'SUPERVISOR';
     switch (action) {
       case D2dChannelAction.connect:
       case D2dChannelAction.disconnect:
-        return isAdminMonitor || role == 'DRIVER';
+        return isMonitor(role) || role == 'DRIVER';
       case D2dChannelAction.addCommuter:
+        // Driver never; SUPER_ADMIN monitor-only.
+        return isOperator(role);
       case D2dChannelAction.removeFromQueue:
-        return isAdminMonitor || role == 'DRIVER';
       case D2dChannelAction.confirmPickup:
+        return isOperator(role) ||
+            role == 'SUPER_ADMIN' ||
+            role == 'DRIVER';
       case D2dChannelAction.stopTrip:
         return role == 'DRIVER';
     }
@@ -39,7 +52,7 @@ class D2dChannelRolePolicy {
       case D2dChannelAction.removeFromQueue:
         return 'You are not allowed to remove commuters from this trip.';
       case D2dChannelAction.confirmPickup:
-        return 'Only the driver can confirm pickups.';
+        return 'You are not allowed to confirm pickups on this trip.';
       case D2dChannelAction.stopTrip:
         return 'Only the driver can end the trip. Close channel does not stop the day.';
     }

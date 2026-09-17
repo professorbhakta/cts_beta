@@ -6,22 +6,28 @@ import 'package:cts/features/admin_bootstrap/models/admin_bootstrap_response.dar
 import 'package:sqflite/sqflite.dart';
 
 /// Persists admin-bootstrap payload into snake_case SQLite tables.
+///
+/// When [Database] is null (web / SQLite skipped), writes are no-ops — API is source of truth.
 class AdminBootstrapDao {
   AdminBootstrapDao([Database? db]) : _dbOverride = db;
 
   final Database? _dbOverride;
 
-  Database get _db => _dbOverride ?? AppDatabase.instance.database;
+  Database? get _db =>
+      _dbOverride ?? AppDatabase.instanceOrNull?.databaseOrNull;
 
   Future<void> replaceAll(
     AdminBootstrapResponse payload, {
     required String adminCode,
   }) async {
     final db = _db;
+    if (db == null) return;
     final now = DateTime.now().millisecondsSinceEpoch;
 
     await db.transaction((txn) async {
       await txn.delete(DatabaseSchema.organizationTable);
+      await txn.delete(DatabaseSchema.subAdminOrganizationTable);
+      await txn.delete(DatabaseSchema.supervisorTable);
       await txn.delete(DatabaseSchema.routeTable);
       await txn.delete(DatabaseSchema.pickUpPointTable);
       await txn.delete(DatabaseSchema.batchTable);
@@ -54,6 +60,7 @@ class AdminBootstrapDao {
             'route_code': route.routeCode,
             'is_active': route.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': route.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -73,6 +80,7 @@ class AdminBootstrapDao {
             'area': pop.area,
             'is_active': pop.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': pop.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -91,6 +99,7 @@ class AdminBootstrapDao {
             'end_date': batch.endDate,
             'is_active': batch.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': batch.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -106,9 +115,11 @@ class AdminBootstrapDao {
             'capacity': cab.capacity,
             'route_id': cab.routeId,
             'ac_type': cab.acType,
+            'km': cab.km,
             'tracking_vehicle_id': cab.trackingVehicleId,
             'is_active': cab.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': cab.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -127,6 +138,7 @@ class AdminBootstrapDao {
             'cab_id': driver.cabId,
             'is_active': driver.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': driver.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -151,6 +163,7 @@ class AdminBootstrapDao {
                 : (commuter.hasPaid! ? 1 : 0),
             'is_active': commuter.isActive ? 1 : 0,
             'admin_code': adminCode,
+            'organization_id': commuter.organizationId,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -178,7 +191,9 @@ class AdminBootstrapDao {
   }
 
   Future<AdminBootstrapResponse?> readMetaAsResponse() async {
-    final rows = await _db.query(
+    final db = _db;
+    if (db == null) return null;
+    final rows = await db.query(
       DatabaseSchema.bootstrapMetaTable,
       where: 'id = ?',
       whereArgs: [1],
@@ -204,8 +219,139 @@ class AdminBootstrapDao {
     );
   }
 
+  /// Rebuild full luggage from entity tables (cold start on mobile).
+  Future<AdminBootstrapResponse?> readFullAsResponse() async {
+    final db = _db;
+    if (db == null) return null;
+
+    final meta = await readMetaAsResponse();
+    if (meta == null) return null;
+
+    final orgRows = await db.query(DatabaseSchema.organizationTable);
+    final routeRows = await db.query(DatabaseSchema.routeTable);
+    final popRows = await db.query(DatabaseSchema.pickUpPointTable);
+    final batchRows = await db.query(DatabaseSchema.batchTable);
+    final cabRows = await db.query(DatabaseSchema.cabTable);
+    final driverRows = await db.query(DatabaseSchema.driverTable);
+    final commuterRows = await db.query(DatabaseSchema.commuterTable);
+
+    return AdminBootstrapResponse(
+      status: meta.status,
+      generatedAt: meta.generatedAt,
+      adminCode: meta.adminCode,
+      enums: meta.enums,
+      today: meta.today,
+      organizations: [
+        for (final row in orgRows)
+          BootstrapOrganization(
+            id: row['id']?.toString() ?? '',
+            orgName: row['org_name']?.toString(),
+            isActive: row['is_active'] == 1,
+            createdAt: row['created_at']?.toString(),
+            updatedAt: row['updated_at']?.toString(),
+          ),
+      ],
+      routes: [
+        for (final row in routeRows)
+          BootstrapRoute(
+            id: _rowInt(row['id']) ?? 0,
+            routeName: row['route_name']?.toString(),
+            routeCode: row['route_code']?.toString(),
+            isActive: row['is_active'] == 1,
+            organizationId: row['organization_id']?.toString(),
+          ),
+      ],
+      pickUpPoints: [
+        for (final row in popRows)
+          BootstrapPickUpPoint(
+            id: _rowInt(row['id']) ?? 0,
+            pickUpPointName: row['pick_up_point_name']?.toString(),
+            routeId: _rowInt(row['route_id']),
+            lat: _rowDouble(row['lat']),
+            longitude: _rowDouble(row['longitude']),
+            inLine: _rowInt(row['in_line']),
+            area: row['area']?.toString(),
+            isActive: row['is_active'] == 1,
+            organizationId: row['organization_id']?.toString(),
+          ),
+      ],
+      batches: [
+        for (final row in batchRows)
+          BootstrapBatch(
+            id: row['id']?.toString() ?? '',
+            batchName: row['batch_name']?.toString(),
+            batchTime: row['batch_time']?.toString(),
+            endTime: row['end_time']?.toString(),
+            startDate: row['start_date']?.toString(),
+            endDate: row['end_date']?.toString(),
+            isActive: row['is_active'] == 1,
+            organizationId: row['organization_id']?.toString(),
+          ),
+      ],
+      cabs: [
+        for (final row in cabRows)
+          BootstrapCab(
+            id: _rowInt(row['id']) ?? 0,
+            regNumber: row['reg_number']?.toString(),
+            capacity: _rowInt(row['capacity']),
+            routeId: _rowInt(row['route_id']),
+            acType: row['ac_type']?.toString(),
+            km: _rowInt(row['km']),
+            trackingVehicleId: row['tracking_vehicle_id']?.toString(),
+            isActive: row['is_active'] == 1,
+            organizationId: row['organization_id']?.toString(),
+          ),
+      ],
+      drivers: [
+        for (final row in driverRows)
+          BootstrapDriver(
+            driverId: _rowInt(row['driver_id']) ?? 0,
+            userId: _rowInt(row['user_id']),
+            username: row['username']?.toString(),
+            mobileNumber: row['mobile_number']?.toString(),
+            batchId: row['batch_id']?.toString(),
+            cabId: _rowInt(row['cab_id']),
+            isActive: row['is_active'] == 1,
+            organizationId: row['organization_id']?.toString(),
+          ),
+      ],
+      commuters: [
+        for (final row in commuterRows)
+          BootstrapCommuter(
+            commuterId: _rowInt(row['commuter_id']) ?? 0,
+            userId: _rowInt(row['user_id']),
+            username: row['username']?.toString(),
+            mobileNumber: row['mobile_number']?.toString(),
+            userType: row['user_type']?.toString(),
+            batchId: row['batch_id']?.toString(),
+            popId: _rowInt(row['pop_id']),
+            cabId: _rowInt(row['cab_id']),
+            isComing: row['is_coming'] == 1,
+            hasPaid: row['has_paid'] == null ? null : row['has_paid'] == 1,
+            isActive: row['is_active'] == 1,
+            organizationId: row['organization_id']?.toString(),
+          ),
+      ],
+    );
+  }
+
+  int? _rowInt(Object? value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString());
+  }
+
+  double? _rowDouble(Object? value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString());
+  }
+
   Future<void> clearAll() async {
     final db = _db;
+    if (db == null) return;
     await db.transaction((txn) async {
       await txn.delete(DatabaseSchema.organizationTable);
       await txn.delete(DatabaseSchema.routeTable);

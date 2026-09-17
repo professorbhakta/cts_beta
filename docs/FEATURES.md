@@ -1,6 +1,6 @@
 > **Doc:** docs/FEATURES.md
-> **Updated:** 2026-09-08 23:50 IST
-> **Session:** Phase 2 return QR wired — ?trip=return + boarding_scan
+> **Updated:** 2026-09-10 19:40 IST
+> **Session:** Removed offline_temp prototype feature
 
 # Feature catalog
 
@@ -25,7 +25,11 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `commuters` | Admin + Commuter | CommuterScreen, CommuterForm, CommuterHomePage, CommuterListScreen, ReturnCommuterListScreen | CommuterController, CommuterHomeProvider | CommuterFormProvider | CommuterRepository |
 | `d2d` | Admin + Driver + Commuter | D2dChannel, D2DLogScreen, BoardingScanScreen | D2dChannelProvider | — | D2dRepository (status + odometer + boarding) + WebSocket via provider |
 | `profile` | All logged-in | ProfileScreen | ProfileProvider, SignInProvider (logout) | — | Session (AppManager / SessionRole) + AuthenticationRepository |
-| `offline_temp` | Admin (prototype) | OfflineHome + tabs + drill-downs | OfflineTempProvider | — | Local offline DB |
+
+### Locale / i18n (FIND-017)
+
+**v1:** English-only Material strings; no `flutter_localizations` delegates yet.  
+**Post-v1:** Hindi + RTL timeline tracked in [PROJECT_TODOS.md](../PROJECT_TODOS.md) (item 7b) — inventory → delegates → `app_hi.arb` → RTL smoke.
 
 ---
 
@@ -55,9 +59,8 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | `/d2dLog/:id` | D2DLogScreen (start/end KM + boarding QR) | d2d |
 | `/boardingScan` | BoardingScanScreen (commuter) | d2d |
 | `/profileScreen` | ProfileScreen | profile |
-| `/offlineTempHome` + children | Offline* screens | offline_temp |
 
-Nested (no GoRoute): `CommuterListScreen`, `OfflineCommuterFormScreen`.
+Nested (no GoRoute): `CommuterListScreen`.
 
 ---
 

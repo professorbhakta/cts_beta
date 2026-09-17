@@ -1,21 +1,21 @@
 > **Doc:** docs/OFFLINE_AND_SYNC.md
-> **Updated:** 2026-08-20 22:15 IST
-> **Session:** Verified unchanged
+> **Updated:** 2026-09-10 19:40 IST
+> **Session:** Removed offline_temp prototype; prod batch sync unchanged
 
 # Offline and sync
 
-How offline behavior works today: **production batch sync** vs **offline_temp** prototype.
+How offline behavior works today: **production batch sync** only.
+The former `lib/offline_temp/` Offline Mode prototype (separate DB, drawer tile, seed data) was **removed**.
 
 **See also:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [FEATURES.md](./FEATURES.md)
 
 ---
 
-## Two systems (do not confuse)
+## Production system
 
 | System | Location | Status |
 |--------|----------|--------|
 | **Production offline-first** | `OfflineFirstBatchRepository`, `SyncManager`, `AppDatabase` | Batches only |
-| **Offline temp module** | `lib/offline_temp/` | Prototype UI + separate DB; admin drawer entry |
 
 ---
 
@@ -27,7 +27,6 @@ Full offline queue/replay for live trips and return batches is **deferred**. Cur
 |-----------|------|
 | `NetworkActionGuard` | Pre-check before D2D connect/WS actions and return batch confirm/remove/end |
 | `NetworkDegradedBanner` | App-wide offline banner (MaterialApp builder) |
-| `OfflineAutoRedirect` | **Passthrough** — no auto-jump to `/offlineTempHome` (P5); drawer entry still available |
 | `ConnectivityService.isOnlineCached` | Fast path for sync UI guards without re-probing |
 
 **Extension point:** `NetworkActionPolicy.queueWhenOffline` reserved for future per-entity queue handlers (see `SyncManager` + batch registration today).
@@ -54,6 +53,16 @@ flowchart LR
 **Write path:** Online → API immediately. Offline → enqueue `SyncQueueRecord` + optimistic local update where applicable.
 
 **Registration:** `offlineFirstBatchRepository.registerSyncHandlers(syncManager)` in bootstrap.
+
+### Admin catalog luggage (bootstrap)
+
+| Mode | Behavior |
+|------|----------|
+| Pull-to-refresh | Awaits full `sync()` / `invalidateAndResync` |
+| Post-CRUD | `refreshInBackground()` — stale-while-revalidate; does **not** block the mutation UI |
+| TTL | **None** — freshness is PTR + background refresh (FIND-011) |
+
+See [API_CONTRACTS.md](./API_CONTRACTS.md) · [setup/ADMIN_BOOTSTRAP_DRAFT.md](./setup/ADMIN_BOOTSTRAP_DRAFT.md).
 
 ---
 
@@ -93,21 +102,8 @@ Initialized in `main.dart` before `runApp`.
 
 ---
 
-## Offline temp module
-
-**Route:** `/offlineTempHome`
-
-**UI:** Bottom tabs — Routes, Batches, Commuters, Output; FAB per tab; optional seed import / dump all.
-
-**Data:** `OfflineTempDatabase`, `OfflineTempProvider` — local-only prototype for demos and planning (Phase 9: promote to production patterns).
-
-**Redirect:** `OfflineAutoRedirect` on **admin home, driver home, and offline screens** only. Commuter home and Track Cab are not wrapped. Uses the app-scoped `ConnectivityService` (no second plugin listener). `isOfflineRole()` is admin or driver via `SessionRole`. Do not add extra connectivity probes or a session ping.
-
----
-
 ## Roadmap (from PROJECT_TODOS)
 
-- Phase 9: Promote `offline_temp` patterns or merge into feature repositories
 - Expand `EntityType` handlers beyond batches for full admin CRUD offline
 
 ---

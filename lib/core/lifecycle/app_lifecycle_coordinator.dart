@@ -33,12 +33,10 @@ class AppLifecycleCoordinator with WidgetsBindingObserver {
     required ConnectivityService connectivityService,
     required SessionAuthNotifier sessionAuthNotifier,
     Future<bool> Function()? refreshOnlineStatus,
-  })  : _connectivityService = connectivityService,
-        _sessionAuthNotifier = sessionAuthNotifier,
+  })  : _sessionAuthNotifier = sessionAuthNotifier,
         _refreshOnlineStatus =
             refreshOnlineStatus ?? connectivityService.refreshOnlineStatus;
 
-  final ConnectivityService _connectivityService;
   final SessionAuthNotifier _sessionAuthNotifier;
   final Future<bool> Function() _refreshOnlineStatus;
 

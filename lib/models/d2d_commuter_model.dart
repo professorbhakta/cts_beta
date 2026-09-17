@@ -6,7 +6,15 @@ class D2dCommuterModel {
   final PickUpPointModel? popId;
   final int? inLine;
 
-  D2dCommuterModel({this.userId, this.popId, this.inLine});
+  /// Home batch id when present on WS payload (`batchId` / `batch_id`).
+  final String? homeBatchId;
+
+  D2dCommuterModel({
+    this.userId,
+    this.popId,
+    this.inLine,
+    this.homeBatchId,
+  });
 
   String get username => userId?.username ?? 'Unknown commuter';
 
@@ -18,7 +26,7 @@ class D2dCommuterModel {
   ///
   /// Supported shapes:
   /// ```json
-  /// { "4": { "pickUpPoint": "...", "inLine": 1, "mobile_number": "...", "username": "..." } }
+  /// { "4": { "pickUpPoint": "...", "inLine": 1, "mobile_number": "...", "username": "...", "batchId": 2 } }
   /// ```
   /// or a flat map with `id`, `username`, `mobile_number` / `mobileNumber`.
   factory D2dCommuterModel.fromJson(Map<String, dynamic> json) {
@@ -26,7 +34,15 @@ class D2dCommuterModel {
       userId: _parseUserId(json),
       popId: _parsePopId(json['pickUpPoint'] ?? json['popId']),
       inLine: _parseInLine(json['inLine']),
+      homeBatchId: _parseBatchId(json['batchId'] ?? json['batch_id']),
     );
+  }
+
+  static String? _parseBatchId(dynamic value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    if (text.isEmpty || text.toLowerCase() == 'null') return null;
+    return text;
   }
 
   static UserId? _parseUserId(Map<String, dynamic> json) {

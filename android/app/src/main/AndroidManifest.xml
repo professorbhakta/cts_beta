@@ -1,10 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Network: Dio/WS + connectivity_plus -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Notifications (Android 13+): splash Permission.notification; FCM init deferred (FE-7.6) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- Client pack: odometer photo + QR scan (camera only; no gallery/storage) -->
+    <!-- FIND-012 / FE-7.4: READ_PHONE_STATE + LOCATION removed — not used by Dart -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature
         android:name="android.hardware.camera"
@@ -72,6 +73,28 @@
         <!-- image_picker / mobile_scanner: camera app visibility (Android 11+) -->
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE"/>
+        </intent>
+        <!-- url_launcher: dialer + browser (package visibility Android 11+) -->
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:scheme="tel"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="http"/>
+        </intent>
+        <!-- share_plus: system share sheet targets -->
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="*/*"/>
         </intent>
     </queries>
 </manifest>

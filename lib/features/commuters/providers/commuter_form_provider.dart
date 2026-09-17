@@ -12,11 +12,11 @@ class CommuterFormProvider with ChangeNotifier {
   final commEmail = TextEditingController();
   final commPass = TextEditingController();
   final commAddr = TextEditingController();
-  final commClg = TextEditingController();
 
   int? selectedCabId;
   int? selectedPopId;
   int? selectedBatchId;
+  String? selectedOrganizationId;
 
   bool forUpdate = false;
   int updateId = 0;
@@ -56,7 +56,7 @@ class CommuterFormProvider with ChangeNotifier {
     commMob.text = commuter.userId?.mobileNumber ?? '';
     commEmail.text = displayEmail(commuter.userId?.email);
     commAddr.text = displayAddress(commuter.userId?.address);
-    commClg.text = commuter.collegeName ?? '';
+    selectedOrganizationId = commuter.organizationId;
     selectedBatchId = commuter.batchId?.id;
     selectedCabId = commuter.cabId?.id;
     selectedPopId = commuter.popId?.id;
@@ -96,10 +96,10 @@ class CommuterFormProvider with ChangeNotifier {
     commEmail.clear();
     commPass.clear();
     commAddr.clear();
-    commClg.clear();
     selectedCabId = null;
     selectedPopId = null;
     selectedBatchId = null;
+    selectedOrganizationId = null;
     forUpdate = false;
     updateId = 0;
     lastSavedAddress = null;
@@ -114,7 +114,6 @@ class CommuterFormProvider with ChangeNotifier {
     commEmail.dispose();
     commPass.dispose();
     commAddr.dispose();
-    commClg.dispose();
     super.dispose();
   }
 }

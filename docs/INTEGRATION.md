@@ -1,6 +1,6 @@
 > **Doc:** docs/INTEGRATION.md
-> **Updated:** 2026-09-08 12:45 IST
-> **Session:** Role homes — STAFF commuter; SUPERVISOR allow-list pointer
+> **Updated:** 2026-09-12 16:00 IST
+> **Session:** E2E docs thinned to pointers
 
 # Integration — Full-Stack Overview
 
@@ -53,17 +53,18 @@ Separate git repos. Backend runs via Docker Desktop; Flutter connects over LAN H
 ## User types
 
 - `ADMIN` — full admin shell + all `AdminService` tiles / routes
+- `SUPER_ADMIN` — same full shell as ADMIN on mobile; **web portal** = Django `/void/` (`is_staff` + `is_superuser`) until Flutter web ships
 - `SUPERVISOR` — same admin shell home; Phase A allow-list only (`batch`, `cab`, `route`, `pop`, `driver`, `d2d`, `commuter`) — see [ROUTING_AND_AUTH.md](./ROUTING_AND_AUTH.md)
 - `STAFF` — **commuter home/UX** (not admin-like; no admin CRUD)
 - `DRIVER` — runs live D2D log; confirms pickups
 - `COMMUTER` — self-service `isComing` toggle
 
-Login field: **mobile number**. Auth uses JWT (`access` + `refresh` in FlutterSecureStorage; `Authorization: Bearer` on REST). D2D WebSocket sends the same Bearer access token on connect: anonymous **4401**, not ADMIN/assigned DRIVER **4403**. Role is not re-checked on every ADD/DELETE/STOP. Public Flutter sign-up is disabled; backend `POST /user/` still trusts client `userType`.
+Login field: **mobile number**. Auth uses JWT (`access` + `refresh` in FlutterSecureStorage; `Authorization: Bearer` on REST). D2D WebSocket sends the same Bearer access token on connect (Dock `JwtAuthMiddlewareStack`): anonymous **4401**, not ADMIN/SUPER_ADMIN/SUPERVISOR/assigned DRIVER **4403**. Role is not re-checked on every ADD/DELETE/STOP. Public Flutter sign-up is disabled; backend `POST /user/` still gates privileged `userType` (COMMUTER-only when anonymous).
 
 ## Critical features
 
-- **Live D2D WebSocket** — [features/D2D_E2E.md](./features/D2D_E2E.md) ✅ fixes applied. `DTODLOG` on connect; only driver `STOP` ends the day; admin ADD looks up by user ID
-- **Evening return batch** — [features/RETURN_BATCH_E2E.md](./features/RETURN_BATCH_E2E.md) ✅ admin + driver UI wired
+- **Live D2D WebSocket** — [features/D2D_E2E.md](./features/D2D_E2E.md) (pointer) · [d2d README](../lib/features/d2d/README.md) · [FLOWS](./FLOWS_BY_ROLE.md)
+- **Evening return batch** — [features/RETURN_BATCH_E2E.md](./features/RETURN_BATCH_E2E.md) (pointer) · [batches README](../lib/features/batches/README.md)
 
 ---
 
@@ -119,7 +120,7 @@ sequenceDiagram
 
   Driver->>Nginx: WS connect /ws/1/ + Cookie sessionid
   Nginx->>Consumer: upgrade
-  Consumer->>Consumer: AuthMiddlewareStack — reject 4401/4403 if needed
+  Consumer->>Consumer: JwtAuthMiddlewareStack — reject 4401/4403 if needed
   Consumer->>DB: get_or_create DTODLOG today
   Consumer->>Live: get or rebuild DS
   Consumer->>Driver: result snapshot
@@ -233,6 +234,8 @@ flowchart LR
 
 - [GLOSSARY.md](./GLOSSARY.md)
 - [LOCAL_DEV.md](./LOCAL_DEV.md)
-- [backend/README.md](./backend/README.md) — pointers to LOCAL_DEV / API_CONTRACTS / feature READMEs
+- [API_CONTRACTS.md](./API_CONTRACTS.md) — REST + WS wire
+- [LOCAL_DEV.md](./LOCAL_DEV.md) — Docker / LAN + `d2d_log` module map
+- Feature READMEs — morning D2D / return batch UI notes
 - [features/D2D_E2E.md](./features/D2D_E2E.md)
 - [features/RETURN_BATCH_E2E.md](./features/RETURN_BATCH_E2E.md)

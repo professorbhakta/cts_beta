@@ -1,4 +1,4 @@
-import 'package:cts/appManager/colors.dart';
+import 'package:cts/theme/app_colors.dart';
 import 'package:cts/theme/cts_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

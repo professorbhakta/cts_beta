@@ -1,17 +1,24 @@
 > **Doc:** docs/setup/ADMIN_BOOTSTRAP_DRAFT.md
-> **Updated:** 2026-09-09
-> **Session:** Admin bootstrap JSON draft (Phase A = today’s DB; Phase B = org schema)
+> **Updated:** 2026-09-10 19:20 IST
+> **Session:** Required fields locked — organizationId + cab km; no collegeName/first_name
 
 # GET /user/admin-bootstrap/ — draft body
 
 **Auth:** `Authorization: Bearer <access>`  
-**Who:** `userType` ADMIN or SUPERVISOR only (403 others)  
+**Who:** `userType` ADMIN, SUPER_ADMIN, or SUPERVISOR only (403 others)  
 **Idea:** login = passport; this call = luggage (one sync for Admin app)
 
-Scope today (Phase A, no Organization tables yet):
-- Filter by caller’s `adminCode` (subAdmin id) like existing APIs
-- `organizations` / rich org fields may be `[]` until schema migrate
-- SUPERVISOR: same shape; only orgs/batches they may touch (when Supervisor rows exist; else same as admin for dummy)
+## Required field knowledge (LOCKED 2026-09-10)
+
+| Need | Field | Notes |
+|------|--------|------|
+| Which org / “college” | **`organizationId`** | Organization table; do **not** require `collegeName` |
+| Cab running baseline | **`km`** | Starting odometer / cab status entry point (not trip-leg odo photos) |
+| Person display | **`username` + `mobileNumber`** | Do **not** require `first_name` / `last_name` |
+| Identity | `userId`, role FKs (`batchId`, `popId`, `cabId`) | Flat IDs in bootstrap; nest on FE mapper |
+
+Optional / when present: `routeCode`, `area`, `acType`, `isActive`, `organizations[]`.
+Omit: binary thumbnails, live trip queues, passwords.
 
 ---
 
@@ -24,7 +31,7 @@ Scope today (Phase A, no Organization tables yet):
   "adminCode": "<uuid>|null",
   "organizations": [],
   "enums": {
-    "userType": ["ADMIN", "SUPERVISOR", "DRIVER", "COMMUTER", "STAFF"],
+    "userType": ["ADMIN", "SUPER_ADMIN", "SUPERVISOR", "DRIVER", "COMMUTER", "STAFF"],
     "acType": ["AC", "NON_AC"]
   },
   "routes": [
@@ -60,8 +67,10 @@ Scope today (Phase A, no Organization tables yet):
       "capacity": 0,
       "routeId": null,
       "acType": null,
+      "km": 0,
       "trackingVehicleId": null,
-      "isActive": true
+      "isActive": true,
+      "organizationId": null
     }
   ],
   "drivers": [
@@ -72,7 +81,8 @@ Scope today (Phase A, no Organization tables yet):
       "mobileNumber": "",
       "batchId": null,
       "cabId": null,
-      "isActive": true
+      "isActive": true,
+      "organizationId": null
     }
   ],
   "commuters": [
@@ -87,7 +97,8 @@ Scope today (Phase A, no Organization tables yet):
       "cabId": null,
       "isComing": false,
       "hasPaid": null,
-      "isActive": true
+      "isActive": true,
+      "organizationId": null
     }
   ],
   "today": {
@@ -117,10 +128,13 @@ Scope today (Phase A, no Organization tables yet):
 - Update `API_CONTRACTS.md`
 - Tell F&D keys for device tables
 
-## FE wired (2026-09-09 IST)
-- Branch: `feat/admin-bootstrap`
-- Feature: `lib/features/admin_bootstrap/` (models + repositories + providers; **no screens**)
+## FE wired (2026-09-10 IST)
+- Feature: `lib/features/admin_bootstrap/` (models + repositories + providers + cache/mapper; **no screens**)
 - Endpoint const: `ApiUrl.adminBootstrapUrl` = `user/admin-bootstrap/`
-- Flow: JWT login (ADMIN/SUPERVISOR) → `AdminBootstrapRepository.sync()` → SQLite snake_case tables (schema v2)
-- Empty `organizations` / nulls tolerated Phase A
-- Logout clears bootstrap tables via `AppDatabase.clearAll()`
+- Flow: JWT login / cold-start session → soft `sync()` → memory (+ SQLite on mobile)
+- **Catalog SoT:** admin home counts + all list `get*` use luggage only (`ensureLuggage`). Legacy `admin*Url` list GETs are **not** called from FE catalog paths.
+- Mutations: CRUD still hits entity APIs; then `refreshInBackground()` refills luggage (stale-while-revalidate; coalesced sync). Pull-to-refresh still awaits full `sync()`.
+- Pull-to-refresh on admin home re-runs bootstrap; live running batches stay on `dtotLogUrl`
+- Commuter form sends **`organizationId`** (not `collegeName`); display via org name
+- Logout clears memory + bootstrap tables
+- Cab luggage includes **`km`** (baseline running status) when BE sends it

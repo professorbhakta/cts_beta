@@ -60,12 +60,14 @@ class _CommuterScreenState extends State<CommuterScreen> {
         : allCommuters.where((commuter) {
             final name = (commuter.userId?.username ?? '').toLowerCase();
             final mobile = (commuter.userId?.mobileNumber ?? '').toLowerCase();
-            final college = (commuter.collegeName ?? '').toLowerCase();
+            final college = commuter.orgOrCollegeLabel.toLowerCase();
+            final orgId = (commuter.organizationId ?? '').toLowerCase();
             final address = (commuter.userId?.address ?? '').toLowerCase();
             final batchName = (commuter.batchId?.batchName ?? '').toLowerCase();
             return name.contains(_searchQuery) ||
                 mobile.contains(_searchQuery) ||
                 college.contains(_searchQuery) ||
+                orgId.contains(_searchQuery) ||
                 address.contains(_searchQuery) ||
                 batchName.contains(_searchQuery);
           }).toList();
@@ -124,16 +126,16 @@ class _CommuterScreenState extends State<CommuterScreen> {
         icon: Icons.directions_car,
       ),
       SortOption(
-        label: 'College',
+        label: 'Organization',
         subLabel: 'A-Z',
         value: CommuterSortOption.collegeAZ,
-        icon: Icons.school,
+        icon: Icons.business,
       ),
       SortOption(
-        label: 'College',
+        label: 'Organization',
         subLabel: 'Z-A',
         value: CommuterSortOption.collegeZA,
-        icon: Icons.school,
+        icon: Icons.business,
       ),
       SortOption(
         label: 'POP',

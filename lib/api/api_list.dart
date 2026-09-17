@@ -4,28 +4,36 @@ class ApiUrl {
   static String refreshUrl = "user/refresh";
   static String logoutUrl = "user/logout";
 
-  /// One-shot admin sync after JWT login (ADMIN / SUPERVISOR).
+  /// One-shot admin catalog sync after JWT login (ADMIN / SUPER_ADMIN / SUPERVISOR).
+  /// List UIs read this luggage — do not call legacy `admin*Url` list GETs for catalog.
   static const String adminBootstrapUrl = "user/admin-bootstrap/";
 
   static String userUrl = "user";
   static String cndUserUrl = "user/";
+  @Deprecated('Unused — prefer adminBootstrapUrl for catalog')
   static String adminUrl = "user/admin/";
   static String driverUrl = "user/driver";
+  /// Legacy list fan-out — kept for BE compatibility docs; FE catalog uses bootstrap.
   static String adminDriverUrl = "user/admin/driver/";
   static String commuterUrl = "user/commuter";
   static String commuterDriverUrl = "user/driver/batch/";
+  /// Legacy list fan-out — FE catalog uses bootstrap.
   static String adminCommuterUrl = "user/admin/commuter/";
   /// `PATCH â€¦/isComing` â€” admin mark-all coming for org [adminCode].
   static String adminCommuterIsComingUrl(String adminCode) =>
       "user/admin/commuter/$adminCode/isComing";
 
   static String batchUrl = "cab/batch";
+  /// Legacy list fan-out — FE catalog uses bootstrap.
   static String adminBatchUrl = "cab/admin/batch/";
   static String pickUpPointUrl = "cab/pickUpPoint";
+  /// Legacy list fan-out — FE catalog uses bootstrap.
   static String adminPickUpPointUrl = "cab/admin/pickuppoint/";
   static String routeUrl = "cab/route";
+  /// Legacy list fan-out — FE catalog uses bootstrap.
   static String adminRouteUrl = "cab/admin/route/";
   static String cabUrl = "cab/cab";
+  /// Legacy list fan-out — FE catalog uses bootstrap.
   static String adminCabUrl = "cab/admin/cab/";
   static String dtotLogUrl = "d2d/running_batches";
   static const String d2dLogStatus = "d2d/get_d2d_log_status/";
@@ -68,5 +76,9 @@ class ApiUrl {
 
   /// Query value for morning-leg boarding QR mint (optional; default on BE).
   static const String boardingTripMorning = 'morning';
+
+  // Daily trip report + admin/supervisor end_km edit (snake_case)
+  static const String tripReportUrl = 'd2d/trip_report/';
+  static const String tripReportEditEndKmUrl = 'd2d/trip_report/edit_end_km/';
 
 }
