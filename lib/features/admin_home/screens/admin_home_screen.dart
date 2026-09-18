@@ -502,6 +502,115 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     );
   }
 
+
+  Widget _buildAttentionInboxSection(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    return Consumer<TripReviewAlertProvider>(
+      builder: (context, alert, _) {
+        if (alert.loading && alert.inbox.isEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _sectionLabel(context, 'Needs review'),
+              const SizedBox(height: 12),
+              const LinearProgressIndicator(minHeight: 2),
+            ],
+          );
+        }
+        if (alert.inbox.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _sectionLabel(
+              context,
+              'Needs review (${alert.badgeCount})',
+            ),
+            const SizedBox(height: 12),
+            ...alert.inbox.take(8).map((item) {
+              final flags = <String>[
+                if (item.anyIncomplete) 'Incomplete',
+                if (item.anyAutoClosed) 'Auto-closed',
+                if (item.anyEdited) 'Edited',
+              ];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Material(
+                  color: cts.orangeSoft,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () async {
+                      final parts = item.date.split('-');
+                      if (parts.length == 3) {
+                        final y = int.tryParse(parts[0]);
+                        final m = int.tryParse(parts[1]);
+                        final d = int.tryParse(parts[2]);
+                        if (y != null && m != null && d != null) {
+                          await context.read<TripReportProvider>().setDate(
+                                DateTime(y, m, d),
+                              );
+                        }
+                      }
+                      if (context.mounted) {
+                        context.push(RouteName.tripReportScreen);
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.flag_outlined, color: cts.navy, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.date,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: cts.navy,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  flags.join(' / '),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: cts.navy.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: cts.navy.withValues(alpha: 0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+            if (alert.inbox.length > 8)
+              TextButton(
+                onPressed: () => context.push(RouteName.tripReportScreen),
+                child: Text(
+                  'Open trip report (+${alert.inbox.length - 8} more)',
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildQuickActionsSection(
     BuildContext context,
     Set<AdminService> allowed,
