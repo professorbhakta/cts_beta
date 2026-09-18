@@ -1,6 +1,6 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-18 00:05 IST
-> **Session:** Path A in-app trip review banners (no FCM)
+> **Updated:** 2026-09-18 15:15 IST
+> **Session:** Step 2b month nav + client day filters
 
 # PROJECT_BRAIN — CTS Flutter
 
@@ -22,6 +22,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 ## 1b. Live FE work
 
 - Daily trip report + edit end_km + odometer photo thumbs (prefer A; silent B) + **boarded[]** + enrichment: `lib/features/trip_report/`. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md). Dock tip: `934fb02`.
+- **Step 2b month index + day filter chips:** `GET /d2d/trip_report/month/` + client-side incomplete/auto_closed/edited filters on day detail (no refetch on chip toggle). BE tip professor-dock `@0f63911`.
 - **Path A in-app banners (no FCM):** Admin/Supervisor home + trip report banner when incomplete/auto_closed; Driver home banner from get_d2d_log_status / return status / odometer (past expected end or incomplete odo). Helpers: `trip_report_review.dart`, `driver_trip_banner.dart`.
 - **Camera permissions:** never at splash (web no-op; mobile notifications only). Camera only at boarding QR / odometer capture (`boarding_scan_screen`, `odometer_camera_helper`). Trip report uses network images only.
 - D2D cream + other-batch red + board beeps — [lib/features/d2d/README.md](lib/features/d2d/README.md); WS live `batchId` — [API_CONTRACTS](docs/API_CONTRACTS.md).

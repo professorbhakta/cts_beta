@@ -5,6 +5,7 @@ import 'package:cts/api/api_result.dart';
 import 'package:cts/api/base_api_services.dart';
 import 'package:cts/appManager/app_class.dart';
 import 'package:cts/features/trip_report/models/trip_report_models.dart';
+import 'package:cts/features/trip_report/models/trip_report_month_models.dart';
 import 'package:cts/features/trip_report/repositories/trip_report_repository.dart';
 
 class TripReportRepositoryImpl implements TripReportRepository {
@@ -20,6 +21,22 @@ class TripReportRepositoryImpl implements TripReportRepository {
     final d = Uri.encodeQueryComponent(date.trim());
     final a = Uri.encodeQueryComponent(adminCode.trim());
     return '${ApiUrl.tripReportUrl}?date=$d&admin_code=$a';
+  }
+
+  /// Builds GET query for month index (exposed for unit tests).
+  static String buildMonthUrl({
+    required int year,
+    required int month,
+    required String adminCode,
+  }) {
+    final y = Uri.encodeQueryComponent(year.toString());
+    final m = Uri.encodeQueryComponent(month.toString());
+    final a = Uri.encodeQueryComponent(adminCode.trim());
+    var url = '${ApiUrl.tripReportMonthUrl}?year=$y&month=$m';
+    if (adminCode.trim().isNotEmpty) {
+      url = '$url&admin_code=$a';
+    }
+    return url;
   }
 
   /// Builds PATCH/POST body for edit_end_km (exposed for unit tests).
@@ -94,6 +111,54 @@ class TripReportRepositoryImpl implements TripReportRepository {
         );
       }
       return ApiResult.success(TripReportResponse.fromJson(map));
+    } catch (e) {
+      return ApiResult.failure(ApiExceptionHandler.handle(e));
+    }
+  }
+
+
+  @override
+  Future<ApiResult<TripReportMonthResponse>> fetchMonth({
+    required int year,
+    required int month,
+    String? adminCode,
+  }) async {
+    final code = (adminCode ?? _sessionAdminCode()).trim();
+    if (year < 2000 || month < 1 || month > 12) {
+      return ApiResult.failure(
+        const ApiFailure(
+          type: ApiFailureType.invalidRequest,
+          message: 'year/month invalid',
+          code: 'month_invalid',
+        ),
+      );
+    }
+    try {
+      final url = buildMonthUrl(year: year, month: month, adminCode: code);
+      final response = await _apiService.getApi(url);
+      if (response is! Map) {
+        return ApiResult.failure(
+          const ApiFailure(
+            type: ApiFailureType.parsing,
+            message: 'Unexpected month index response',
+          ),
+        );
+      }
+      final map = Map<String, dynamic>.from(response);
+      final contract = ApiResponseContract.parse(
+        map,
+        failureMessage: 'Failed to load month index',
+      );
+      if (contract.isFailure) {
+        return ApiResult.failure(
+          ApiFailure(
+            type: ApiFailureType.invalidRequest,
+            message: contract.message,
+            code: contract.code,
+          ),
+        );
+      }
+      return ApiResult.success(TripReportMonthResponse.fromJson(map));
     } catch (e) {
       return ApiResult.failure(ApiExceptionHandler.handle(e));
     }

@@ -135,3 +135,10 @@ UI-only navigation from dashboard does not bypass providers for CRUD screens (th
 - **Driver:** home banner when morning/return is still open past expected end (12:00 / 00:00 Asia/Kolkata) or odometer start exists without complete. Uses existing `get_d2d_log_status`, return batch status, and odometer APIs only.
 - **Not in this pass:** FCM, edit_record UI, report filter chips.
 
+## Trip report month index + day filters (Step 2b)
+
+- **Month strip:** `GET /d2d/trip_report/month/?year=&month=&admin_code=` — light day flags (incomplete / auto_closed / edited dots).
+- **Day detail:** unchanged `GET /d2d/trip_report/?date=` (load once when day selected).
+- **Filter chips:** incomplete / auto_closed / edited — **client-side only** on the loaded day; do not refetch month or day when toggling chips.
+- Roles: Admin / Supervisor. Web + mobile same Flutter UI.
+

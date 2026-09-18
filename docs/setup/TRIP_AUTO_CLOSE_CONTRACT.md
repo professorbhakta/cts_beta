@@ -131,3 +131,8 @@ Response:
 | Auth image widget | `lib/widgets/authenticated_network_image.dart` |
 | Route | `RouteName.tripReportScreen` |
 | Gate | `AdminService.tripReport` (ADMIN / SUPER_ADMIN / SUPERVISOR) |
+
+## Month index (Step 2b)
+
+`GET /d2d/trip_report/month/?year=YYYY&month=M&admin_code=` — see cts-docker `django/d2d_log/TRIP_REPORT_MONTH_INDEX.md` (professor-dock `@0f63911`). FE filters chips on day detail client-side only.
+

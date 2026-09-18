@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:cts/appManager/view_state.dart';
+import 'package:cts/features/trip_report/helpers/trip_report_day_filters.dart';
 import 'package:cts/features/trip_report/models/trip_report_models.dart';
+import 'package:cts/features/trip_report/models/trip_report_month_models.dart';
 import 'package:cts/features/trip_report/repositories/trip_report_repository.dart';
 import 'package:flutter/foundation.dart';
 
@@ -23,22 +26,90 @@ class TripReportProvider with ChangeNotifier {
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
 
+  int _viewYear = DateTime.now().year;
+  int get viewYear => _viewYear;
+  int _viewMonth = DateTime.now().month;
+  int get viewMonth => _viewMonth;
+
+  ViewState _monthState = ViewState.idle;
+  ViewState get monthState => _monthState;
+  String? _monthError;
+  String? get monthError => _monthError;
+  TripReportMonthResponse? _month;
+  TripReportMonthResponse? get month => _month;
+  List<TripReportMonthDay> get monthDays => _month?.days ?? const [];
+
+  final Set<TripReportDayFilter> _dayFilters = {};
+  Set<TripReportDayFilter> get dayFilters => Set.unmodifiable(_dayFilters);
+
   TripReportResponse? _report;
   TripReportResponse? get report => _report;
   List<TripReportBatchItem> get items => _report?.items ?? const [];
+  List<TripReportBatchItem> get visibleItems =>
+      filterTripReportItems(items, _dayFilters);
 
   static String formatDate(DateTime d) {
     final y = d.year.toString().padLeft(4, '0');
     final m = d.month.toString().padLeft(2, '0');
     final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
+    return '${y}-${m}-${day}';
   }
 
   String get selectedDateIso => formatDate(_selectedDate);
 
+  Future<void> bootstrap() async {
+    final now = DateTime.now();
+    _viewYear = now.year;
+    _viewMonth = now.month;
+    await Future.wait([loadMonth(), load(date: now)]);
+  }
+
+  Future<void> loadMonth({int? year, int? month}) async {
+    if (year != null) _viewYear = year;
+    if (month != null) _viewMonth = month;
+    _monthState = ViewState.loading;
+    _monthError = null;
+    notifyListeners();
+
+    final result = await _repository.fetchMonth(
+      year: _viewYear,
+      month: _viewMonth,
+    );
+    if (result.isSuccess) {
+      _month = result.data;
+      _monthState = ViewState.success;
+      _monthError = null;
+    } else {
+      _monthState = ViewState.error;
+      _monthError = result.failure?.message ?? 'Failed to load month';
+    }
+    notifyListeners();
+  }
+
+  Future<void> shiftMonth(int delta) async {
+    var y = _viewYear;
+    var m = _viewMonth + delta;
+    while (m < 1) {
+      m += 12;
+      y -= 1;
+    }
+    while (m > 12) {
+      m -= 12;
+      y += 1;
+    }
+    await loadMonth(year: y, month: m);
+  }
+
   Future<void> load({DateTime? date}) async {
     if (date != null) {
       _selectedDate = DateTime(date.year, date.month, date.day);
+      // Keep month strip aligned when picking a day in another month.
+      if (_selectedDate.year != _viewYear ||
+          _selectedDate.month != _viewMonth) {
+        _viewYear = _selectedDate.year;
+        _viewMonth = _selectedDate.month;
+        unawaited(loadMonth(year: _viewYear, month: _viewMonth));
+      }
     }
     _state = ViewState.loading;
     _errorMessage = null;
@@ -57,6 +128,21 @@ class TripReportProvider with ChangeNotifier {
   }
 
   Future<void> setDate(DateTime date) => load(date: date);
+
+  void toggleDayFilter(TripReportDayFilter filter) {
+    if (_dayFilters.contains(filter)) {
+      _dayFilters.remove(filter);
+    } else {
+      _dayFilters.add(filter);
+    }
+    notifyListeners();
+  }
+
+  void clearDayFilters() {
+    if (_dayFilters.isEmpty) return;
+    _dayFilters.clear();
+    notifyListeners();
+  }
 
   Future<bool> editEndKm({
     required String batchId,

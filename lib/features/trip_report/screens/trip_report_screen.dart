@@ -3,6 +3,7 @@ import 'package:cts/features/trip_report/helpers/trip_report_photo_url.dart';
 import 'package:cts/features/trip_report/helpers/trip_report_review.dart';
 import 'package:cts/widgets/trip_review_banner.dart';
 import 'package:cts/features/trip_report/models/trip_report_models.dart';
+import 'package:cts/features/trip_report/models/trip_report_month_models.dart';
 import 'package:cts/features/trip_report/providers/trip_report_provider.dart';
 import 'package:cts/theme/cts_colors.dart';
 import 'package:cts/widgets/authenticated_network_image.dart';
@@ -27,7 +28,7 @@ class _TripReportScreenState extends State<TripReportScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TripReportProvider>().load();
+      context.read<TripReportProvider>().bootstrap();
     });
   }
 
@@ -82,29 +83,30 @@ class _TripReportBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cts = context.cts;
-    final items = provider.items;
+    final items = provider.visibleItems;
+    final allItems = provider.items;
 
-    if (provider.state == ViewState.loading && items.isEmpty) {
+    if (provider.state == ViewState.loading && allItems.isEmpty) {
       return const LoadingIndicator(height: 280);
     }
 
-    if (provider.state == ViewState.error && items.isEmpty) {
+    if (provider.state == ViewState.error && allItems.isEmpty) {
       return StatusMessage(
         icon: Icons.error_outline,
         title: 'Unable to load trip report',
         message: provider.errorMessage ??
             'Please pull to refresh or try again later.',
         color: theme.colorScheme.error,
-        onRetry: () => provider.load(),
+        onRetry: () => provider.bootstrap(),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () => provider.load(),
+      onRefresh: () => provider.bootstrap(),
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        itemCount: items.isEmpty ? 3 : items.length + 2,
+        itemCount: items.isEmpty ? 4 : items.length + 3,
         separatorBuilder: (_, index) =>
             SizedBox(height: index == 0 ? 12 : 10),
         itemBuilder: (context, index) {
@@ -112,15 +114,20 @@ class _TripReportBody extends StatelessWidget {
             return const CatalogPageTitle(title: 'Daily Trip Report');
           }
           if (index == 1) {
+            return _MonthStrip(provider: provider);
+          }
+          if (index == 2) {
             final needsReview = tripReportNeedsEndKmReview(provider.report);
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _DateBar(
                   dateIso: provider.selectedDateIso,
-                  count: provider.report?.count ?? items.length,
+                  count: provider.report?.count ?? allItems.length,
                   onPick: onPickDate,
                 ),
+                const SizedBox(height: 10),
+                _DayFilterChips(provider: provider),
                 if (needsReview) ...[
                   const SizedBox(height: 12),
                   const TripReviewBanner(
@@ -134,13 +141,19 @@ class _TripReportBody extends StatelessWidget {
           if (items.isEmpty) {
             return StatusMessage(
               icon: Icons.info_outline,
-              title: 'No trips for this day',
-              message: 'Pick another date or pull to refresh.',
+              title: allItems.isEmpty
+                  ? 'No trips for this day'
+                  : 'No trips match filters',
+              message: allItems.isEmpty
+                  ? 'Pick another day in the month strip or pull to refresh.'
+                  : 'Clear filter chips to see all batches for this day.',
               color: cts.navy,
-              onRetry: () => provider.load(),
+              onRetry: allItems.isEmpty
+                  ? () => provider.load()
+                  : () => provider.clearDayFilters(),
             );
           }
-          final item = items[index - 2];
+          final item = items[index - 3];
           return _BatchTripCard(
             item: item,
             onEdit: (leg, currentEndKm) => _showEditDialog(
@@ -749,5 +762,232 @@ class _CloseKindChip extends StatelessWidget {
       case TripCloseKind.autoClosed:
         return (cts.yellowWarm.withValues(alpha: 0.35), cts.navy);
     }
+  }
+}
+
+
+class _MonthStrip extends StatelessWidget {
+  const _MonthStrip({required this.provider});
+
+  final TripReportProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final label = '${_monthName(provider.viewMonth)} ${provider.viewYear}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            IconButton(
+              tooltip: 'Previous month',
+              onPressed: () => provider.shiftMonth(-1),
+              icon: Icon(Icons.chevron_left, color: cts.navy),
+            ),
+            Expanded(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: cts.navy,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Next month',
+              onPressed: () => provider.shiftMonth(1),
+              icon: Icon(Icons.chevron_right, color: cts.navy),
+            ),
+          ],
+        ),
+        if (provider.monthState == ViewState.loading &&
+            provider.monthDays.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: LinearProgressIndicator(minHeight: 2),
+          )
+        else if (provider.monthState == ViewState.error)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              provider.monthError ?? 'Month index unavailable',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 72,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: provider.monthDays.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              itemBuilder: (context, i) {
+                final day = provider.monthDays[i];
+                final selected = day.date == provider.selectedDateIso;
+                return _MonthDayChip(
+                  day: day,
+                  selected: selected,
+                  onTap: () {
+                    final parts = day.date.split('-');
+                    if (parts.length != 3) return;
+                    final y = int.tryParse(parts[0]);
+                    final m = int.tryParse(parts[1]);
+                    final d = int.tryParse(parts[2]);
+                    if (y == null || m == null || d == null) return;
+                    provider.setDate(DateTime(y, m, d));
+                  },
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  static String _monthName(int month) {
+    const names = [
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    if (month < 1 || month > 12) return '';
+    return names[month];
+  }
+}
+
+class _MonthDayChip extends StatelessWidget {
+  const _MonthDayChip({
+    required this.day,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final TripReportMonthDay day;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cts = context.cts;
+    final dayNum = day.date.length >= 10 ? day.date.substring(8, 10) : day.date;
+    final border = selected
+        ? cts.navy
+        : cts.navy.withValues(alpha: day.hasTrip ? 0.35 : 0.12);
+    final bg = selected
+        ? cts.yellowSoft
+        : theme.scaffoldBackgroundColor;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: 48,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: border),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              dayNum,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: cts.navy,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (day.anyIncomplete)
+                  _Dot(color: cts.navy),
+                if (day.anyAutoClosed)
+                  _Dot(color: cts.yellowWarm),
+                if (day.anyEdited)
+                  _Dot(color: theme.colorScheme.primary),
+                if (!day.hasFlag && day.hasTrip)
+                  _Dot(color: cts.navy.withValues(alpha: 0.25)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Dot extends StatelessWidget {
+  const _Dot({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 5,
+      height: 5,
+      margin: const EdgeInsets.symmetric(horizontal: 1),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+}
+
+class _DayFilterChips extends StatelessWidget {
+  const _DayFilterChips({required this.provider});
+
+  final TripReportProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    final cts = context.cts;
+    Widget chip(TripReportDayFilter filter, String label) {
+      final selected = provider.dayFilters.contains(filter);
+      return FilterChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => provider.toggleDayFilter(filter),
+        selectedColor: cts.yellowSoft,
+        checkmarkColor: cts.navy,
+        labelStyle: TextStyle(
+          color: cts.navy,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        chip(TripReportDayFilter.incomplete, 'Incomplete'),
+        chip(TripReportDayFilter.autoClosed, 'Auto-closed'),
+        chip(TripReportDayFilter.edited, 'Edited'),
+        if (provider.dayFilters.isNotEmpty)
+          TextButton(
+            onPressed: provider.clearDayFilters,
+            child: const Text('Clear'),
+          ),
+      ],
+    );
   }
 }
