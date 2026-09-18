@@ -20,6 +20,7 @@ import 'package:cts/widgets/quick_action_button.dart';
 import 'package:cts/widgets/status_message.dart';
 import 'package:cts/widgets/trip_review_banner.dart';
 import 'package:cts/features/trip_report/providers/trip_review_alert_provider.dart';
+import 'package:cts/features/trip_report/providers/trip_report_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -116,6 +117,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               },
             ),
             _buildGreetingSection(context),
+            if (allowed.contains(AdminService.tripReport)) ...[
+              const SizedBox(height: 28),
+              _buildAttentionInboxSection(context),
+            ],
             if (showRunning) ...[
               const SizedBox(height: 28),
               _buildRunningBatchesSection(context, provider, allowed),
@@ -562,9 +567,20 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                   },
                 ),
               if (allowed.contains(AdminService.tripReport))
-                QuickActionButton(
-                  label: 'Trip Report',
-                  onTap: () => context.push(RouteName.tripReportScreen),
+                Consumer<TripReviewAlertProvider>(
+                  builder: (context, alert, _) {
+                    final btn = QuickActionButton(
+                      label: alert.badgeCount > 0
+                          ? 'Trip Report (${alert.badgeCount})'
+                          : 'Trip Report',
+                      onTap: () => context.push(RouteName.tripReportScreen),
+                    );
+                    if (alert.badgeCount <= 0) return btn;
+                    return Badge(
+                      label: Text('${alert.badgeCount}'),
+                      child: btn,
+                    );
+                  },
                 ),
             ];
 

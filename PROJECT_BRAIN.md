@@ -23,6 +23,7 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 ## 1b. Live FE work
 
 - Daily trip report + edit end_km + odometer photo thumbs (prefer A; silent B) + **boarded[]** + enrichment: `lib/features/trip_report/`. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md). Dock tip: `934fb02`.
+- **Step 4 attention inbox:** Admin/Supervisor home list + badge from month index flags (incomplete/auto_closed/edited) for current+previous month; tap opens trip report for that day. No FCM.
 - **Step 3 Driver nudges (Path A, no FCM):** next-day alert pop + notification icon if yesterday morning/return incomplete or auto_closed (odometer `?date=` + flags/heuristics); RETURN LIST nudges if morning still open.
 - **Step 2b month index + day filter chips:** `GET /d2d/trip_report/month/` + client-side incomplete/auto_closed/edited filters on day detail (no refetch on chip toggle). BE tip professor-dock `@0f63911`.
 - **Path A in-app banners (no FCM):** Admin/Supervisor home + trip report banner when incomplete/auto_closed; Driver home banner from get_d2d_log_status / return status / odometer (past expected end or incomplete odo). Helpers: `trip_report_review.dart`, `driver_trip_banner.dart`.

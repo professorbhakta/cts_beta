@@ -147,3 +147,9 @@ UI-only navigation from dashboard does not bypass providers for CRUD screens (th
 - **Next day open:** if yesterday morning and/or return is incomplete or auto_closed, show alert dialog once + notification icon on Driver home. Uses `GET /d2d/odometer/<batch>/?date=YYYY-MM-DD` (wire `incomplete` / `auto_closed` when present; else start-without-complete or equal start/end km heuristic).
 - **Start return while morning open:** RETURN LIST shows a nudge if morning `get_d2d_log_status` is active or morning odometer started but not complete.
 
+## Attention inbox (Step 4 — no FCM)
+
+- **Fed by:** `GET /d2d/trip_report/month/` for the current and previous month (client-side). Days with `any_incomplete` / `any_auto_closed` / `any_edited` become inbox rows.
+- **UI:** Admin/Supervisor home “Needs review” list + badge count on Trip Report quick action. Tap a row → load that date in Trip Report.
+- **Path A banner:** still shows when **today** is incomplete or auto_closed.
+
