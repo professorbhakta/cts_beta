@@ -13,13 +13,16 @@ enum AdminService {
   d2d,
   commuter,
   tripReport,
+  /// System Admin (`SUPER_ADMIN`) only — edit audit history.
+  editHistory,
 }
 
 /// Phase A capability helpers for ADMIN (full) vs SUPERVISOR (allow-list).
 class AdminCapabilities {
   AdminCapabilities._();
 
-  /// Full admin catalog — every management service.
+  /// Full admin catalog — every management service (org day tools).
+  /// Does **not** include [editHistory] (System Admin only).
   static const Set<AdminService> all = {
     AdminService.batch,
     AdminService.cab,
@@ -46,8 +49,9 @@ class AdminCapabilities {
 
   static Set<AdminService> forRole(String? userType) {
     switch (userType) {
-      case 'ADMIN':
       case 'SUPER_ADMIN':
+        return {...all, AdminService.editHistory};
+      case 'ADMIN':
         return all;
       case 'SUPERVISOR':
         return supervisorAllowList;
@@ -125,6 +129,9 @@ class AdminCapabilities {
     AdminService.tripReport: {
       RouteName.tripReportScreen,
     },
+    AdminService.editHistory: {
+      RouteName.editHistoryScreen,
+    },
   };
 }
 
@@ -189,6 +196,12 @@ class AdminServiceCatalog {
       title: 'Trip Report',
       route: RouteName.tripReportScreen,
       icon: Icons.assignment_outlined,
+    ),
+    AdminServiceNavItem(
+      service: AdminService.editHistory,
+      title: 'Edit History',
+      route: RouteName.editHistoryScreen,
+      icon: Icons.history,
     ),
   ];
 

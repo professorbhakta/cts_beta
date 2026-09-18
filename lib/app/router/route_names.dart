@@ -55,6 +55,9 @@ class RouteName {
   /// Daily trip report (ADMIN / SUPER_ADMIN / SUPERVISOR).
   static const String tripReportScreen = '/tripReportScreen';
 
+  /// System Admin edit audit history (`SUPER_ADMIN` only).
+  static const String editHistoryScreen = '/editHistoryScreen';
+
   /// Public routes (no login required).
   static const Set<String> public = {
     splashScreen,
@@ -90,6 +93,7 @@ class RouteName {
     commuterForm,
     d2dChannel,
     tripReportScreen,
+    editHistoryScreen,
   };
 
   /// Driver role home + driver D2D log + return list + return boarding QR show.

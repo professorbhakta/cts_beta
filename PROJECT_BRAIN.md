@@ -1,11 +1,12 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-18 16:00 IST
-> **Session:** Step 5 return live WS subscribe
+> **Updated:** 2026-09-19 03:15 IST
+> **Session:** Step 6 land (System Admin history)
 
-### Session 2026-09-18 (F&D) — Step 5 return live WS
-- FE subscribe: ws/return/<batchId>/ (not morning ws/<batchId>/); JWT Bearer same as morning.
-- Fan-out only; board/unboard stays REST. Tear down on is_active false or event=ended.
-- Wire: ReturnBatchProvider.connectReturnLive + ReturnCommuterListScreen pop on end.
+### Session 2026-09-19 — Step 6 System Admin edit history
+- Was WIP only: tip still ADMIN|SUPERVISOR list; FE `edit_history` untracked. Now landed day lanes.
+- BE: `GET /d2d/edit_record/` → **SUPER_ADMIN** only; `previous_end_km` in trip_odometer summary; tests OK.
+- FE: Edit History screen + drawer for SUPER_ADMIN; org Admin/Supervisor no menu; unit tests OK.
+- Next: Step 7 Commuter boarding history when green-flagged; human smoke; brand assets still local separate.
 
 
 # PROJECT_BRAIN — CTS Flutter
@@ -194,7 +195,7 @@ Screens → Provider → Repository → API (REST / WebSocket)
 | **POP** | Point of pickup — commuter boarding location |
 | **Batch** | Scheduled route run (morning or evening) with assigned driver/cab |
 | **isComing** | Commuter flagged as riding today (queue eligibility; not return intent) |
-| **Return batch** | Evening REST-only trip — confirm/remove commuters, end trip |
+| **Return batch** | Evening return trip — REST board/unboard; live fan-out `ws/return/<id>/` |
 | **returnTripLogId** | Dart name for wire `return_trip_id` (ReturnTripLog PK / RCList row) |
 | **tripLeg** | Dart name for wire `trip` (`morning` \| `return`) |
 | **SUPER_ADMIN** | Full mobile admin shell; web org portal = Django `/void/` |
@@ -205,9 +206,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-17 ~22:30 | BE EditRecord audit | cts-docker PR **#8** → `professor-dock`; model `EditRecord` / table `edit_record`; middleware `d2d_log.middleware.EditRecordAuditMiddleware`; next = Dock merge + migrate + restart + ping F&D |
-| 2026-09-16 ~09:50 | Logout + Remember me | Drawer one-tap logout (capture router before pop; local-first clear); Remember me checkbox + secure store; 3 tests PASS; uncommitted |
-| 2026-09-16 ~09:10 | Push day lanes | FE `professor-cts` **24ea7b6**; BE `professor-dock` **66c89e9** (`batchId`); next = restart dock + human smoke |
+| 2026-09-19 ~03:15 | Step 6 land | SUPER_ADMIN `edit_record` list + FE Edit History — day lanes; next Step 7 |
+| 2026-09-19 ~02:55 | Step 5 VERIFY | BE **56bd426** / FE **924fb7a** — return live WS PASS |
+| 2026-09-19 ~03:05 | Recovery audit | Tips matched; Step 6 was WIP — now closed |
 
 ---
 

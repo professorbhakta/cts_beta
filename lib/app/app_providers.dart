@@ -57,6 +57,9 @@ import 'package:cts/features/trip_report/providers/trip_report_provider.dart';
 import 'package:cts/features/trip_report/providers/trip_review_alert_provider.dart';
 import 'package:cts/features/trip_report/repositories/trip_report_repository.dart';
 import 'package:cts/features/trip_report/repositories/trip_report_repository_impl.dart';
+import 'package:cts/features/edit_history/providers/edit_history_provider.dart';
+import 'package:cts/features/edit_history/repositories/edit_history_repository.dart';
+import 'package:cts/features/edit_history/repositories/edit_history_repository_impl.dart';
 import 'package:cts/features/profile/providers/profile_provider.dart';
 import 'package:cts/features/splash/providers/splash_provider.dart';
 import 'package:provider/provider.dart';
@@ -144,6 +147,11 @@ class AppProviders {
       ),
       Provider<TripReportRepository>(
         create: (context) => TripReportRepositoryImpl(
+          apiService: context.read<BaseApiServices>(),
+        ),
+      ),
+      Provider<EditHistoryRepository>(
+        create: (context) => EditHistoryRepositoryImpl(
           apiService: context.read<BaseApiServices>(),
         ),
       ),
@@ -240,6 +248,11 @@ class AppProviders {
       ChangeNotifierProvider(
         create: (context) => TripReportProvider(
           context.read<TripReportRepository>(),
+        ),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => EditHistoryProvider(
+          context.read<EditHistoryRepository>(),
         ),
       ),
     ];

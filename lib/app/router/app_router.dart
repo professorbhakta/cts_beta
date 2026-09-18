@@ -10,6 +10,7 @@ import 'package:cts/features/profile/screens/profile_screen.dart';
 import 'package:cts/features/splash/screens/splash_screen.dart';
 import 'package:cts/features/admin_home/screens/admin_home_screen.dart';
 import 'package:cts/features/trip_report/screens/trip_report_screen.dart';
+import 'package:cts/features/edit_history/screens/edit_history_screen.dart';
 import 'package:cts/features/cabs/forms/cab_form.dart';
 import 'package:cts/features/cabs/screens/cab_screen.dart';
 import 'package:cts/features/pops/forms/pop_form.dart';
@@ -81,6 +82,10 @@ GoRouter createAppRouter({
       GoRoute(
         path: RouteName.tripReportScreen,
         builder: (context, state) => const TripReportScreen(),
+      ),
+      GoRoute(
+        path: RouteName.editHistoryScreen,
+        builder: (context, state) => const EditHistoryScreen(),
       ),
       GoRoute(
         path: RouteName.driverHomeScreen,

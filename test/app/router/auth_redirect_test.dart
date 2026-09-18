@@ -99,7 +99,11 @@ void main() {
         ),
         RouteName.adminHomeScreen,
       );
-      expect(AdminCapabilities.forRole('SUPER_ADMIN'), AdminCapabilities.all);
+      expect(AdminCapabilities.forRole('SUPER_ADMIN'), containsAll(AdminCapabilities.all));
+      expect(
+        AdminCapabilities.forRole('SUPER_ADMIN'),
+        contains(AdminService.editHistory),
+      );
     });
 
     test('supervisor lands on admin home from signIn', () {
@@ -141,6 +145,36 @@ void main() {
           userType: 'SUPERVISOR',
         ),
         isNull,
+      );
+    });
+
+    test('edit history is SUPER_ADMIN only', () {
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.editHistoryScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPER_ADMIN',
+        ),
+        isNull,
+      );
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.editHistoryScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'ADMIN',
+        ),
+        RouteName.adminHomeScreen,
+      );
+      expect(
+        resolveAuthRedirect(
+          location: RouteName.editHistoryScreen,
+          authReady: true,
+          loggedIn: true,
+          userType: 'SUPERVISOR',
+        ),
+        RouteName.adminHomeScreen,
       );
     });
 

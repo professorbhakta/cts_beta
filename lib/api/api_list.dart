@@ -82,4 +82,7 @@ class ApiUrl {
   static const String tripReportMonthUrl = 'd2d/trip_report/month/';
   static const String tripReportEditEndKmUrl = 'd2d/trip_report/edit_end_km/';
 
+  /// System Admin (`SUPER_ADMIN`) edit audit list — not org Admin/Supervisor.
+  static const String editRecordUrl = 'd2d/edit_record/';
+
 }

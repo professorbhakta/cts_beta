@@ -19,8 +19,11 @@ Wire contract (snake_case): [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRI
 | `GET /d2d/trip_report/?date=&admin_code=` | `ApiUrl.tripReportUrl` | ADMIN / SUPERVISOR (+ SUPER_ADMIN shell). Legs + close_kind + photo A URLs + `boarded[]` + enrichment (`name`/`mobile`/`boarded_count`/`driver_*`) live on tip `934fb02` |
 | `PATCH`/`POST /d2d/trip_report/edit_end_km/` | `ApiUrl.tripReportEditEndKmUrl` | Body `{batch_id, leg, end_km, date?}`. FE uses PATCH |
 | `GET /d2d/odometer/photo/<batch>/<leg>/<kind>/` | `ApiUrl.odometerPhoto` | Silent **B** when A is null (older-lab); Bearer auth |
+| `GET /d2d/edit_record/?date=&user_id=&path=&limit=` | `ApiUrl.editRecordUrl` | **SUPER_ADMIN only** (System Admin history). Org ADMIN/SUPERVISOR → 403. See Dock `EDIT_RECORD.md` |
 
 Lab smoke BE tip for **photos + boarded + enrichment**: `professor-dock` @ `934fb02`. Feature module: `lib/features/trip_report/`. Prefer A when non-null; else silent B. See [TRIP_AUTO_CLOSE_CONTRACT.md](./setup/TRIP_AUTO_CLOSE_CONTRACT.md).
+
+System Admin history: `lib/features/edit_history/` — records screen only (no QR).
 
 
 ### Client truth contract (P1)

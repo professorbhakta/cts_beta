@@ -691,6 +691,11 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     );
                   },
                 ),
+              if (allowed.contains(AdminService.editHistory))
+                QuickActionButton(
+                  label: 'Edit History',
+                  onTap: () => context.push(RouteName.editHistoryScreen),
+                ),
             ];
 
             if (actions.isEmpty) {

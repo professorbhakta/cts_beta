@@ -4,6 +4,37 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AdminCapabilities', () {
+    test('SUPER_ADMIN gets catalog plus edit history', () {
+      final allowed = AdminCapabilities.forRole('SUPER_ADMIN');
+      expect(allowed, containsAll(AdminCapabilities.all));
+      expect(allowed, contains(AdminService.editHistory));
+      expect(
+        AdminCapabilities.forRole('ADMIN'),
+        isNot(contains(AdminService.editHistory)),
+      );
+      expect(
+        AdminCapabilities.canAccessAdminLocation(
+          'SUPER_ADMIN',
+          RouteName.editHistoryScreen,
+        ),
+        isTrue,
+      );
+      expect(
+        AdminCapabilities.canAccessAdminLocation(
+          'ADMIN',
+          RouteName.editHistoryScreen,
+        ),
+        isFalse,
+      );
+      expect(
+        AdminCapabilities.canAccessAdminLocation(
+          'SUPERVISOR',
+          RouteName.editHistoryScreen,
+        ),
+        isFalse,
+      );
+    });
+
     test('ADMIN gets full catalog', () {
       expect(
         AdminCapabilities.forRole('ADMIN'),
@@ -63,6 +94,10 @@ void main() {
       expect(
         AdminCapabilities.serviceForLocation(RouteName.tripReportScreen),
         AdminService.tripReport,
+      );
+      expect(
+        AdminCapabilities.serviceForLocation(RouteName.editHistoryScreen),
+        AdminService.editHistory,
       );
     });
 
