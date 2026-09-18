@@ -1,12 +1,13 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-19 03:15 IST
-> **Session:** Step 6 land (System Admin history)
+> **Updated:** 2026-09-19 03:20 IST
+> **Session:** Step 6 System Admin edit history
 
 ### Session 2026-09-19 — Step 6 System Admin edit history
-- Was WIP only: tip still ADMIN|SUPERVISOR list; FE `edit_history` untracked. Now landed day lanes.
-- BE: `GET /d2d/edit_record/` → **SUPER_ADMIN** only; `previous_end_km` in trip_odometer summary; tests OK.
-- FE: Edit History screen + drawer for SUPER_ADMIN; org Admin/Supervisor no menu; unit tests OK.
-- Next: Step 7 Commuter boarding history when green-flagged; human smoke; brand assets still local separate.
+- Tips after push: BE `professor-dock` + FE `professor-cts` (this session).
+- BE: `GET /d2d/edit_record/` → **SUPER_ADMIN** only; trip_odometer `previous_end_km`→`end_km`; 9 tests OK.
+- FE: `lib/features/edit_history/` screen + drawer/quick action for SUPER_ADMIN only; org Admin/Supervisor keep report+edit.
+- Lab: login `9000000000` / `password` → Edit History; Admin `7069036462` must not see tile / gets 403 on API.
+- Next: Step 7 Commuter boarding history when green-flagged; no VPS/main.
 
 
 # PROJECT_BRAIN — CTS Flutter

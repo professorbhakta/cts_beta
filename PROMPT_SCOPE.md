@@ -1,6 +1,6 @@
 > **Doc:** PROMPT_SCOPE.md
-> **Updated:** 2026-09-19 03:15 IST
-> **Session:** Step 6 land (System Admin history)
+> **Updated:** 2026-09-19 03:20 IST
+> **Session:** Step 6 System Admin edit history
 
 # PROMPT SCOPE — CTS
 
@@ -59,16 +59,16 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | # | Check | Pass? | Note |
 |---|--------|-------|------|
-| P1 | Goal clear? | yes | Finish + land Step 6 System Admin edit history |
+| P1 | Goal clear? | yes | Step 6 System Admin edit history shipped |
 | P2 | Role / surface? | yes | SUPER_ADMIN history; org Admin keeps edit only |
 | P3 | Non-negotiables? | yes | professor-dock / professor-cts; no VPS/main |
-| P4 | Both ends? | yes | BE list gate + FE edit_history |
+| P4 | Both ends? | yes | BE tip + FE tip this session |
 | P5 | R10 isComing? | n/a | |
 | P6 | Git branch? | yes | day lanes only |
-| P7 | Docs policy? | yes | EDIT_RECORD + LAYERS + API_CONTRACTS |
-| P8 | Out of scope? | yes | No Step 7/FCM; no brand in this commit |
+| P7 | Docs policy? | yes | EDIT_RECORD + LAYERS + RESPOND line + API_CONTRACTS |
+| P8 | Out of scope? | yes | No Step 7/FCM/VPS; brand assets not in this commit |
 
-**This prompt:** Step 6 was WIP — verify, land BE+FE, report.
+**This prompt:** Step 6 BE gate + FE history screen; lab smoke path; report A–E.
 
 **Gate (locked):** Device smoke stays human post-push.
 
@@ -118,7 +118,7 @@ Add for journeys/QA: already in STEP 8 pack via FLOWS.
 
 | When (IST) | Change | Repos |
 |------------|--------|-------|
-| 2026-09-19 03:15 | Step 6 land: SUPER_ADMIN `GET /d2d/edit_record/` + FE Edit History; previous_end_km; tests OK | both |
+| 2026-09-19 03:20 | Step 6: SUPER_ADMIN `GET /d2d/edit_record/` + FE Edit History; previous_end_km; BE 9 + FE router/history tests OK | both |
 | 2026-09-19 03:05 | Full recovery/sync audit: tips already at origin; local `cts-vps` track; brand PNG-embed + Step 6 edit_record still uncommitted; interlocking SVG still on remote tip | both |
 | 2026-09-19 02:55 | Step 5 VERIFY @ BE `56bd426` / FE `924fb7a`: routes+groups+JWT+tests PASS; no hard blockers; docs drift flagged; next Step 6 | both |
 | 2026-09-16 09:10 | Pushed day lanes: FE `professor-cts` **30909b8**; BE `professor-dock` **66c89e9** (`batchId` hydrate) — restart dock then smoke | both |
