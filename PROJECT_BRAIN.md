@@ -3,10 +3,10 @@
 > **Session:** Step 6 System Admin edit history
 
 ### Session 2026-09-19 — Step 6 System Admin edit history
-- Tips after push: BE `professor-dock` + FE `professor-cts` (this session).
-- BE: `GET /d2d/edit_record/` → **SUPER_ADMIN** only; trip_odometer `previous_end_km`→`end_km`; 9 tests OK.
-- FE: `lib/features/edit_history/` screen + drawer/quick action for SUPER_ADMIN only; org Admin/Supervisor keep report+edit.
-- Lab: login `9000000000` / `password` → Edit History; Admin `7069036462` must not see tile / gets 403 on API.
+- Tips: BE `professor-dock` **150f7d5**; FE `professor-cts` **4a4b9ab**.
+- BE: `GET /d2d/edit_record/` → **SUPER_ADMIN** only; trip_odometer `previous_end_km`→`end_km`; 9 tests OK; ASGI restarted.
+- FE: `lib/features/edit_history/` + drawer/quick action SUPER_ADMIN only; org Admin/Supervisor keep report+edit.
+- Lab smoke (human): System Admin `9000000000` → Edit History; org Admin must not see tile / API 403.
 - Next: Step 7 Commuter boarding history when green-flagged; no VPS/main.
 
 
