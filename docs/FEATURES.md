@@ -152,4 +152,4 @@ UI-only navigation from dashboard does not bypass providers for CRUD screens (th
 - **Fed by:** `GET /d2d/trip_report/month/` for the current and previous month (client-side). Days with `any_incomplete` / `any_auto_closed` / `any_edited` become inbox rows.
 - **UI:** Admin/Supervisor home “Needs review” list + badge count on Trip Report quick action. Tap a row → load that date in Trip Report.
 - **Path A banner:** still shows when **today** is incomplete or auto_closed.
-
+- **Return live WS (Step 5):** subscribe ws/return/<batchId>/ with JWT like morning; payload mirrors return batch status + optional event; leave screen when inactive/ended. Board/unboard remain REST.

@@ -1,6 +1,11 @@
 > **Doc:** PROJECT_BRAIN.md
-> **Updated:** 2026-09-18 15:15 IST
-> **Session:** Step 2b month nav + client day filters
+> **Updated:** 2026-09-18 16:00 IST
+> **Session:** Step 5 return live WS subscribe
+
+### Session 2026-09-18 (F&D) — Step 5 return live WS
+- FE subscribe: ws/return/<batchId>/ (not morning ws/<batchId>/); JWT Bearer same as morning.
+- Fan-out only; board/unboard stays REST. Tear down on is_active false or event=ended.
+- Wire: ReturnBatchProvider.connectReturnLive + ReturnCommuterListScreen pop on end.
 
 
 # PROJECT_BRAIN — CTS Flutter

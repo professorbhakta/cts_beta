@@ -54,9 +54,14 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     context.read<ReturnBatchProvider>().beginReturnTripLoad(widget.batchId);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      context.read<ReturnBatchProvider>().loadReturnTrip(widget.batchId);
+      final provider = context.read<ReturnBatchProvider>();
+      await provider.loadReturnTrip(widget.batchId);
+      if (!mounted) return;
+      if (provider.state == ViewState.success) {
+        provider.connectReturnLive(widget.batchId);
+      }
     });
   }
 
@@ -74,6 +79,15 @@ class _ReturnCommuterListScreenState extends State<ReturnCommuterListScreen>
   void _onReturnProviderChanged() {
     if (!mounted) return;
     _beepNewConfirmed();
+    final provider = _returnProvider;
+    if (provider == null || !provider.liveEnded) return;
+    provider.acknowledgeLiveEnded();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Return trip ended')),
+    );
+    if (context.canPop()) {
+      context.pop();
+    }
   }
 
   bool _isOtherBatch(CommuterModel c) {

@@ -6,7 +6,16 @@ import 'package:cts/features/batches/models/return_available_model.dart';
 import 'package:cts/features/batches/models/return_batch_status_model.dart';
 import 'package:cts/features/batches/repositories/return_batch_repository.dart';
 import 'package:cts/features/commuters/models/commuter_model.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:cts/appManager/app_class.dart';
+import 'package:cts/appManager/session_manager.dart';
+import 'package:cts/features/batches/helpers/return_live_ws.dart';
 import 'package:flutter/foundation.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ReturnBatchProvider with ChangeNotifier {
   ReturnBatchProvider(
@@ -58,6 +67,18 @@ class ReturnBatchProvider with ChangeNotifier {
   bool get actionInProgress => _actionInProgress;
 
   int _loadGeneration = 0;
+
+  WebSocketChannel? _liveChannel;
+  StreamSubscription? _liveSubscription;
+  int _liveGeneration = 0;
+  bool _liveConnected = false;
+  bool _liveEnded = false;
+  String? _liveBatchId;
+  String? _lastLiveEvent;
+
+  bool get liveConnected => _liveConnected;
+  bool get liveEnded => _liveEnded;
+  String? get lastLiveEvent => _lastLiveEvent;
 
   bool get hasTripData =>
       _homeCommuters.isNotEmpty ||
@@ -267,6 +288,7 @@ class ReturnBatchProvider with ChangeNotifier {
   }
 
   void clearActiveBatch() {
+    disconnectReturnLive();
     _loadGeneration++;
     _activeBatchId = null;
     _clearTripLists();
@@ -277,6 +299,7 @@ class ReturnBatchProvider with ChangeNotifier {
 
   /// Full reset for logout — clears picker status cache too.
   void reset() {
+    disconnectReturnLive();
     _loadGeneration++;
     _activeBatchId = null;
     _clearTripLists();
@@ -286,6 +309,140 @@ class ReturnBatchProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
+
+  /// Subscribe to return live fan-out: ws/return/<batchId>/ (JWT Bearer like morning).
+  /// Board/unboard stay REST; this only applies status + optional list refresh.
+  void connectReturnLive(String batchId) {
+    unawaited(_connectReturnLiveGuarded(batchId));
+  }
+
+  Future<void> _connectReturnLiveGuarded(String batchId) async {
+    final id = batchId.trim();
+    if (id.isEmpty) return;
+    disconnectReturnLive(notify: false);
+    _liveBatchId = id;
+    _liveEnded = false;
+    _lastLiveEvent = null;
+    final generation = ++_liveGeneration;
+    await _openReturnLiveSocket(id, generation);
+  }
+
+  Future<void> _openReturnLiveSocket(String batchId, int generation) async {
+    try {
+      final uri = Uri.parse(
+        buildReturnLiveWsUrl(
+          wsBaseUrl: AppConfig.instance.webSocketUrl,
+          batchId: batchId,
+        ),
+      );
+      final access = await SessionManager().getAccessToken();
+      if (generation != _liveGeneration) return;
+
+      if (kDebugMode) {
+        debugPrint('ReturnLive: Connecting $uri');
+      }
+
+      _liveChannel = IOWebSocketChannel.connect(
+        uri,
+        headers: {
+          if (access != null && access.isNotEmpty)
+            HttpHeaders.authorizationHeader: 'Bearer $access',
+        },
+      );
+      _liveConnected = true;
+      notifyListeners();
+
+      _liveSubscription = _liveChannel!.stream.listen(
+        (message) => _handleReturnLiveMessage(message, batchId, generation),
+        onError: (error) {
+          if (generation != _liveGeneration) return;
+          if (kDebugMode) {
+            debugPrint('ReturnLive: error $error');
+          }
+          _liveConnected = false;
+          notifyListeners();
+        },
+        onDone: () {
+          if (generation != _liveGeneration) return;
+          _liveConnected = false;
+          notifyListeners();
+        },
+        cancelOnError: false,
+      );
+    } catch (e, s) {
+      if (kDebugMode) {
+        debugPrint('ReturnLive: open failed $e\n$s');
+      }
+      if (generation == _liveGeneration) {
+        _liveConnected = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  void _handleReturnLiveMessage(
+    dynamic message,
+    String batchId,
+    int generation,
+  ) {
+    if (generation != _liveGeneration) return;
+    try {
+      final decoded = message is String ? jsonDecode(message) : message;
+      final payload = ReturnLiveWsPayload.tryParse(decoded);
+      if (payload == null) {
+        if (kDebugMode) {
+          debugPrint('ReturnLive: ignore unparsed message');
+        }
+        return;
+      }
+
+      _statusByBatchId[batchId] = payload.status;
+      _lastLiveEvent = payload.event;
+      _capacity = ReturnBatchCapacityModel(
+        totalCapacity: payload.status.totalCapacity,
+        remainingCapacity: payload.status.remainingCapacity,
+        confirmedCount: payload.status.confirmedCount,
+        isActive: payload.status.isActive,
+      );
+
+      if (payload.isEnded) {
+        _liveEnded = true;
+        disconnectReturnLive(notify: false);
+        notifyListeners();
+        return;
+      }
+
+      notifyListeners();
+      if (payload.shouldRefreshLists) {
+        unawaited(loadReturnTrip(batchId, keepExistingData: true));
+      }
+    } catch (e, s) {
+      if (kDebugMode) {
+        debugPrint('ReturnLive: handle failed $e\n$s');
+      }
+    }
+  }
+
+  void disconnectReturnLive({bool notify = true}) {
+    _liveGeneration++;
+    _liveSubscription?.cancel();
+    _liveSubscription = null;
+    try {
+      _liveChannel?.sink.close();
+    } catch (_) {}
+    _liveChannel = null;
+    _liveConnected = false;
+    _liveBatchId = null;
+    if (notify) notifyListeners();
+  }
+
+  /// Clears [liveEnded] after the UI has reacted (pop / snackbar).
+  void acknowledgeLiveEnded() {
+    if (!_liveEnded) return;
+    _liveEnded = false;
+    notifyListeners();
+  }
+
 
   void _clearTripLists() {
     _homeCommuters = [];
