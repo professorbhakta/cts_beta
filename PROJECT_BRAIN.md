@@ -2,6 +2,7 @@
 > **Updated:** 2026-09-18 15:15 IST
 > **Session:** Step 2b month nav + client day filters
 
+
 # PROJECT_BRAIN — CTS Flutter
 
 Single entry file for every AI + human chat. Keep under ~250 lines; pointers only — no long specs.
@@ -22,8 +23,10 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 ## 1b. Live FE work
 
 - Daily trip report + edit end_km + odometer photo thumbs (prefer A; silent B) + **boarded[]** + enrichment: `lib/features/trip_report/`. Contract: [docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md](docs/setup/TRIP_AUTO_CLOSE_CONTRACT.md). Dock tip: `934fb02`.
+- **Step 3 Driver nudges (Path A, no FCM):** next-day alert pop + notification icon if yesterday morning/return incomplete or auto_closed (odometer `?date=` + flags/heuristics); RETURN LIST nudges if morning still open.
 - **Step 2b month index + day filter chips:** `GET /d2d/trip_report/month/` + client-side incomplete/auto_closed/edited filters on day detail (no refetch on chip toggle). BE tip professor-dock `@0f63911`.
 - **Path A in-app banners (no FCM):** Admin/Supervisor home + trip report banner when incomplete/auto_closed; Driver home banner from get_d2d_log_status / return status / odometer (past expected end or incomplete odo). Helpers: `trip_report_review.dart`, `driver_trip_banner.dart`.
+
 - **Camera permissions:** never at splash (web no-op; mobile notifications only). Camera only at boarding QR / odometer capture (`boarding_scan_screen`, `odometer_camera_helper`). Trip report uses network images only.
 - D2D cream + other-batch red + board beeps — [lib/features/d2d/README.md](lib/features/d2d/README.md); WS live `batchId` — [API_CONTRACTS](docs/API_CONTRACTS.md).
 
@@ -111,18 +114,17 @@ Single entry file for every AI + human chat. Keep under ~250 lines; pointers onl
 
 ## 5. Current focus
 
-**Session (2026-09-16):** D2D cream + beeps pushed; BE `batchId` hydrate pushed — restart dock before smoke.
+**Session (2026-09-16):** Drawer logout one-tap + Remember me on sign-in (uncommitted).
 
 | Piece | Detail |
 |-------|--------|
-| FE tip | `professor-cts` **30909b8** — cream shared body; FAB-only Add; red + one tone/delta; WS `batchId` parse |
-| BE tip | `professor-dock` **66c89e9** — WS live entries include **`batchId`** — **restart/redeploy dock** for driver red/beeps |
-| Focus | Human device smoke (admin cream, driver no Add, red rows, both-phone beeps) |
-| Docs | [d2d README](lib/features/d2d/README.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) live entry `batchId` |
+| FE tip | `professor-cts` — logout/remember work on dirty tree (prior tip cream/beeps) |
+| Focus | Hot-reload / device check: drawer Logout once → login; Remember me persists after logout |
+| Docs | [ROUTING_AND_AUTH](docs/ROUTING_AND_AUTH.md) logout · RememberMeStore |
 | Keep remotes | `main` · `professor-cts` · `gb-f&d` · `p&gb-merger` · `beta-ver` |
 | Day sync | pull on start / push on stop for professor-cts / professor-dock |
 
-**Next:** Restart BE stack on lab/VPS; human smoke both phones.
+**Next:** Human smoke logout + Remember me; then commit/push when asked.
 
 | Repo | Branch | Tip |
 |------|--------|-----|
@@ -197,9 +199,9 @@ Screens → Provider → Repository → API (REST / WebSocket)
 
 | Date | Session | Outcome |
 |------|---------|---------|
-| 2026-09-15 ~22:35 | D2D cream + audit docs | Cream UI; Driver no Add; red + beeps; WS `batchId` FE+BE; scan beep uses prefs; docs synced |
-| 2026-09-11 ~12:40 | Dock P0 security | JWT WS middleware; GET `/user/` dump closed; return end/add/remove role-gated; SUPER_ADMIN/SUPERVISOR; **20** tests OK |
-| 2026-09-10 ~23:15 | Prune superseded continues | Deleted FE_MATCH / D2D_PHASE3 / LAB_SMOKE_CONTINUE; scrubbed attach lists; kept client_req + inspection + LAB_SMOKE_ISSUES |
+| 2026-09-17 ~22:30 | BE EditRecord audit | cts-docker PR **#8** → `professor-dock`; model `EditRecord` / table `edit_record`; middleware `d2d_log.middleware.EditRecordAuditMiddleware`; next = Dock merge + migrate + restart + ping F&D |
+| 2026-09-16 ~09:50 | Logout + Remember me | Drawer one-tap logout (capture router before pop; local-first clear); Remember me checkbox + secure store; 3 tests PASS; uncommitted |
+| 2026-09-16 ~09:10 | Push day lanes | FE `professor-cts` **24ea7b6**; BE `professor-dock` **66c89e9** (`batchId`); next = restart dock + human smoke |
 
 ---
 

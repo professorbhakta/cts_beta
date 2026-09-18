@@ -15,7 +15,7 @@ Every major feature module: **screens**, **providers**, and **repositories**.
 | Feature folder | Role | Main screens | List provider | Form provider | Repository |
 |----------------|------|--------------|---------------|---------------|--------------|
 | `splash` | All | SplashScreen | SplashProvider | — | via GetInitialRouteUseCase |
-| `auth` | All | SignIn (`/signUp` redirects here) | SignInProvider | — | AuthenticationRepository |
+| `auth` | All | SignIn (`/signUp` redirects here) | SignInProvider (Remember me) | — | AuthenticationRepository + RememberMeStore |
 | `admin_home` | Admin + Supervisor (filtered) | AdminMainScreen | AdminProvider | — | Multiple (counts) |
 | `routes` | Admin | RouteScreen, RouteForm | RouteController | RouteFormProvider | RouteRepository |
 | `pops` | Admin | PopScreen, PopForm | PopProvider | PopFormProvider | PopRepository |
@@ -141,4 +141,9 @@ UI-only navigation from dashboard does not bypass providers for CRUD screens (th
 - **Day detail:** unchanged `GET /d2d/trip_report/?date=` (load once when day selected).
 - **Filter chips:** incomplete / auto_closed / edited — **client-side only** on the loaded day; do not refetch month or day when toggling chips.
 - Roles: Admin / Supervisor. Web + mobile same Flutter UI.
+
+## Driver nudges (Step 3, Path A — no FCM)
+
+- **Next day open:** if yesterday morning and/or return is incomplete or auto_closed, show alert dialog once + notification icon on Driver home. Uses `GET /d2d/odometer/<batch>/?date=YYYY-MM-DD` (wire `incomplete` / `auto_closed` when present; else start-without-complete or equal start/end km heuristic).
+- **Start return while morning open:** RETURN LIST shows a nudge if morning `get_d2d_log_status` is active or morning odometer started but not complete.
 

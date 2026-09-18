@@ -26,9 +26,61 @@ class _DriverHomePageState extends State<DriverHomePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DriverHomeProvider>().fetchDriverProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<DriverHomeProvider>();
+      await provider.fetchDriverProfile();
+      if (!mounted) return;
+      await _maybeShowYesterdayAlert(provider);
     });
+  }
+
+  Future<void> _maybeShowYesterdayAlert(DriverHomeProvider provider) async {
+    final message = provider.pendingAlertMessage;
+    if (message == null || message.isEmpty) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Trip needs attention'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    await provider.markYesterdayAlertShown();
+  }
+
+  Future<void> _onReturnListTap(DriverHomeProvider provider) async {
+    final batchId = provider.driverProfile?.batchId?.id?.toString();
+    if (batchId == null) return;
+    final morningOpen = await provider.morningStillOpen();
+    if (!mounted) return;
+    if (morningOpen) {
+      final go = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Morning trip still open'),
+          content: const Text(
+            'Morning trip is not ended yet. End morning (or set end km) before starting return.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Stay'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Open return anyway'),
+            ),
+          ],
+        ),
+      );
+      if (go != true || !mounted) return;
+    }
+    context.push('${RouteName.driverReturnCommuter}/$batchId');
   }
 
   String _greeting() {
@@ -53,8 +105,11 @@ class _DriverHomePageState extends State<DriverHomePage> {
       drawer: const AppDrawer(),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () =>
-              context.read<DriverHomeProvider>().fetchDriverProfile(),
+          onRefresh: () async {
+            final provider = context.read<DriverHomeProvider>();
+            await provider.fetchDriverProfile();
+            if (mounted) await _maybeShowYesterdayAlert(provider);
+          },
           child: Consumer<DriverHomeProvider>(
             builder: (context, provider, child) {
               return switch (provider.state) {
@@ -131,9 +186,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
             width: double.infinity,
             height: 44,
             child: InkWell(
-              onTap: () => context.push(
-                '${RouteName.driverReturnCommuter}/$batchId',
-              ),
+              onTap: () => _onReturnListTap(provider),
               child: Center(
                 child: Text(
                   'RETURN LIST',
@@ -150,7 +203,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String name) {
+  Widget _buildHeader(BuildContext context, String name, DriverHomeProvider provider) {
     final cts = context.cts;
     final theme = context.theme;
 
@@ -166,6 +219,35 @@ class _DriverHomePageState extends State<DriverHomePage> {
             ),
             const CtsBrandLogo(height: 28),
             const Spacer(),
+            if (provider.showTripAlertIcon)
+              IconButton(
+                tooltip: 'Trip alert',
+                onPressed: () async {
+                  final msg = provider.yesterdayNudge.message ??
+                      'Yesterday trip needs attention.';
+                  await showDialog<void>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Trip needs attention'),
+                      content: Text(msg),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                icon: Badge(
+                  smallSize: 8,
+                  child: Icon(
+                    Icons.notifications_active_outlined,
+                    color: cts.navy,
+                    size: 22,
+                  ),
+                ),
+              ),
             IconButton(
               tooltip: 'Profile',
               onPressed: () => context.push(RouteName.profileScreen),
@@ -221,7 +303,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildHeader(context, driverName),
+                    _buildHeader(context, driverName, provider),
                     if (provider.tripBanner.visible) ...[
                       const SizedBox(height: 16),
                       TripReviewBanner(

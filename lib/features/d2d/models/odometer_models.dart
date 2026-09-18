@@ -28,6 +28,8 @@ class OdometerLegSnapshot {
     this.endRecordedAt,
     this.distanceKm,
     this.complete = false,
+    this.incomplete = false,
+    this.autoClosed = false,
   });
 
   final int? startKm;
@@ -38,6 +40,9 @@ class OdometerLegSnapshot {
   final String? endRecordedAt;
   final int? distanceKm;
   final bool complete;
+  /// Wire flags when BE sends them; otherwise inferred by helpers.
+  final bool incomplete;
+  final bool autoClosed;
 
   factory OdometerLegSnapshot.fromJson(Map<String, dynamic>? json) {
     if (json == null) {
@@ -52,6 +57,8 @@ class OdometerLegSnapshot {
       endRecordedAt: json['end_recorded_at']?.toString(),
       distanceKm: _asInt(json['distance_km']),
       complete: json['complete'] == true,
+      incomplete: json['incomplete'] == true,
+      autoClosed: json['auto_closed'] == true,
     );
   }
 
